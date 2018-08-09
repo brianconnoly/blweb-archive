@@ -1,0 +1,13 @@
+buzzlike.directive("introPage", function(paymentInfoService, $compile, localStorageService) {
+  return {
+    restrict: "C",
+    template: function() {
+      var lang;
+      lang = localStorageService.get('user.lang');
+      return tC['/overlay/paymentInfo/partials/intro/' + lang];
+    },
+    link: function(scope, element, attrs) {
+      return true;
+    }
+  };
+});

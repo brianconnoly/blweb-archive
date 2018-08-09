@@ -1,0 +1,53 @@
+.icons
+    position absolute
+    top 0
+    left 0
+    width 100%
+    z-index 11112
+
+    .hgroup
+         margin 1px 11px 0 0
+         background #eee
+         display inline-block
+         float left
+
+         & > *
+             float left
+
+         [type="number"]
+            width: 50px
+
+#color-tester
+    width 20px
+    height 20px
+    border 1px solid #3e3e3e
+    margin 2px 0
+    background white
+
+.layers
+    display inline-block
+    margin 70px 30px
+    position relative
+
+    canvas
+        border 1px solid purple
+        position absolute
+
+    .mouseCapture
+        position absolute
+        z-index 11110
+
+.display
+    position relative
+    float right
+    top 111px
+    z-index 11112
+
+    .icons
+        position relative
+    li
+        border 1px solid black
+        padding 10px 20px
+
+        &.active
+            background rgba(0, 0, 200, 0.7)

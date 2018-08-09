@@ -1,0 +1,94 @@
+buzzlike.directive('datePicker', function(stateManager, smartDate, desktopService) {
+  return {
+    restrict: 'EAC',
+    require: '?ngModel',
+    link: function(scope, elem, attrs, ngModel) {
+      var calendarSession, setElemDate;
+      if (ngModel.$viewValue == null) {
+        ngModel.$setViewValue(Date.now());
+      }
+      scope.date = ngModel.$viewValue;
+      calendarSession = null;
+      setElemDate = function(result) {
+        scope.date = result;
+        return true;
+      };
+      scope.$on('$destroy', function() {
+        if (calendarSession != null) {
+          return calendarSession.scope.closeApp();
+        }
+      });
+      elem.on('click', function(e, param) {
+        var calendarEdge, d, pos;
+        d = new Date(smartDate.getShiftTimeBar(ngModel.$viewValue));
+        if ((calendarSession != null ? calendarSession.session : void 0) == null) {
+          if (attrs.options === 'inspector') {
+            calendarEdge = scope.$eval(attrs.edgetime);
+            pos = {
+              top: $(elem).offset().top,
+              left: $(elem).offset().left
+            };
+          } else {
+            if (attrs.options === 'rightSide') {
+              calendarEdge = 0;
+              pos = {
+                top: $(elem).offset().top,
+                left: $('body').width() - 265
+              };
+            } else {
+              calendarEdge = 0;
+              pos = {
+                top: $(elem).offset().top,
+                left: 0
+              };
+            }
+          }
+          calendarSession = desktopService.launchApp('calendar', {
+            cursor: d,
+            calendarEdge: calendarEdge || null,
+            coords: {
+              x: e.clientX,
+              y: e.clientY
+            },
+            api: {
+              pick: (function(_this) {
+                return function(result) {
+                  var newVal;
+                  if (result.hide) {
+                    return true;
+                  }
+                  newVal = result;
+                  if (attrs.dateonly != null) {
+                    d = new Date(smartDate.getShiftTimeBar(ngModel.$viewValue));
+                    newVal = new Date(result.getFullYear(), result.getMonth(), result.getDate(), d.getHours(), d.getMinutes());
+                  }
+                  setElemDate(newVal.getTime());
+                  ngModel.$setViewValue(smartDate.resetShiftTimeBar(newVal.getTime()));
+                  return scope.$eval(attrs.jump);
+                };
+              })(this)
+            }
+          }, e, true);
+        } else {
+          calendarSession.scope.closeApp();
+        }
+        if ($(e.target).hasClass('noDigest')) {
+          return;
+        }
+        return scope.$apply();
+      });
+      ngModel.$render = function() {
+        var d;
+        if (ngModel.$viewValue == null) {
+          ngModel.$setViewValue(Date.now());
+        }
+        d = new Date(smartDate.getShiftTimeBar(ngModel.$viewValue));
+        if ((calendarSession != null ? calendarSession.cursor : void 0) != null) {
+          calendarSession.cursor = d;
+        }
+        return setElemDate(d.getTime());
+      };
+      return true;
+    }
+  };
+});

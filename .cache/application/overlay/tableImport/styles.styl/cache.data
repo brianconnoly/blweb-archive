@@ -1,0 +1,123 @@
+#tableImport {
+  background: rgba(0,0,0,0.93);
+}
+.turbo #tableImport {
+  background: #000;
+}
+#tableImport .center {
+  width: 570px;
+  color: #fff;
+}
+#tableImport .center h2 {
+  width: 100%;
+  font-size: 24px;
+  text-align: center;
+  line-height: 65px;
+}
+#tableImport .center h3 {
+  font-size: 21px;
+  line-height: 50px;
+}
+#tableImport .center h4 {
+  font-size: 18px;
+  line-height: 50px;
+}
+#tableImport .center .introtext {
+  font-size: 13px;
+  line-height: 16px;
+}
+#tableImport .center .content {
+  width: 460px;
+  margin: 0 auto;
+}
+#tableImport .center .importer {
+  margin-top: 20px;
+}
+#tableImport .center .importer table {
+  width: 100%;
+  background: #fff;
+  border-collapse: separate;
+}
+#tableImport .center .importer table td {
+  border-left: 1px solid #d3d3d3;
+  height: 41px;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 13px;
+  overflow: hidden;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#tableImport .center .importer table td:first-child {
+  border: 0;
+}
+#tableImport .center .importer table td.time {
+  width: 63px;
+}
+#tableImport .center .importer table td.date {
+  width: 90px;
+}
+#tableImport .center .importer table td.small {
+  font-size: 10px;
+}
+#tableImport .center .importer table td.left {
+  text-align: left;
+  padding-left: 5px;
+}
+#tableImport .center .importer.single td.text {
+  width: 198px;
+}
+#tableImport .center .importer.multi td.comm {
+  width: 139px;
+}
+#tableImport .center .importer.multi td.text {
+  width: 165px;
+}
+#tableImport .center .importer div.example {
+  margin-top: 19px;
+  line-height: 20px;
+  font-size: 13px;
+}
+#tableImport .center .importer div.download {
+  margin: 20px auto;
+  display: table;
+}
+#tableImport .center .importer div.download div {
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  font-size: 18px;
+  float: left;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#tableImport .center .importer div.download .file {
+  border: 1px solid #fff;
+  width: 50px;
+  margin: 0 4px;
+  -webkit-transition: all ease 0.2s;
+  -moz-transition: all ease 0.2s;
+  -o-transition: all ease 0.2s;
+  -ms-transition: all ease 0.2s;
+  transition: all ease 0.2s;
+}
+#tableImport .center .importer div.download .file:hover {
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+}
+#tableImport .center .importer div.download .label {
+  margin-right: 15px;
+  cursor: pointer;
+}
+#tableImport .center .importer .button {
+  width: 470px;
+  line-height: 50px;
+  font-size: 24px;
+  border: 1px solid #fff;
+  margin: 10px auto;
+  text-align: center;
+  cursor: pointer;
+}

@@ -1,0 +1,48 @@
+div.dragHandler.topBar 
+    process-bar
+
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title
+        span(translate="'socialImportApp_title'")
+        span : 
+        span(ng-if="currentStep.translateTitle && currentStep.type != 'folder'", translate="currentStep.translateTitle")
+        span(ng-if="!currentStep.translateTitle && currentStep.type != 'folder'") {{currentStep.title}}
+    
+    div.switcherPanel
+        zoom-switch
+    //-     div.switcher
+    //-         div.iconButton
+    //-             img(src="/resources/images/desktop/white/sortby.svg", ng-click="showSortMenu($event)")
+    //-         div.settingsText(translate="'generalApp_sortType'")
+
+    div.actionsPanel
+        div.action(ng-class="{'disabled':multiselectState.focusedHash.length == 0}")
+            div.icon
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-upload.svg", ng-click="import()")
+            div.flushMousedown.settingsText(translate="'socialImportApp_import'", ng-click="import()")
+
+        div.action
+            div.icon
+                img(src="/resources/images/desktop/actions/white/header-button-refresh.svg", ng-click="update()")
+            div.settingsText(translate="'addFeedApp_reload_list'", ng-click="update()")
+
+        div.action
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-settings.svg", ng-click="showMoreMenu($event)")
+            div.settingsText.flushMousedown(translate="'contentApp_more'", ng-click="showMoreMenu($event)")
+
+div.body
+    div.leftPanel.itemsContainer(antiscroll)
+        div.accountContainer(ng-repeat="account in user.accounts")
+            div.panelItem.selectFirst(ng-repeat="item in mediaplans | grabContent_FIX:this | orderBy: orderCommunity", ng-class="{'small':!$first,'big':$first, 'active':currentCommunity == item}", ng-click="pickCommunity(item, account)")
+                div.previewContainer
+                    div.itemPreview(item="item")
+                    div.socialWrapperAccountSocial(ng-if="$first", ng-style="{background: networksData[item.socialNetwork].background}") {{item.socialNetwork.toUpperCase()}}
+
+    
+    div.rightContent(class="zoom_{{session.zoom}}", antiscroll)
+        items-container
+
+bread-crombs

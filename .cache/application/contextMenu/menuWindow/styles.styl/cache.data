@@ -1,0 +1,46 @@
+#menuWindow {
+  position: absolute;
+  background: rgba(255,255,255,0.92);
+  margin: 3px;
+  min-width: 200px;
+  z-index: 50000;
+}
+.turbo #menuWindow {
+  background: #fff;
+}
+#menuWindow .item {
+  padding: 10px;
+}
+#menuWindow .item:hover {
+  background: rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+#menuWindow .postPreview {
+  position: absolute;
+  left: 210px;
+}
+#menuWindow .postPreview .item {
+  margin: 0;
+}
+#menuWindow .postPreview .clear {
+  position: absolute;
+  top: 180px;
+  width: 170px;
+  height: 25px;
+  line-height: 25px;
+  cursor: pointer;
+  text-align: center;
+  background: #fff;
+}
+.menuTimeInfo {
+  padding: 10px;
+  font-weight: bolder;
+  background: rgba(0,0,0,0.14);
+}
+.menuTimeInfo .time {
+  font-size: 18px;
+}
+.menuTimeInfo .date {
+  padding-left: 14px;
+  font-size: 13px;
+}

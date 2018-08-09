@@ -1,0 +1,57 @@
+margin: 0 auto
+
+width 70px
+height 70px
+
+color: #fff
+font-size 20px
+text-align: center
+
+border 1px solid #fff
+border-radius 70px
+
+transition all 0.1s ease
+
+&:hover
+    cursor: pointer
+    // background: #fff
+    
+    .corner
+        opacity 0
+        
+    .full
+        opacity 1
+
+    .white
+        opacity 0
+    .color
+        opacity 1
+img
+    position: absolute
+    top -1px
+    bottom -1px
+    left -1px
+    right -1px
+    
+    transition opacity 0.1s ease
+    
+    &.corner
+        opacity 1
+        
+    &.full
+        opacity 0
+    
+div
+    position: absolute
+    top 27px
+    left 0
+    right 0
+    cursor: pointer
+
+    &.white
+        color: #fff
+        opacity 1
+        
+    &.color
+        opacity 0
+        transition color 5s ease

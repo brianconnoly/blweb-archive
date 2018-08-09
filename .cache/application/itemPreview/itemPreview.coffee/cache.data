@@ -1,0 +1,550 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('itemPreview', function(operationsService, smartDate, $compile, $filter, localization, scheduleService, lotService, postService, teamService, requestService) {
+  return {
+    restrict: 'C',
+    scope: {
+      item: '=?',
+      id: '=?',
+      type: '@',
+      counter: '=?'
+    },
+    link: function(scope, element, attrs) {
+      var allParams, allowOverlay, arr, currentParams, displayItem, i, j, jElem, len, lockableTypes, ref, ref1, ref2, ref3, ref4, ref5, unreg;
+      if (((ref = scope.$parent) != null ? (ref1 = ref.$parent) != null ? (ref2 = ref1.$parent) != null ? (ref3 = ref2.$parent) != null ? (ref4 = ref3.$parent) != null ? ref4.refreshItem : void 0 : void 0 : void 0 : void 0 : void 0) != null) {
+        return;
+      }
+      jElem = $(element);
+      currentParams = null;
+      allParams = {};
+      allParams['timeline'] = {
+        scheduleStatus: true,
+        saleInfo: ['post'],
+        timeInfo: ['post']
+      };
+      allParams['contentPage'] = allParams['combPage'] = allParams['catalog'] = {
+        lotRepostInfo: ['lot', 'post']
+      };
+      allParams['rightPanel'] = {
+        saleInfo: true,
+        scheduleInfo: ['post'],
+        lotRepostInfo: ['lot']
+      };
+      allParams['blView'] = {
+        saleInfo: ['lot']
+      };
+      if (attrs.overlay) {
+        currentParams = allParams[attrs.overlay];
+      }
+      if (!currentParams) {
+        currentParams = {};
+        if (attrs.overlay) {
+          arr = attrs.overlay.split('/');
+          for (j = 0, len = arr.length; j < len; j++) {
+            i = arr[j];
+            currentParams[i] = true;
+          }
+        }
+      }
+      lockableTypes = ['text'];
+      allowOverlay = function(overlay) {
+        var ref5, ref6;
+        return overlay && (overlay === true || (ref5 = (ref6 = scope.item) != null ? ref6.type : void 0, indexOf.call(overlay, ref5) >= 0));
+      };
+      displayItem = function(item) {
+        var adType, date, duration, elem, flow, imgElem, info, lotScope, name, newScope, post, ref10, ref11, ref12, ref13, ref14, ref15, ref16, ref17, ref18, ref19, ref20, ref21, ref22, ref23, ref24, ref5, ref6, ref7, ref8, ref9, sched, sellableTypes, size, src, status, template, textContent, textLength, titleCenter, tmp, tmpl, tsCache, url, urlCenter, views;
+        element.removeClass('empty');
+        scope.previewItem = item;
+        if (scope.item == null) {
+          scope.item = item;
+        }
+        element.addClass(item.type);
+        if (scope.counter != null) {
+          element.append('<div class="counterStack">' + scope.counter + '</div>');
+        }
+        if (item.type == null) {
+          return true;
+        }
+        if (scope.builded === true && ((ref5 = item.type) !== 'image' && ref5 !== 'post')) {
+          return true;
+        }
+        if (scope.builded === true && ((ref6 = item.type) !== 'comb' && ref6 !== 'post')) {
+          element.empty();
+        }
+        switch (item.type) {
+          case 'text':
+            textContent = '';
+            textLength = 0;
+            if (scope.previewItem.value != null) {
+              textLength = scope.previewItem.value.length;
+            }
+            if (scope.previewItem.value) {
+              textContent = scope.previewItem.value.substr(0, 200).replace(/\n/g, "<br>");
+              if (textLength > 200) {
+                textContent += "...";
+              }
+            } else {
+              textContent = localization.translate("contentPreview_newText");
+            }
+            element.append('<div class="text-preview">' + textContent + '</div>');
+            if (scope.item.locked && (ref7 = scope.item.type, indexOf.call(lockableTypes, ref7) >= 0)) {
+              $(element).append('<div class="locked">');
+            }
+            scope.$watch('previewItem.value', function(nVal) {
+              textContent = '';
+              if (nVal) {
+                textContent = nVal.substr(0, 200).replace(/\n/g, "<br>");
+                if (nVal.length > 200) {
+                  textContent += "...";
+                }
+              } else {
+                textContent = localization.translate("contentPreview_newText");
+              }
+              return $(element).children('.text-preview').html(textContent);
+            });
+            break;
+          case 'image':
+            imgElem = $("<img class='picPreload' src='" + proxyPrefix + item.thumbnail + "'>");
+            element.append(imgElem);
+            $compile(imgElem)(scope);
+            break;
+          case 'file':
+            tmpl = "";
+            if (((ref8 = item.preview.small) != null ? ref8.length : void 0) > 0) {
+              tmpl += "<img class='picPreload' src='" + proxyPrefix + item.preview.small + "'>";
+            } else {
+              date = $filter('timestampMask')(item.created, 'DD MMM YYYY hh:mm');
+              size = humanize.filesize(item.size);
+              tmpl += "<div class='infoBlock'><div class='size'>" + size + "</div><div class='date'>" + date + "</div></div>";
+              if ((ref9 = item.fileType) === 'zip' || ref9 === 'rar' || ref9 === '7z' || ref9 === '7zip' || ref9 === 'arj') {
+                tmpl += "<img class='icon' src='/resources/images/desktop/files/archive.svg'/>";
+              } else {
+                tmpl += "<img class='icon' src='/resources/images/desktop/files/other.svg'/>";
+              }
+            }
+            tmpl += "<div class='name bottom'>" + item.name + "</div><div class='extension ext_" + item.fileType + "'>" + item.fileType + "</div>";
+            imgElem = $(tmpl);
+            element.append(imgElem);
+            $compile(imgElem)(scope);
+            break;
+          case 'audio':
+            element.append("<img class='sign' src='/resources/images/desktop/audio.svg'> <div class='track-name'> <p class='audioHead'>" + ((ref10 = item.title) != null ? ref10.slice(0, 45) : void 0) + "</p> <p class='artist'>" + ((ref11 = item.artist) != null ? ref11.slice(0, 45) : void 0) + "</p> </div>");
+            break;
+          case 'folder':
+            if (((ref12 = scope.$parent) != null ? (ref13 = ref12.$parent) != null ? (ref14 = ref13.$parent) != null ? ref14.refreshItem : void 0 : void 0 : void 0) == null) {
+              elem = $compile('<folder-preview>')(scope);
+              element.append(elem);
+            }
+            break;
+          case 'poll':
+            template = '<img class="sign" src="/resources/images/desktop/poll.svg">';
+            if (((ref15 = scope.previewItem.lastStats) != null ? ref15.total : void 0) > 0) {
+              template += '<div class="totalVotes">⦿ ' + scope.previewItem.lastStats.total + '</div>';
+            }
+            template += '<div class="site-title"> <div class="description">{{previewItem.value}}</div> <div class="siteTitle">{{previewItem.name}}</div> </div>';
+            tmpl = $(template);
+            element.append(tmpl);
+            $compile(tmpl)(scope);
+            break;
+          case 'url':
+            url = urlCropper(scope.previewItem.value, 39, 'middle');
+            urlCenter = '';
+            titleCenter = '';
+            if (url.length < 13) {
+              urlCenter = 'center';
+            }
+            if (scope.previewItem.title === null) {
+              scope.previewItem.title = "";
+            }
+            if (scope.previewItem.title.length < 13) {
+              titleCenter = 'center';
+            }
+            template = '<img class="sign" src="/resources/images/desktop/url.svg"> <div class="site-title"> <div class="description">' + scope.previewItem.title + '</div> <div class="siteTitle">' + url + '</div> </div>';
+            element.append(template);
+            break;
+          case 'video':
+            views = scope.previewItem.views * 1;
+            if (views > 10000000) {
+              views = views / 1000000 | 0;
+              views = $filter("formatNumber")(views);
+              views += 'M';
+            } else if (views > 100000) {
+              views = views / 1000 | 0;
+              views = $filter("formatNumber")(views);
+              views += 'k';
+            } else {
+              views = $filter("formatNumber")(scope.previewItem.views) || "-";
+            }
+            duration = $filter("secondsToHumanTime")(scope.previewItem.duration);
+            template = "<div class='name bottom'>" + scope.previewItem.title + "</div> <img src='" + proxyPrefix + scope.previewItem.thumbnail + "'/> <div class='play_button'></div> <div class='duration'>" + duration + "</div>";
+            element.append(template);
+            break;
+          case 'comb':
+          case 'post':
+            if (scope.builded !== true) {
+              elem = $compile('<complex-preview>')(scope);
+              element.append(elem);
+              if (item.type === 'post') {
+                element.append($compile('<div ng-class="item.needWork" class="needWorkMark" ng-if="item.needWork && $parent.sched.status == \'planned\'"></div>')(scope));
+              } else {
+                element.append($compile('<div class="statsLabel activityIndicator", ng-if="item.lastStats.likes || item.lastStats.comments || item.lastStats.reposts || item.lastStats.commLikes"><div class="statsIcon">⦿</div><div class="statsValue">{{item.lastStats.likes + item.lastStats.comments + item.lastStats.reposts + item.lastStats.commLikes}}</div></div>')(scope));
+              }
+            }
+            break;
+          case 'lot':
+            lotScope = scope.$new();
+            if (item.lotType !== 'content') {
+              lotScope.id = item.postId;
+              elem = $compile('<div class="itemPreview" type="post", id="id">' + "<div class='itemPreview shield topShield' type='image' id='item.cover' ng-if='item.cover'></div>")(lotScope);
+              element.append(elem);
+            }
+            break;
+          case 'community':
+            src = item.photo;
+            template = "<img src='" + proxyPrefix + src + "'> <div class='name'>" + item.name + "</div> <div class='members'>" + item.membersCount + "</div>";
+            element.append(template);
+            break;
+          case 'user':
+            src = item.photo;
+            template = $("<img src='" + proxyPrefix + src + "' class='picPreload userPic' >");
+            element.append(template);
+            $compile(template)(scope);
+            break;
+          case 'team':
+            template = "<div ng-repeat='member in item.members' class='itemPreview' ng-class='{" + '"mini":item.members.length > 1, "single":item.members.length == 1' + "}' type='user' id='member.userId'></div> <div class='itemPreview shield' type='image' id='item.cover' ng-if='item.cover'></div>";
+            elem = $compile(template)(scope);
+            element.append(elem);
+            break;
+          case 'task':
+            if (scope.previewItem.teamId != null) {
+              scope.team = teamService.getById(scope.previewItem.teamId);
+            }
+            tmpl = "<img class='sign' src='/resources/images/desktop/task-icon-black.svg'> <div class='track-name'> <p class='audioHead'>{{item.name}}</p> <p class='artist'>{{team.name}}</p> </div>";
+            elem = $compile(tmpl)(scope);
+            element.append(elem);
+            break;
+          case 'importAlbum':
+            src = item.thumbnail;
+            if ((src == null) || (src != null ? src.length : void 0) < 1 || src === 'http://vk.com/resources/images/m_noalbum.png') {
+              switch (item.albumType) {
+                case 'image':
+                  src = '/resources/images/desktop/importAlbums/imageAlbum.svg';
+                  break;
+                case 'audio':
+                  src = '/resources/images/desktop/importAlbums/audioAlbum.svg';
+                  break;
+                case 'video':
+                  src = '/resources/images/desktop/importAlbums/videoAlbum.svg';
+              }
+            }
+            template = "<img src='" + proxyPrefix + src + "' class='picPreload' preview-box > <div class='name'>" + item.title + "</div>";
+            if (item.size > 0) {
+              template += "<div class='size'>" + item.size + "</div>";
+            }
+            elem = $compile(template)(scope);
+            element.append(elem);
+            break;
+          case 'importContent':
+            switch (item.contentType) {
+              case 'image':
+                template = "<img class='picPreload' src='" + item.thumbnail + "' preview-box>";
+                elem = $compile(template)(scope);
+                element.append(elem);
+                break;
+              case 'audio':
+                element.addClass('audio');
+                element.append("<img class='sign' src='/resources/images/desktop/audio.svg'> <div class='track-name'> <p class='head'>" + ((ref16 = item.title) != null ? ref16.slice(0, 45) : void 0) + "</p> <p class='artist'>" + ((ref17 = item.artist) != null ? ref17.slice(0, 45) : void 0) + "</p> </div>");
+                break;
+              case 'video':
+                views = scope.previewItem.views * 1;
+                if (views > 10000000) {
+                  views = views / 1000000 | 0;
+                  views = $filter("formatNumber")(views);
+                  views += 'M';
+                } else if (views > 100000) {
+                  views = views / 1000 | 0;
+                  views = $filter("formatNumber")(views);
+                  views += 'k';
+                } else {
+                  views = $filter("formatNumber")(scope.previewItem.views) || "-";
+                }
+                duration = $filter("secondsToHumanTime")(scope.previewItem.duration);
+                template = "<div class='top views'>" + views + "</div> <div class='duration'>" + duration + "</div> <div class='name bottom nowrap'> <span class='videoNameSpan marquee' speed=30>" + scope.previewItem.title + "</span> </div> <img src='" + proxyPrefix + scope.previewItem.thumbnail + "'/> <div class='play_button'></div>";
+                element.append(template);
+                break;
+              case 'url':
+                element.addClass('url');
+                url = urlCropper(scope.previewItem.value, 39, 'middle');
+                urlCenter = '';
+                titleCenter = '';
+                if (url.length < 13) {
+                  urlCenter = 'center';
+                }
+                if (scope.previewItem.title === null) {
+                  scope.previewItem.title = "";
+                }
+                if (scope.previewItem.title.length < 13) {
+                  titleCenter = 'center';
+                }
+                template = '<img class="sign" src="/resources/images/desktop/url.svg"> <div class="site-title"> <div class="description">' + scope.previewItem.title + '</div> <div class="siteTitle">' + url + '</div> </div>';
+                element.append(template);
+            }
+        }
+        if (!attrs.mini) {
+          switch (item.type) {
+            case 'lot':
+              if ((ref18 = scope.item.lotType) === 'post' || ref18 === 'repost') {
+
+              } else if (scope.item.lotType === 'content') {
+                newScope = scope.$new();
+                newScope.id = scope.item.entityId;
+                newScope.type = scope.item.entityType;
+                element.append($compile('<div class="itemPreview" id="id", type="{{type}}"></div>')(newScope));
+              }
+          }
+          if (currentParams.scheduleStatus) {
+            jElem.children('.generatedStatus').remove();
+            if (scope.builded !== true) {
+              sched = scope.$parent.sched;
+              if ((ref19 = sched.requestStatus) !== 'rejected') {
+                status = {};
+                tmp = $('<div>', {
+                  "class": 'statusLayer',
+                  status: 'sched.status'
+                });
+                element.append(tmp);
+                $compile(tmp[0])(scope);
+              }
+            }
+          }
+          if (currentParams.adStatus) {
+            jElem.children('.requestStatus').remove();
+            post = null;
+            switch (item.type) {
+              case 'post':
+                post = item;
+                break;
+              case 'lot':
+                if ((ref20 = item.lotType) === 'post' || ref20 === 'repost') {
+                  adType = true;
+                  post = {
+                    id: item.postId
+                  };
+                }
+            }
+            if (post) {
+              operationsService.get('post', post.id, function(post) {
+                if (post.onSale || adType) {
+                  status = scope.item.requestStatus ? ' ' + scope.item.requestStatus : '';
+                  return element.append('<div class="requestStatus' + status + '"> <div class="corner"></div> <div class="icon"></div> </div>');
+                }
+              });
+            }
+          }
+          if (currentParams.requestStatus) {
+            jElem.children('.requestStatus').remove();
+            if (attrs.overlay === 'timeline') {
+              sched = scope.$parent.sched;
+            }
+            if (attrs.overlay === 'outboxRequests') {
+              sched = {
+                scheduleType: 'request',
+                requestStatus: scope.$parent.request.requestStatus
+              };
+            }
+            if ((ref21 = sched.scheduleType) === 'request' || ref21 === 'requestRepost') {
+              status = {
+                corner: '<div class="corner"></div>',
+                icon: $('<div class="icon"></div>').click(function() {
+                  if (sched.requestStatus === 'rejected') {
+                    requestService["delete"](scope.item);
+                    scope.$apply();
+                  }
+                  return true;
+                })
+              };
+              tmpl = $('<div class="requestStatus">').addClass(sched.requestStatus);
+              for (i in status) {
+                tmpl.append(status[i]);
+              }
+              element.append($compile(tmpl)(scope));
+            }
+          }
+          if (currentParams.requestInfo) {
+            jElem.children('.schedule-info').remove();
+            switch (item.type) {
+              case 'post':
+                post = item;
+                if (post.requestStatus || post.requestsTotal) {
+                  info = $compile('<div request-info="' + post.id + '" class="schedule-info"></div>')(scope.$new());
+                  element.append(info);
+                }
+            }
+          }
+          if (allowOverlay(currentParams.scheduleInfo)) {
+            jElem.children('.schedule-info').remove();
+            if (item.type === 'post') {
+              scope.post = post = item;
+            }
+            if (post && post.scheduled) {
+              info = $compile('<div post="post" class="schedule-info"></div>')(scope.$new());
+              element.append(info);
+            }
+          }
+          if (!scope.builded && allowOverlay(currentParams.timeInfo)) {
+            sched = scope.$parent.sched;
+            tsCache = {};
+            scope.getFormatedDate = function() {
+              var ts;
+              ts = smartDate.getShiftTimeBar(sched.timestamp);
+              if (tsCache[ts] == null) {
+                tsCache[ts] = $filter('timestampMask')(ts, 'hh:mm');
+              }
+              return tsCache[ts];
+            };
+            info = $('<div class="timeInfo"></div>');
+            info.html(scope.getFormatedDate());
+            element.append(info);
+            scope.$watch('$parent.sched.timestamp', function() {
+              return info.html(scope.getFormatedDate());
+            });
+          }
+          if (!scope.builded && currentParams.saleInfo && (ref22 = item.type, indexOf.call(currentParams.saleInfo, ref22) >= 0)) {
+            sellableTypes = ['lot', 'folder', 'image', 'text', 'video', 'audio', 'comb'];
+            sched = scope.$parent.sched;
+            if (item.type === 'post' && (sched.requestId != null)) {
+              scope.priceItem = requestService.getById(sched.requestId);
+              element.append($compile('<div class="priceTag">{{priceItem.cost}}</div>')(scope));
+            } else if (item.type === 'lot') {
+              scope.getPriceTag = function() {
+                var priceString;
+                if (item.price === 0) {
+                  return localization.translate('marketApp_lotPrice_free');
+                }
+                priceString = item.price + ' ';
+                if (item.buzzLot) {
+                  priceString += localization.declensionPhrase(item.price, 'costDays');
+                }
+                return priceString;
+              };
+              element.append($compile('<div class="priceTag">{{getPriceTag()}}</div>')(scope));
+            }
+          }
+          if (currentParams.lotRepostInfo && (ref23 = item.type, indexOf.call(currentParams.lotRepostInfo, ref23) >= 0)) {
+            flow = new AsyncFlow();
+            scope[item.type] = item;
+            if (item.type === 'post') {
+              flow.add({
+                name: 'getting lot',
+                action: function(next) {
+                  if (item.lotId) {
+                    return lotService.getById(item.lotId, function(lot) {
+                      scope.lot = lot;
+                      scope.status = 'requestStatus';
+                      return next();
+                    });
+                  } else {
+                    return next();
+                  }
+                }
+              });
+            }
+            if (item.type === 'lot') {
+              flow.add({
+                name: 'getting post',
+                action: function(next) {
+                  if (item.postId) {
+                    return postService.getById(item.postId, function(post) {
+                      scope.post = post;
+                      scope.status = 'socialNetwork';
+                      return next();
+                    });
+                  } else {
+                    return next();
+                  }
+                }
+              });
+            }
+            flow.fire(function(res) {
+              jElem.children('.lot-repost-info').remove();
+              if (res) {
+                if (!scope.post || !scope.lot) {
+                  return false;
+                }
+                if (!scope.post.scheduled || !scope.post.onSale) {
+                  return false;
+                }
+                info = $compile('<div post="post" lot="lot" status="status" class="lot-repost-info"></div>')(scope.$new());
+                return element.append(info);
+              }
+            });
+          }
+        }
+        if ((item.name != null) && (attrs.noname == null) && ((ref24 = item.type) !== 'task' && ref24 !== 'poll' && ref24 !== 'file')) {
+          jElem.children('.name').remove();
+          name = item.name.substr(0, 40);
+          if (item.name.length > 40) {
+            name += '...';
+          }
+          element.append($compile('<div class="name bottom", ng-if="previewItem.name.length > 0">{{previewItem.name}}</div>')(scope));
+        }
+        return scope.builded = true;
+      };
+      scope.refreshItem = function() {
+        var ref5;
+        if (scope.item != null) {
+          return displayItem(scope.item);
+        }
+        if ((scope.id != null) && (scope.type != null)) {
+          return operationsService.get(scope.type, scope.id, displayItem);
+        }
+        if (!((ref5 = scope.item) != null ? ref5.id : void 0) && !scope.id) {
+          return element.addClass('empty');
+        }
+      };
+      scope.$watch('id', function(nVal) {
+        if (nVal != null) {
+          return operationsService.get(scope.type, scope.id, displayItem);
+        }
+      });
+      if ((scope.item != null) && (((ref5 = scope.item) != null ? ref5.type : void 0) == null)) {
+        unreg = scope.$watch('item', function(nVal) {
+          if (nVal.type != null) {
+            scope.refreshItem();
+            return unreg();
+          }
+        }, true);
+      } else {
+        scope.refreshItem();
+      }
+      return true;
+    }
+  };
+});
+
+buzzlike.directive('needWorkMark', function(confirmBox, rpc, postService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      return $(element).click(function() {
+        var post, toSet;
+        post = scope.post || scope.item;
+        if (post.needWork != null) {
+          toSet = post.needWork === 'inprogress' ? 'ready' : 'inprogress';
+          confirmBox.init({
+            phrase: 'confirmBox_set_post_needWork_' + toSet,
+            description: 'confirmBox_set_post_needWork_' + toSet + '_description'
+          }, (function(_this) {
+            return function() {
+              return postService.call('setNeedWork', {
+                postId: post.id,
+                needWork: toSet
+              });
+            };
+          })(this));
+        }
+        return scope.$apply();
+      });
+    }
+  };
+});

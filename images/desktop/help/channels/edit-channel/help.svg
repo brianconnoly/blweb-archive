@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="690px" height="1000px" viewBox="0 0 690 1000" enable-background="new 0 0 690 1000" xml:space="preserve">
+
+<defs>
+  <style type="text/css">
+   <![CDATA[
+    @font-face {
+        font-family: 'HelveticaNeue-Light';
+        src:url("/fonts/777240/5b85c7cc-6ad4-4226-83f5-9d19e2974123.eot?#iefix");
+	    src:local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/777240/3fc84193-a13f-4fe8-87f7-238748a4ac54.svg#3fc84193-a13f-4fe8-87f7-238748a4ac54") format("svg"), url("/fonts/777240/835e7b4f-b524-4374-b57b-9a8fc555fd4e.woff") format("woff"),url("/fonts/777240/2c694ef6-9615-473e-8cf4-d8d00c6bd973.ttf") format("truetype");
+    }
+   ]]>
+ </style>
+</defs>
+
+<rect x="0" y="-2.277" fill="#FFFFFF" width="690" height="1004.979"/>
+<g>
+	<rect x="52.545" y="101.179" fill="none" width="577.927" height="40.848"/>
+	<text transform="matrix(0.9975 0 0 1 52.5454 111.1754)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Вы можете исключать сообщества из каналов, добавлять новые, менять порядок </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">следования каналов, удалять каналы целиком.</tspan></text>
+</g>
+<text transform="matrix(0.9975 0 0 1 52.0299 80.0002)" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="26">Редактирование каналов</text>
+<g>
+	<rect x="50.148" y="195.249" fill="none" width="577.927" height="66.425"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 205.2448)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Прежде чем добавить сообщество в канал может потребоваться добавление фида из </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">аккаунта соцсети. Добавленный в приложение фид просто перетащите к краю нужного </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">канала за аватарку. При приближении сообщество объединится с каналом.</tspan></text>
+</g>
+<g>
+	<rect x="50.148" y="304.93" fill="none" width="577.927" height="66.425"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 314.9254)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Изменение порядка следования сообществ производится аналогично — перетаскивайте </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">фид сообщества за иконку. При перетаскивании за границу канала, сообщество будет </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">выделено в отдельный канал или перенесено в соседний. </tspan></text>
+</g>
+<text transform="matrix(0.9975 0 0 1 49.6324 175.1872)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14">Добавление в канал</text>
+<text transform="matrix(0.9975 0 0 1 49.6324 294.1183)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14">Изменение порядка сообщества в канале</text>
+<g>
+	<rect x="50.148" y="422.431" fill="none" width="577.927" height="64.877"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 432.4264)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Нажмите на аватарку сообщества и выберите пункт меню &quot;Исключить сообществ из </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">канала&quot;. При исключении из канала, контент фида, запланированные посты и темы </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">останутся на своих местах. Чтобы удалить весь контент потребуется удаление тем.</tspan></text>
+</g>
+<g>
+	<rect x="50.148" y="811.142" fill="none" width="577.927" height="64.877"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 821.1374)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Чтобы удалить канал, нажмите на аватарку и выбериту пункт меню &quot;Удалить канал&quot;. При </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">удалении канала, все посты и контент сообществ канала останутся на месте.</tspan></text>
+</g>
+<text transform="matrix(0.9975 0 0 1 49.6324 402.3688)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14">Исключение из канала</text>
+<text transform="matrix(0.9975 0 0 1 50.148 791.3091)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14"> Удаление канала</text>
+<image overflow="visible" width="930" height="413" xlink:href="59BA7A66E7FB06AD.jpg"  transform="matrix(0.24 0 0 0.24 51.1478 873.2487)">
+</image>
+<image overflow="visible" width="880" height="1025" xlink:href="59BA7A66E7FB06AF.jpg"  transform="matrix(0.24 0 0 0.24 50.1478 504.3227)">
+</image>
+</svg>

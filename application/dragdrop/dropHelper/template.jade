@@ -1,0 +1,12 @@
+div
+    div#helperTimeInfo.menuTimeInfo
+        span.time
+        span.date
+
+    div.list
+        div.real(ng-if="status.activated")
+            div.action(ng-repeat="action in status.actions", ng-mousedown="fireAction(action,$event)")
+                span(translate="action.phrase")
+        div#dropHelperText
+
+        div.action.cancel(ng-if="status.activated == true", ng-click="closeHelper()", translate="'dropHelper_close'")

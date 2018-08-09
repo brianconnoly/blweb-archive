@@ -1,0 +1,5 @@
+div.novaScrollerPage(ng-repeat="page in scroller.pages")
+    div.novaScrollerPageBlock(ng-repeat="block in page.blocks track by block.code", ng-switch="::block.type")
+        div.novaScrollerTimestampSeparator(ng-switch-when="separator") Separator
+        div.novaRowScrollerItems(ng-switch-default)
+    div.pageCnt {{::page.pageCnt}}

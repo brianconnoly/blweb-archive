@@ -1,0 +1,48 @@
+div.dragHandler.topBar.black.noSettings
+    process-bar
+    div.appControls
+    //- item-title(type="content", id="text.name", placeholderText="textEditorApp_enterTextName")
+    input.title(ng-model="pollEdit.name", translate="", translate-placeholder="'pollEditApp_enterPollName'", ng-change="savePoll()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+div.body.dragHandler
+    div.editableDiv.pollValue(ng-model="pollEdit.value", disabled="poll.locked", ng-change="savePoll()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }", placeholder-text="'pollEditApp_enterQuestion'")
+    
+    div.schedules(ng-if="hasDifferentSchedules()")
+        div.schedule.total(ng-class="{'active':currentSchedule==null}", ng-click="pickSchedule(null)")
+            div.caption(translate="'pollEditApp_totalResults'")
+            div {{poll.lastStats.total | formatNumber}}
+        div.schedule.pollSchedulePreview(ng-repeat="(id,schedResult) in poll.lastStats.schedResults", ng-class="{'active':currentSchedule==id}", ng-click="pickSchedule(id)")
+            img.picPreload(ng-src="{{community.photo}}")
+            div.overlay
+                div.timeDate 
+                    span.time {{::time}}
+                    br
+                    span.date {{::date}}
+            div.total {{schedResult.total | formatNumber}}
+
+
+    div.answers(ng-class="{'results':poll.lastStats.total > 0}")
+        div.answer(ng-repeat="answer in pollEdit.answers track by $index")
+            div.dot(ng-style="{background:colors[$index]}", ng-if="poll.lastStats.total > 0", ng-class="{'hidden':hiddenAnswer[$index]}", ng-click="triggerAnswer($index,$event)")
+            div.dot(ng-if="!(poll.lastStats.total > 0)")
+            div.value.editableDiv(ng-model="pollEdit.answers[$index]", disabled="poll.locked", ng-change="savePoll()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+            div.remove(ng-click="removeAnswer(answer)", ng-if="!poll.locked")
+            
+            div.totalPercent(ng-if="poll.lastStats.total > 0") 
+                span {{getRate($index)}} 
+                span(ng-if="hasVotes($index)") ({{getVotes($index)}})
+            div.totalBar(ng-if="poll.lastStats.answers[$index] > 0", ng-style="{background:colors[$index], width:getWidth($index)}", ng-class="{'hidden':hiddenAnswer[$index]}")
+
+        div.answer.new(ng-if="!poll.locked")
+            div.dot
+            div.value.editableDiv(ng-model="$parent.newAnswer", ng-keydown="newAnswerKey($event)", placeholder-text="'pollEditApp_enterAnswer'")
+            div.button(translate="'pollEditApp_doAddAnswer'", ng-click="addAnswer()", ng-if="$parent.newAnswer.length > 0")
+
+    div.pollGraph(ng-if="poll.lastStats.total > 0")
+        canvas(width="400" height="230")
+        div.values
+        div.helper
+
+div.anonymous
+    checkbox.long(ng-model="pollEdit.anonymous", ng-change="savePoll()", ng-if="!poll.locked")
+    span(translate="'pollEditApp_anonymousPoll'", ng-if="!poll.locked || poll.anonymous")

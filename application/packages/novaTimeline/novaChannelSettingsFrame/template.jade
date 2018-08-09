@@ -1,0 +1,43 @@
+div.novaSettingsLayout
+    div.settingsBlock
+        div.settingsTitle(translate="'novaChannelSettings_name'")
+        div.novaEditableDiv(
+            ng-model="group.name", 
+            placeholder-text="'novaChannelSettings_name_placeholder'",
+            ng-change="saveGroup()", 
+            ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }")
+        
+    div.settingsBlock
+        div.settingsTitle(translate="'novaChannelSettings_communities'")
+        div.communityBox.addCommunity(ng-click="addCommunity()") +
+        div.communityBox.novaItem(
+            ng-repeat="feed in group.feeds track by feed.communityId",
+            nova-item-id="feed.communityId",
+            nova-item-type="community")
+            div.novaItemPreview(nova-item-preview-type="square")
+            div.novaRemove(ng-click="removeCommunity(feed, $event)")
+    
+    div.settingsBlock
+        div.settingsTitle(translate="'novaChannelSettings_send_params'")
+        div.flagsBox
+            div.flagBlock
+                div.value
+                    div.novaSimpleCheckbox(ng-model="group.fromCommunity", ng-change="saveGroup()")
+                div.title(translate="'novaChannelSettings_fromCommunity'")
+            div.flagBlock(ng-if="!group.fromCommunity")
+                div.value
+                    div.novaSimpleCheckbox(ng-model="group.useUserSign", ng-change="saveGroup()")
+                div.title(translate="'novaChannelSettings_userSign'")
+    
+    div.settingsBlock
+        div.settingsTitle(translate="'novaChannelSettings_mediaplan'")
+        div.ruleItem(ng-repeat="rule in rules | filter:ruleFilter | orderBy:rulesOrder")
+            div.textButton.caution(translate="'novaChannelSettings_rule_delete'", ng-click="deleteRule(rule)")
+            div.novaRuleSettings(nova-rule-item="rule")
+        div.createRuleItem.ruleItem
+            div.textButton(ng-if="newRule.timestampStart > 0", translate="'novaChannelSettings_create_rule'", ng-click="createRule()")
+            div.novaRuleSettings(nova-rule-item="newRule")
+        
+    div.settingsBlock
+        div.settingsButton.textButton.caution(ng-if="rules.length > 0", translate="'novaChannelSettings_delete_rules'", ng-click="deleteAllRules()")
+        div.settingsButton.textButton.caution(translate="'novaChannelSettings_delete'", ng-click="deleteGroup()")

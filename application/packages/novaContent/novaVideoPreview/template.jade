@@ -1,0 +1,10 @@
+img.picPreload(src='{{item.thumbnail}}')
+div.bottomShield
+    div.topLine.name
+        div.wrapper
+            div.centered
+                img(src="/resources/images/nova/entities/play.svg")
+                span {{::item.duration | secondsToHumanTime}}
+                span  ({{getSource(item)}})
+    div.bottomLine
+        div.inner.name {{item.title}}

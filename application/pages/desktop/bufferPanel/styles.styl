@@ -1,0 +1,198 @@
+.bufferPanel
+    position: absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    
+    .pocketSwitcher
+        position: absolute
+        top 0
+        left 0
+        right 0
+        overflow: hidden
+        
+        background: #333
+        
+        .addBuffer
+            position: absolute
+            top 0
+            right 0
+            
+            width 40px
+            height 40px
+            
+            text-align: center
+            line-height 31px
+            
+            background: url(/resources/images/desktop/actions/white/buffer-add-plus.svg) center center no-repeat
+
+            font-size 40px
+            color #fff
+            
+            cursor: pointer
+            
+            &:hover
+                background-color: rgba(255,255,255,0.1)
+        
+        .typeSwitcher
+            height 40px
+            line-height: 40px
+            text-align: center
+            overflow: hidden
+            float: left
+            cursor: pointer
+            
+            transition width 0.2s ease
+            
+            &.active
+                cursor: default
+                
+                .closePocket
+                    display: inline-block
+                    background: url(/resources/images/desktop/actions/white/buffer-close-cross.svg) center center no-repeat
+                    width 15px
+                    height 15px
+                    margin-top 11px
+                    cursor: pointer
+                    
+            .closePocket
+                display: none
+            
+        .switcherStyle_0
+            background: #008e37
+        .switcherStyle_1
+            background: #eaa830
+        .switcherStyle_2
+            background: #006fa3
+        .switcherStyle_3
+            background: #c061f2
+        .switcherStyle_4
+            background: #a32900
+            
+    .pocket
+        position: absolute
+        top 40px
+        left 0
+        right 0
+        bottom 0
+        
+        background: #333
+        
+        overflow-y: auto
+        
+        padding: 2px
+        
+        &.bufferSize_full
+            padding 5px
+            
+            .previewContainer
+                width 200px
+                height 140px
+                margin 5px
+                
+                .itemPreview.mini
+                    width: 86px
+                    height: 56px
+                    margin: 5px
+                    
+                    &.folder
+                        padding: 2px
+                    
+                    .itemPreview.mini
+                        width: 36px
+                        height: 21px
+                        margin: 2px
+                        
+                        .extension
+                            line-height: 20px
+                
+        &.bufferSize_mini
+            padding: 3px
+            
+            .previewContainer
+                width 100px
+                height 70px
+                margin: 3px
+                
+                .itemPreview.mini
+                    width: 43px
+                    height: 28px
+                    
+                    .extension
+                        line-height: 26px
+                        
+                    .itemPreview.mini
+                        width: 17px
+                        height: 10px
+                        
+                        .extension
+                            line-height 8px
+    
+        .previewContainer
+            margin: 2px
+            overflow: hidden
+        
+            &.folder
+                background: #b1d381
+                
+            &:hover
+                .removeElement
+                    opacity 1
+                
+            .removeElement
+                background: url(/resources/images/desktop/removeCross.svg) center center no-repeat
+                position: absolute
+                left 5px
+                top 5px
+                
+                width 16px
+                height 16px
+                
+                cursor: pointer
+                opacity 0
+                transition opacity 0.2s ease
+            
+    .actions
+        position: absolute
+        bottom 0
+        left 0
+        right 0
+        background: #fff
+        
+        padding: 0
+        transition padding 0.2s ease
+        
+        &.wide
+            padding 20px
+            
+            .action
+                border-bottom 1px solid #eee
+                
+                &:last-child
+                    border-bottom none
+                
+        
+        .action
+            height 34px
+            line-height: 34px
+            
+            box-sizing border-box
+            padding: 0 10px
+            
+            white-space nowrap
+            text-overflow: ellipsis
+            overflow hidden
+            
+            background: #fff
+            cursor: pointer
+            
+            // transform scale(1)
+            // transition transform 0.1s ease
+            
+            // &:active
+            //     transform scale(0.9)
+                
+            &:hover
+                background: #555
+                color #fff

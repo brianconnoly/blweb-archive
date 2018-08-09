@@ -1,0 +1,267 @@
+tC['/novaContentFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div ng-click=\"showMenu($event)\" class=\"actionsMenu\">...</div> <div ng-model=\"zoom\" ng-change=\"updateZoom()\" class=\"novaZoomStatic\"></div> <div ng-click=\"addItems($event)\" class=\"addItems\">+</div> </div> <div class=\"novaFrameContents novaRowScroller novaMultiselect showNovaInfo\"></div> </div>";
+
+buzzlike.directive('novaContentFrame', function(novaRowScroller, dynamicStyle, contentService, novaMenu, novaWizard, combService, localStorageService, updateService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaContentFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var actionsMenu, addItems, blockMargin, elem, frameStorageCode, lastPerLine, lineHei, minMargin, novaMultiselect, ref, ref1, showNames, style, styleFrame, styleName, unreg, updateId;
+      elem = $(element);
+      addItems = $(elem.find('.addItems')[0]);
+      actionsMenu = $(elem.find('.actionsMenu')[0]);
+      novaMultiselect = $(elem.find('.novaMultiselect')[0]);
+      style = new dynamicStyle('.novaContentFrame.$ div.novaItem');
+      elem.addClass(style.className);
+      styleName = new dynamicStyle('.novaContentFrame.$ div.novaItem div.name');
+      elem.addClass(styleName.className);
+      styleFrame = new dynamicStyle('.novaContentFrame.$ div.novaRowScrollerItems');
+      elem.addClass(styleFrame.className);
+      frameStorageCode = scope.appItem.id + '_' + ((ref = scope.flowFrame) != null ? (ref1 = ref.item) != null ? ref1.id : void 0 : void 0);
+      scope.zoom = localStorageService.get('novaContent_zoom_' + frameStorageCode) || 2.5;
+      minMargin = 30;
+      lastPerLine = null;
+      lineHei = 0;
+      blockMargin = 0;
+      showNames = true;
+      scope.updateZoom = function() {
+        var frameWid, fz, hei, margin, perLine, ref2, rest, verticalMargin, wid;
+        localStorageService.add('novaContent_zoom_' + frameStorageCode, scope.zoom);
+        wid = scope.zoom * 30 | 0;
+        hei = wid * 3 / 4 | 0;
+        frameWid = elem.width();
+        perLine = frameWid / (wid + minMargin) | 0;
+        rest = frameWid - (perLine * wid);
+        margin = rest / (perLine + 1);
+        margin /= 2;
+        verticalMargin = margin * 0.8 | 0;
+        style.update("width: " + wid + "px; height: " + hei + "px; margin: " + verticalMargin + "px " + margin + "px;");
+        styleFrame.update("padding: " + verticalMargin + "px " + margin + "px;");
+        fz = hei * 0.2 / 2;
+        if (fz < 10) {
+          fz = 10;
+        }
+        styleName.update("font-size: " + fz + "px;");
+        if (hei < 45 && showNames) {
+          elem.addClass('noItemNames');
+          showNames = false;
+        } else if (hei > 45 && !showNames) {
+          elem.removeClass('noItemNames');
+          showNames = true;
+        }
+        if (lastPerLine !== null && lastPerLine !== perLine) {
+          if ((ref2 = scope.scroller) != null) {
+            ref2.setPerLine(perLine);
+          }
+        }
+        lastPerLine = perLine;
+        lineHei = hei + verticalMargin * 2;
+        blockMargin = verticalMargin * 2;
+        return true;
+      };
+      scope.updateZoom();
+      unreg = scope.$watch('appItem.type', function(nVal) {
+        var query, ref2, ref3, scrollerElem;
+        if (nVal != null) {
+          unreg();
+          query = {
+            projectId: scope.appItem.projectId || scope.session.item.id,
+            combIds: scope.appItem.type === 'comb' ? scope.appItem.id : void 0,
+            parent: scope.appItem.type === 'comb' ? void 0 : 'null'
+          };
+          if (((ref2 = scope.flowFrame.item) != null ? ref2.type : void 0) === 'folder') {
+            query.parent = scope.flowFrame.item.id;
+            delete query.projectId;
+          }
+          if (((ref3 = scope.appItem) != null ? ref3.type : void 0) === 'comb') {
+            delete query.projectId;
+          }
+          scrollerElem = elem.find('.novaFrameContents');
+          return scope.scroller = new novaRowScroller({
+            query: query,
+            sortBy: 'created',
+            pageHeight: scrollerElem.height(),
+            elem: scrollerElem,
+            perLine: lastPerLine,
+            lineHei: lineHei,
+            blockMargin: blockMargin,
+            queryFunc: contentService.query,
+            apply: function() {
+              return scope.$applyAsync();
+            }
+          });
+        }
+      });
+      scope.handleResize = function() {
+        return scope.updateZoom();
+      };
+      scope.handleResizeEnd = function() {
+        var ref2;
+        return (ref2 = scope.scroller) != null ? ref2.rebuild() : void 0;
+      };
+      scope.addItems = function(e) {
+        var offset, sections;
+        sections = [
+          {
+            type: 'actions',
+            items: [
+              {
+                phrase: 'wizardTitle_text',
+                action: function() {
+                  var ref2;
+                  return novaWizard.fire('text', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    combId: scope.appItem.type === 'comb' ? scope.appItem.id : void 0,
+                    parent: ((ref2 = scope.flowFrame.item) != null ? ref2.id : void 0) || void 0
+                  });
+                }
+              }, {
+                phrase: 'wizardTitle_folder',
+                action: function() {
+                  var ref2;
+                  return novaWizard.fire('folder', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    combId: scope.appItem.type === 'comb' ? scope.appItem.id : void 0,
+                    parent: ((ref2 = scope.flowFrame.item) != null ? ref2.id : void 0) || void 0
+                  });
+                }
+              }, {
+                phrase: 'streamFrame_upload_content',
+                description: 'streamFrame_upload_content_description',
+                action: function() {
+                  var ref2, where;
+                  where = [];
+                  if (scope.appItem.type !== 'project') {
+                    where.push(scope.appItem);
+                  }
+                  if (((ref2 = scope.flowFrame.item) != null ? ref2.type : void 0) === 'folder') {
+                    where.push({
+                      type: 'folder',
+                      id: scope.flowFrame.item.id
+                    });
+                  }
+                  return novaWizard.fire('upload', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    where: where
+                  });
+                }
+              }, {
+                phrase: 'streamFrame_from_storage',
+                description: 'streamFrame_from_storage_description',
+                action: function() {
+                  return novaWizard.fire('contentBrowser', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    cb: function(items, ids) {
+                      var i, item, len, ref2, results;
+                      if (((ref2 = scope.flowFrame.item) != null ? ref2.type : void 0) === 'folder') {
+                        return contentService.addContentIds(scope.flowFrame.item, ids);
+                      } else {
+                        if (scope.appItem.type === 'project') {
+                          results = [];
+                          for (i = 0, len = items.length; i < len; i++) {
+                            item = items[i];
+                            results.push(contentService.call('moveToProject', {
+                              projectId: scope.appItem.id,
+                              itemId: item.id
+                            }));
+                          }
+                          return results;
+                        } else if (scope.appItem.type === 'comb') {
+                          return combService.addContentIds(scope.appItem, ids);
+                        }
+                      }
+                    }
+                  });
+                }
+              }, {
+                phrase: 'streamFrame_import',
+                description: 'streamFrame_import_description',
+                action: function() {
+                  return novaWizard.fire('importContent', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    cb: function(items, ids) {
+                      var i, item, len, ref2, results;
+                      if (((ref2 = scope.flowFrame.item) != null ? ref2.type : void 0) === 'folder') {
+                        return contentService.addContentIds(scope.flowFrame.item, ids);
+                      } else {
+                        if (scope.appItem.type === 'project') {
+                          results = [];
+                          for (i = 0, len = items.length; i < len; i++) {
+                            item = items[i];
+                            results.push(contentService.call('moveToProject', {
+                              projectId: scope.appItem.id,
+                              itemId: item.id
+                            }));
+                          }
+                          return results;
+                        } else if (scope.appItem.type === 'comb') {
+                          return combService.addContentIds(scope.appItem, ids);
+                        }
+                      }
+                    }
+                  });
+                }
+              }
+            ]
+          }
+        ];
+        offset = addItems.offset();
+        novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(addItems.width() / 2),
+            y: offset.top,
+            hei: addItems.height()
+          },
+          sections: sections,
+          menuStyle: 'center',
+          noApply: true
+        });
+        return true;
+      };
+      scope.showMenu = function(e) {
+        var context, items, offset, ref2;
+        items = angular.element(novaMultiselect[0]).scope().multiselect.selected;
+        context = scope.flowFrame.item;
+        if (items.length === 0 && (((ref2 = scope.flowFrame.item) != null ? ref2.id : void 0) != null)) {
+          items = [scope.flowFrame.item];
+          context = null;
+        }
+        offset = actionsMenu.offset();
+        novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(actionsMenu.width() / 2),
+            y: offset.top,
+            hei: actionsMenu.height()
+          },
+          items: items,
+          context: context,
+          menuStyle: 'center',
+          noApply: true
+        });
+        return true;
+      };
+      updateId = updateService.registerUpdateHandler(function(data, action, items) {
+        var affected, i, item, len;
+        if (action === 'update' || action === 'create' || action === 'delete') {
+          if (data['content'] != null) {
+            affected = [];
+            for (i = 0, len = items.length; i < len; i++) {
+              item = items[i];
+              if (contentService.isContent(item)) {
+                affected.push(contentService.getById(item.id));
+              }
+            }
+            if (affected.length > 0) {
+              return scope.scroller.updated(affected, action);
+            }
+          }
+        }
+      });
+      return scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+    }
+  };
+});
+
+registerStyles('novaContentFrame', ".novaContentFrame .novaScrollerPage {\n  border-bottom: 1px solid #f3f3f3;\n}\n.novaContentFrame .novaScrollerPage .novaScrollerPageBlock {\n  overflow: hidden;\n}\n.novaContentFrame .novaScrollerPage .pageCnt {\n  position: absolute;\n  bottom: 2px;\n  right: 5px;\n  color: #ccc;\n  font-size: 10px;\n}\n.novaContentFrame .novaRowScrollerItems > .novaContentItem > .novaItem {\n  -webkit-box-shadow: 0 0 2px 0 rgba(0,0,0,0.2);\n  box-shadow: 0 0 2px 0 rgba(0,0,0,0.2);\n}\n.novaContentFrame .novaFrameTopBar .addItems {\n  float: left;\n  height: 30px;\n  width: 30px;\n  margin-right: 8px;\n  line-height: 30px;\n  text-align: center;\n  font-size: 27px;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n  cursor: pointer;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaContentFrame .novaFrameTopBar .addItems:active {\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n}\n.novaContentFrame .novaFrameTopBar .addItems:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaContentFrame .novaFrameTopBar .novaZoomStatic {\n  float: right;\n}\n.novaContentFrame .novaFrameTopBar .actionsMenu {\n  float: right;\n  margin-right: 5px;\n  width: 30px;\n  height: 30px;\n  font-size: 25px;\n  line-height: 20px;\n  font-weight: bold;\n  text-align: center;\n  cursor: pointer;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaContentFrame .novaFrameTopBar .actionsMenu:active {\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n}\n.novaContentFrame .novaFrameTopBar .actionsMenu:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

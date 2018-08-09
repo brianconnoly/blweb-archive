@@ -1,0 +1,5 @@
+div(ng-class="{'active':isInvited}")
+    div.title(translate="'novaProject_invitationBar'")
+    div.actions
+        div.novaButton.acceptInvite(translate="'novaProject_invitationBar_accept'", ng-click="acceptInvitation()")
+        div.novaButton.rejectInvite(translate="'novaProject_invitationBar_reject'", ng-click="rejectInvitation()")

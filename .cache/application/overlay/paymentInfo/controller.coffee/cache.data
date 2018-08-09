@@ -1,0 +1,41 @@
+var PaymentInfoCtrl;
+
+PaymentInfoCtrl = function($scope, stateManager, paymentInfoService, localStorageService, $sce) {
+  var lang, paymentInfoState;
+  lang = localStorageService.get('user.lang');
+  paymentInfoState = {
+    'noMenu': true,
+    'hideRight': true,
+    'escape': function() {
+      return stateManager.goBack();
+    }
+  };
+  stateManager.applyState(paymentInfoState);
+  $scope.introPage = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/intro/' + lang]);
+  $scope.postPage1 = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/postPage1/' + lang]);
+  $scope.postPage2 = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/postPage2/' + lang]);
+  $scope.postPage3 = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/offer/' + lang]);
+  $scope.moneyPage1 = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/moneyPage1/' + lang]);
+  $scope.moneyPage2 = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/moneyPage2/' + lang]);
+  $scope.moneyPage3 = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/offer/' + lang]);
+  $scope.contactsPage = $sce.trustAsHtml(tC['/overlay/paymentInfo/partials/contactsPage/' + lang]);
+  $scope.status = paymentInfoService.status;
+  $scope.map = paymentInfoService.map;
+  $scope.showPage = paymentInfoService.showPage;
+  $scope.nextStep = function() {
+    if ($scope.allowNext()) {
+      return paymentInfoService.nextStep();
+    }
+  };
+  $scope.prevStep = paymentInfoService.prevStep;
+  $scope.allowNext = function() {
+    if ($scope.status.step === $scope.map[$scope.status.sequence].steps) {
+      return $scope.status.agreed;
+    }
+    return true;
+  };
+  $scope.showPage('introPage');
+  return $scope.$on('$destroy', function() {
+    return stateManager.goBack();
+  });
+};

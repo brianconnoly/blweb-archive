@@ -1,0 +1,37 @@
+buzzlike.directive("combPreview", function(contentService) {
+  return {
+    replace: false,
+    template: window.templateCache['/global/directives/combPreview'],
+    link: function(scope, element, attrs) {
+      var pic, ref;
+      scope.item = scope.comb;
+      $(element).data('item', scope.comb);
+      scope.combimage = {
+        thumbnail: '/resources/images/test/5050.png'
+      };
+      if (((ref = scope.comb.picIds) != null ? ref[0] : void 0) != null) {
+        pic = contentService.getContentById(scope.comb.picIds[0]);
+        $(element).data('image', pic.thumbnail);
+        scope.combimage = pic;
+      }
+      return true;
+    }
+  };
+}).directive("dragToTimeline", function(dragMaster) {
+  return {
+    replace: false,
+    link: function(scope, element, attrs) {
+      if (scope.item != null) {
+        $(element).data('item', scope.item);
+      }
+      new dragMaster.dragObject(element[0], {
+        global: true,
+        helper: 'clone',
+        start: function() {
+          return true;
+        }
+      });
+      return true;
+    }
+  };
+});

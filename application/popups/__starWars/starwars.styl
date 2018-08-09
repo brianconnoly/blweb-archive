@@ -1,0 +1,53 @@
+@font-face {
+  font-family: 'News Cycle';
+  font-style: normal;
+  font-weight: 400;
+  src: local('News Cycle Regular'), local('NewsCycle-Regular'), url(https://themes.googleusercontent.com/static/fonts/newscycle/v9/9Xe8dq6pQDsPyVH2D3tMQr3hpw3pgy2gAi-Ip7WPMi0.woff) format('woff');
+}
+@font-face {
+  font-family: 'News Cycle';
+  font-style: normal;
+  font-weight: 700;
+  src: local('News Cycle Bold'), local('NewsCycle-Bold'), url(https://themes.googleusercontent.com/static/fonts/newscycle/v9/G28Ny31cr5orMqEQy6ljt3bFhgvWbfSbdVg11QabG8w.woff) format('woff');
+}
+#starwars
+    position absolute
+    
+    top 0
+    bottom 0
+    right 0
+    left 0
+
+    background #000
+
+    display none
+
+    font: 700 16px "News Cycle", sans-serif
+    letter-spacing .15em
+    color: #ff6
+
+    vendor perspective 1000
+
+    div.perspective
+        position absolute
+        top 30%
+        width: 704px
+        margin-left -352px
+        left 50%
+        font-size: 300%
+        text-align: justify
+        overflow: visible
+        transform-origin: 50% 0%
+        transform perspective(300px) rotateX(25deg)
+    
+        div.scroller
+            position relative
+            top 500px
+
+            transition top 30s linear
+
+            p
+                margin-bottom 50px
+
+
+            

@@ -1,0 +1,81 @@
+tC['/novaAppLeftPanel/template.jade'] = "<div ng-click=\"triggerPanel()\" class=\"activator noDrag\"> <div class=\"bar\"></div> </div> <div ng-click=\"fireWizardPicker($event)\" class=\"addIcon\">+</div> <div class=\"fixedUnits compact\"> <div ng-repeat=\"unit in headUnits\" class=\"novaAppLeftPanelUnit\"></div> </div> <div class=\"panelUnits\"> <div ng-repeat=\"unit in units\" class=\"novaAppLeftPanelUnit\"></div> </div>";
+
+buzzlike.directive('novaAppLeftPanel', function(novaWizard, novaMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/novaAppLeftPanel/template.jade'],
+    transclude: true,
+    link: function(scope, element, attrs, ngModel) {
+      var addIcon, appElem, elem, fixedUnits, panelUnits;
+      elem = $(element);
+      addIcon = elem.children('.addIcon');
+      panelUnits = elem.find('.panelUnits');
+      fixedUnits = elem.find('.fixedUnits');
+      appElem = $(elem.parents('.novaApp')[0]);
+      appElem.addClass('withLeftPanel');
+      scope.triggerPanel = function() {
+        appElem.toggleClass('noLeftPanel');
+        return true;
+      };
+      scope.fireWizardPicker = function(e) {
+        var fn, i, len, offset, ref, section, sections, wizard;
+        section = {
+          type: 'actions',
+          items: []
+        };
+        sections = [section];
+        ref = novaWizard.wizards;
+        fn = function(wizard) {
+          return section.items.push({
+            phrase: 'wizardTitle_' + wizard,
+            descriptionPhrase: 'wizardDescription_' + wizard,
+            action: function() {
+              var data, ref1;
+              data = {};
+              data[scope.session.item.type + 'Id'] = scope.session.item.id;
+              if (((ref1 = scope.appItem) != null ? ref1.projectId : void 0) != null) {
+                data.projectId = scope.appItem.projectId;
+              }
+              return novaWizard.fire(wizard, data);
+            }
+          });
+        };
+        for (i = 0, len = ref.length; i < len; i++) {
+          wizard = ref[i];
+          fn(wizard);
+        }
+        offset = addIcon.offset();
+        novaMenu.show({
+          sections: sections,
+          menuStyle: 'center',
+          position: {
+            x: offset.left + addIcon.width() / 2,
+            y: offset.top + addIcon.height() + 5
+          },
+          noApply: true
+        });
+        e.stopPropagation();
+        return e.preventDefault();
+      };
+      scope.recountHead = function() {
+        var headHei, i, len, ref, ref1, unit;
+        headHei = 0;
+        if (scope.headUnits != null) {
+          ref = scope.headUnits;
+          for (i = 0, len = ref.length; i < len; i++) {
+            unit = ref[i];
+            headHei += ((ref1 = unit.elem) != null ? ref1.height() : void 0) || unit.unitHeight;
+          }
+        }
+        return panelUnits.css('top', headHei + 40);
+      };
+      return scope.onResize(function() {
+        return setTimeout(function() {
+          return scope.recountHead();
+        }, 0);
+      });
+    }
+  };
+});
+
+registerStyles('novaAppLeftPanel', ".novaAppLeftPanel {\n  overflow-y: auto;\n}\n.novaAppLeftPanel .activator {\n  position: absolute;\n  width: 17px;\n  height: 17px;\n  top: 11px;\n  left: 18px;\n  -webkit-border-radius: 4px;\n  border-radius: 4px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  border: 1px solid #f2f2f2;\n  -webkit-transition: left 0.2s ease;\n  -moz-transition: left 0.2s ease;\n  -o-transition: left 0.2s ease;\n  -ms-transition: left 0.2s ease;\n  transition: left 0.2s ease;\n}\n.styleBlack .novaAppLeftPanel .activator {\n  border-color: #333;\n}\n.styleBlack .novaAppLeftPanel .activator .bar {\n  border-color: #333;\n}\n.noLeftPanel .novaAppLeftPanel .activator {\n  left: 7px;\n}\n.novaAppLeftPanel .activator:hover {\n  cursor: pointer;\n}\n.novaAppLeftPanel .activator .bar {\n  pointer-events: none;\n  position: absolute;\n  display: block;\n  height: 100%;\n  width: 1px;\n  left: 5px;\n  border-right: 1px solid #f2f2f2;\n}\n.novaAppLeftPanel .addIcon {\n  position: absolute;\n  top: 11px;\n  left: 48px;\n  font-size: 25px;\n  line-height: 17px;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaAppLeftPanel .addIcon:hover {\n  cursor: pointer;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaAppLeftPanel .fixedUnits {\n  position: absolute;\n  top: 40px;\n  left: 0;\n  right: 0;\n  z-index: 1;\n}\n.novaAppLeftPanel .panelContents,\n.novaAppLeftPanel .panelUnits {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow: hidden;\n  overflow-y: auto;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaAppLeftPanel .panelContents .fixed,\n.novaAppLeftPanel .panelUnits .fixed {\n  position: fixed;\n}\n.noLeftPanel .novaAppLeftPanel .panelContents,\n.noLeftPanel .novaAppLeftPanel .panelUnits {\n  padding: 0;\n}\n");

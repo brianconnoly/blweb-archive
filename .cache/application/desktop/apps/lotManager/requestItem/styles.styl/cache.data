@@ -1,0 +1,22 @@
+.requestItem .cell {
+  font-size: 14px;
+  color: #333;
+  line-height: 40px;
+  height: 40px;
+}
+.requestItem .pic .picBox {
+  width: 30px;
+  height: 30px;
+  margin: 5px 10px;
+  cursor: pointer;
+}
+.requestItem .statusBlock {
+  padding: 0 20px 0 0;
+  font-size: 12px;
+  line-height: 40px;
+  text-align: right;
+}
+.requestItem .statusBlock.canceled,
+.requestItem .statusBlock.rejected {
+  color: #c1272d;
+}

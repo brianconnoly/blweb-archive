@@ -1,0 +1,121 @@
+.dayStat {
+  overflow: hidden;
+  height: 100%;
+  width: 100;
+  background: rgba(0,0,0,0.4);
+  text-align: center;
+  color: #fff;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.dayStat.completed {
+  background: rgba(0,0,0,0.6);
+}
+.dayStat .weekDay {
+  margin-top: 7px;
+  font-size: 10px;
+  line-height: 11px;
+}
+.zoom_min .dayStat .weekDay {
+  text-align: left;
+  margin-top: 2px;
+  margin-left: 5px;
+}
+.dayStat .monthYear {
+  font-size: 10px;
+  line-height: 11px;
+}
+.zoom_min .dayStat .monthYear {
+  text-align: left;
+  margin-left: 5px;
+}
+.dayStat .monthDay {
+  margin-top: 5px;
+  font-size: 31px;
+  font-weight: bolder;
+}
+.zoom_max .dayStat .monthDay {
+  font-size: 35px;
+  margin-top: 20px;
+  margin-bottom: 13px;
+}
+.zoom_min .dayStat .monthDay {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  font-size: 20px;
+  margin-top: 3px;
+}
+.dayStat .stats {
+  margin-top: 5px;
+  cursor: pointer;
+}
+.zoom_min .dayStat .stats {
+  margin-top: 2px;
+}
+.dayStat .stats * {
+  cursor: pointer;
+}
+.dayStat .stats .value {
+  font-size: 16px;
+}
+.zoom_min .dayStat .stats .value {
+  font-size: 14px;
+}
+.dayStat .stats .value .marker {
+  display: inline-block;
+  border-left: solid 5px transparent;
+  border-right: solid 5px transparent;
+  border-bottom: solid 9px #34a43d;
+  margin-right: 2px;
+}
+.dayStat .stats .value .marker.down {
+  border-left: solid 5px transparent;
+  border-right: solid 5px transparent;
+  border-top: solid 9px #f00;
+  border-bottom: none;
+}
+.dayStat .stats .period {
+  font-size: 11px;
+}
+.dayStat .arrow {
+  position: absolute;
+  bottom: 10px;
+  cursor: pointer;
+}
+.zoom_min .dayStat .arrow {
+  bottom: 5px;
+}
+.dayStat .arrow .corner {
+  border: 1px solid #fff;
+  border-top: none;
+  width: 8px;
+  height: 8px;
+  margin: 5px;
+  cursor: pointer;
+}
+.dayStat .arrow.arrowRight {
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  right: 6px;
+}
+.dayStat .arrow.arrowRight .corner {
+  border-left: none;
+}
+.dayStat .arrow.arrowLeft {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  left: 6px;
+}
+.dayStat .arrow.arrowLeft .corner {
+  border-right: none;
+}

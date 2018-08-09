@@ -1,0 +1,465 @@
+buzzlike.controller('combEditCtrl', function($filter, desktopService, uploadService, resize, confirmBox, contextMenu, contentService, localization, $scope, multiselect, combService, postService, scheduleService, dragMaster, operationsService, complexMenu, actionsService) {
+  var comb, process, ref, ref1, screen, sortContent, sortPosts, updateContentView, updatePostScroller;
+  if ($scope.session.zoom == null) {
+    $scope.session.zoom = 'mid';
+  }
+  $scope.stateTree.applyState({
+    'V cmd': function(repeat, defaultAction) {
+      defaultAction([$scope.comb]);
+      if ($scope.shortcuts['text'] != null) {
+        return $scope.paginatorParams.currentPage = $scope.shortcuts['text'];
+      }
+    },
+    'U cmd': function(repeat, defaultAction) {
+      return defaultAction([$scope.comb]);
+    },
+    'delete': function() {
+      var content, contentIds, contentInPost, ctx, elem, flow, focused, i, item, len, postId, postIds, postItems, posts, scope;
+      focused = $(".combEdit .selected");
+      content = [];
+      contentIds = [];
+      posts = [];
+      postIds = [];
+      contentInPost = [];
+      postItems = {};
+      for (i = 0, len = focused.length; i < len; i++) {
+        elem = focused[i];
+        scope = angular.element(elem).scope();
+        if ((scope.id != null) && (scope.type != null)) {
+          item = operationsService.get(scope.type, scope.id);
+        } else {
+          item = scope.item;
+        }
+        elem = $(elem);
+        ctx = elem.parents(".multiselect")[0];
+        ctx = $(ctx);
+        if (item.type === 'post') {
+          posts.push(item);
+          postIds.push(item.id);
+        } else {
+          if (ctx.hasClass('postContent')) {
+            postId = angular.element(ctx).scope().post.id;
+            if (postItems[postId] == null) {
+              postItems[postId] = [];
+            }
+            postItems[postId].push(item.id);
+            contentInPost.push(item);
+          } else if (ctx.hasClass('rightContent')) {
+            content.push(item);
+            contentIds.push(item.id);
+          }
+        }
+      }
+      flow = {
+        counter: 0,
+        chain: [],
+        next: function() {
+          var ref;
+          return (ref = flow.chain[flow.counter++]) != null ? ref.apply(this, arguments) : void 0;
+        }
+      };
+      if (content.length) {
+        flow.chain.push(function() {
+          var string, title;
+          string = content.length + ' ' + localization.declension(content.length, 'declension_element');
+          title = localization.translate('comb_removeFromComb').replace("%s", string);
+          return confirmBox.init({
+            phrase: title,
+            description: 'optionsList_comb_delete_description'
+          }, function() {
+            return combService.removeContentIds($scope.comb, contentIds, function() {
+              updateContentView();
+              return flow.next();
+            });
+          }, flow.next);
+        });
+      }
+      if (posts.length) {
+        flow.chain.push(function() {
+          var string, title;
+          string = posts.length + ' ' + localization.declension(posts.length, 'declension_post');
+          title = localization.translate('comb_remove').replace("%s", string);
+          confirmBox.init(title, function() {
+            return postService.deleteByIds(postIds, function(result) {
+              return flow.next();
+            });
+          }, flow.next);
+          return true;
+        });
+      }
+      if (contentInPost.length) {
+        flow.chain.push(function() {
+          var string, title;
+          string = contentInPost.length + ' ' + localization.declension(contentInPost.length, 'declension_element');
+          title = localization.translate('comb_removeFromPost').replace("%s", string);
+          confirmBox.init(title, function() {
+            var items;
+            for (postId in postItems) {
+              items = postItems[postId];
+              postService.removeContentIds(postId, items);
+            }
+            return flow.next();
+          }, flow.next);
+          return true;
+        });
+      }
+      multiselect.flush();
+      flow.next();
+      return true;
+    }
+  });
+  $scope.$watch('session.zoom', function(nVal) {
+    return updateContentView();
+  });
+  $scope.shortcuts = {};
+  $scope.filterSettings = {
+    sortBy: 'order',
+    hideAllSent: false,
+    hideAllScheduled: false,
+    invert: false
+  };
+  $scope.id = $scope.session.postId;
+  $scope.backToAllPosts = function() {
+    return $scope.id = null;
+  };
+  $scope.postsScroller = {
+    total: (ref = $scope.allPosts) != null ? ref.length : void 0,
+    perPage: 0,
+    itemVar: 'id',
+    template: '<post-editor></post-editor>',
+    watchObject: 'allPosts',
+    heightOffset: 80,
+    getPage: function(page, cb) {
+      if ($scope.allPosts != null) {
+        return typeof cb === "function" ? cb($scope.allPosts.slice(page * $scope.postsScroller.perPage, (page + 1) * $scope.postsScroller.perPage)) : void 0;
+      } else {
+        return typeof cb === "function" ? cb([]) : void 0;
+      }
+    }
+  };
+  updatePostScroller = function() {
+    return $scope.postsScroller.total = $scope.allPosts.length;
+  };
+  $scope.contentScroller = {
+    total: (ref1 = $scope.allContent) != null ? ref1.length : void 0,
+    perPage: 0,
+    itemVar: 'id',
+    template: '<li class="contextMenu previewContainer selectableItem editableItem droppableItem" context="comb" type="content" ng-dblclick="contentClick(item, $event)">' + '<div class="itemPreview" ng-dblclick="contentClick(id, $event)" type="content" id="id"></div>' + '</li>',
+    watchObject: 'allContent',
+    heightOffset: 80,
+    getPage: function(page, cb) {
+      var ref2;
+      if (((ref2 = $scope.allContent) != null ? ref2.length : void 0) > 0) {
+        return typeof cb === "function" ? cb($scope.allContent.slice(page * $scope.contentScroller.perPage * screen.perLine, (page + 1) * $scope.contentScroller.perPage * screen.perLine)) : void 0;
+      } else {
+        return typeof cb === "function" ? cb([]) : void 0;
+      }
+    }
+  };
+  screen = {
+    wid: 5,
+    hei: 1,
+    cont_hei: 1,
+    cont_wid: 1,
+    cont_wid_mini: 2,
+    perLine: 1
+  };
+  $scope.pageSize = screen.wid * screen.hei;
+  $scope.paginatorParams = {
+    currentPage: 0,
+    contentTypes: []
+  };
+  $scope.postWidth = 'auto';
+  updateContentView = function() {
+    var base, itemHeight, itemWidth, postsCol, postsLine, teamPanel, totalItems;
+    if ($scope.comb == null) {
+      return;
+    }
+    switch ($scope.session.zoom) {
+      case 'min':
+        $scope.contentScroller.minHeight = 74;
+        itemWidth = 90;
+        itemHeight = 74;
+        break;
+      case 'mid':
+        $scope.contentScroller.minHeight = 123;
+        itemWidth = 159;
+        itemHeight = 123;
+        break;
+      case 'max':
+        $scope.contentScroller.minHeight = 161;
+        itemWidth = 197;
+        itemHeight = 161;
+    }
+    teamPanel = $scope.comb.teamId != null ? 99 : 0;
+    postsLine = ($scope.session.size.width - 390 - teamPanel) / itemWidth | 0;
+    postsCol = ($scope.session.size.height - 120) / itemHeight | 0;
+    screen.perLine = postsLine;
+    totalItems = $scope.allContent.length;
+    $scope.contentScroller.total = Math.ceil(totalItems / postsLine);
+    return typeof (base = $scope.contentScroller).rebuildPages === "function" ? base.rebuildPages() : void 0;
+  };
+  $scope.allContent = [];
+  $scope.allPosts = [];
+  sortContent = function() {
+    var id, k, ref2, results, v;
+    if ($scope.comb == null) {
+      return;
+    }
+    $scope.allContent.length = 0;
+    ref2 = comb.contentIds;
+    results = [];
+    for (k in ref2) {
+      v = ref2[k];
+      results.push((function() {
+        var i, results1;
+        results1 = [];
+        for (i = v.length - 1; i >= 0; i += -1) {
+          id = v[i];
+          results1.push($scope.allContent.push(id));
+        }
+        return results1;
+      })());
+    }
+    return results;
+  };
+  sortPosts = function() {
+    var i, id, len, list, orderBy, ref2, results;
+    if ($scope.comb == null) {
+      return;
+    }
+    $scope.allPosts.length = 0;
+    list = $filter('filter')(comb.postIds, $scope.postFilter);
+    list = $filter('orderBy')(list, $scope.postOrder);
+    orderBy = $scope.filterSettings.invert === true ? 1 : -1;
+    ref2 = orderBy;
+    results = [];
+    for ((ref2 > 0 ? (i = 0, len = list.length) : i = list.length - 1); ref2 > 0 ? i < len : i >= 0; i += ref2) {
+      id = list[i];
+      results.push($scope.allPosts.push(id));
+    }
+    return results;
+  };
+  process = $scope.progress.add();
+  $scope.comb = comb = combService.getById($scope.session.combId, function(item) {
+    $scope.progress.finish(process);
+    $scope.comb = comb = item;
+    sortContent();
+    sortPosts();
+    updateContentView();
+    return updatePostScroller();
+  });
+  $scope.$watch('comb.contentIds', function(nVal) {
+    if (nVal != null) {
+      sortContent();
+      return updateContentView();
+    }
+  }, true);
+  $scope.$watch('comb.postIds', function(nVal) {
+    if (nVal != null) {
+      sortPosts();
+      return updatePostScroller();
+    }
+  }, true);
+  $scope.$watch('comb.teamId', function(nVal) {
+    return updateContentView();
+  });
+  $scope.onResize(function(wid, hei) {
+    var base, base1;
+    updateContentView();
+    if (typeof (base = $scope.contentScroller).rebuildPages === "function") {
+      base.rebuildPages();
+    }
+    return typeof (base1 = $scope.postsScroller).rebuildPages === "function" ? base1.rebuildPages() : void 0;
+  });
+  $scope.postOrder = function(id) {
+    var post, sched;
+    post = postService.getById(id);
+    if (post.scheduled === true) {
+      sched = scheduleService.getOriginalByPostId(id);
+    }
+    switch ($scope.filterSettings.sortBy) {
+      case 'created':
+      case 'lastUpdated':
+        return post[$scope.filterSettings.sortBy];
+      case 'planned':
+        return (sched != null ? sched.created : void 0) || 0;
+      case 'sended':
+        return (sched != null ? sched.timestamp : void 0) || 0;
+      case 'order':
+        return $scope.comb.postIds.indexOf(id);
+    }
+  };
+  $scope.postFilter = function(id) {
+    var post, sched;
+    post = postService.getById(id);
+    if (post.deleted === true) {
+      return false;
+    }
+    if (post.scheduled === true) {
+      sched = scheduleService.getOriginalByPostId(id);
+    } else {
+      return true;
+    }
+    if ($scope.filterSettings.hideAllSent) {
+      return sched.status === 'planned';
+    }
+    if ($scope.filterSettings.hideAllScheduled) {
+      return !post.scheduled;
+    }
+    return true;
+  };
+  $scope.showSortMenu = function(e) {
+    return complexMenu.show([
+      {
+        object: $scope.filterSettings,
+        type: 'select',
+        param: 'sortBy',
+        selectFunction: function() {
+          return sortPosts();
+        },
+        items: [
+          {
+            phrase: 'filter_catalog_sort_order',
+            value: 'order'
+          }, {
+            phrase: 'filter_catalog_sort_created',
+            value: 'created'
+          }, {
+            phrase: 'filter_catalog_sort_lastUpdated',
+            value: 'lastUpdated'
+          }, {
+            phrase: 'filter_catalog_sort_planned',
+            value: 'planned'
+          }, {
+            phrase: 'filter_catalog_sort_sended',
+            value: 'sended'
+          }
+        ]
+      }, {
+        object: $scope.filterSettings,
+        type: 'checkbox',
+        selectFunction: function() {
+          return sortPosts();
+        },
+        items: [
+          {
+            phrase: 'filter_settings_hide_sent',
+            param: 'hideAllSent'
+          }, {
+            phrase: 'filter_settings_hide_scheduled',
+            param: 'hideAllScheduled'
+          }, {
+            phrase: 'filter_settings_invert',
+            param: 'invert'
+          }
+        ]
+      }
+    ], {
+      top: $(e.target).offset().top + 27,
+      left: $(e.target).offset().left
+    });
+  };
+  $scope.multiselectState = multiselect.state;
+  $scope.addToEachPost = function() {
+    var i, ids, item, items, len;
+    items = multiselect.getFocused();
+    ids = [];
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      ids.push(item.id);
+    }
+    process = $scope.progress.add();
+    return combService.addToEveryPost({
+      combId: $scope.comb.id,
+      ids: ids
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.newPost = function() {
+    var i, ids, item, items, len;
+    items = multiselect.getFocused();
+    ids = [];
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      ids.push(item.id);
+    }
+    process = $scope.progress.add();
+    return postService.create({
+      combId: $scope.comb.id,
+      items: ids
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.newText = function() {
+    process = $scope.progress.add();
+    return contentService.create({
+      type: 'text'
+    }, function(textItem) {
+      return combService.addContentIds($scope.comb.id, [textItem.id], function() {
+        $scope.progress.finish(process);
+        desktopService.launchApp('textEditor', {
+          textId: textItem.id
+        });
+        if ($scope.shortcuts['text'] != null) {
+          return $scope.paginatorParams.currentPage = $scope.shortcuts['text'];
+        }
+      });
+    });
+  };
+  $scope.upload = function() {
+    return uploadService.requestUpload($scope.comb);
+  };
+  return $scope.showMoreMenu = function(e) {
+    var action, actions, groups, i, items, itemsActions, k, len, list;
+    items = multiselect.getFocused();
+    if (items.length > 0) {
+      itemsActions = actionsService.getActions({
+        source: items,
+        context: $scope.comb,
+        target: $scope.comb
+      });
+    } else {
+      itemsActions = actionsService.getActions({
+        source: [$scope.comb]
+      });
+    }
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (i = 0, len = itemsActions.length; i < len; i++) {
+        action = itemsActions[i];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      complexMenu.show(groups, {
+        top: $(e.target).offset().top + 27,
+        left: $(e.target).offset().left
+      });
+    }
+    return true;
+  };
+});

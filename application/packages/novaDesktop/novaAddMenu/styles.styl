@@ -1,0 +1,46 @@
+position: absolute
+top 0
+bottom 0
+left 0
+right 0
+pointer-events none
+z-index 1
+
+&.showed
+    pointer-events auto
+    .novaAddMenuWindow
+        margin-bottom 0
+        transform scale(1)
+        opacity 1
+
+.novaAddMenuWindow
+    position: absolute
+    background: rgba(10,10,10,0.75)
+    border-radius 6px
+    padding 5px 0
+    transform scale(0.8)
+    opacity 0
+    transition all 0.2s ease
+    margin-bottom: -20px
+
+    &:after
+        content: ""
+        border-right 8px solid transparent
+        border-left 8px solid transparent
+        border-top 8px solid rgba(10,10,10,0.75)
+
+        position: absolute
+        bottom -8px
+        left 50%
+        margin-left: -8px
+
+    .menuItem
+        color: #fff
+        padding 3px 10px 5px
+        transition background 0.2s ease
+        cursor: pointer
+        text-align left
+        // border-bottom 1px solid rgba(10,10,10,0.6)
+
+        &:hover
+            background: rgba(255,255,255,0.2)

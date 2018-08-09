@@ -1,0 +1,189 @@
+div#big_loading.big_loading
+    div.buzzLogo.logo
+        img.dark(src="/resources/images/login/dark.svg", width="40px", height="45px")
+        img.light(src="/resources/images/login/light.svg", width="40px", height="45px")
+        div.text buzzlike
+
+    div.progress
+        div#loadingProgress.filled
+
+    div#loadingStatus.status Загрузка скриптов
+
+div.nwfl_viewport.flushMultiselect.asyncUpload(ng-class="{'turbo':animPrefs.turbo, 'touch':touchState.touch, 'wait':notificationState.wait, 'showRight': showedPanels.right, 'showLeft': showedPanels.left, 'blur-active': isBlurUsed()}")
+    div.progressBar#topProgressBar
+        div.value
+    div.background.liveBackground(ng-class="{'overlayShowed': isOverlayShowed()}")
+        div.gradient.content
+        div.gradient.combs
+        div.gradient.timeline
+        div.gradient.market
+        div.gradient.classic
+        div.gradient.queue
+        div.container
+    div.snowScreen
+    div.nwflw_nav.smartHeader#nav(ng-class="{'paymentRequired': user.daysRemain<=3}", ng-click="showPaymentRequired($event)")
+        div.plus.sprite.ios-nodelay.tl_addcommplus(ng-click="showAddPanel()")
+        //- div.up.sprite.ios-nodelay(ng-click="goUp()")
+        div.navigation_button.item.ios-nodelay(ng-repeat="nav in navigation", ng-click="go(nav.state, $event)", ng-class="{'active': isCurrentState(nav.state)}", class="page_{{nav.state}} tl_goto{{nav.state}}")
+            span(translate="'nav_' + nav.state")
+
+        div.menu(class="bg_{{currentState}}")
+            div.navigationIcon.showTeamManager(ng-click="showTeamManager()")
+                img.icon.switch.white(src="/resources/images/topbar/team.svg", width="30px", height="30px")
+                img.icon.switch.black(src="/resources/images/topbar/team-black.svg", width="30px", height="30px")
+                div.counter(ng-if="teamNews > 0") {{teamNews}}
+            div.navigationIcon.marketButtonBlock(ng-click="showMarket()")
+                img.icon.switch.white(src="/resources/images/topbar/market.svg", width="30px", height="30px")
+                img.icon.switch.black(src="/resources/images/topbar/market-black.svg", width="30px", height="30px")
+                div.counter(ng-show="newRequests > 0 || returned > 0") {{newRequests + returned}}
+            div.notificationCenter.ios-nodelay(ng-click="triggerPanel()", ng-class="{'error':notificationStatus.error, 'new':makeArray(unreadNotifications).length>0, 'spinner': spinnerShow}")
+                img.icon.switch.white(src="/resources/images/topbar/notify.svg", width="30px", height="30px")
+                img.icon.switch.black(src="/resources/images/topbar/notify-black.svg", width="30px", height="30px")
+                div.counter {{makeArray(unreadNotifications).length}}
+                div.error(ng-click="refresh()")
+            //-div.help.sprite.ios-nodelay.tl_opentutorial(ng-click="showTutorial()")
+            div.options.sprite(ng-click="showOptions()")
+            div.name.accountUpdate.tl_opensettings(ng-click="showOptions()") {{user.name}}
+            div.logout.sprite.ios-nodelay(ng-click="logout()")
+
+    div.systemMessages
+        div.message(ng-repeat="notification in messages", ng-class="{'error': notification.error}", ng-click="removeMessage(notification)", ng-mouseenter="removeMessage(notification, 'hover')")
+            div(ng-switch="notification.type")
+
+                div.notificationItem(ng-switch-when="notification")
+                    div.notificationPreview
+
+                div.notificationItem(ng-switch-default)
+                    div.preview(ng-if="hasPreview(notification)")
+                        div.itemPreview(type="{{notification.item.type}}", id="notification.item.id")
+                    div.preview(ng-if="!hasPreview(notification)")
+                        img(ng-if="notification.error == true", src="/resources/images/elements/achtung.svg", width="60px", height="60px")
+                        img(ng-if="notification.error != true", src="/resources/images/elements/greenCircle.svg", width="60px", height="60px")
+
+                    div.text
+                        div.header(ng-if="notification.realText") {{notification.realText}}
+                        div.header(ng-if="!notification.realText", translate="notification.text")
+                        div.description(ng-if="notification.description") {{notification.description}}
+
+                    div.notificationButtons
+
+    div.nwflw_view(ng-class="{'overlayShowed': isOverlayShowed()}")
+        div.workarea.viewport3d(ui-view="workarea")
+        div.fader
+
+    div#rightPanel.selectedPanel(ng-mousedown="selectWork($event)", ng-class="{'showScrollers':dragMaster.dragInProgress()}")
+        div.scroller.scrollUp(ng-mouseenter="upEnter()", ng-mouseleave="upLeave()")
+        div.scroller.scrollDown(ng-mouseenter="downEnter()", ng-mouseleave="downLeave()")
+        div.selectFocused.flushMousedown(ng-click="selectFocused($event)", ng-class="{'active': multiselectState.focusedHash.length > 0}")
+        div.dropZone(ng-class="{'active': showDragZone() }")
+        ul.typeSwitcher(ng-show="activeTypes.length > 1")
+            li.type(ng-repeat="type in activeTypes", class="type_{{type.id}} tl_rightpaneltype_{{type.id}}", ng-class="{'active':active_type == type.id}", ng-click="switchType(type.id)", ng-mouseenter="hoverType(type.id)") {{localization.translate(type.name)}}
+
+        //- div.selectedContents.contextView(ng-if="selectionStatus.context[active_type] && selectionStatus.context[active_type].type == 'folder'")
+            
+
+        div.selectedContents.tl_rightpanel.tl_rightpanel2.tl_rightpanel3.tl_rightpanel4
+            
+            ul.selected.contextView.multiselect(ng-if="selectionStatus.context[active_type]")
+                div.context
+                    div.back(ng-click="goBack()") &#8592;
+                    div.contextPreview
+                        div.itemPreview(item="selectionStatus.context[active_type]")
+                    div.name
+                        input(ng-model="selectionStatus.context[active_type].name", placeholder="{{getContextPlaceholder()}}")
+
+                li.item.contextMenu.editableItem.selectableItem.stuck.droppableItem(context="selectionStatus.context[active_type]", ng-if="selectionStatus.context[active_type] && selectionStatus.context[active_type].type == 'folder'", type="content", ng-repeat="id in selectionStatus.context[active_type].contentIds | reverse")
+                    div.itemPreview(type="content", id="id", overlay="rightPanel")
+
+                li.item.contextMenu.editableItem.selectableItem.stuck.droppableItem(context="selectionStatus.context[active_type]", ng-if="selectionStatus.context[active_type] && selectionStatus.context[active_type].type == 'team'", type="user", id="{{member.userId}}", ng-repeat="member in selectionStatus.context[active_type].members | reverse")
+                    div.itemPreview(type="user", id="member.userId", overlay="rightPanel")
+
+            ul.selected.ios-scroll.multiselect(antiscroll, ng-repeat="(name, category) in selected", class="{{name}}", ng-class="{'single':category.length<4}", ng-hide="selectionStatus.context[active_type]")
+                li.item.contextMenu.editableItem.selectableItem.stuck.droppableItem(context="{'type': 'rightPanel'}", type="{{name}}", ng-repeat="item in category | reverse", ng-class="{'deleting': item.deleting == true}", class="contentType_{{item.type}}")
+                    div.itemPreview(item="item", overlay="rightPanel")
+                    div.removeBox(ng-click="removeSel(item, name)")
+
+        ul.actions.tl_rightpanelactions
+            li.action.flushMousedown(translate="'rightPanel_hide_all_actions'", ng-click="showAll = false", ng-show="showAll && lowerActions.length > 0")
+            li.action.flushMousedown(translate="'rightPanel_show_all_actions'", ng-click="showAll = true", ng-show="!showAll && lowerActions.length > 0")
+            li.action(ng-show="showAll", ng-repeat="action in lowerActions", ng-click="callAction(action,$event)", translate="action.phrase")
+                div.stickyAction(ng-click="callSticky(action,$event)", ng-if="action.sticky")
+            li.action(ng-repeat="action in actions", ng-click="callAction(action,$event)", translate="action.phrase")
+                div.stickyAction(ng-click="callSticky(action,$event)", ng-if="action.sticky")
+    
+    div.notificationPanel.notificationFader.shader(ng-class="{'active':notificationStatus.panelShown}")
+        div.panel
+            div.nothingToShow(ng-show="makeArray(unread).length == 0", translate="'no_unread_notifications'")
+            div.notificationsContainer
+                div.notificationItem(ng-repeat="notification in makeArray(unreadNotifications) | orderBy:'created':true | limitTo:5")
+                    div.notificationPreview
+            ul.options
+                li.option.hoverActive(ng-click="showAll()", translate="'show_all_notifications'")
+                li.option.hoverActive.cancel(ng-if="makeArray(unread).length > 0", ng-click="hideAll($event)", translate="'mark_all_read'")
+
+    div#overlays.overlays
+
+    div.combobox-list
+
+    div.uploadFader
+        div.window
+            div.caption.top(translate="'import_dropcontent1'")
+            div.line-blocks
+                div.block.png .png
+                div.block.jpg .jpg
+                div.block.gif .gif
+            div.caption.middle ... {{localization.translate('import_dropcontent2')}}
+            div.line-blocks
+                div.block.text .txt
+            div.caption.bottom(translate="'import_dropcontent3'")
+        div.window.wrong
+            div.caption(translate="'import_dropcontent4'")
+
+        div.realFader
+
+    div.calendar.tl_calendardescript(draggable-window=".center")
+
+    form.uploadHelper
+        input.tutorialCourseTagForce(type="file", multiple, ng-model="files", style="opacity: 0; top: -55px")
+
+    form.importHelper
+        input#importFullHelper(type="file", accept="application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="opacity: 0; top: -55px")
+
+    form.importHelper
+        input#importCommunityHelper(type="file", accept="application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="opacity: 0; top: -55px")
+
+    div.shader.empty.textEditor(style="display:none")
+
+    table.optionsList.empty.shader.tutorialCourseTagForce(ng-show="state.showed", width="100%", height="100%")
+        tr
+            td(width="100%", height="100%", style="vertical-align: middle", ng-if="state.showed")
+                div.window
+                    div.message(ng-bind-html="localization.translate(state.text) || state.realText")
+                    div.description(ng-if="state.description") {{localization.translate(state.description)}}
+                    ul.options
+                        li.option(  ng-repeat="option in state.options",
+                                    ng-class="{'active':$index==state.selected}",
+                                    class="{{option.class}}",
+                                    ng-click="callAction($index)",
+                                    ng-mousemove="select($index)") {{localization.translate( option.text ) || option.realText}}
+
+    div.tutorialcourse.tutorialCourseTagForce
+
+    div#menuWindow.menuWindow
+
+    div.lightboxPreview.shader
+        div.window.closer(ng-switch="item.type")
+            div.loading
+                div.spinner
+            div.picture.content(ng-show="item.type == 'image'")
+                img(ng-src="{{proxyImage(item.original)}}")
+            div.video.content(ng-show="item.type == 'video'")
+                //-iframe(src="{{videoUrl}}", width="100%", height="100%", frameborder=0)
+    //- div.inspector(draggable-window=".inspector")
+    
+    div#dropHelper.dropHelper
+
+    //- div#iframeContainer
+    //-div.snowScreen
+
+touch-helper(ng-class="{'active':touchState.touch, 'big':touchState.bigBottom}")

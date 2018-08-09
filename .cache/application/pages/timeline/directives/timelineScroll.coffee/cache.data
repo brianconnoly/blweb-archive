@@ -1,0 +1,96 @@
+buzzlike.directive('timelineScroll', function() {
+  return {
+    restrict: 'C',
+    template: '<div class="scroller"></div><div class="current-time tl_eveningtime tl_nowbutton" translate="\'go_now\'"></div>',
+    replace: false,
+    link: function(scope, element, attrs) {
+      var handler, initSpeed, intervalId, removeEvents, scrollFunction, scrollSpeed, scrollerWidth, setEvents, setGradient;
+      element = $(element);
+      handler = $("div.timeline");
+      scrollerWidth = 0;
+      intervalId = null;
+      scrollSpeed = 0;
+      scope.inProcess = false;
+      setEvents = function(elem) {
+        scope.inProcess = true;
+        return handler.on('mousemove', function(e) {
+          e = fixEvent(e);
+          return setGradient(e, elem);
+        }).on('mouseup', removeEvents).on('dragstart selectstart', function() {
+          return false;
+        });
+      };
+      removeEvents = function() {
+        handler.off('mousemove mouseup dragstart selectstart');
+        scope.inProcess = false;
+        scrollSpeed = 0;
+        clearInterval(intervalId);
+        return intervalId = null;
+      };
+      scrollFunction = function() {
+        if (scrollSpeed !== 0) {
+          return scope.doScroll(scrollSpeed / 5);
+        }
+      };
+      initSpeed = function(e) {
+        var dx, scrollerCenterX;
+        scrollerWidth = element.width();
+        scrollerCenterX = element.offset().left + scrollerWidth / 2;
+        dx = e.pageX - scrollerCenterX;
+        if (dx < 30 && dx > -30) {
+          dx = 0;
+        }
+        if (dx > scrollerWidth / 2) {
+          dx = scrollerWidth / 2;
+        }
+        if (dx < -scrollerWidth / 2) {
+          dx = -scrollerWidth / 2;
+        }
+        return dx;
+      };
+      setGradient = function(e, elem) {
+        var angle, endColor, h, l, params, s, startColor, w2, webkitAngle, x;
+        scrollSpeed = initSpeed(e);
+        w2 = scrollerWidth / 2;
+        x = scrollSpeed;
+        h = -(125 / (w2 * w2)) * x * x + 120;
+        s = '100%';
+        l = '70%';
+        angle = 'left';
+        webkitAngle = '0deg';
+        startColor = "hsla(" + h + "," + s + ", " + l + ", 0) 0%";
+        endColor = "hsla(" + h + "," + s + ", " + l + ", 1) 100%";
+        params = {
+          'width': Math.abs(scrollSpeed),
+          'marginLeft': ''
+        };
+        if (scrollSpeed < 0) {
+          params.marginLeft = scrollSpeed;
+          angle = '-90deg';
+          webkitAngle = '180deg';
+        }
+        return $(elem).children('.scroller').css('background-image', '-webkit-linear-gradient(' + webkitAngle + ', ' + startColor + ', ' + endColor + ')').css('background-image', '-moz-linear-gradient(' + angle + ', ' + startColor + ', ' + endColor + ')').css('background-image', '-o-linear-gradient(' + angle + ', ' + startColor + ', ' + endColor + ')').css('background-image', '-ms-linear-gradient(' + angle + ', ' + startColor + ', ' + endColor + ')').css('filter', 'progid:DXImageTransform.Microsoft.gradient(startColorstr=' + startColor + ',endColorstr=' + endColor + ',GradientType=0)').css('background-image', 'linear-gradient(' + angle + ', ' + startColor + ', ' + endColor + ')').css(params);
+      };
+      return $(element).bind('mousemove', function(e) {
+        e = fixEvent(e);
+        return setGradient(e, this);
+      }).bind('mousedown', function(e) {
+        if (scope.inProcess) {
+          return removeEvents();
+        }
+        setEvents(this);
+        setGradient(e, this);
+        return intervalId = setInterval(function() {
+          return scrollFunction();
+        }, 20);
+      }).parent().parent().bind('click', function() {
+        if (scope.inProcess) {
+          return removeEvents();
+        }
+      }).find(".current-time").click(function(e) {
+        e.stopPropagation();
+        return scope.scrollTo(null, isCmd(e));
+      });
+    }
+  };
+});

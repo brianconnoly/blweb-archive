@@ -1,0 +1,1626 @@
+var hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive("feedGroup", function(account, desktopService, localization, groupService, communityService, localStorageService, multiselect, lazyLoading, dragMaster, $rootScope, confirmBox, scheduleService, smartDate, $compile, ruleService, inspectorService, updateService) {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/pages/timeline/directives/feedGroup'],
+    link: function(scope, element, attrs) {
+      var MIN, addInterval, addIntervalLong, buildTimelines, cacheBlocks, currentCnt, currentZoom, date_block, date_obj, elem, eternityContainer, fillDay, freeSpaceWID, glued, group_cIds, humanTime, intervalCnt, keyInterval, markCache, postLen, postWID, processItems, recalculateIntervals, removeInterval, scroll, scrolling, setGroupStart, sideWidth, stackToLoad, storedScroll, storedStart, timelinesCache, timelinesContainer, today, upd_cnt, updateId, updateSchedulesPosition, week, width, year, zoom, zoomObj;
+      scope.cursor = $(element).find('.timeCursor');
+      if (window.groupCnt == null) {
+        window.groupCnt = 0;
+      }
+      currentCnt = window.groupCnt++;
+      scope.canRemove = function() {
+        return scope.group.userId === account.user.id;
+      };
+      setGroupStart = function(ts) {
+        var dateObj, hours;
+        dateObj = new Date(ts);
+        hours = dateObj.getHours();
+        hours /= 3 | 0;
+        dateObj.setHours(hours * 3);
+        ts = dateObj.getTime();
+        scope.group.startDay = ts;
+        return scope.group.date = {
+          day: dateObj.getDate(),
+          month: localization.translate(154 + dateObj.getMonth())[2],
+          date: localization.translate(147 + dateObj.getDay())[1]
+        };
+      };
+      scope.groupSchedules = [];
+      ruleService.fetchByGroupId(scope.group.id);
+      MIN = 60 * 1000;
+      postLen = $rootScope.postLen;
+      postWID = 139;
+      freeSpaceWID = 360;
+      zoom = [
+        {
+          step: 180,
+          sub: 5,
+          zoom: 60 * 3
+        }
+      ];
+      currentZoom = 0;
+      zoomObj = zoom[currentZoom];
+      width = scope.session.size.width + 50;
+      scope.onResize(function(wid, hei) {
+        width = wid + 50;
+        return recalculateIntervals();
+      }, false);
+      elem = $(element);
+      eternityContainer = elem.find('.eternity');
+      timelinesContainer = elem.find('.timelines');
+      sideWidth = 300;
+      date_obj = null;
+      storedStart = parseInt(localStorageService.get('user.groupStart.' + scope.group.id));
+      storedScroll = parseInt(localStorageService.get('user.groupScroll.' + scope.group.id));
+      if (storedStart < (Date.now() - YEAR)) {
+        storedStart = 0;
+      }
+      if (storedStart > 0) {
+        setGroupStart(storedStart);
+      }
+      if (storedScroll > 0) {
+        scope.group.scroll = storedScroll;
+      }
+      glued = scope.group.glued = localStorageService.get('user.groupGlued.' + scope.group.id) | 0;
+      if (account.user.settings.simpleMode) {
+        glued = scope.group.glued = 2;
+      }
+      scope.$watch('group.glued', function(val, oval) {
+        var int, keyInterval, l, len, ref;
+        localStorageService.add('user.groupGlued.' + scope.group.id, val);
+        if (val === 2 || oval === 2) {
+          keyInterval = null;
+          scope.group.scroll = null;
+          ref = scope.intervals;
+          for (l = 0, len = ref.length; l < len; l++) {
+            int = ref[l];
+            removeInterval(int);
+          }
+          scope.intervals.length = 0;
+          scroll(0);
+          return recalculateIntervals();
+        } else {
+          recalculateIntervals();
+          return scroll(0);
+        }
+      });
+      scope.$watch('session.zoom', function(nVal) {
+        if (nVal != null) {
+          switch (nVal) {
+            case 'min':
+              postWID = 70;
+              zoomObj.step = 180;
+              break;
+            case 'mid':
+              postWID = 139;
+              zoomObj.step = 360;
+              break;
+            case 'max':
+              postWID = 167;
+              zoomObj.step = 360;
+          }
+          recalculateIntervals();
+          return scroll(0);
+        }
+      });
+      week = [147, 148, 149, 150, 151, 152, 153];
+      year = [154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165];
+      intervalCnt = 0;
+      keyInterval = null;
+      group_cIds = [];
+      if (scope.group.scroll == null) {
+        scope.group.scroll = null;
+      }
+      scope.intervals = [];
+      if (scope.group.startDay == null) {
+        today = new Date();
+        setGroupStart(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0).getTime() + (24 * 60 * MIN));
+      }
+      date_block = elem.find('div.date');
+      date_block.bind('click', function() {
+        scope.opened = true;
+        return true;
+      });
+      upd_cnt = 0;
+      scope.$watch(function() {
+        return ruleService.byGroupId[scope.group.id];
+      }, function(nVal, oVal) {
+        recalculateIntervals();
+        return scroll(0);
+      }, true);
+      scope.$watch('group.feeds', function(nVal) {
+        var int, l, len, ref;
+        buildTimelines(nVal);
+        group_cIds = scope.group.feeds.map(function(elem) {
+          return elem.communityId;
+        });
+        keyInterval = null;
+        ref = scope.intervals;
+        for (l = 0, len = ref.length; l < len; l++) {
+          int = ref[l];
+          removeInterval(int);
+        }
+        scope.intervals.length = 0;
+        recalculateIntervals();
+        return scroll(0);
+      }, true);
+      scope.$watch(function() {
+        return smartDate.state;
+      }, function(nVal, oVal) {
+        recalculateIntervals();
+        return scroll(0);
+      }, true);
+      timelinesCache = {};
+      buildTimelines = function(feeds) {
+        var feed, feedTimeline, i, intervalsContainer, key, l, len, newscope, results, timeBar, tl, total, touchBar;
+        for (key in timelinesCache) {
+          if (!hasProp.call(timelinesCache, key)) continue;
+          tl = timelinesCache[key];
+          tl.scope.$destroy();
+          tl.element.remove();
+        }
+        emptyObject(timelinesCache);
+        total = feeds.length;
+        results = [];
+        for (i = l = 0, len = feeds.length; l < len; i = ++l) {
+          feed = feeds[i];
+          newscope = scope.$new();
+          newscope.lineId = feed.communityId;
+          newscope.status = feed.statusAsInt;
+          feedTimeline = $compile('<feed-timeline></feed-timeline>')(newscope);
+          intervalsContainer = $(feedTimeline).children('ul.intervals');
+          feedTimeline.css({
+            zIndex: total - i
+          });
+          timeBar = $(feedTimeline).children('div.timebar');
+          touchBar = $(feedTimeline).children('div.touchBar');
+          timelinesCache[feed.communityId] = {
+            scope: newscope,
+            element: feedTimeline,
+            intervals: intervalsContainer,
+            timebar: timeBar,
+            touchBar: touchBar
+          };
+          results.push(timelinesContainer.append(feedTimeline));
+        }
+        return results;
+      };
+      scroll = function(val) {
+        var changed, dObj, index, int, interval, l, len, len1, len2, m, maxRight, maxTime, minDeltaCenter, minLeft, minTime, n, newInt, ref, ref1, right, timeline, toRemove;
+        if ($.isEmptyObject(timelinesCache)) {
+          return;
+        }
+        maxRight = -width * 80;
+        minLeft = width * 80;
+        maxTime = 0;
+        minTime = getBigTimestamp();
+        minDeltaCenter = 999999;
+        toRemove = [];
+        ref = scope.intervals;
+        for (l = 0, len = ref.length; l < len; l++) {
+          interval = ref[l];
+          interval.left -= Math.floor(val);
+          if (interval.left + interval.width < -sideWidth || interval.left > width + sideWidth) {
+            toRemove.push(interval);
+            continue;
+          }
+          ref1 = interval.timelines;
+          for (m = 0, len1 = ref1.length; m < len1; m++) {
+            timeline = ref1[m];
+            $(timeline.element).css({
+              "transform": 'translate3d(' + interval.left + 'px, 0, 0)',
+              "width": interval.width + 'px'
+            });
+          }
+          $(interval.eternity).css({
+            "transform": 'translate3d(' + interval.left + 'px, 0, 0)',
+            "width": interval.width + 'px'
+          });
+          right = interval.left + interval.width;
+          if (right > maxRight) {
+            maxRight = right;
+            maxTime = interval.to;
+          }
+          if (interval.left < minLeft || minLeft === null) {
+            minLeft = interval.left;
+            minTime = interval.from;
+          }
+          if (Math.abs(width / 2 - interval.left) < minDeltaCenter) {
+            minDeltaCenter = Math.abs(width / 2 - interval.left);
+            keyInterval = interval;
+            setGroupStart(keyInterval.from);
+            scope.group.scroll = keyInterval.left;
+          }
+        }
+        localStorageService.add('user.groupStart.' + scope.group.id, scope.group.startDay);
+        localStorageService.add('user.groupScroll.' + scope.group.id, scope.group.scroll);
+        changed = false;
+        for (n = 0, len2 = toRemove.length; n < len2; n++) {
+          int = toRemove[n];
+          removeInterval(int);
+          index = scope.intervals.indexOf(int);
+          scope.intervals.splice(index, 1);
+          changed = true;
+        }
+        if (maxTime === 0) {
+          maxTime = scope.group.startDay;
+          if (scope.group.glued * 1 === 2) {
+            dObj = new Date(maxTime);
+            maxTime = new Date(dObj.getFullYear(), dObj.getMonth(), dObj.getDate()).getTime();
+          }
+          maxRight = Math.floor(width / 2);
+          if (scope.group.scroll !== null) {
+            maxRight = scope.group.scroll;
+          }
+        }
+        if (minTime === getBigTimestamp()) {
+          minTime = scope.group.startDay;
+          minLeft = Math.floor(width / 2);
+          if (scope.group.scroll !== null) {
+            minLeft = scope.group.scroll;
+          }
+        }
+        while (maxRight < width + sideWidth) {
+          newInt = addInterval(maxTime, maxRight);
+          maxRight += newInt.width;
+          maxTime = newInt.to;
+          changed = true;
+          if (keyInterval == null) {
+            keyInterval = newInt;
+          }
+        }
+        if (minLeft) {
+          while (minLeft > -sideWidth) {
+            if (scope.group.glued === 2) {
+              minTime -= DAY;
+            } else {
+              minTime -= DAY / 8;
+            }
+            newInt = addInterval(minTime, minLeft, true);
+            minLeft -= newInt != null ? newInt.width : void 0;
+            changed = true;
+          }
+        }
+        if (changed) {
+          return inspectorService.appendHandlers(scope.intervals);
+        }
+      };
+      updateSchedulesPosition = function() {
+        return $('.feedItem').each(function() {
+          var elem_scope;
+          elem_scope = angular.element(this).scope();
+          return typeof elem_scope.recalc === "function" ? elem_scope.recalc() : void 0;
+        });
+      };
+      recalculateIntervals = function() {
+        var i, index, intSize, interval, intervals, l, leftSide, len, len1, m, n, o, ref, ref1, ref2, ref3, ref4, rightSide, timeline;
+        if ($.isEmptyObject(timelinesCache)) {
+          return;
+        }
+        intervals = scope.intervals;
+        intSize = intervals.length;
+        if (intSize === 0) {
+          keyInterval = null;
+          return false;
+        }
+        if (keyInterval == null) {
+          scroll(0);
+          intSize = intervals.length;
+        }
+        rightSide = keyInterval.left;
+        leftSide = keyInterval.left;
+        index = intervals.indexOf(keyInterval);
+        for (i = l = ref = index, ref1 = intSize; ref <= ref1 ? l < ref1 : l > ref1; i = ref <= ref1 ? ++l : --l) {
+          interval = intervals[i];
+          if (interval == null) {
+            continue;
+          }
+          fillDay(interval);
+          ref2 = interval.timelines;
+          for (m = 0, len = ref2.length; m < len; m++) {
+            timeline = ref2[m];
+            timeline.scope.schedular = interval.communityCache[timeline.id];
+          }
+          interval.left = rightSide;
+          rightSide += interval.width;
+        }
+        if (index > 0) {
+          for (i = n = ref3 = index - 1; ref3 <= 0 ? n <= 0 : n >= 0; i = ref3 <= 0 ? ++n : --n) {
+            interval = intervals[i];
+            if (interval == null) {
+              continue;
+            }
+            fillDay(interval);
+            ref4 = interval.timelines;
+            for (o = 0, len1 = ref4.length; o < len1; o++) {
+              timeline = ref4[o];
+              timeline.scope.schedular = interval.communityCache[timeline.id];
+            }
+            interval.left = leftSide - interval.width;
+            leftSide -= interval.width;
+          }
+        }
+        return updateSchedulesPosition();
+      };
+      addIntervalLong = function(startTime, left, back) {
+        var cIds, dateInfo, el, el2, eternity, intervalLength, intervalTime, key, newInt, newpart, newscope, ng_part, parts, partsCnt, startDay, tl;
+        intervalTime = new Date(startTime);
+        dateInfo = {
+          day: intervalTime.getDate(),
+          month: year[intervalTime.getMonth()],
+          weekDay: week[intervalTime.getDay()],
+          year: intervalTime.getFullYear()
+        };
+        eternity = $('<li>', {
+          "class": 'interval liveInterval'
+        });
+        parts = [];
+        el = $('<div>', {
+          "class": 'part'
+        });
+        startDay = false;
+        if (intervalTime.getHours() === 0 && intervalTime.getMinutes() === 0) {
+          startDay = true;
+          parts.push({
+            type: 'dayBreak',
+            left: 0,
+            width: 0,
+            free: false,
+            time: startTime,
+            timeEnd: startTime,
+            humanTime: humanTime(startTime),
+            timeInfo: dateInfo,
+            element: el
+          });
+          el.css({
+            width: postWID,
+            left: 0
+          });
+          if (ng_part) {
+            el.append(ng_part);
+          }
+          eternity.append(el);
+        } else {
+          console.log('Incorrect time', intervalTime);
+          return;
+        }
+        intervalLength = DAY;
+        partsCnt = 1;
+        el = $('<div>', {
+          "class": 'part'
+        });
+        ng_part = $(tC['/pages/timeline/eternity/freePlace']);
+        newpart = {
+          type: 'regular',
+          left: 0,
+          width: 0,
+          free: true,
+          time: startTime,
+          timeEnd: startTime + intervalLength,
+          marks: [],
+          element: el,
+          bars: ng_part
+        };
+        parts.push(newpart);
+        el.append(ng_part);
+        eternity.append(el);
+        newInt = {
+          from: startTime,
+          to: startTime + intervalLength,
+          id: intervalCnt,
+          parts: parts,
+          eternity: eternity
+        };
+        fillDay(newInt);
+        if (back === true) {
+          newInt.left = left - newInt.width;
+        } else {
+          newInt.left = left;
+        }
+        if (back === true) {
+          eternityContainer.prepend(eternity);
+        } else {
+          eternityContainer.append(eternity);
+        }
+        newInt.timelines = [];
+        for (key in timelinesCache) {
+          if (!hasProp.call(timelinesCache, key)) continue;
+          tl = timelinesCache[key];
+          newscope = tl.scope.$new();
+          newscope.interval = newInt;
+          newscope.cId = key;
+          newscope.schedular = newInt.communityCache[key];
+          newscope.timebar = tl.timebar;
+          newscope.touchBar = tl.touchBar;
+          newscope.startDay = startDay;
+          newscope.dateInfo = dateInfo;
+          el2 = $compile('<div class="feedInterval"/>')(newscope);
+          newInt.timelines.push({
+            id: key,
+            element: el2,
+            scope: newscope
+          });
+          if (back === true) {
+            tl.intervals.prepend(el2);
+          } else {
+            tl.intervals.append(el2);
+          }
+          $(el2).css({
+            "transform": 'translateX(' + newInt.left + 'px)',
+            "width": newInt.width + 'px'
+          });
+        }
+        if (back === true) {
+          scope.intervals.unshift(newInt);
+        } else {
+          scope.intervals.push(newInt);
+        }
+        $(eternity).css({
+          "transform": 'translateX(' + newInt.left + 'px)',
+          "width": newInt.width + 'px'
+        });
+        intervalCnt++;
+        cIds = scope.group.feeds.map(function(elem) {
+          return elem.communityId;
+        });
+        lazyLoading.callLazyLoad(cIds, startTime, startTime + intervalLength, processItems);
+        return newInt;
+      };
+      addInterval = function(startTime, left, back) {
+        var cIds, dateInfo, el, el2, eternity, intervalLength, intervalTime, key, newInt, newpart, newscope, ng_part, parts, partsCnt, startDay, tl;
+        if (scope.group.glued === 2) {
+          return addIntervalLong(startTime, left, back);
+        }
+        intervalTime = new Date(startTime);
+        dateInfo = {
+          day: intervalTime.getDate(),
+          month: year[intervalTime.getMonth()],
+          weekDay: week[intervalTime.getDay()],
+          year: intervalTime.getFullYear()
+        };
+        eternity = $('<li>', {
+          "class": 'interval liveInterval'
+        });
+        parts = [];
+        el = $('<div>', {
+          "class": 'part'
+        });
+        startDay = false;
+        if (intervalTime.getHours() === 0 && intervalTime.getMinutes() === 0) {
+          startDay = true;
+          parts.push({
+            type: 'dayBreak',
+            left: 0,
+            width: 0,
+            free: false,
+            time: startTime,
+            timeEnd: startTime,
+            humanTime: humanTime(startTime),
+            timeInfo: dateInfo,
+            element: el
+          });
+          el.css({
+            width: postWID,
+            left: 0
+          });
+        } else {
+          ng_part = $(tC['/pages/timeline/eternity/hourMark']);
+          $(ng_part).html(humanTime(startTime));
+          el.append(ng_part);
+          eternity.append(el);
+          parts.push({
+            type: 'hourMark',
+            left: 0,
+            width: 0,
+            free: false,
+            time: startTime,
+            timeEnd: startTime,
+            humanTime: humanTime(startTime),
+            element: el
+          });
+        }
+        if (ng_part) {
+          el.append(ng_part);
+        }
+        eternity.append(el);
+        intervalLength = DAY / 8;
+        partsCnt = intervalLength / (zoomObj.zoom * MIN);
+        el = $('<div>', {
+          "class": 'part'
+        });
+        ng_part = $(tC['/pages/timeline/eternity/freePlace']);
+        newpart = {
+          type: 'regular',
+          left: 0,
+          width: 0,
+          free: true,
+          time: startTime,
+          timeEnd: startTime + intervalLength,
+          marks: [],
+          element: el,
+          bars: ng_part
+        };
+        parts.push(newpart);
+        el.append(ng_part);
+        eternity.append(el);
+        newInt = {
+          from: startTime,
+          to: startTime + intervalLength,
+          id: intervalCnt,
+          parts: parts,
+          eternity: eternity
+        };
+        fillDay(newInt);
+        if (back === true) {
+          newInt.left = left - newInt.width;
+        } else {
+          newInt.left = left;
+        }
+        if (back === true) {
+          eternityContainer.prepend(eternity);
+        } else {
+          eternityContainer.append(eternity);
+        }
+        newInt.timelines = [];
+        for (key in timelinesCache) {
+          if (!hasProp.call(timelinesCache, key)) continue;
+          tl = timelinesCache[key];
+          newscope = tl.scope.$new();
+          newscope.interval = newInt;
+          newscope.cId = key;
+          newscope.schedular = newInt.communityCache[key];
+          newscope.timebar = tl.timebar;
+          newscope.touchBar = tl.touchBar;
+          newscope.startDay = startDay;
+          newscope.dateInfo = dateInfo;
+          el2 = $compile('<div class="feedInterval"/>')(newscope);
+          newInt.timelines.push({
+            id: key,
+            element: el2,
+            scope: newscope
+          });
+          if (back === true) {
+            tl.intervals.prepend(el2);
+          } else {
+            tl.intervals.append(el2);
+          }
+          $(el2).css({
+            "transform": 'translateX(' + newInt.left + 'px)',
+            "width": newInt.width + 'px'
+          });
+        }
+        if (back === true) {
+          scope.intervals.unshift(newInt);
+        } else {
+          scope.intervals.push(newInt);
+        }
+        $(eternity).css({
+          "transform": 'translateX(' + newInt.left + 'px)',
+          "width": newInt.width + 'px'
+        });
+        intervalCnt++;
+        cIds = scope.group.feeds.map(function(elem) {
+          return elem.communityId;
+        });
+        lazyLoading.callLazyLoad(cIds, startTime, startTime + intervalLength, processItems);
+        return newInt;
+      };
+      processItems = function(items) {
+        var cIds, item, l, len, ref;
+        cIds = scope.group.feeds.map(function(elem) {
+          return elem.communityId;
+        });
+        for (l = 0, len = items.length; l < len; l++) {
+          item = items[l];
+          if (item.type !== 'schedule') {
+            continue;
+          }
+          if (ref = item.communityId, indexOf.call(cIds, ref) >= 0) {
+            if (indexOf.call(scope.groupSchedules, item) < 0) {
+              scope.groupSchedules.push(item);
+            }
+          } else {
+            removeElementFromArray(item, scope.groupSchedules);
+          }
+        }
+        recalculateIntervals();
+        return scroll(0);
+      };
+      updateId = updateService.registerUpdateHandler(function(data, action, items) {
+        if (action === 'update' || action === 'create') {
+          if (data['schedule'] != null) {
+            processItems(items);
+            return scope.$apply();
+          }
+        }
+      });
+      scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+      stackToLoad = {
+        communities: [],
+        start: getBigTimestamp(),
+        end: 0,
+        handler: false
+      };
+      cacheBlocks = function(from, to) {
+        var blkCache, cachedBlock, canPlace, commId, communityCache, date_date, date_time, day, diff, fromDate, from_obj, from_startDay, id, k, l, len, len1, len2, len3, len4, len5, len6, m, mFrom, mTime, mTo, n, nOff, newPlaceholder, normalTime, nowShift, number, numberInt, o, offset, p, phTime, placeholderDuration, q, r, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, rule, rules, s, s_data, scheduled, shiftEnd, shiftRuleStart, shiftStart, shiftTime, startFrom, ts, v;
+        blkCache = {};
+        communityCache = {};
+        from_obj = new Date(from);
+        fromDate = new Date(from_obj.getFullYear(), from_obj.getMonth(), from_obj.getDate()).getTime();
+        offset = {};
+        for (l = 0, len = group_cIds.length; l < len; l++) {
+          commId = group_cIds[l];
+          offset[commId] = {
+            start: 0,
+            end: postLen
+          };
+        }
+        nOff = 0;
+        scheduled = [];
+        ref = scope.groupSchedules;
+        for (k in ref) {
+          v = ref[k];
+          if (v.deleted === true) {
+            continue;
+          }
+          if (ref1 = v.communityId, indexOf.call(group_cIds, ref1) >= 0) {
+            shiftTime = smartDate.getShiftTimeBar(v.timestamp);
+            if (v.collapsed !== true) {
+              if (shiftTime >= from && shiftTime < to) {
+                if (communityCache[v.communityId] == null) {
+                  communityCache[v.communityId] = [];
+                }
+                communityCache[v.communityId].push(v);
+                scheduled.push(v);
+              }
+              mFrom = justMinutes(from);
+              mTo = justMinutes(to);
+              mTime = justMinutes(shiftTime);
+              if (mFrom - mTime <= postLen && mFrom > mTime) {
+                nOff = postLen - mFrom + mTime;
+                if (nOff > offset[v.communityId].start) {
+                  offset[v.communityId].start = nOff;
+                }
+              }
+              if (mTime - mTo <= postLen && mTo <= mTime) {
+                nOff = mTime - mTo;
+                if (nOff < offset[v.communityId].end) {
+                  offset[v.communityId].end = nOff;
+                }
+              }
+            }
+          }
+        }
+        for (m = 0, len1 = scheduled.length; m < len1; m++) {
+          s_data = scheduled[m];
+          if (s_data.rule) {
+            delete s_data.rule;
+          }
+          shiftTime = smartDate.getShiftTimeBar(s_data.timestamp);
+          if (blkCache[shiftTime] == null) {
+            blkCache[shiftTime] = [];
+          }
+          blkCache[shiftTime].push({
+            type: 'schedule',
+            scheduled: s_data,
+            communityId: s_data.communityId
+          });
+        }
+        ts = new Date().getTime();
+        nowShift = smartDate.getShiftTimeBar(ts);
+        rules = ruleService.byGroupId[scope.group.id] || [];
+        for (n = 0, len2 = group_cIds.length; n < len2; n++) {
+          id = group_cIds[n];
+          for (o = 0, len3 = rules.length; o < len3; o++) {
+            rule = rules[o];
+            shiftStart = smartDate.getShiftTimeBar(rule.timestampStart);
+            if (shiftStart >= to) {
+              continue;
+            }
+            if (rule.end === true && (rule.timestampEnd != null)) {
+              shiftEnd = smartDate.getShiftTimeBar(rule.timestampEnd);
+              if (shiftEnd < from) {
+                continue;
+              }
+            }
+            switch (rule.ruleType) {
+              case 'single':
+                shiftTime = smartDate.getShiftTimeBar(rule.timestampStart);
+                if (shiftTime < nowShift) {
+                  continue;
+                }
+                canPlace = true;
+                if (blkCache[shiftTime] == null) {
+                  blkCache[shiftTime] = [];
+                } else {
+                  ref2 = blkCache[shiftTime];
+                  for (p = 0, len4 = ref2.length; p < len4; p++) {
+                    cachedBlock = ref2[p];
+                    if (cachedBlock.communityId === id) {
+                      cachedBlock.pholder = {
+                        rule: rule,
+                        type: 'placeholder',
+                        ruleType: rule.ruleType,
+                        communityId: id,
+                        groupId: scope.group.id,
+                        id: 0
+                      };
+                      canPlace = false;
+                      break;
+                    }
+                  }
+                }
+                if (!canPlace) {
+                  continue;
+                }
+                if (shiftTime >= from && shiftTime < to) {
+                  newPlaceholder = {
+                    rule: rule,
+                    type: 'placeholder',
+                    ruleType: rule.ruleType,
+                    timestamp: rule.timestampStart,
+                    communityId: id,
+                    groupId: scope.group.id,
+                    id: 0
+                  };
+                  if (communityCache[id] == null) {
+                    communityCache[id] = [];
+                  }
+                  communityCache[id].push(newPlaceholder);
+                  blkCache[shiftTime].push({
+                    type: 'placeholder',
+                    placeholder: newPlaceholder,
+                    groupId: scope.group.id,
+                    communityId: id
+                  });
+                }
+                break;
+              case 'chain':
+                if (rule.interval == null) {
+                  continue;
+                }
+                placeholderDuration = rule.interval * MIN;
+                shiftStart = smartDate.getShiftTimeBar(rule.timestampStart);
+                shiftEnd = to;
+                startFrom = 0;
+                if (rule.end === true && (rule.timestampEnd != null)) {
+                  shiftEnd = smartDate.getShiftTimeBar(rule.timestampEnd);
+                  if (shiftEnd < from) {
+                    continue;
+                  }
+                }
+                if (shiftStart < from) {
+                  diff = from - shiftStart;
+                  number = diff / placeholderDuration;
+                  numberInt = number | 0;
+                  if (number > numberInt) {
+                    numberInt++;
+                  }
+                  shiftStart = shiftStart + (numberInt * placeholderDuration);
+                  startFrom = numberInt;
+                }
+                if (shiftEnd > to) {
+                  shiftEnd = to;
+                }
+                for (phTime = q = ref3 = shiftStart, ref4 = shiftEnd, ref5 = placeholderDuration; ref5 > 0 ? q < ref4 : q > ref4; phTime = q += ref5) {
+                  if (phTime < nowShift) {
+                    startFrom++;
+                    continue;
+                  }
+                  canPlace = true;
+                  if (blkCache[phTime] == null) {
+                    blkCache[phTime] = [];
+                  } else {
+                    ref6 = blkCache[phTime];
+                    for (r = 0, len5 = ref6.length; r < len5; r++) {
+                      cachedBlock = ref6[r];
+                      if (cachedBlock.communityId === id) {
+                        cachedBlock.pholder = {
+                          rule: rule,
+                          type: 'placeholder',
+                          ruleType: rule.ruleType,
+                          communityId: id,
+                          groupId: scope.group.id,
+                          id: startFrom
+                        };
+                        canPlace = false;
+                        startFrom++;
+                        break;
+                      }
+                    }
+                  }
+                  if (!canPlace) {
+                    continue;
+                  }
+                  normalTime = smartDate.resetShiftTimeBar(phTime);
+                  newPlaceholder = {
+                    id: startFrom,
+                    rule: rule,
+                    type: 'placeholder',
+                    ruleType: rule.ruleType,
+                    timestamp: normalTime,
+                    communityId: id,
+                    groupId: scope.group.id
+                  };
+                  startFrom++;
+                  if (communityCache[id] == null) {
+                    communityCache[id] = [];
+                  }
+                  communityCache[id].push(newPlaceholder);
+                  blkCache[phTime].push({
+                    type: 'placeholder',
+                    placeholder: newPlaceholder,
+                    communityId: id,
+                    groupId: scope.group.id
+                  });
+                }
+                break;
+              case 'daily':
+                shiftRuleStart = smartDate.getShiftTimeBar(rule.timestampStart);
+                date_obj = new Date(shiftRuleStart);
+                date_time = (date_obj.getHours() * 60 + date_obj.getMinutes()) * MIN;
+                date_date = new Date(date_obj.getFullYear(), date_obj.getMonth(), date_obj.getDate()).getTime();
+                from_obj = new Date(from);
+                from_startDay = new Date(from_obj.getFullYear(), from_obj.getMonth(), from_obj.getDate()).getTime();
+                if (fromDate + date_time < from || fromDate + date_time >= to) {
+                  continue;
+                }
+                shiftStart = date_date;
+                shiftTime = fromDate + date_time;
+                if (rule.end === true && (rule.timestampEnd != null)) {
+                  if (from + date_time >= shiftEnd) {
+                    continue;
+                  }
+                }
+                if (shiftTime < nowShift) {
+                  continue;
+                }
+                day = new Date(shiftTime).getDay();
+                if (!rule.dayMask[day]) {
+                  continue;
+                } else {
+                  canPlace = true;
+                  if (blkCache[shiftTime] == null) {
+                    blkCache[shiftTime] = [];
+                  } else {
+                    ref7 = blkCache[shiftTime];
+                    for (s = 0, len6 = ref7.length; s < len6; s++) {
+                      cachedBlock = ref7[s];
+                      if (cachedBlock.communityId === id) {
+                        cachedBlock.pholder = {
+                          rule: rule,
+                          type: 'placeholder',
+                          ruleType: rule.ruleType,
+                          communityId: id,
+                          groupId: scope.group.id,
+                          id: 0
+                        };
+                        canPlace = false;
+                        break;
+                      }
+                    }
+                  }
+                  if (!canPlace) {
+                    continue;
+                  }
+                  diff = from - shiftStart;
+                  number = diff / (24 * 60 * MIN);
+                  numberInt = number | 0;
+                  normalTime = smartDate.resetShiftTimeBar(fromDate + date_time);
+                  newPlaceholder = {
+                    id: numberInt,
+                    rule: rule,
+                    type: 'placeholder',
+                    ruleType: rule.ruleType,
+                    timestamp: normalTime,
+                    communityId: id,
+                    groupId: scope.group.id
+                  };
+                  if (communityCache[id] == null) {
+                    communityCache[id] = [];
+                  }
+                  communityCache[id].push(newPlaceholder);
+                  blkCache[shiftTime].push({
+                    type: 'placeholder',
+                    placeholder: newPlaceholder,
+                    communityId: id,
+                    groupId: scope.group.id
+                  });
+                }
+            }
+          }
+        }
+        return {
+          blkCache: blkCache,
+          communityCache: communityCache,
+          offset: offset
+        };
+      };
+      humanTime = function(ts) {
+        var date, hours, min;
+        date = new Date(ts);
+        hours = date.getHours();
+        min = date.getMinutes();
+        if (hours < 10) {
+          hours = '0' + hours;
+        }
+        if (min < 10) {
+          min = '0' + min;
+        }
+        return hours + ':' + min;
+      };
+      fillDay = function(interval) {
+        var aa, ab, ac, ad, ae, af, ag, ah, ai, aj, barTime, barTimeEnd, barWidth, bigMinutes, blkCache, blkCacheExt, break_width, communityId, count, currentPart, dateInfo, delta, endScheds, endTime, endtime, exPost, fillHalfDivide, fillHalfDivideFull, fillRealTime, firstPost, freeMinutes, i, intLen, intervalTime, j, justEnded, l, leftBorder, len, len1, len10, len11, len12, len2, len3, len4, len5, len6, len7, len8, len9, locked, m, mFrom, mTo, mark, markTime, minWid, n, nTime, newArray, new_bar, nextCoord, nextTime, o, offset, p, part, partCnt, post, postLeft, postWidth, q, r, realCoord, realTime, ref, ref1, ref10, ref11, ref12, ref13, ref14, ref15, ref16, ref17, ref18, ref19, ref2, ref20, ref21, ref22, ref23, ref24, ref25, ref3, ref4, ref5, ref6, ref7, ref8, ref9, rightBorder, s, simple, size, startTime, t, timeCursor, toPlace, toRemove, u, w, wBlk, waitingBlocks, wasWaiting, x, y, z, zIndex;
+        startTime = interval.from;
+        endTime = interval.to;
+        blkCacheExt = cacheBlocks(startTime, endTime);
+        blkCache = blkCacheExt.blkCache;
+        interval.blkCache = blkCacheExt.blkCache;
+        interval.communityCache = blkCacheExt.communityCache;
+        nextTime = startTime;
+        nextCoord = 0;
+        if (scope.group.glued === 2) {
+          intLen = DAY / MIN;
+        } else {
+          intLen = zoomObj.zoom;
+        }
+        minWid = postWID;
+        postWidth = postWID;
+        waitingBlocks = [];
+        simple = false;
+        intervalTime = new Date(startTime);
+        dateInfo = {
+          day: intervalTime.getDate(),
+          month: year[intervalTime.getMonth()],
+          weekDay: week[intervalTime.getDay()],
+          year: intervalTime.getFullYear()
+        };
+        currentPart = interval.parts[0];
+        if (currentPart.type === 'dayBreak') {
+          break_width = 100;
+          currentPart.left = nextCoord;
+          currentPart.width = break_width;
+          currentPart.element.css({
+            width: break_width
+          });
+          nextCoord += break_width;
+        } else {
+          switch (scope.group.glued * 1) {
+            case 1:
+              currentPart.width = 120;
+              break;
+            case 2:
+              currentPart.width = 0;
+              break;
+            default:
+              currentPart.width = 100;
+          }
+          currentPart.element.css({
+            width: currentPart.width,
+            left: currentPart.left
+          });
+          nextCoord += currentPart.width;
+        }
+        partCnt = 1;
+        zIndex = 100;
+        while (nextTime < endTime) {
+          currentPart = interval.parts[partCnt];
+          if (currentPart == null) {
+            continue;
+          }
+          currentPart.left = nextCoord;
+          currentPart.marks = [];
+          currentPart.posts = [];
+          currentPart.startOffset = 0;
+          currentPart.offset = 0;
+          currentPart.bars.empty();
+          for (l = 0, len = waitingBlocks.length; l < len; l++) {
+            wBlk = waitingBlocks[l];
+            wBlk.elem.noRight = true;
+          }
+          simple = true;
+          offset = 0;
+          if (partCnt === 1) {
+            offset = 0;
+          } else {
+            offset = currentPart.offset;
+          }
+          barTime = nextTime;
+          endScheds = 0;
+          firstPost = true;
+          for (i = m = 0, ref = intLen; 0 <= ref ? m < ref : m > ref; i = 0 <= ref ? ++m : --m) {
+            timeCursor = nextTime + (i * 1000 * 60);
+            exPost = null;
+            toPlace = blkCache[timeCursor];
+            toRemove = [];
+            wasWaiting = false;
+            newArray = [];
+            justEnded = false;
+            waitingBlocks = newArray;
+            if ((toPlace != null) && waitingBlocks.length === 0) {
+              simple = false;
+              delta = timeCursor - barTime;
+              if (delta >= (postLen * 60 * 1000)) {
+                delta = timeCursor - barTime;
+                size = (intLen * 1000 * 60) / 12;
+                barWidth = Math.floor(zoomObj.step / 12);
+                count = Math.floor(delta / size);
+                if (endScheds !== 0) {
+                  if (count < 2) {
+                    count = 2;
+                  }
+                } else {
+                  if (count < 1) {
+                    count = 1;
+                  }
+                }
+                if (i === 0) {
+                  count = 1;
+                }
+                size = Math.floor(delta / count);
+                locked = false;
+                if (scope.group.glued) {
+                  count = 0;
+                }
+                if (!firstPost) {
+                  new_bar = $(tC['/pages/timeline/eternity/marks/regular']);
+                  new_bar.css({
+                    left: endScheds - barWidth,
+                    width: barWidth
+                  });
+                }
+                currentPart.bars.append(new_bar);
+                for (j = n = 0, ref1 = count; 0 <= ref1 ? n < ref1 : n > ref1; j = 0 <= ref1 ? ++n : --n) {
+                  if (j === count - 1) {
+                    endtime = timeCursor;
+                  } else {
+                    endtime = barTime + size;
+                  }
+                  currentPart.marks.push({
+                    left: endScheds + (barWidth * j),
+                    width: barWidth,
+                    time: barTime,
+                    timeEnd: endtime,
+                    locked: locked
+                  });
+                  new_bar = $(tC['/pages/timeline/eternity/marks/regular']);
+                  new_bar.css({
+                    left: endScheds + (barWidth * j),
+                    width: barWidth
+                  });
+                  currentPart.bars.append(new_bar);
+                  barTime = endtime;
+                  nextCoord += barWidth;
+                }
+                endScheds += barWidth * count;
+              } else {
+                barTime = timeCursor;
+                currentPart.startOffset = delta / MIN;
+              }
+              barTime += postLen * 60 * 1000;
+              if (exPost !== null) {
+                exPost.noRight = true;
+              }
+              for (o = 0, len1 = toPlace.length; o < len1; o++) {
+                elem = toPlace[o];
+                currentPart.posts.push({
+                  left: endScheds,
+                  width: postWidth,
+                  time: timeCursor,
+                  timeEnd: timeCursor + (postLen * MIN),
+                  communityId: elem.communityId
+                });
+                if (elem.type === 'schedule') {
+                  waitingBlocks.push({
+                    elem: elem.scheduled,
+                    startTime: timeCursor,
+                    startCoord: nextCoord,
+                    type: elem.type
+                  });
+                  if (elem.scheduled.left == null) {
+                    elem.scheduled.left = {};
+                  }
+                  if (elem.scheduled.pholders == null) {
+                    elem.scheduled.pholders = {};
+                  }
+                  elem.scheduled.left[scope.group.id] = nextCoord;
+                  elem.scheduled.pholders[scope.group.id] = elem.pholder;
+                  elem.scheduled.width = postWidth;
+                  elem.scheduled.zindex = zIndex;
+                  elem.scheduled.timeStart = timeCursor;
+                  elem.scheduled.timeEnd = timeCursor + (postLen * MIN);
+                  elem.scheduled.noRight = timeCursor + (postLen * 60 * 1000) > interval.to;
+                  elem.scheduled.noLeft = scope.group.glued * 1 === 2 ? false : i === 0;
+                  elem.scheduled.humanStartTime = getHumanDate(timeCursor).time;
+                  elem.scheduled.humanEndTime = getHumanDate(timeCursor + (postLen * MIN)).time;
+                }
+                if (elem.type === 'placeholder') {
+                  waitingBlocks.push({
+                    elem: elem.placeholder,
+                    startTime: timeCursor,
+                    startCoord: nextCoord,
+                    type: elem.type
+                  });
+                  if (elem.placeholder.left == null) {
+                    elem.placeholder.left = {};
+                  }
+                  elem.placeholder.left[scope.group.id] = nextCoord;
+                  elem.placeholder.width = postWidth;
+                  elem.placeholder.zindex = zIndex;
+                  elem.placeholder.timeStart = timeCursor;
+                  elem.placeholder.timeEnd = timeCursor + (postLen * MIN);
+                  elem.placeholder.noRight = timeCursor + (postLen * 60 * 1000) > interval.to;
+                  elem.placeholder.noLeft = i === 0 && timeCursor === currentPart.from;
+                  elem.placeholder.humanStartTime = getHumanDate(timeCursor).time;
+                  elem.placeholder.humanEndTime = getHumanDate(timeCursor + (postLen * MIN)).time;
+                }
+                zIndex++;
+              }
+              endScheds += postWidth;
+              firstPost = false;
+              nextCoord += postWidth;
+            }
+          }
+          if (simple) {
+            currentPart.type = 'freePlace';
+            currentPart.bars.empty().addClass('freeMarks');
+            if (scope.group.glued) {
+              currentPart.width = 0;
+            } else {
+              currentPart.width = zoomObj.step;
+              nextCoord += zoomObj.step;
+            }
+          } else {
+            currentPart.type = 'regular';
+            currentPart.bars.removeClass('freeMarks');
+            delta = nextTime + (intLen * 1000 * 60) - barTime;
+            size = (intLen * 1000 * 60) / 12;
+            barWidth = Math.floor(zoomObj.step / 12);
+            count = Math.floor(delta / size);
+            if (count < 1) {
+              count = 1;
+            }
+            locked = false;
+            if (scope.group.glued) {
+              if (scope.group.glued) {
+                count = 0;
+              }
+            }
+            if (barTime > currentPart.timeEnd) {
+              count = 0;
+              if ((ref2 = interval.parts[partCnt + 1]) != null) {
+                ref2.realTime = (barTime - currentPart.timeEnd) / (60 * 1000) | 0;
+              }
+              if ((ref3 = interval.parts[partCnt + 2]) != null) {
+                ref3.offset = (barTime - currentPart.timeEnd) / (60 * 1000) | 0;
+              }
+            } else {
+              if (((ref4 = interval.parts[partCnt + 1]) != null ? ref4.realTime : void 0) != null) {
+                delete interval.parts[partCnt + 1].realTime;
+              }
+              if (((ref5 = interval.parts[partCnt + 2]) != null ? ref5.offset : void 0) != null) {
+                delete interval.parts[partCnt + 2].offset;
+              }
+            }
+            if (count > 0) {
+              size = Math.floor(delta / count);
+            }
+            new_bar = $(tC['/pages/timeline/eternity/marks/regular']);
+            new_bar.css({
+              left: endScheds - barWidth,
+              width: barWidth
+            });
+            currentPart.bars.append(new_bar);
+            for (j = p = 0, ref6 = count; 0 <= ref6 ? p < ref6 : p > ref6; j = 0 <= ref6 ? ++p : --p) {
+              barTimeEnd = barTime + size;
+              if (j === count - 1) {
+                barTimeEnd = currentPart.timeEnd - (60 * 1000);
+              }
+              currentPart.marks.push({
+                left: endScheds + (barWidth * j),
+                width: barWidth,
+                time: barTime,
+                timeEnd: barTimeEnd,
+                hide: j === count - 1,
+                free: delta > 0,
+                locked: locked
+              });
+              if (j !== count - 1) {
+                new_bar = $(tC['/pages/timeline/eternity/marks/regular']);
+                new_bar.css({
+                  left: endScheds + (barWidth * j),
+                  width: barWidth
+                });
+                currentPart.bars.append(new_bar);
+              }
+              nextCoord += barWidth;
+              barTime += size;
+            }
+            currentPart.width = nextCoord - currentPart.left;
+          }
+          currentPart.element.css({
+            left: currentPart.left,
+            width: currentPart.width
+          });
+          partCnt++;
+          currentPart = interval.parts[partCnt];
+          nextTime += intLen * 1000 * 60;
+          if (humanTime(nextTime) !== '00:00' && (currentPart != null)) {
+            currentPart.left = nextCoord;
+            switch (scope.group.glued * 1) {
+              case 1:
+                currentPart.width = 120;
+                break;
+              case 2:
+                currentPart.width = 0;
+                break;
+              default:
+                currentPart.width = 100;
+            }
+            currentPart.element.css({
+              width: currentPart.width,
+              left: currentPart.left
+            });
+            nextCoord += currentPart.width;
+          }
+          partCnt++;
+        }
+        realTime = {};
+        realCoord = {};
+        freeMinutes = {};
+        bigMinutes = {};
+        for (q = 0, len2 = group_cIds.length; q < len2; q++) {
+          communityId = group_cIds[q];
+          freeMinutes[communityId] = {};
+          bigMinutes[communityId] = {};
+        }
+        fillRealTime = function(from, to, left, width) {
+          var minutes, pX, pix, pixDelta, pixTime, r, ref7, ref8, results, timeDelta;
+          timeDelta = to - from;
+          pixDelta = width;
+          pixTime = Math.floor(timeDelta / pixDelta);
+          i = 0;
+          results = [];
+          for (pix = r = ref7 = left, ref8 = left + width; ref7 <= ref8 ? r <= ref8 : r >= ref8; pix = ref7 <= ref8 ? ++r : --r) {
+            pX = Math.floor(pix);
+            minutes = justMinutes(from + pixTime * i);
+            realTime[pX] = minutes;
+            if (realCoord[minutes] == null) {
+              realCoord[minutes] = pX;
+            }
+            results.push(i++);
+          }
+          return results;
+        };
+        fillHalfDivideFull = function(from, to, left, width, cIds) {
+          var len3, middle, r, ref10, ref11, ref12, ref7, ref8, ref9, results, s, t, tE, tS, u;
+          tS = justMinutes(from);
+          tE = justMinutes(to);
+          middle = Math.floor(width / 2);
+          for (i = r = ref7 = left, ref8 = left + middle; ref7 <= ref8 ? r < ref8 : r > ref8; i = ref7 <= ref8 ? ++r : --r) {
+            realTime[i] = tS;
+          }
+          for (i = s = ref9 = left + middle, ref10 = left + width; ref9 <= ref10 ? s < ref10 : s > ref10; i = ref9 <= ref10 ? ++s : --s) {
+            realTime[i] = tE;
+          }
+          for (i = t = ref11 = tS, ref12 = tE; ref11 <= ref12 ? t < ref12 : t > ref12; i = ref11 <= ref12 ? ++t : --t) {
+            realCoord[i] = left;
+          }
+          realCoord[tE] = left + width;
+          results = [];
+          for (u = 0, len3 = group_cIds.length; u < len3; u++) {
+            communityId = group_cIds[u];
+            if ((cIds == null) || indexOf.call(cIds, communityId) >= 0) {
+              bigMinutes[communityId][tS] = true;
+              results.push(bigMinutes[communityId][tE] = true);
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        };
+        fillHalfDivide = function(time, left, width, cIds) {
+          return fillHalfDivideFull(time - MIN, time, left, width, cIds);
+        };
+        ref7 = interval.parts;
+        for (r = 0, len3 = ref7.length; r < len3; r++) {
+          part = ref7[r];
+          switch (part.type) {
+            case 'dayBreak':
+              if (blkCacheExt.offset.start > 0) {
+                nTime = part.time + (blkCacheExt.offset[communityId].start * MIN);
+                fillHalfDivideFull(nTime, nTime, part.left, part.width);
+              } else {
+                fillHalfDivide(part.time, part.left, part.width);
+              }
+              break;
+            case 'hourMark':
+              if (part.realTime != null) {
+                nTime = part.time + (part.realTime * MIN);
+                fillHalfDivideFull(nTime, nTime, part.left, part.width);
+                markTime = part.time / MIN | 0;
+                for (i = s = ref8 = markTime, ref9 = markTime + part.realTime; ref8 <= ref9 ? s <= ref9 : s >= ref9; i = ref8 <= ref9 ? ++s : --s) {
+                  for (t = 0, len4 = group_cIds.length; t < len4; t++) {
+                    communityId = group_cIds[t];
+                    freeMinutes[communityId][i] = true;
+                  }
+                }
+              } else {
+                fillHalfDivide(part.time, part.left, part.width);
+              }
+              break;
+            case 'freePlace':
+              fillRealTime(part.time + MIN, part.timeEnd, part.left, part.width);
+              for (i = u = ref10 = justMinutes(part.time), ref11 = justMinutes(part.timeEnd); ref10 <= ref11 ? u <= ref11 : u >= ref11; i = ref10 <= ref11 ? ++u : --u) {
+                for (w = 0, len5 = group_cIds.length; w < len5; w++) {
+                  communityId = group_cIds[w];
+                  freeMinutes[communityId][i] = true;
+                }
+              }
+              break;
+            case 'regular':
+              if (part.startOffset) {
+                leftBorder = (part.time / MIN) + part.offset;
+                rightBorder = leftBorder + part.startOffset;
+                for (i = x = ref12 = leftBorder, ref13 = rightBorder; ref12 <= ref13 ? x <= ref13 : x >= ref13; i = ref12 <= ref13 ? ++x : --x) {
+                  for (y = 0, len6 = group_cIds.length; y < len6; y++) {
+                    communityId = group_cIds[y];
+                    freeMinutes[communityId][i] = true;
+                  }
+                }
+              }
+              ref14 = part.marks;
+              for (i = z = 0, len7 = ref14.length; z < len7; i = ++z) {
+                mark = ref14[i];
+                if (mark.locked) {
+                  fillHalfDivideFull(mark.time, mark.timeEnd, mark.left + part.left, mark.width);
+                } else {
+                  fillRealTime(mark.time, mark.timeEnd, part.left + mark.left, mark.width);
+                  for (i = aa = ref15 = justMinutes(mark.time), ref16 = justMinutes(mark.timeEnd) + 1; ref15 <= ref16 ? aa < ref16 : aa > ref16; i = ref15 <= ref16 ? ++aa : --aa) {
+                    for (ab = 0, len8 = group_cIds.length; ab < len8; ab++) {
+                      communityId = group_cIds[ab];
+                      freeMinutes[communityId][i] = true;
+                    }
+                  }
+                }
+              }
+          }
+          if (((ref17 = part.posts) != null ? ref17.length : void 0) > 0) {
+            ref18 = part.posts;
+            for (ac = 0, len9 = ref18.length; ac < len9; ac++) {
+              post = ref18[ac];
+              for (ad = 0, len10 = group_cIds.length; ad < len10; ad++) {
+                communityId = group_cIds[ad];
+                for (i = ae = ref19 = justMinutes(post.time), ref20 = justMinutes(post.timeEnd) + 1; ref19 <= ref20 ? ae < ref20 : ae > ref20; i = ref19 <= ref20 ? ++ae : --ae) {
+                  freeMinutes[communityId][i] = true;
+                }
+              }
+            }
+            ref21 = part.posts;
+            for (af = 0, len11 = ref21.length; af < len11; af++) {
+              post = ref21[af];
+              postLeft = part.left + post.left;
+              for (i = ag = ref22 = justMinutes(post.time) + 1, ref23 = justMinutes(post.timeEnd); ref22 <= ref23 ? ag < ref23 : ag > ref23; i = ref22 <= ref23 ? ++ag : --ag) {
+                delete freeMinutes[post.communityId][i];
+              }
+              fillHalfDivideFull(post.time, post.timeEnd, postLeft, post.width, [post.communityId]);
+            }
+          }
+        }
+        mFrom = justMinutes(interval.from);
+        mTo = justMinutes(interval.to);
+        for (ah = 0, len12 = group_cIds.length; ah < len12; ah++) {
+          communityId = group_cIds[ah];
+          for (i = ai = 0, ref24 = blkCacheExt.offset[communityId].start; 0 <= ref24 ? ai < ref24 : ai > ref24; i = 0 <= ref24 ? ++ai : --ai) {
+            if (freeMinutes[communityId][mFrom + i]) {
+              delete freeMinutes[communityId][mFrom + i];
+            }
+          }
+          if (blkCacheExt.offset[communityId].start === 0) {
+            freeMinutes[communityId][mFrom - 1] = true;
+          }
+          for (i = aj = 0, ref25 = blkCacheExt.offset[communityId].end; 0 <= ref25 ? aj <= ref25 : aj >= ref25; i = 0 <= ref25 ? ++aj : --aj) {
+            freeMinutes[communityId][mTo + i] = true;
+          }
+        }
+        interval.realTime = realTime;
+        interval.realCoord = realCoord;
+        interval.freeMinutes = freeMinutes;
+        interval.bigMinutes = bigMinutes;
+        interval.width = nextCoord;
+        return true;
+      };
+      markCache = function(px, free, obj, leftMargin, markEnds) {
+        var i, l, left, pix, pixDelta, pixTime, ref, ref1, results, timeDelta;
+        timeDelta = obj.timeEnd - obj.time;
+        pixDelta = obj.width;
+        left = leftMargin + obj.left;
+        pixTime = Math.floor(timeDelta / pixDelta);
+        i = 0;
+        results = [];
+        for (pix = l = ref = left, ref1 = left + obj.width; ref <= ref1 ? l <= ref1 : l >= ref1; pix = ref <= ref1 ? ++l : --l) {
+          px[Math.floor(pix)] = toMinutes(obj.timeEnd - pixTime * (obj.width - i));
+          free[Math.floor(pix)] = false;
+          if (markEnds) {
+            if ((i === 0) || (i + 1 === obj.width)) {
+              free[Math.floor(pix)] = true;
+              if (i === 0) {
+                px[Math.floor(pix)] = obj.time;
+              } else {
+                px[Math.floor(pix)] = obj.timeEnd;
+              }
+            }
+          }
+          results.push(i++);
+        }
+        return results;
+      };
+      removeInterval = function(int) {
+        var l, len, ref, results, tl;
+        $(int.eternity).remove();
+        ref = int.timelines;
+        results = [];
+        for (l = 0, len = ref.length; l < len; l++) {
+          tl = ref[l];
+          $(tl.element).remove();
+          results.push(tl.scope.$destroy());
+        }
+        return results;
+      };
+      scope.jumpScroll = function(go_now) {
+        var int, l, len, now, ref, scroll_val;
+        keyInterval = null;
+        scope.group.scroll = null;
+        ref = scope.intervals;
+        for (l = 0, len = ref.length; l < len; l++) {
+          int = ref[l];
+          removeInterval(int);
+        }
+        scope.intervals.length = 0;
+        scroll(0);
+        recalculateIntervals();
+        if (go_now) {
+          now = justMinutes(smartDate.getShiftTimeBar(new Date().getTime()));
+          scroll_val = keyInterval.realCoord[now];
+          if (scroll_val == null) {
+            scroll_val = 0;
+          }
+          return scroll(scroll_val);
+        }
+      };
+      scope.jumpTime = function(ts) {
+        var daystart, fullIntervals, hourVal, minutes, now, scroll_val;
+        now = new Date(ts);
+        daystart = justMinutes(new Date(now.getFullYear(), now.getMonth(), now.getDate())) * MIN;
+        hourVal = ts - daystart;
+        fullIntervals = hourVal / 3 * HOUR | 0;
+        daystart += 3 * HOUR * fullIntervals;
+        setGroupStart(daystart);
+        scope.jumpScroll();
+        minutes = justMinutes(ts);
+        scroll_val = keyInterval.realCoord[minutes];
+        if (scroll_val == null) {
+          scroll_val = 0;
+        }
+        return scroll(scroll_val);
+      };
+      scope.scrollTo = function(ts, all) {
+        var day_ts, fullIntervals, hourVal, hours, now, now_ts, timeObj;
+        if (all) {
+          $('.feedGroup').each(function() {
+            var r_scope;
+            elem = this;
+            r_scope = angular.element(elem).scope();
+            if (r_scope !== scope) {
+              return r_scope.scrollTo();
+            }
+          });
+        }
+        if (ts) {
+          timeObj = new Date(ts);
+          hours = timeObj.getHours();
+          hours = Math.round(hours / 3);
+          hours *= 3;
+          ts = new Date(timeObj.getFullYear(), timeObj.getMonth(), timeObj.getDate(), hours).getTime();
+          setGroupStart(ts);
+          return scope.jumpScroll();
+        } else {
+          now = new Date();
+          now_ts = now.getTime();
+          day_ts = justMinutes(new Date(now.getFullYear(), now.getMonth(), now.getDate())) * MIN;
+          hourVal = now_ts - day_ts;
+          fullIntervals = hourVal / (3 * HOUR) | 0;
+          day_ts += 3 * HOUR * fullIntervals;
+          setGroupStart(day_ts);
+          return scope.jumpScroll(true);
+        }
+      };
+      scope.zoomIn = function() {
+        if (currentZoom > 0) {
+          currentZoom--;
+          zoomObj = zoom[currentZoom];
+          recalculateIntervals();
+          return scroll(0);
+        }
+      };
+      scope.zoomOut = function() {
+        if (currentZoom < zoom.length - 1) {
+          currentZoom++;
+          zoomObj = zoom[currentZoom];
+          recalculateIntervals();
+          return scroll(0);
+        }
+      };
+      scrolling = {
+        I: null,
+        T: null,
+        inProgress: false,
+        animation: false
+      };
+      scope.stepLeft = function(e, to) {
+        if (e.which === 1 && !multiselect.state.selectingInProgress) {
+          to = to || 0;
+          return scrolling.T = setTimeout(function() {
+            return scope.step(-1, isCmd(e));
+          }, to);
+        }
+      };
+      scope.stepRight = function(e, to) {
+        if (e.which === 1 && !multiselect.state.selectingInProgress) {
+          to = to || 0;
+          return scrolling.T = setTimeout(function() {
+            return scope.step(1, isCmd(e));
+          }, to);
+        }
+      };
+      scope.step = function(sign, long) {
+        var settings;
+        settings = {
+          long: 500,
+          short: 20
+        };
+        if (long && (keyInterval != null)) {
+          scope.jumpTime(keyInterval.from + sign * DAY);
+          return;
+        }
+        if (!scrolling.animation) {
+          scrolling.inProgress = scrolling.animation = true;
+          $(element).find(".liveInterval").addClass("transition03s");
+          scroll(sign * settings.long);
+          return setTimeout(function() {
+            if (scrolling.inProgress) {
+              scrolling.I = setInterval(function() {
+                return scroll(sign * settings.short);
+              }, 20);
+            }
+            $(element).find(".liveInterval").removeClass("transition03s");
+            return scrolling.animation = false;
+          }, 350);
+        }
+      };
+      scope.stopStep = function() {
+        clearTimeout(scrolling.T);
+        clearInterval(scrolling.I);
+        return scrolling.inProgress = false;
+      };
+      scope.doScroll = function(val) {
+        return scroll(val);
+      };
+      $(element).on('mousewheel', function(e, delta) {
+        if (e.altKey) {
+          scroll(-delta);
+          e.preventDefault();
+          return e.stopPropagation();
+        }
+      });
+      return true;
+    }
+  };
+});

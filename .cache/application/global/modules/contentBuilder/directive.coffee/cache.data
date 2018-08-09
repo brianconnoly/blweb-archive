@@ -1,0 +1,54 @@
+buzzlike.directive('contentBuilder', function(contentBuilder) {
+  return {
+    restrict: "C",
+    template: tC['/global/modules/contentBuilder'],
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      elem.find('.topbar').click(contentBuilder.hide);
+      scope.add = contentBuilder.addObject;
+      scope.slideMenu = function(tab, direction) {
+        elem.find('.tab.visible').removeClass('visible').addClass(direction);
+        return elem.find('.tab' + tab).removeClass('left').removeClass('right').addClass('visible');
+      };
+      scope.objectProperties = {
+        stroke: null,
+        fill: null,
+        opacity: null
+      };
+      scope.updateObjectProperties = function(props) {
+        var i;
+        if (props.opacity <= 1) {
+          props.opacity *= 100;
+        }
+        for (i in props) {
+          scope.objectProperties[i] = props[i];
+        }
+        return scope.objectProperties;
+      };
+      scope.getObjectProperties = function() {
+        return scope.objectProperties;
+      };
+      scope.updateSelected = function(prop) {
+        var i, props;
+        props = {};
+        if (!prop) {
+          for (i in scope.objectProperties) {
+            props[i] = scope.objectProperties[i];
+          }
+        } else {
+          props[prop] = scope.objectProperties[prop];
+        }
+        if (props.opacity >= 1) {
+          props.opacity /= 100;
+        }
+        return contentBuilder.updateSelected(props);
+      };
+      return contentBuilder.setInterfaceFunctions({
+        slideMenu: scope.slideMenu,
+        getObjectProperties: scope.getObjectProperties,
+        updateObjectProperties: scope.updateObjectProperties
+      });
+    }
+  };
+});

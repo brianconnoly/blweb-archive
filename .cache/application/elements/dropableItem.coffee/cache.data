@@ -1,0 +1,162 @@
+buzzlike.directive('droppableItem', function($parse, stateManager, actionsService, operationsService, taskService, dropHelper, contentService, ruleService, scheduleService, communityService, account, dragMaster, combService, postService, $rootScope) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var canaccept, context, currentActions, dropElem, dropableItem, groupId, groupItem, jelem, lineId, phIndex, rightPanel, rightPanelFolder, type;
+      canaccept = null;
+      jelem = $(element);
+      rightPanel = false;
+      rightPanelFolder = false;
+      if (jelem.parents('.selectedPanel').length > 0) {
+        rightPanel = true;
+      }
+      dropElem = null;
+      lineId = null;
+      groupId = null;
+      groupItem = null;
+      context = null;
+      if (attrs.dropableItem != null) {
+        dropableItem = $parse(attrs.dropableItem)(scope);
+      } else {
+        if ((attrs.type != null) && (attrs.id != null)) {
+          type = 'content';
+          if (attrs.type != null) {
+            type = attrs.type;
+          }
+          operationsService.get(type, attrs.id, function(item) {
+            return dropableItem = item;
+          });
+        } else if ((attrs.type != null) && (scope.id != null)) {
+          type = 'content';
+          if (attrs.type != null) {
+            type = attrs.type;
+          }
+          operationsService.get(type, scope.id, function(item) {
+            return dropableItem = item;
+          });
+        } else if (attrs.item != null) {
+          dropableItem = $parse(attrs.item)(scope);
+        } else if (scope.item != null) {
+          dropableItem = scope.item;
+        }
+      }
+      if (attrs.context != null) {
+        context = $parse(attrs.context)(scope);
+      } else {
+        context = stateManager.getContext();
+      }
+      phIndex = -1;
+      currentActions = null;
+      return new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          if (attrs.noEffects == null) {
+            element.addClass('content-drop');
+          }
+          if (currentActions != null) {
+            return dropHelper.show(currentActions);
+          }
+        },
+        leave: function(elem) {
+          if (jelem.hasClass('sorting-post-content')) {
+            __pholderHelper.detach();
+            $('.sorting-hidden').removeClass('sorting-hidden');
+          }
+          $('sorting-hidden').removeClass('sorting-hidden');
+          if (attrs.noEffects == null) {
+            return $(element).removeClass('content-drop');
+          }
+        },
+        canAccept: function(elem, e) {
+          var elemIndex, index, item, j, len, ref, ref1, sameType;
+          if (jelem.hasClass('sorting-post-content')) {
+            return true;
+          }
+          if (attrs.dropableItem != null) {
+            dropableItem = $parse(attrs.dropableItem)(scope);
+          }
+          sameType = true;
+          ref = elem.dragObject.items;
+          for (j = 0, len = ref.length; j < len; j++) {
+            item = ref[j];
+            if (item.type !== elem.dragObject.items[0].type) {
+              sameType = false;
+              break;
+            }
+          }
+          if (sameType && ((ref1 = elem.sourceContext) != null ? ref1.type : void 0) === 'post' && jelem.parent()[0] === $(elem).parent()[0]) {
+            window.__pholderIndex = -1;
+            jelem.parents('.postEditor').addClass('sorting-post-content');
+            jelem.parent().find('.selected').addClass('sorting-hidden');
+            index = jelem.parent().children().index(__pholderHelper);
+            elemIndex = jelem.parent().children().index(jelem);
+            if (index === -1) {
+              __pholderHelper.insertBefore(jelem);
+              window.__pholderIndex = elemIndex;
+            } else {
+              if (elemIndex > index) {
+                __pholderHelper.insertAfter(jelem);
+                window.__pholderIndex = elemIndex + 1;
+              } else {
+                __pholderHelper.insertBefore(jelem);
+                window.__pholderIndex = elemIndex;
+              }
+            }
+            return false;
+          }
+          if (attrs.context != null) {
+            context = $parse(attrs.context)(scope);
+          } else {
+            context = stateManager.getContext();
+          }
+          currentActions = actionsService.getActions({
+            source: elem.dragObject.items,
+            sourceContext: elem.sourceContext,
+            target: dropableItem,
+            context: context,
+            targetOnly: true,
+            actionsType: 'dragndrop'
+          });
+          return currentActions.length > 0;
+        },
+        drop: function(elem, e) {
+          var i, id, ids, insertId, item, j, k, l, len, len1, len2, newList, process, ref, ref1, ref2;
+          if (jelem.hasClass('sorting-post-content')) {
+            if (attrs.dropableItem != null) {
+              dropableItem = $parse(attrs.dropableItem)(scope);
+            }
+            console.log(window.__pholderIndex, dropableItem);
+            ids = [];
+            ref = elem.dragObject.items;
+            for (j = 0, len = ref.length; j < len; j++) {
+              item = ref[j];
+              ids.push(item.id);
+              removeElementFromArray(item.id, dropableItem.contentIds[item.type]);
+            }
+            newList = [];
+            ref1 = dropableItem.contentIds[item.type];
+            for (i = k = 0, len1 = ref1.length; k < len1; i = ++k) {
+              id = ref1[i];
+              if (i === window.__pholderIndex) {
+                for (l = 0, len2 = ids.length; l < len2; l++) {
+                  insertId = ids[l];
+                  newList.push(insertId);
+                }
+              }
+              newList.push(id);
+            }
+            dropableItem.contentIds[item.type] = newList;
+            process = scope.progress.add();
+            postService.save({
+              id: dropableItem.id,
+              contentIds: dropableItem.contentIds
+            }, function() {
+              return scope.progress.finish(process);
+            });
+          }
+          dropHelper.activate(e, ((ref2 = elem.sourceContext) != null ? ref2.type : void 0) === 'rightPanel');
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});

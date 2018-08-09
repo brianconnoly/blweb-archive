@@ -1,0 +1,16 @@
+.switcher {
+  overflow: hidden;
+  cursor: pointer;
+}
+.switcher .option {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  text-decoration: none;
+}
+.switcher .option.active {
+  display: block;
+}

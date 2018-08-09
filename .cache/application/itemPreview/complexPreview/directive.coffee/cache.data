@@ -1,0 +1,134 @@
+buzzlike.directive('complexPreview', function($compile) {
+  return {
+    restrict: 'E',
+    link: function(scope, element, attrs) {
+      scope.$watch('previewItem.contentIds', function(nVal) {
+        var i, item, itemsCounter, j, k, l, len, len1, len2, list, m, miniElem, miniScope, otherContent, previewElem, previewScope, ref, shieldElem, shieldPic, shieldScope, singleItem, type;
+        if (nVal == null) {
+          return;
+        }
+        element.empty();
+        itemsCounter = 0;
+        singleItem = null;
+        for (type in nVal) {
+          list = nVal[type];
+          itemsCounter += list.length;
+          if (list[0] != null) {
+            singleItem = list[0];
+          }
+        }
+        if (itemsCounter === 1) {
+          previewScope = scope.$new();
+          previewScope.id = singleItem;
+          previewElem = $compile('<div class="itemPreview single" type="content" id="id" mini></div>')(previewScope);
+          element.append(previewElem);
+        } else if (itemsCounter <= 4) {
+          for (type in nVal) {
+            list = nVal[type];
+            for (j = 0, len = list.length; j < len; j++) {
+              item = list[j];
+              miniScope = scope.$new();
+              miniScope.id = item;
+              miniElem = $compile('<div class="itemPreview mini" type="content" id="id" mini></div>')(miniScope);
+              element.append(miniElem);
+            }
+          }
+        } else if (itemsCounter > 4) {
+          if (nVal.image.length > 1) {
+            otherContent = itemsCounter - nVal.image.length;
+            if (otherContent < 3) {
+              miniScope = scope.$new();
+              miniScope.id = nVal.image[nVal.image.length - 1];
+              miniScope.counter = nVal.image.length - (3 - otherContent);
+              miniElem = $compile('<div class="itemPreview mini" type="content" id="id" counter="counter" mini></div>')(miniScope);
+              element.append(miniElem);
+              for (i = k = 0, ref = 3 - otherContent; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+                miniScope = scope.$new();
+                miniScope.id = nVal.image[i];
+                miniElem = $compile('<div class="itemPreview mini" type="content" id="id" mini></div>')(miniScope);
+                element.append(miniElem);
+              }
+              for (type in nVal) {
+                list = nVal[type];
+                if (type !== 'image') {
+                  for (l = 0, len1 = list.length; l < len1; l++) {
+                    item = list[l];
+                    miniScope = scope.$new();
+                    miniScope.id = item;
+                    miniElem = $compile('<div class="itemPreview mini" type="content" id="id" mini></div>')(miniScope);
+                    element.append(miniElem);
+                  }
+                }
+              }
+            } else {
+              miniScope = scope.$new();
+              miniScope.id = nVal.image[nVal.image.length - 1];
+              miniScope.counter = nVal.image.length;
+              miniElem = $compile('<div class="itemPreview mini" type="content" id="id" counter="counter" mini></div>')(miniScope);
+              element.append(miniElem);
+              if (itemsCounter - nVal.image.length > 3) {
+                for (type in nVal) {
+                  list = nVal[type];
+                  if (type !== 'image' && list.length > 0) {
+                    miniScope = scope.$new();
+                    miniScope.id = list[0];
+                    if (list.length > 1) {
+                      miniScope.counter = list.length;
+                    }
+                    miniElem = $compile('<div class="itemPreview mini" type="content" id="id" counter="counter" mini></div>')(miniScope);
+                    element.append(miniElem);
+                  }
+                }
+              }
+            }
+            true;
+          } else {
+            if (nVal.image.length === 1) {
+              miniScope = scope.$new();
+              miniScope.id = nVal.image[0];
+              miniElem = $compile('<div class="itemPreview mini" type="content" id="id" mini></div>')(miniScope);
+              element.append(miniElem);
+            }
+            if (itemsCounter - nVal.image.length <= 3) {
+              for (type in nVal) {
+                list = nVal[type];
+                if (type !== 'image') {
+                  for (m = 0, len2 = list.length; m < len2; m++) {
+                    item = list[m];
+                    miniScope = scope.$new();
+                    miniScope.id = item;
+                    miniElem = $compile('<div class="itemPreview mini" type="content" id="id" mini></div>')(miniScope);
+                    element.append(miniElem);
+                  }
+                }
+              }
+              return;
+            }
+            if (itemsCounter - nVal.image.length > 3) {
+              for (type in nVal) {
+                list = nVal[type];
+                if (type !== 'image' && list.length > 0) {
+                  miniScope = scope.$new();
+                  miniScope.id = list[0];
+                  if (list.length > 1) {
+                    miniScope.counter = list.length;
+                  }
+                  miniElem = $compile('<div class="itemPreview mini" type="content" id="id" counter="counter" mini></div>')(miniScope);
+                  element.append(miniElem);
+                }
+              }
+            }
+          }
+        }
+        if (nVal.image.length > 0) {
+          shieldPic = nVal.image[0];
+          shieldScope = scope.$new();
+          shieldScope.id = shieldPic;
+          shieldElem = $compile('<div class="itemPreview shield" type="content" id="id" mini></div>')(shieldScope);
+          return element.append(shieldElem);
+        }
+      }, true);
+      return true;
+    }
+  };
+});

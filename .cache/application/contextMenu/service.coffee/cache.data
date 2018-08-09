@@ -1,0 +1,134 @@
+buzzlike.service('contextMenu', function($rootScope, stateManager, smartDate, actionsService, complexMenu) {
+  var body, contextState, handlers, hide, position, registerAction, resetMenu, show, status, systemHandlers;
+  status = {
+    time: null,
+    cId: null,
+    gId: null,
+    active: false,
+    actions: [],
+    position: {
+      x: 0,
+      y: 0
+    }
+  };
+  handlers = {};
+  systemHandlers = {};
+  contextState = {
+    'noMenu': 'inherit',
+    'hideRight': 'inherit',
+    'escape': function() {
+      return hide();
+    }
+  };
+  resetMenu = function() {
+    status.active = false;
+    status.time = null;
+    status.cId = null;
+    status.gId = null;
+    status.actions.length = 0;
+    return status.showPost = false;
+  };
+  show = function(items, data) {
+    var action, actions, groups, i, itemsActions, k, len, list, ref, ref1, ref2, ref3, type, types;
+    status.actions.length = 0;
+    status.context = data.target;
+    types = {};
+    type = '';
+    if ((ref = items != null ? (ref1 = items[0]) != null ? ref1.type : void 0 : void 0) === 'timeline' || ref === 'placeholder') {
+      status.showPost = true;
+      status.time = items[0].timestamp;
+    }
+    if ((ref2 = (ref3 = data.target) != null ? ref3.type : void 0) === 'timeline' || ref2 === 'placeholder') {
+      status.showPost = true;
+      status.time = items[0].timestamp;
+    }
+    itemsActions = actionsService.getActions({
+      source: items,
+      context: data.context,
+      sourceContext: data.sourceContext,
+      target: data.target || data.context,
+      actionsType: 'contextMenu'
+    });
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (i = 0, len = itemsActions.length; i < len; i++) {
+        action = itemsActions[i];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        list.push(actions);
+      }
+      complexMenu.show(list, {
+        top: status.position.y,
+        left: status.position.x
+      });
+    }
+    return position(status.position);
+  };
+  hide = function() {
+    if (status.active) {
+      stateManager.goBack();
+      status.active = false;
+      status.time = null;
+      status.cId = null;
+      status.gId = null;
+      return status.actions.length = 0;
+    }
+  };
+  body = $('body');
+  position = function(pos) {
+    status.position.x = pos.x;
+    return status.position.y = pos.y;
+  };
+  registerAction = function(data) {
+    var i, len, results, type, types;
+    types = data.type.split('/');
+    results = [];
+    for (i = 0, len = types.length; i < len; i++) {
+      type = types[i];
+      if ((data.system != null) === true) {
+        if (systemHandlers[type] == null) {
+          systemHandlers[type] = [];
+        }
+        results.push(systemHandlers[type].push(data));
+      } else {
+        if (handlers[type] == null) {
+          handlers[type] = [];
+        }
+        results.push(handlers[type].push(data));
+      }
+    }
+    return results;
+  };
+  return {
+    status: status,
+    show: show,
+    hide: hide,
+    position: position,
+    registerAction: registerAction
+  };
+});

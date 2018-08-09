@@ -1,0 +1,54 @@
+$imgsize = 46px
+.sale-info
+    height $imgsize
+    position absolute
+    overflow hidden
+    left 0
+    right 0
+    bottom 0
+
+    background rgba(0, 0, 0, 0.5)
+    z-index 600
+
+    .info
+        size 'full'
+        color white
+
+        .users
+            float left
+            margin 15px 0 0 10px
+            padding-left 20px
+            line-height 16px
+
+            sprite "/resources/images/icons/market/lot_users.png" 0px 0px 16px 16px
+
+        .options, .buy
+            width $imgsize
+            height $imgsize
+            float right
+
+            &:hover
+                cursor pointer
+
+        .options
+            background-color rgba(255, 255, 255, 0.4)
+            sprite "/resources/images/icons/market/lot_settings.png" center center 30px 30px
+
+            &.accepted
+                background-color rgba(77, 197, 74, 0.9)
+            &.rejected
+                background-color rgba(237, 28, 36, 0.9)
+            &.moderating
+                background-color rgba(255, 202, 23, 0.9)
+
+        .buy
+            background-color rgba(255,222,47,0.9)
+
+            .icon
+                margin 0 auto
+                width 24px
+                height 100%
+                sprite "/resources/images/icons/post-icons2.png" -50px 10px 220px 35px
+
+                &:hover
+                    cursor pointer

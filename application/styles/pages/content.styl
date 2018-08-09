@@ -1,0 +1,461 @@
+.columnView
+    overflow: hidden
+    max-height 623px
+
+    ul.section
+        width 175px
+        float left
+        display block
+
+ul.content
+    display: block
+    overflow: hidden
+
+    transition all 0.2s ease
+    vendor transform-origin, bottom left
+
+// div.screen
+//     h2
+//         color #fff
+//         padding 12px 15px 15px 15px
+//         font-family "DINCyr-Light", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica-Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif
+//         font-size 17px
+//         font-weight lighter
+//         line-height 20px
+//         margin: 0
+
+//         span
+//             cursor: pointer
+
+//     &.hidden
+//         opacity: 0
+//         display: none
+//         //transform: rotateX(30deg)
+//         //vendor animation, hidefront 1s ease
+
+//     &.backwards
+//         opacity: 0
+//         display: none
+//         //transform: rotateX(-30deg)
+//         //vendor animation, hideback 1s ease
+
+li.item
+    float: left
+    display: block
+    position: relative
+
+    width 150px
+    height 150px
+
+    cursor: pointer
+
+    margin 12px
+
+    .small_view &
+        width 100px
+        height 100px
+        margin 8px
+
+        position: relative
+
+        .locked
+            sprite "/resources/images/icons/locks/lock-S.png" center center 23px 34px
+
+        .itemPreview
+            &.audio
+                .track-name
+                    top 20px
+                    font-size 12px
+
+                    p
+                        max-height: 36px;
+
+                    .audioHead
+                        margin-bottom 3px
+
+                &.mini
+                    .track-name
+                        left 2px
+                        right 2px
+
+            &.text
+                .text-preview
+                    padding 11px 8px 8px 8px
+                    font-size 12px
+
+                &.mini
+                    div.text-preview
+                        font-size 10px
+                        padding 2px 5px 5px 5px
+
+        &:hover
+            .remove-circle-button
+                display: block
+
+            .schedule-info
+                bottom -100%
+
+    &.absoluteContent
+        transition all 0.2s ease
+        position: absolute
+
+    img
+        user-select none
+        pointer-events none
+
+    div.content-name
+        position: absolute
+        left 10px
+        bottom -29px
+
+        font-family: Helvetica
+        font-weight: bold
+
+        color: rgba(247, 233, 141,0.9)
+        text-shadow 0 0 20px rgba(0,0,0,1)
+
+    body > &
+        width 50px
+        height 50px
+
+body > .feedItem
+    margin 20px
+    width 50px !important
+    height 50px !important
+
+    .addPostArea
+        display: none
+
+body > .teamMember, body > .teamItem
+    margin 20px
+    width 100px !important
+    height 100px !important
+    
+body > .previewContainer
+    margin 20px
+    width 70px !important
+    height 50px !important
+    background: #fff
+
+.screen.deepview
+    //position absolute
+    //left 0px   //300
+    //right 0px //300
+
+    div.left-arrow, div.right-arrow
+        position absolute
+        padding-top: 22px
+        top 42px
+        bottom 0px
+
+        width 35px
+
+        z-index 5
+        background-color rgba(255, 255, 255, 0.4)
+        transition all ease 0.2s
+
+            .turbo &
+                background-color: #A2C5DA
+
+        .touch &
+            display none
+
+        &:hover
+            cursor pointer
+
+
+    div.left-arrow
+        left 0px
+        // sprite "../resources/images/icons/timeline-buttons.png" 10px center 50px 50px
+        background: url(/resources/images/desktop/timeline/leftArrow.svg) center center no-repeat
+
+    div.right-arrow
+        right 0px
+        // sprite "../resources/images/icons/timeline-buttons.png" -24px center 50px 50px
+        background: url(/resources/images/desktop/timeline/rightArrow1.svg) center center no-repeat
+        transition all ease 0.2s
+
+        .showRight &
+            right 200px
+
+
+    .contentDeepView
+        position absolute
+        top 44px
+        bottom 0px
+        left 0px
+        right 0px
+        overflow hidden
+        //padding 0 35px
+
+        &.transition ul.section
+            transition all ease 0.2s
+
+        ul.section
+            width 175px
+            display block
+            position absolute
+            top 0
+
+            li
+                float left
+                position relative
+                background rgba(255, 255, 255, 0.3)
+
+
+
+.contentPreviewImport
+.contentPreview
+    position: absolute
+    overflow: hidden
+
+    top 0px
+    bottom 0px
+    right 0px
+    left 0px
+
+    background: rgba(255,255,255,0.2)
+
+    transition all 0.2s ease
+
+    perspective 800
+
+    &.transparent
+        background: rgba(255,255,255,0.15)
+
+    //&.text .locked
+    //    sprite "/resources/images/icons/locked.png" -350px 0 500px 202px
+    //    width 100%
+    //    height 100%
+
+    .repost-label
+        left initial
+        right 8px
+
+    .deleted-mark
+        display: block
+        position: absolute
+        pointer-events auto
+        cursor: pointer
+        right 0
+        bottom 0
+        height 30%
+        padding 5%
+
+        background: rgba(255,255,255,0.5)
+
+    .shield
+        position: absolute
+        top 0
+        right 0
+        left 0
+        bottom 0
+        opacity: 1
+
+        z-index 500
+
+        transition all 0.2s ease
+
+    &:hover
+       // .repost-label
+       //     opacity 0
+       .shield
+           opacity 0
+
+    img
+        height 100%
+        margin 0 auto
+
+        &.audio
+            display: block
+            height 80%
+            margin 10% auto
+
+    .shield img
+        //width 100%
+        height 100%
+        margin 0 auto
+
+    div.mini
+        float: left
+        display: block
+
+        width 44% //55px
+        height 44% //55px
+        margin 4% 0 0 4%
+
+        overflow: hidden
+        position: relative
+
+        &.single
+            width 90%
+            height 90%
+
+            .text-preview
+                font-size 14px
+
+        div.text-preview
+            font-size 10px
+            padding 5px
+            word-wrap break-word
+
+    &.album
+        &.audio
+            sprite "/resources/images/icons/albums/audio.png"
+        &.image
+            sprite "/resources/images/icons/albums/images.png"
+
+        .play_button
+            margin-top -35px
+
+    &.video
+        .views
+            position: absolute
+            padding 3%
+            top 0
+            left 0
+            right 0
+            background: rgba(0,0,0,0.8)
+            color #fff
+            font-size 12px
+            text-align: right
+            z-index 20
+
+        .duration
+            position absolute
+            left 5px
+            top 2px
+            padding 3px 0
+            font-size 12px
+            text-align right
+            z-index: 25
+            color white
+
+            span
+                font-size 12px
+                padding-right 3px
+
+    .title
+        position absolute
+        padding 4px 0 4px 7px
+        margin 0 auto
+        white-space nowrap
+        left 0
+        right 0
+        background rgba(0,0,0,0.8)
+        z-index 111
+        color white
+
+        &.top
+            top 0
+        &.bottom
+            bottom 0
+        &.center
+            text-align center
+
+        span
+            display block
+            font-size 13px
+            color #fff
+            //margin 0 10px
+            overflow hidden
+
+    div.status
+        position absolute
+        top 50%
+        left 50%
+        margin -40px 0 0 -40px
+        width 80px
+        height 80px
+        sprite "/resources/images/icons/timelineStatus/pending.png"
+
+
+    div.text-preview
+        background: rgba(255, 255, 255, 1)
+        padding 10px
+        position: absolute
+
+        top 0
+        left 0
+        right 0
+        bottom 0
+
+        word-wrap break-word
+        overflow hidden
+        color black
+
+.repost-label
+    position: absolute
+    
+    top 50%
+    margin-top -15px
+    
+    left 0
+    right 0
+    
+    height 30px
+    line-height: 28px
+    
+    // background: rgba(0,0,0,0.8)
+    // color #fff
+        
+    background: rgba(255,255,255,0.8)
+    color: #000
+    
+    font-size 16px
+    text-align: center
+    
+    // text-shadow: 0px 0px 10px black
+    // transition all 0.2s ease
+    // z-index 600
+    // font-weight normal
+
+.selectedPanel
+    .contentPreview
+        &.audio
+            .sign
+                top: -78px;
+                right: -67px;
+                opacity 0.8
+                transform: scale(0.1)
+
+    //.mini .text .locked
+    //    background-position -386px -35px
+
+    //.mini.single .text .locked
+    //    background-position -170px -10px
+
+@keyframes enter
+    from
+        opacity 0
+        transform scale(0)
+        left -70px
+    75%
+        left 15px
+    to
+        opacity 1
+        transform scale(1)
+        left 0px
+
+@keyframes leave
+    to
+        opacity 0
+        transform scale(1)
+        left -70px
+    25%
+        left 15px
+    from
+        opacity 1
+        transform scale(0)
+        left 0px
+
+// li.item
+//     &.ng-enter
+//         animation enter 600ms cubic-bezier(0.445, 0.050, 0.550, 0.950)
+//         display block
+//         position relative
+
+//     &.ng-leave
+//         animation leave 600ms cubic-bezier(0.445, 0.050, 0.550, 0.950)
+//         display block
+//         position relative

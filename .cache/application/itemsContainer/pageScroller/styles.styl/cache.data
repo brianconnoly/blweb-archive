@@ -1,0 +1,88 @@
+.pageScroller .pageScroller_page {
+  position: absolute;
+}
+.pageScroller .pagesContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0px;
+}
+.pageScroller.lefty .pagesContainer {
+  right: 0;
+  left: 0px;
+}
+.pageScroller.lefty .scrollBar {
+  right: auto;
+  left: 0;
+}
+.pageScroller.lefty .scrollBar .handler {
+  left: 0;
+  right: auto;
+}
+.pageScroller.lefty .scrollBar .helper {
+  right: auto;
+  left: 25px;
+}
+.pageScroller.hide .scrollBar {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  pointer-events: none;
+}
+.pageScroller .scrollBar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  cursor: pointer;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.pageScroller .scrollBar .handler {
+  width: 10px;
+  right: 0;
+  background: rgba(252,194,35,0.8);
+  position: absolute;
+  cursor: default;
+  top: 0;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.pageScroller .scrollBar .helper {
+  position: absolute;
+  right: 25px;
+  height: 20px;
+  line-height: 20px;
+  padding: 2px 5px;
+  margin-top: -10px;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.pageScroller .scrollBar:hover .helper {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.pageScroller .scrollBar:hover .handler {
+  width: 20px;
+}

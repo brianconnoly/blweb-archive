@@ -1,0 +1,42 @@
+.appContainer.textEditor {
+  background: #fff;
+}
+.appContainer.textEditor .topBar input.title::-webkit-input-placeholder {
+  color: #ccc;
+}
+.appContainer.textEditor .topBar input.title::-moz-input-placeholder {
+  color: #ccc;
+}
+.appContainer.textEditor .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.textEditor .text {
+  position: absolute;
+  top: 20px;
+  left: 45px;
+  right: 50px;
+  bottom: 60px;
+}
+.appContainer.textEditor .text textarea {
+  border: none;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  color: #000;
+  resize: none;
+}
+.appContainer.textEditor .counter {
+  font-size: 10px;
+  color: #b3b3b3;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  line-height: 60px;
+  height: 60px;
+  text-align: center;
+}

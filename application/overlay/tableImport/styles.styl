@@ -1,0 +1,135 @@
+#tableImport
+    background: rgba(0,0,0,0.93);
+
+    .turbo &
+        background #000
+
+    .center
+        width 570px
+        color white
+
+        h2
+            width 100%
+            font-size 24px
+            text-align center
+            line-height 65px
+
+        h3
+            font-size 21px
+            line-height 50px
+
+        h4
+            font-size 18px
+            line-height 50px
+
+        .introtext
+            font-size 13px
+            line-height 16px
+
+        .content
+            width 460px
+            margin 0 auto
+
+        .importer
+            margin-top 20px
+
+            $borderStyle = 1px solid #d3d3d3
+            table
+                width 100%
+                background #ffffff
+                border-collapse separate
+                //border-top $borderStyle
+                //border-right $borderStyle
+                //border-bottom $borderStyle
+
+                td
+                    border-left $borderStyle
+                    height 41px
+                    vertical-align middle
+                    text-align center
+                    font-size 13px
+                    overflow hidden
+                    box-sizing border-box
+
+                    &:first-child
+                        border 0
+
+                    &.time
+                        width 63px
+
+                    &.date
+                        width 90px
+
+                    &.small
+                        font-size 10px
+
+                    &.left
+                        text-align left
+                        padding-left 5px
+
+            &.single
+                td.text
+                    width 198px
+
+            &.multi
+                td.comm
+                    width 139px
+                td.text
+                    width 165px
+
+
+            div.example
+                margin-top 19px
+                line-height 20px
+                font-size 13px
+
+            div.download
+                margin 20px auto
+                display table
+
+                div
+                    height 50px
+                    line-height 50px
+                    text-align center
+                    font-size 18px
+                    float left
+                    box-sizing border-box
+
+                .file
+                    border 1px solid #fff
+                    width 50px
+                    margin 0 4px
+                    transition all ease 0.2s
+
+                    &:hover
+                        cursor pointer
+                        background #fff
+                        color #000000
+
+
+                .label
+                    margin-right 15px
+                    cursor pointer
+
+
+            .button
+                width 470px
+                line-height 50px
+                font-size 24px
+                border 1px solid #ffffff
+                margin 10px auto
+                text-align center
+                cursor pointer
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,11 @@
+div(ng-class="{'pinned':flowFrame.pinned, 'active':flowFrame.active && flowBox.active}", ng-click="activateTab()") 
+    div.novaFlowFrameTabBg
+    div.novaFlowFrameTabContent
+        div.tabIcon.pin(ng-click="pinTab()")
+        div.tabIcon.close(ng-click="closeTab()")
+        div.tabIcon.closePinned(ng-click="closeTab()")
+        
+        div.novaAppItem(ng-if="flowFrame.item.id && flowFrame.item.id != appItem.id")
+        div.frameTitle(ng-if="!flowFrame.item.id || flowFrame.item.id == appItem.id")
+            div.titleText.realText(ng-if="flowFrame.title && !flowFrame.translateTitle") {{flowFrame.title}}
+            div.titleText.translateText(ng-if="flowFrame.translateTitle", translate="flowFrame.translateTitle")

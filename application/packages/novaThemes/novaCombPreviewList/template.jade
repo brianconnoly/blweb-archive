@@ -1,0 +1,10 @@
+div.cover.novaItemScope.novaItem.novaItemPreview(nova-item-id="previewItem.coverId",nova-item-type="image")
+
+div.parameters
+    div.parameter
+        div.name(ng-if="item.name") {{::item.name}}
+        div.name(ng-if="!item.name") {{::item.created | timestampMask:'DD MMM YY'}}
+
+    div.parameter
+        div.value {{previewItem.lastStats.activity || 0}}
+        div.label(translate="'novaCombPreviewList_activity'")

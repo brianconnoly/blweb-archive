@@ -1,0 +1,17 @@
+var VerifyCtrl;
+
+VerifyCtrl = function($scope, env, $location, $http) {
+  $scope.verified = false;
+  return $http({
+    method: 'GET',
+    url: env.verify + '?' + $location.$$url.split("?")[1],
+    withCredentials: true
+  }).success((function(_this) {
+    return function(res) {
+      if (!res.err) {
+        $scope.verified = true;
+        return setTimeout($location.path('/timeline', 1333));
+      }
+    };
+  })(this));
+};

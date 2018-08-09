@@ -1,0 +1,17 @@
+//- Right side
+//- div.right.doubleArrow(ng-click="goEnd()", ng-class="{'hidden':totalPages-1 <= paginatorParams.currentPage}")
+div.right.arrow(ng-click="goRight()", ng-class="{'hidden':totalPages-1 <= paginatorParams.currentPage}")
+div.right.afterTypes
+    
+
+//- Left side
+//- div.left.doubleArrow(ng-click="goStart()", ng-class="{'hidden':0 == paginatorParams.currentPage}")
+div.left.arrow(ng-click="goLeft()", ng-class="{'hidden':0 == paginatorParams.currentPage}")
+div.left.beforeTypes
+    
+
+div.centerPages(ng-style="{'width':freeSpaceWidth}")
+    span.centered
+        div.page.type(ng-repeat="page in beforeTypes", ng-click="goPage(page.num)", class="{{page.class}}", ng-class="{'active':isActive(page)}")
+        div.page(ng-repeat="page in pages", ng-click="goPage(page.num)", class="{{page.class}}", ng-class="{'active':isActive(page)}") {{pageTitle(page)}}
+        div.page.type(ng-repeat="page in afterTypes", ng-click="goPage(page.num)", class="{{page.class}}", ng-class="{'active':isActive(page)}")

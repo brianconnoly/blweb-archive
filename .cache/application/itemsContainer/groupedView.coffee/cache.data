@@ -1,0 +1,298 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('groupedView', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var exclude, generateGroups;
+      scope.groups = [];
+      exclude = null;
+      generateGroups = function() {
+        var date, dateObj, day, i, key, len, ref, ref1, startDay, startDayTS, startYear, types, val, widget, widgets;
+        scope.groups.length = 0;
+        types = [];
+        ref = scope.currentStep.filterTypes;
+        for (key in ref) {
+          val = ref[key];
+          if (val === true) {
+            types.push(key);
+          }
+        }
+        if (scope.currentStep.sortBy === 'type') {
+          widgets = [
+            {
+              translateTitle: 'group_by_type_folder',
+              query: {
+                hideAllSent: scope.currentStep.query.hideAllSent,
+                hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+                notInCombs: scope.currentStep.query.notInCombs,
+                entityType: 'content',
+                contentType: 'folder',
+                sortBy: 'created',
+                sortType: scope.currentStep.sortType || 'desc'
+              },
+              screens: 3,
+              lines: 3
+            }, {
+              translateTitle: 'group_by_type_image',
+              query: {
+                hideAllSent: scope.currentStep.query.hideAllSent,
+                hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+                notInCombs: scope.currentStep.query.notInCombs,
+                entityType: 'content',
+                contentType: 'image',
+                sortBy: 'created',
+                sortType: scope.currentStep.sortType || 'desc'
+              },
+              screens: 3,
+              lines: 3
+            }, {
+              translateTitle: 'group_by_type_text',
+              query: {
+                hideAllSent: scope.currentStep.query.hideAllSent,
+                hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+                notInCombs: scope.currentStep.query.notInCombs,
+                entityType: 'content',
+                contentType: 'text',
+                sortBy: 'created',
+                sortType: scope.currentStep.sortType || 'desc'
+              },
+              screens: 3,
+              lines: 3
+            }, {
+              translateTitle: 'group_by_type_video',
+              query: {
+                hideAllSent: scope.currentStep.query.hideAllSent,
+                hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+                notInCombs: scope.currentStep.query.notInCombs,
+                entityType: 'content',
+                contentType: 'video',
+                sortBy: 'created',
+                sortType: scope.currentStep.sortType || 'desc'
+              },
+              screens: 3,
+              lines: 3
+            }, {
+              translateTitle: 'group_by_type_audio',
+              query: {
+                hideAllSent: scope.currentStep.query.hideAllSent,
+                hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+                notInCombs: scope.currentStep.query.notInCombs,
+                entityType: 'content',
+                contentType: 'audio',
+                sortBy: 'created',
+                sortType: scope.currentStep.sortType || 'desc'
+              },
+              screens: 3,
+              lines: 3
+            }, {
+              translateTitle: 'group_by_type_url',
+              query: {
+                hideAllSent: scope.currentStep.query.hideAllSent,
+                hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+                notInCombs: scope.currentStep.query.notInCombs,
+                entityType: 'content',
+                contentType: 'url',
+                sortBy: 'created',
+                sortType: scope.currentStep.sortType || 'desc'
+              },
+              screens: 3,
+              lines: 3
+            }
+          ];
+          for (i = 0, len = widgets.length; i < len; i++) {
+            widget = widgets[i];
+            if (types.length > 0 && (ref1 = widget.query.contentType, indexOf.call(types, ref1) < 0)) {
+              continue;
+            }
+            scope.groups.push(widget);
+          }
+        }
+        if (scope.currentStep.sortBy.indexOf('lastU') > -1 || scope.currentStep.sortBy === 'created') {
+          dateObj = new Date();
+          startDay = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+          startYear = new Date(dateObj.getFullYear(), 0, 1);
+          date = dateObj.getDate();
+          day = dateObj.getDay();
+          day -= 1;
+          if (day < 0) {
+            day = 7;
+          }
+          startDayTS = startDay.getTime();
+          scope.groups.push({
+            translateTitle: 'group_by_today',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterGreater: startDayTS - 1
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_yesterday',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterLower: startDayTS,
+              filterGreater: startDayTS - DAY - 1
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_currentWeek',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterLower: startDayTS - DAY,
+              filterGreater: startDayTS - DAY * day - 1
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_lastWeek',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterLower: startDayTS - DAY * day,
+              filterGreater: startDayTS - DAY * (day + 7) - 1
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_lastMonth',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterLower: startDayTS - DAY * (day + 7),
+              filterGreater: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1)
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_thisYear',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterLower: startDayTS - DAY * date,
+              filterGreater: startYear.getTime() - 1
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_laterThenEver',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterLower: startYear.getTime(),
+              filterGreater: 1
+            }
+          });
+          scope.groups.push({
+            translateTitle: 'group_by_other',
+            screens: 3,
+            lines: 3,
+            query: {
+              hideAllSent: scope.currentStep.query.hideAllSent,
+              hideAllScheduled: scope.currentStep.query.hideAllScheduled,
+              notInCombs: scope.currentStep.query.notInCombs,
+              entityType: 'content',
+              contentType: types.length > 0 ? {
+                '$in': types
+              } : void 0,
+              sortBy: scope.currentStep.sortBy,
+              sortType: scope.currentStep.sortType || 'desc',
+              filterBy: scope.currentStep.sortBy,
+              filterEquals: {
+                $in: [null, 0]
+              }
+            }
+          });
+        }
+        return true;
+      };
+      scope.$watch('currentStep', function(nVal) {
+        if (nVal != null) {
+          if (scope.getGroups != null) {
+            return scope.getGroups(function(list) {
+              var i, item, len, results;
+              scope.groups.length = 0;
+              results = [];
+              for (i = 0, len = list.length; i < len; i++) {
+                item = list[i];
+                results.push(scope.groups.push(item));
+              }
+              return results;
+            });
+          } else {
+            return generateGroups();
+          }
+        }
+      }, true);
+      return true;
+    }
+  };
+});

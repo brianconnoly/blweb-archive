@@ -1,0 +1,98 @@
+buzzlike.controller('mediaPreviewCtrl', function($scope, $rootScope, operationsService, multiselect) {
+  var image_original_height, image_original_width, process, rebuildPreview;
+  $scope.session.expandedHeader = false;
+  $scope.stateTree.applyState({
+    'escape': $scope.closeApp,
+    'left': function() {
+      var index, lprocess;
+      if ($scope.session.list == null) {
+        return;
+      }
+      index = $scope.session.list.indexOf($scope.session.contentId);
+      index--;
+      if (index < 0) {
+        index = $scope.session.list.length - 1;
+      }
+      $scope.session.contentId = $scope.session.list[index];
+      lprocess = $scope.progress.add();
+      $scope.state.item = operationsService.get($scope.session.contentType || 'content', $scope.session.contentId, function(item) {
+        $scope.state.item = item;
+        return $scope.progress.finish(lprocess);
+      });
+      return true;
+    },
+    'right': function() {
+      var index, lprocess;
+      if ($scope.session.list == null) {
+        return;
+      }
+      index = $scope.session.list.indexOf($scope.session.contentId);
+      index++;
+      if (index > $scope.session.list.length - 1) {
+        index = 0;
+      }
+      $scope.session.contentId = $scope.session.list[index];
+      lprocess = $scope.progress.add();
+      $scope.state.item = operationsService.get($scope.session.contentType || 'content', $scope.session.contentId, function(item) {
+        $scope.state.item = item;
+        return $scope.progress.finish(lprocess);
+      });
+      return true;
+    }
+  });
+  image_original_width = 0;
+  image_original_height = 0;
+  $scope.state = {};
+  process = $scope.progress.add();
+  $scope.loading = false;
+  $scope.resizeImage = function(img, resized) {};
+  rebuildPreview = function() {
+    var id, img, src, videoObj;
+    switch ($scope.state.item.type) {
+      case 'image':
+        img = new Image();
+        process = $scope.progress.add();
+        img.onload = function() {
+          $scope.picture.removeClass('wide').removeClass('tall');
+          if (img.width > img.height) {
+            $scope.picture.addClass('wide');
+          } else {
+            $scope.picture.addClass('tall');
+          }
+          $scope.progress.finish(process);
+          return $scope.win.removeClass('loading');
+        };
+        return img.src = $rootScope.proxyPrefix + $scope.state.item.original;
+      case 'video':
+        switch ($scope.state.item.sourceType) {
+          case 'vkVideo':
+          case 'vkontakte':
+            src = $scope.state.item.embeddedPlayer.replace('http://', '//');
+            videoObj = $('<iframe>');
+            videoObj.attr('src', src);
+            videoObj.attr('width', '100%');
+            videoObj.attr('height', '100%');
+            $scope.video.empty();
+            $scope.video.append(videoObj);
+            break;
+          case 'youtubeVideo':
+          case 'youtube':
+            id = $scope.state.item.embeddedPlayer.split('?v=')[1];
+            src = '//www.youtube.com/embed/' + id;
+            videoObj = $('<iframe>');
+            videoObj.attr('src', src);
+            videoObj.attr('width', '100%');
+            videoObj.attr('height', '100%');
+            $scope.video.empty();
+            $scope.video.append(videoObj);
+        }
+        return $scope.win.removeClass('loading');
+      case 'audio':
+        return $scope.win.removeClass('loading');
+    }
+  };
+  return $scope.state.item = operationsService.get($scope.session.contentType || 'content', $scope.session.contentId, function(item) {
+    $scope.state.item = item;
+    return $scope.progress.finish(process);
+  });
+});

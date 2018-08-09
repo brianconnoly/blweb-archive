@@ -1,0 +1,200 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('projectService', function(itemService, account, rpc, novaWizard, localization, novaDesktop, groupService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'project';
+
+    classEntity.prototype.init = function() {
+      this.projectStyles = {};
+      classEntity.__super__.init.call(this);
+      return novaWizard.register('project', {
+        type: 'sequence',
+        steps: [
+          {
+            id: 'community',
+            series: [
+              {
+                id: 'account',
+                directive: 'novaWizardAccountPicker',
+                variable: 'accountPublicId',
+                multi: false
+              }, {
+                id: 'community',
+                directive: 'novaWizardCommunityPicker',
+                variable: 'communityIds',
+                multi: true
+              }
+            ],
+            provide: 'communityIds',
+            previewType: 'community',
+            multi: true,
+            canSkip: true
+          }, {
+            id: 'members',
+            directive: 'novaWizardMembersPicker',
+            provide: 'members',
+            multi: true,
+            canSkip: true
+          }, {
+            id: 'final',
+            directive: 'novaWizardProjectCreate',
+            customNext: 'novaWizardAction_create'
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            var i, len, members, ref, ref1, userId;
+            members = [];
+            if (((ref = data.members) != null ? ref.length : void 0) > 0) {
+              ref1 = data.members;
+              for (i = 0, len = ref1.length; i < len; i++) {
+                userId = ref1[i];
+                members.push({
+                  userId: userId,
+                  invited: true
+                });
+              }
+            }
+            return _this.create({
+              members: members,
+              name: data.name
+            }, function(project) {
+              var communityId, feeds, j, len1, ref2, ref3;
+              if (((ref2 = data.communityIds) != null ? ref2.length : void 0) > 0) {
+                feeds = [];
+                ref3 = data.communityIds;
+                for (j = 0, len1 = ref3.length; j < len1; j++) {
+                  communityId = ref3[j];
+                  feeds.push({
+                    communityId: communityId
+                  });
+                }
+                groupService.create({
+                  projectId: project.id,
+                  name: data.name,
+                  feeds: feeds
+                });
+              }
+              return novaDesktop.launchApp({
+                app: 'novaProjectApp',
+                item: {
+                  type: 'project',
+                  id: project.id
+                }
+              });
+            });
+          };
+        })(this)
+      });
+    };
+
+    classEntity.prototype.updateStyles = function() {
+      var id, ref, style, styleData;
+      if (this.styleItem == null) {
+        this.styleItem = $('<style>');
+        this.styleItem.appendTo('head');
+      }
+      styleData = "";
+      ref = this.projectStyles;
+      for (id in ref) {
+        style = ref[id];
+        styleData += style + "\n";
+      }
+      return this.styleItem.html(styleData);
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var handled, i, launcher, len, member, ref;
+      handled = classEntity.__super__.handleItem.call(this, item);
+      ref = handled.members;
+      for (i = 0, len = ref.length; i < len; i++) {
+        member = ref[i];
+        if (member.userId === account.user.id) {
+          this.projectStyles[handled.id] = ".novaAppLauncher.active." + ('project_' + handled.id) + ", .novaAppLauncher." + ('project_' + handled.id) + ":hover { border-color: " + handled.appearance.background + "; } .novaApp." + ('project_' + handled.id) + " { background: " + handled.appearance.background + "; color: " + handled.appearance.color + "; }";
+          launcher = novaDesktop.registerLauncher({
+            dock: true,
+            "static": handled.profileUserId === account.user.id,
+            order: handled.profileUserId === account.user.id ? 0 : void 0,
+            item: {
+              type: 'project',
+              id: handled.id
+            },
+            app: 'novaProjectApp'
+          });
+          this.updateStyles();
+          if (member.invited) {
+            if (launcher.session == null) {
+              novaDesktop.launchApp(launcher);
+            } else {
+              novaDesktop.activate(launcher.session);
+            }
+          }
+          return handled;
+        }
+      }
+      if (handled.userId !== account.user.id) {
+        novaDesktop.unregisterLauncher({
+          item: {
+            type: 'project',
+            id: handled.id
+          }
+        });
+      }
+      return handled;
+    };
+
+    classEntity.prototype.pushModuleData = function(projectId, moduleId, code, items) {
+      return this.getById(projectId, (function(_this) {
+        return function(project) {
+          var i, item, len;
+          if (project.modules[moduleId] == null) {
+            project.modules[moduleId] = {};
+          }
+          if (project.modules[moduleId][code] == null) {
+            project.modules[moduleId][code] = [];
+          }
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (indexOf.call(project.modules[moduleId][code], item) < 0) {
+              project.modules[moduleId][code].push(item);
+            }
+          }
+          return _this.save(project);
+        };
+      })(this));
+    };
+
+    classEntity.prototype.pullModuleData = function(projectId, moduleId, code, items) {
+      return this.getById(projectId, (function(_this) {
+        return function(project) {
+          var i, item, len;
+          if (project.modules[moduleId] == null) {
+            project.modules[moduleId] = {};
+          }
+          if (project.modules[moduleId][code] == null) {
+            project.modules[moduleId][code] = [];
+            return true;
+          }
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            removeElementFromArray(item, project.modules[moduleId][code]);
+          }
+          return _this.save(project);
+        };
+      })(this));
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

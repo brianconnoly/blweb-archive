@@ -1,0 +1,131 @@
+buzzlike.controller('helpCtrl', function($scope) {
+  var defaultState;
+  $scope.session.expandedHeader = false;
+  $scope.stateTree.applyState({
+    'escape': $scope.stepBack
+  });
+  $scope.currentStep = {
+    translateTitle: 'helpApp_title'
+  };
+  $scope.stepStack = [];
+  $scope.stepStack.push($scope.currentStep);
+  defaultState = false;
+  $scope.catalog = [
+    {
+      translateTitle: 'helpApp_general',
+      icon: '/resources/images/desktop/dock/black/help.svg',
+      expanded: defaultState,
+      pages: [
+        {
+          translateTitle: 'helpApp_general_about',
+          file: 'general/about-buzzlike'
+        }, {
+          translateTitle: 'helpApp_general_beforeStart',
+          file: 'general/before-start'
+        }, {
+          translateTitle: 'helpApp_general_payment',
+          file: 'general/payment'
+        }, {
+          translateTitle: 'helpApp_general_paymentByPost',
+          file: 'general/payment-by-post'
+        }
+      ]
+    }, {
+      translateTitle: 'helpApp_timeline',
+      icon: '/resources/images/desktop/dock/black/timelines.svg',
+      expanded: defaultState,
+      pages: [
+        {
+          translateTitle: 'helpApp_timeline_about',
+          file: 'channels/overview'
+        }, {
+          translateTitle: 'helpApp_timeline_addChannel',
+          file: 'channels/add-channel'
+        }, {
+          translateTitle: 'helpApp_timeline_editChannel',
+          file: 'channels/edit-channel'
+        }, {
+          translateTitle: 'helpApp_timeline_scale',
+          file: 'channels/scale'
+        }
+      ]
+    }, {
+      translateTitle: 'helpApp_themes',
+      icon: '/resources/images/desktop/dock/black/themes.svg',
+      expanded: defaultState,
+      pages: [
+        {
+          translateTitle: 'helpApp_themes_about',
+          file: 'themes'
+        }
+      ]
+    }, {
+      translateTitle: 'helpApp_content',
+      icon: '/resources/images/desktop/dock/black/materials.svg',
+      expanded: defaultState,
+      pages: [
+        {
+          translateTitle: 'helpApp_content_about',
+          file: 'materials'
+        }
+      ]
+    }
+  ];
+  $scope.getSectionHeight = function(section) {
+    if (section.expanded === true) {
+      return section.pages.length * 34;
+    }
+    return 0;
+  };
+  $scope.selectSection = function(section, page) {
+    $scope.currentSection = section;
+    section.expanded = true;
+    $scope.stepStack.length = 1;
+    $scope.stepStack.push({
+      translateTitle: section.translateTitle
+    });
+    if (page == null) {
+      page = section.pages[0];
+    }
+    $scope.currentStep = page;
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.selectSection($scope.catalog[0]);
+  $scope.getHelpFile = function() {
+    var ref;
+    if (((ref = $scope.currentStep) != null ? ref.file : void 0) != null) {
+      return "/resources/images/desktop/help/" + $scope.currentStep.file + "/help.svg";
+    }
+    return "";
+  };
+  $scope.compact = false;
+  $scope.onResize(function(wid, hei) {
+    if (wid >= 900) {
+      return $scope.compact = false;
+    } else {
+      return $scope.compact = true;
+    }
+  });
+  $scope.stateSaver.add('stepStack', function() {
+    var ref;
+    return {
+      stack: $scope.stepStack,
+      section: $scope.catalog.indexOf($scope.currentSection),
+      page: (ref = $scope.currentSection) != null ? ref.pages.indexOf($scope.currentStep) : void 0
+    };
+  }, function(data) {
+    var i, len, ref, ref1, step;
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (i = 0, len = ref.length; i < len; i++) {
+      step = ref[i];
+      $scope.stepStack.push(step);
+    }
+    $scope.currentSection = $scope.catalog[data.section * 1];
+    $scope.currentSection.expanded = true;
+    return $scope.currentStep = (ref1 = $scope.currentSection) != null ? ref1.pages[data.page * 1] : void 0;
+  });
+  return $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+});

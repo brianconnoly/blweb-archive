@@ -1,0 +1,27 @@
+buzzlike.directive('lazyLots', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, elem;
+      elem = $(element);
+      body = elem.parents('.leftPanel');
+      return elem.on('mousewheel', function(e) {
+        scope.lotScrollValue = elem[0].scrollTop;
+        if (scope.lotParams.isLoading === true) {
+          return;
+        }
+        if (elem[0].scrollTop === 0 && scope.lotParams.reloadOnStart === true) {
+          scope.lotParams.reloadOnStart = false;
+          scope.resetLotList();
+          scope.fetchLotsPage();
+          return scope.$apply();
+        } else if (scope.lotParams.pageSize * scope.lotParams.page < scope.lotParams.total) {
+          if (elem[0].scrollTop + elem.height() > elem[0].scrollHeight - 200) {
+            scope.fetchLotsPage();
+            return scope.$apply();
+          }
+        }
+      });
+    }
+  };
+});

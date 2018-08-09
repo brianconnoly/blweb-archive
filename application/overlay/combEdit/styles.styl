@@ -1,0 +1,261 @@
+$barHeight = 42px
+$barLineHeight = 42px
+
+#combEdit
+    background: rgba(249, 209, 88, 0.95)
+    
+    .option-blur-on &
+        background: rgba(249, 209, 88, 0.6)
+
+    .turbo &
+        background: rgba(249, 209, 88, 1)
+
+    .container
+        height 100%
+        overflow hidden
+        padding $barHeight ($rightPanelWidth/2) 0 ($rightPanelWidth/2)
+        box-sizing border-box
+        transition all ease 0.3s
+
+        .showRight &
+            padding-left 0
+            padding-right $rightPanelWidth
+
+        .combeditor
+            position relative
+            width 100%
+            height 100%
+            margin 0 auto
+            transition all ease 0.4s
+            box-sizing border-box
+
+            &.alone
+                width 430px
+                overflow hidden
+
+                .content
+                    left -100% !important
+                    width 0
+                    opacity 0
+
+            &.teamShown
+                .column
+                    bottom 110px
+
+            .column
+                transition all ease 0.3s
+                position absolute
+                top 0
+                bottom 0
+                min-width 100px
+                overflow hidden
+
+                &.content
+                    left 0
+                    right 430px
+
+                    .contentMode
+                        size 'full'
+                        padding-top 8px
+                        ul.list
+                            margin: 0 auto
+                        
+                &.posts
+                    width 430px
+                    right 0
+
+            .boundedTeamMembers
+                position: absolute
+
+                left 0
+                right 0
+                bottom 0
+
+                height 100px //200px
+                box-model border-box
+                padding 5px
+                overflow: auto
+
+            //.category
+            //    display inline-block
+            //    box-sizing border-box
+            //    width 100%
+            //
+            //    .list
+            //        overflow: hidden
+
+            .paginator, .superPaginator
+                position: absolute
+                bottom 0
+                height 38px
+                left 0
+                right 0
+                max-width 610px
+                text-align: center
+
+                .page
+                    display: inline-block
+                    margin 0 5px
+                    cursor: pointer
+                    line-height 30px
+                    opacity 0.3
+
+                    &.active
+                        cursor: default
+                        color #000
+                        opacity 1
+
+
+// .contentPaginatorView
+//     ul.list
+//         text-align: center
+
+//         li.item
+//             float: none
+//             display: inline-block
+
+.simplePostList
+    // width 425px
+    // margin 0 auto
+    margin-left 3px
+
+//     li.item
+//         float: none
+//         display: inline-block
+
+.filterBar, .topBar
+    z-index 999
+    background: #fff
+
+    position: absolute
+    top 0
+    right 0
+    left 0
+    height $barHeight
+
+    cursor: pointer
+
+    line-height $barLineHeight
+    font-size 20px
+
+    padding-left $barHeight
+
+    .closer
+        position absolute
+        top 0
+        left 0
+        width $barHeight
+        height $barHeight
+        sprite "/resources/images/icons/closers/big-black.png" center center $barHeight $barHeight
+        cursor pointer
+
+    .name
+        size 'abs' 0 0 0 50px
+
+        input
+            width 100%
+            height 26px
+            line-height 26px
+            padding 0
+            margin 8px 0
+
+            &::-webkit-input-placeholder
+                color #bebebe
+            &:-moz-placeholder
+                color #bebebe
+            &::-moz-placeholder
+                color #bebebe
+            &:-ms-input-placeholder
+                color #bebebe
+
+
+    .filtersBlock
+        position: absolute
+        left 0
+        right 0
+        bottom 0
+        height 40px
+
+        // *** buttons ***
+        .button, .switcher, .bl-checkbox
+            float left
+            margin 0 3px
+            cursor pointer
+
+        .combobox
+            float left
+            width 150px
+            height $barHeight
+            background-position right 4px
+
+            &.filter
+                width 200px
+
+            .value
+                line-height $barLineHeight
+                    text-align right
+
+
+            &.disabled
+                opacity 0
+                pointer-events none
+
+        // *** columns ***
+
+        .content
+            size 'abs' 0 495px 0 10px
+
+            &.folder
+                right 10px
+
+            .button
+                &.addAlbum
+                    width $barHeight
+                    height $barHeight
+                    sprite "/resources/images/icons/comb/post-head.png" -40px 0px 360px 80px
+
+            .contentViewSwitcher
+                width $barHeight
+                height $barHeight
+                font-size 16px
+
+                .option
+                    line-height $barLineHeight
+                .mini
+                    sprite "/resources/images/icons/nav/combedit/contentView-full.png" center center 24px 24px
+                .full
+                    sprite "/resources/images/icons/nav/combedit/view-mini.png" center center 24px 24px
+
+        .posts
+            size 'abs' 0 0 0 width
+            width 495px
+
+            .showRight &
+                width 595px
+
+            .postsFilters
+                float right
+                position relative
+                width 400px
+
+                .combobox .value
+                    text-align right
+
+            .backward
+                float left
+                padding-left 20px
+                sprite "/resources/images/icons/arrows/black-settings.png" -55px center 80px 40px
+                cursor pointer
+
+            .postsViewSwitcher
+                width $barHeight
+                height $barHeight
+                font-size 16px
+
+                .option
+                    line-height $barLineHeight
+                .simple
+                    sprite "/resources/images/icons/nav/combedit/postsView-full.png" center center 24px 24px
+                .full
+                    sprite "/resources/images/icons/nav/combedit/view-mini.png" center center 24px 24px
+

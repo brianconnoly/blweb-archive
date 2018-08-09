@@ -1,0 +1,152 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('ruleService', function(itemService, rpc, communityService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'rule';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byGroupId = {};
+      this.byCombId = {};
+    }
+
+    classEntity.prototype.handleItem = function(item) {
+      var saved;
+      saved = classEntity.__super__.handleItem.call(this, item);
+      if (this.byGroupId[saved.groupId] != null) {
+        if (this.byGroupId[saved.groupId].indexOf(saved) === -1) {
+          this.byGroupId[saved.groupId].push(saved);
+        }
+      }
+      if (this.byCombId[saved.combId] != null) {
+        if (this.byCombId[saved.combId].indexOf(saved) === -1) {
+          this.byCombId[saved.combId].push(saved);
+        }
+      }
+      return saved;
+    };
+
+    classEntity.prototype.save = function(save, cb) {
+      var arr, gId, ref;
+      ref = this.byGroupId;
+      for (gId in ref) {
+        arr = ref[gId];
+        removeElementFromArray(save, arr);
+      }
+      return classEntity.__super__.save.call(this, save, cb);
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var item;
+      item = this.storage[id];
+      if ((item != null ? item.groupId : void 0) != null) {
+        removeElementFromArray(item, this.byGroupId[item.groupId]);
+      }
+      if ((item != null ? item.combId : void 0) != null) {
+        removeElementFromArray(item, this.byCombId[item.combId]);
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.fetchByGroupId = function(groupId, cb) {
+      if (this.byGroupId[groupId] == null) {
+        this.byGroupId[groupId] = [];
+        this.query({
+          groupId: groupId
+        }, function(result) {
+          return typeof cb === "function" ? cb(this.byGroupId[groupId]) : void 0;
+        });
+      } else {
+        if (typeof cb === "function") {
+          cb(this.byGroupId[groupId]);
+        }
+      }
+      return this.byGroupId[groupId];
+    };
+
+    classEntity.prototype.getByCombId = function(combId, cb) {
+      if (this.byCombId[combId] == null) {
+        this.byCombId[combId] = [];
+        this.query({
+          combId: combId
+        }, function(result) {
+          return typeof cb === "function" ? cb(this.byCombId[combId]) : void 0;
+        });
+      } else {
+        if (typeof cb === "function") {
+          cb(this.byCombId[combId]);
+        }
+      }
+      return this.byCombId[combId];
+    };
+
+    classEntity.prototype.removeByGroupId = function(groupId, cb) {
+      return rpc.call(this.itemType + '.removeByGroupId', groupId, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.removePlaceholders = function(list, cut, cb) {
+      if (cut == null) {
+        cut = false;
+      }
+      return rpc.call(this.itemType + '.removePlaceholders', {
+        items: list,
+        cut: cut
+      }, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.fill = function(data, cb) {
+      return rpc.call(this.itemType + '.fill', data, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.getPlaceholder = function(phId, ruleId, communityId) {
+      var communityItem, day, newLength, placeholder, rule;
+      rule = this.storage[ruleId];
+      if (rule == null) {
+        return null;
+      }
+      if (communityId != null) {
+        communityItem = communityService.getById(communityId);
+      }
+      placeholder = {
+        type: 'placeholder',
+        rule: rule,
+        ruleType: rule.ruleType,
+        groupId: rule.groupId,
+        id: phId,
+        communityId: communityId,
+        socialNetwork: communityItem != null ? communityItem.socialNetwork : void 0
+      };
+      switch (rule.ruleType) {
+        case 'single':
+          placeholder.timestamp = rule.timestampStart;
+          break;
+        case 'chain':
+          newLength = rule.interval * phId * MIN;
+          placeholder.timestamp = rule.timestampStart + newLength;
+          break;
+        case 'daily':
+          day = 24 * 60 * MIN;
+          placeholder.timestamp = (day * phId) + rule.timestampStart;
+      }
+      return placeholder;
+    };
+
+    classEntity.prototype.getNextPlaceholders = function(communityId, timeStart, cb) {
+      return true;
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

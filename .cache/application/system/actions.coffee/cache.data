@@ -1,0 +1,258 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('actionsService', function() {
+  var getActions, getCodes, getContextTypes, getPhrases, handlers, parsers, registerAction, registerParser;
+  handlers = {};
+  parsers = {};
+  getContextTypes = function(code, context, separator) {
+    var i, len, name, res, type, types;
+    if (separator == null) {
+      separator = '_';
+    }
+    res = [code + separator + context.type];
+    if (parsers[context != null ? context.type : void 0] != null) {
+      types = typeof parsers[name = context != null ? context.type : void 0] === "function" ? parsers[name](context) : void 0;
+      for (i = 0, len = types.length; i < len; i++) {
+        type = types[i];
+        res.push(code + separator + type);
+      }
+    }
+    return res;
+  };
+  getCodes = function(type, items, data) {
+    var addCodes, addPre, code, codes, i, j, k, l, len, len1, len2, len3, len4, m, pre_codes, ref, ref1, ref2;
+    code = type;
+    pre_codes = [];
+    codes = [];
+    if (data.targetOnly) {
+      pre_codes.push(code);
+      if (items.items.length === 1) {
+        pre_codes.push(code + '_1');
+      }
+      if (items.items.length > 1) {
+        pre_codes.push(code + '_many');
+      }
+    } else {
+      codes.push(code);
+      if (items.items.length === 1) {
+        codes.push(code + '_1');
+      }
+      if (items.items.length > 1) {
+        codes.push(code + '_many');
+      }
+    }
+    if (((ref = data.sourceContext) != null ? ref.type : void 0) != null) {
+      addPre = [];
+      for (i = 0, len = pre_codes.length; i < len; i++) {
+        code = pre_codes[i];
+        addPre = addPre.concat(getContextTypes(code, data.sourceContext, '&'));
+      }
+      pre_codes = pre_codes.concat(addPre);
+      for (j = 0, len1 = codes.length; j < len1; j++) {
+        code = codes[j];
+        codes = codes.concat(getContextTypes(code, data.sourceContext, '&'));
+      }
+    }
+    if (((ref1 = data.target) != null ? ref1.type : void 0) != null) {
+      addCodes = [];
+      for (k = 0, len2 = codes.length; k < len2; k++) {
+        code = codes[k];
+        addCodes = addCodes.concat(getContextTypes(code, data.target));
+      }
+      codes = codes.concat(addCodes);
+      for (l = 0, len3 = pre_codes.length; l < len3; l++) {
+        code = pre_codes[l];
+        codes = codes.concat(getContextTypes(code, data.target));
+      }
+    }
+    if (((ref2 = data.context) != null ? ref2.type : void 0) != null) {
+      for (m = 0, len4 = codes.length; m < len4; m++) {
+        code = codes[m];
+        codes = codes.concat(getContextTypes(code, data.context, '@'));
+      }
+    }
+    return codes;
+  };
+  getPhrases = function() {
+    var code, codeHandlers, handler, i, len, phrases, ref;
+    phrases = [];
+    for (code in handlers) {
+      codeHandlers = handlers[code];
+      for (i = 0, len = codeHandlers.length; i < len; i++) {
+        handler = codeHandlers[i];
+        if (ref = 'entityAction_' + handler.phrase, indexOf.call(phrases, ref) < 0) {
+          phrases.push('entityAction_' + handler.phrase);
+        }
+      }
+    }
+    return phrases;
+  };
+  getActions = function(data) {
+    var actions, additionalTypes, code, codes, fn, handler, i, item, items, j, k, l, len, len1, len2, len3, ref, ref1, type, types, usedHandlers;
+    types = {};
+    actions = [];
+    usedHandlers = [];
+    if (data.source == null) {
+      data.source = [];
+    }
+    ref = data.source;
+    for (i = 0, len = ref.length; i < len; i++) {
+      item = ref[i];
+      if (item === data.target) {
+        continue;
+      }
+      if (types[item.type] == null) {
+        types[item.type] = {
+          items: [],
+          ids: []
+        };
+      }
+      types[item.type].items.push(item);
+      types[item.type].ids.push(item.id);
+      if (parsers[item.type] != null) {
+        additionalTypes = parsers[item.type](item);
+        for (j = 0, len1 = additionalTypes.length; j < len1; j++) {
+          type = additionalTypes[j];
+          if (types[type] == null) {
+            types[type] = {
+              items: [],
+              ids: []
+            };
+          }
+          types[type].items.push(item);
+          types[type].ids.push(item.id);
+        }
+      }
+    }
+    if (data.source.length === 0 && !data.targetOnly) {
+      types[''] = {
+        ids: [],
+        items: []
+      };
+    }
+    for (type in types) {
+      items = types[type];
+      codes = [];
+      code = type;
+      codes = getCodes(type, items, data);
+      for (k = 0, len2 = codes.length; k < len2; k++) {
+        code = codes[k];
+        if (handlers[code] != null) {
+          ref1 = handlers[code];
+          fn = function(code, items, handler) {
+            return actions.push({
+              category: handler.category,
+              order: handler.order,
+              phrase: handler.phrase != null ? 'entityAction_' + handler.phrase : void 0,
+              realText: handler.realText,
+              leaveItems: handler.leaveItems,
+              restrict: handler.restrict,
+              priority: handler.priority || 0,
+              action: function(e, _items, _ids) {
+                handler.action({
+                  items: _items || items.items,
+                  item: (_items != null ? _items[0] : void 0) || items.items[0],
+                  ids: _ids || items.ids,
+                  target: data.target,
+                  context: data.context,
+                  sourceContext: data.sourceContext,
+                  e: e,
+                  scope: data.scope
+                });
+                return items.items;
+              }
+            });
+          };
+          for (l = 0, len3 = ref1.length; l < len3; l++) {
+            handler = ref1[l];
+            if ((data.actionsType != null) && handler.restrict === data.actionsType) {
+              continue;
+            }
+            if ((handler.only != null) && handler.only !== data.actionsType) {
+              continue;
+            }
+            if (handler.check != null) {
+              if (!handler.check(items.ids, items.items, data.target, data.context)) {
+                continue;
+              }
+            }
+            if (handler.check2 != null) {
+              if (!handler.check2({
+                items: items.items,
+                item: items.items[0],
+                ids: items.ids,
+                target: data.target,
+                context: data.context,
+                sourceContext: data.sourceContext,
+                scope: data.scope
+              })) {
+                continue;
+              }
+            }
+            fn(code, items, handler);
+          }
+        }
+      }
+    }
+    return actions;
+  };
+  registerAction = function(data) {
+    var code, codes, i, j, k, len, len1, len2, ref, targetCode, targetType, targetTypes, type, types;
+    if (data.sourceType != null) {
+      types = data.sourceType.split('/');
+    } else {
+      types = [''];
+    }
+    codes = [];
+    for (i = 0, len = types.length; i < len; i++) {
+      type = types[i];
+      code = type;
+      if ((ref = data.sourceNumber + '') === '1' || ref === 'many') {
+        code += '_' + data.sourceNumber;
+      }
+      if (data.sourceContext) {
+        code += '&' + data.sourceContext;
+      }
+      if (data.targetType != null) {
+        targetTypes = data.targetType.split('/');
+        for (j = 0, len1 = targetTypes.length; j < len1; j++) {
+          targetType = targetTypes[j];
+          targetCode = code + '_' + targetType;
+          if (data.contextType != null) {
+            targetCode += '@' + data.contextType;
+          }
+          codes.push(targetCode);
+        }
+      } else {
+        if (data.contextType != null) {
+          code += '@' + data.contextType;
+        }
+        codes.push(code);
+      }
+    }
+    for (k = 0, len2 = codes.length; k < len2; k++) {
+      code = codes[k];
+      if (handlers[code] == null) {
+        handlers[code] = [];
+      }
+      handlers[code].push(data);
+    }
+    return true;
+  };
+  registerParser = function(type, parser) {
+    var i, len, results, types;
+    types = type.split('/');
+    results = [];
+    for (i = 0, len = types.length; i < len; i++) {
+      type = types[i];
+      results.push(parsers[type] = parser);
+    }
+    return results;
+  };
+  return {
+    getActions: getActions,
+    getPhrases: getPhrases,
+    registerAction: registerAction,
+    registerParser: registerParser
+  };
+});

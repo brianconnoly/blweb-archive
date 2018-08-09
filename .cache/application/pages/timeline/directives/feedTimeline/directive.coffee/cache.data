@@ -1,0 +1,262 @@
+buzzlike.directive("feedTimeline", function(scheduleService, actionsService, complexMenu, desktopService, $rootScope, notificationCenter, communityService, groupService, dragMaster, ruleService, confirmBox, localization) {
+  return {
+    restrict: 'E',
+    template: templateCache['/pages/timeline/directives/feedTimeline'],
+    replace: true,
+    link: function(scope, element, attrs) {
+      var elem, timeBar, touchBar;
+      elem = $(element);
+      scope.item = communityService.getById(scope.lineId);
+      timeBar = elem.children('div.timebar');
+      touchBar = elem.children('div.touchBar');
+      scope.snColor = function(sn) {
+        var ref;
+        if (sn != null) {
+          return (ref = $rootScope.networksData) != null ? ref[sn].background : void 0;
+        }
+      };
+      scope.openCommunity = function() {
+        openCommunityPage(scope.item);
+        return null;
+      };
+      scope.hideTimebar = function(e) {
+        e.stopPropagation();
+        timeBar.css('display', 'none');
+        return null;
+      };
+      scope.showTimebar = function(e) {
+        e.stopPropagation();
+        timeBar.css('display', '');
+        return null;
+      };
+      scope.pickPost = function() {
+        return desktopService.launchApp('postPicker', {
+          communityId: scope.item.id,
+          timestamp: touchBar.data('time'),
+          socialNetwork: scope.item.socialNetwork
+        });
+      };
+      scope.stepUp = function() {
+        var date_obj, time;
+        time = touchBar.data('time');
+        time += 5 * MIN;
+        date_obj = getHumanDate(time);
+        touchBar.data('time', time);
+        touchBar.children('.time').html(date_obj.time);
+        return true;
+      };
+      scope.stepDown = function() {
+        var date_obj, time;
+        time = touchBar.data('time');
+        time -= 5 * MIN;
+        date_obj = getHumanDate(time);
+        touchBar.data('time', time);
+        touchBar.children('.time').html(date_obj.time);
+        return true;
+      };
+      scope.removeFeedFromGroup = function(e) {
+        var deleteGroup, group_id, ref, shortName, title;
+        shortName = scope.item.name;
+        group_id = scope.$parent.group.id;
+        if (((ref = scope.item.name) != null ? ref.length : void 0) > 25) {
+          shortName = scope.item.name.substr(0, 25);
+          shortName += '...';
+        }
+        title = localization.translate('popup_community_delete_title') + '<br><span style="font-size: 24px; font-weight: lighter">' + shortName + '</span><br><span style="font-size: 12px; ">' + localization.translate('popup_community_delete_subtitle') + '</span>';
+        deleteGroup = isCmd(e);
+        return confirmBox.init(title, function() {
+          var feed, group, i, j, len, ref1;
+          group = groupService.getById(group_id);
+          if (deleteGroup) {
+            return groupService["delete"](group, function() {
+              return notificationCenter.addMessage({
+                text: 114
+              });
+            });
+          } else {
+            ref1 = group.feeds;
+            for (i = j = 0, len = ref1.length; j < len; i = ++j) {
+              feed = ref1[i];
+              if (feed.communityId === scope.lineId) {
+                group.feeds.splice(i, 1);
+                break;
+              }
+            }
+            return groupService.save(group, function() {
+              return notificationCenter.addMessage({
+                text: 114
+              });
+            });
+          }
+        });
+      };
+      scope.goNow = function(e) {
+        return scope.$parent.scrollTo(null, isCmd(e));
+      };
+      scope.showFeedMenu = function(e) {
+        var action, actions, groups, itemsActions, j, k, len, list;
+        itemsActions = actionsService.getActions({
+          source: [scope.item],
+          sourceContext: scope.$parent.group
+        });
+        if (itemsActions.length > 0) {
+          groups = {};
+          list = [];
+          for (j = 0, len = itemsActions.length; j < len; j++) {
+            action = itemsActions[j];
+            if (groups[action.category] == null) {
+              groups[action.category] = {
+                type: 'actions',
+                items: []
+              };
+            }
+            groups[action.category].items.push({
+              phrase: action.phrase,
+              action: action.action,
+              priority: action.priority
+            });
+          }
+          for (k in groups) {
+            actions = groups[k];
+            actions.items.sort(function(a, b) {
+              if (a.priority > b.priority) {
+                return -1;
+              }
+              if (a.priority < b.priority) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+        }
+        groups[0] = {
+          type: 'actions',
+          items: [
+            {
+              phrase: 'timelineApp_openCommPage',
+              action: function() {
+                return openCommunityPage(scope.item);
+              }
+            }
+          ]
+        };
+        groups[1] = {
+          type: 'select',
+          object: scope.$parent.group,
+          param: 'glued',
+          items: [
+            {
+              phrase: 'timelineApp_scale_mode_1min',
+              value: 0
+            }, {
+              phrase: 'timelineApp_scale_mode_3hour',
+              value: 1
+            }, {
+              phrase: 'timelineApp_scale_mode_1day',
+              value: 2
+            }
+          ]
+        };
+        groups[2] = {
+          type: 'actions',
+          items: [
+            {
+              phrase: 'timelineApp_showCalendar',
+              action: function() {
+                return elem.find('.datePicker').click();
+              }
+            }, {
+              phrase: 'timelineApp_jumpLastPost',
+              action: function() {
+                return scheduleService.query({
+                  communityId: scope.item.id,
+                  sortBy: 'timestamp',
+                  sortType: 'desc',
+                  limit: 1
+                }, function(items) {
+                  if (items[0] != null) {
+                    return scope.$parent.scrollTo(items[0].timestamp + (HOUR / 2));
+                  }
+                });
+              }
+            }, {
+              phrase: 'timelineApp_remove_mediaplan',
+              action: function() {
+                return desktopService.launchApp('optionsList', {
+                  message: 'inspector_removeAllQuestion',
+                  options: [
+                    {
+                      text: 'inspector_removeAll',
+                      action: function() {
+                        return ruleService.removeByGroupId(scope.$parent.group.id);
+                      }
+                    }
+                  ]
+                });
+              }
+            }, {
+              phrase: 'timelineApp_remove_feed',
+              action: function() {
+                return scope.removeFeedFromGroup({
+                  ctrlKey: false
+                });
+              }
+            }, {
+              phrase: 'timelineApp_remove_feed_group',
+              action: function() {
+                return scope.removeFeedFromGroup({
+                  ctrlKey: true
+                });
+              }
+            }
+          ]
+        };
+        groups[3] = {
+          object: scope.item,
+          type: 'checkbox',
+          selectFunction: function() {
+            var process;
+            process = scope.progress.add();
+            return communityService.save(scope.item, function() {
+              return scope.progress.finish(process);
+            });
+          },
+          items: [
+            {
+              phrase: 'schedule_params_fromCommunity',
+              param: 'fromCommunity',
+              disabled: scope.item.communityType === 'profile'
+            }, {
+              phrase: 'schedule_params_userSign',
+              param: 'useUserSign',
+              disabled: scope.item.fromCommunity === true || scope.item.communityType === 'profile'
+            }
+          ]
+        };
+        if (scope.$parent.group.teamId != null) {
+          groups[0].items.push({
+            phrase: 'timelineApp_remove_team',
+            action: function() {
+              return confirmBox.init({
+                phrase: 'communityGroup_unbind_team',
+                description: 'communityGroup_unbind_team_description'
+              }, function() {
+                return groupService.call('unbindTeam', scope.$parent.group.id, function() {
+                  return true;
+                });
+              }, function() {
+                return true;
+              });
+            }
+          });
+        }
+        complexMenu.show(groups, {
+          top: $(e.target).offset().top + 20,
+          left: $(e.target).offset().left
+        });
+        return true;
+      };
+      return true;
+    }
+  };
+});

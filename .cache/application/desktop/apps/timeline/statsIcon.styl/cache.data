@@ -1,0 +1,40 @@
+.statsLabel {
+  background: rgba(255,255,255,0.7);
+  color: #555454;
+  overflow: hidden;
+}
+.statsLabel .statsIcon {
+  width: 16px;
+  height: 16px;
+  float: left;
+}
+.statsLabel .statsValue {
+  float: left;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: bold;
+}
+.statsLabel.likes .statsIcon {
+  background: url("/resources/images/desktop/stats/likes.svg") center center no-repeat;
+}
+.statsLabel.reposts .statsIcon {
+  background: url("/resources/images/desktop/stats/reposts.svg") center center no-repeat;
+}
+.statsLabel.comments .statsIcon {
+  background: url("/resources/images/desktop/stats/comments.svg") center center no-repeat;
+}
+.statsLabel.commentsLikes .statsIcon {
+  background: url("/resources/images/desktop/stats/commentsLikes.svg") center center no-repeat;
+}
+.white .statsLabel.likes .statsIcon {
+  background: url("/resources/images/desktop/stats/white/likes.svg") center center no-repeat;
+}
+.white .statsLabel.reposts .statsIcon {
+  background: url("/resources/images/desktop/stats/white/reposts.svg") center center no-repeat;
+}
+.white .statsLabel.comments .statsIcon {
+  background: url("/resources/images/desktop/stats/white/comments.svg") center center no-repeat;
+}
+.white .statsLabel.commentsLikes .statsIcon {
+  background: url("/resources/images/desktop/stats/white/commentsLikes.svg") center center no-repeat;
+}

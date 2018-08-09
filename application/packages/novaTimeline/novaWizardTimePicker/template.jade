@@ -1,0 +1,8 @@
+div.timeBar
+    input(ng-model="year", ng-change="updateDate()")
+    input(ng-model="month", ng-change="updateDate()")
+    input(ng-model="day", ng-change="updateDate()")
+    input(ng-model="hour", ng-change="updateDate()")
+    input(ng-model="minute", ng-change="updateDate()")
+    div.final {{date.toString()}}
+div.shortcutsBar

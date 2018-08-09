@@ -1,0 +1,22 @@
+tC['/novaStreamLastMessage/template.jade'] = "<div class=\"messageTime\"> <span ng-if=\"!today\">{{::streamItem.created | timestampMask:'D ofMMMM optYY'}}</span><span>{{::streamItem.created | timestampMask:'hh:mm'}}</span></div> <div nova-item-object=\"user\" nova-item-preview-type=\"simple\" class=\"userPic novaItem novaItemPreview\"></div> <div class=\"messageBox\"> <div class=\"userName\">{{::user.name}}</div> <div class=\"shortName\">{{::user.firstName}}</div> <div ng-if=\"::streamItem.streamItemType=='user'\" class=\"message\">{{::streamItem.value}}</div> <div ng-if=\"::streamItem.streamItemType!='user'\" class=\"message novaStreamItemSystemMessage\"></div> </div>";
+
+buzzlike.directive('novaStreamLastMessage', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamLastMessage/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var msg, now, unreg;
+      now = new Date();
+      msg = new Date(scope.streamItem.created);
+      scope.today = now.getDate() === msg.getDate() && now.getMonth() === msg.getMonth();
+      return unreg = scope.$watch('user', function() {
+        setTimeout(function() {
+          return typeof scope.onLoad === "function" ? scope.onLoad() : void 0;
+        }, 0);
+        return unreg();
+      });
+    }
+  };
+});
+
+registerStyles('novaStreamLastMessage', ".novaStreamLastMessage {\n  padding: 7px 0;\n}\n.novaStreamLastMessage .messageTime {\n  position: absolute;\n  right: 0;\n  top: 10px;\n  font-size: 9px;\n}\n.novaStreamLastMessage .userPic {\n  width: 26px;\n  height: 26px;\n  -webkit-border-radius: 20px;\n  border-radius: 20px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  float: left;\n  margin-right: 12px;\n}\n.novaStreamLastMessage .userPic .backFace {\n  display: none;\n}\n.novaStreamLastMessage .userName,\n.novaStreamLastMessage .shortName {\n  font-size: 11px;\n  line-height: 13px;\n  font-weight: 400;\n}\n.novaStreamLastMessage .shortName {\n  display: none;\n}\n.compact .novaStreamLastMessage .userName {\n  display: none;\n}\n.compact .novaStreamLastMessage .shortName {\n  display: block;\n}\n.novaStreamLastMessage .message {\n  font-size: 11px;\n  line-height: 13px;\n  font-weight: 300;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n");

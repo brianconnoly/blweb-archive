@@ -1,0 +1,89 @@
+.selectcourse
+    position absolute
+    background rgba(238,238,238,0.96)
+    padding: 10px 0
+
+    .courseList
+        position relative
+        width 480px
+        margin 75px auto 0 auto
+
+        .courseTitle
+            font-size 24px
+            font-weight 400
+            text-align center
+
+        .courseClose
+            position absolute
+            font-size 24px
+            right 0
+            top 0
+            cursor pointer
+
+        .courseBlock
+            margin-top 15px
+            width 100%
+            max-height 460px
+            background #eeeff0
+            overflow auto
+
+            .courseCur
+                background #fff
+
+            .courseItem
+                position relative
+                overflow hidden
+
+                .courseRow
+                    padding 10px
+                    color #000
+                    font-size 14px
+                    cursor pointer
+                    overflow hidden
+
+                    &:hover
+                        background #fff
+
+                    .status
+                        position relative
+                        float left
+                        width 16px
+                        height 11px
+                        top 4px
+                        margin-right 10px
+
+                    .notpassed
+                        sprite "/resources/images/icons/coursenotpassed.png" 0px 0px 100% 100%
+
+                    .passed
+                        sprite "/resources/images/icons/coursepassed.png" 0px 0px 100% 100%
+
+                    .name
+                        float left
+                        font-size 18px
+
+                .courseText
+                    position relative
+                    margin-left 36px
+                    font-size 14px
+                    padding 10px 20px 15px 0
+                    line-height 1.4em
+
+                .openCourse
+                    position relative
+                    color #5f9ec3
+                    float right
+                    display block
+                    font-size 20px
+                    padding 0 30px 10px 0
+                    cursor pointer
+
+            .courseLocked
+                .courseRow
+                    cursor default
+
+                    &:hover
+                        background none
+
+                    .name
+                        color #999

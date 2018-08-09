@@ -1,0 +1,18 @@
+div.cover(
+    ng-if="!previewItem.profileUserId && !previewItem.appearance.cover")
+div.cover.novaItemScope.novaItem.novaItemPreview(
+    nova-item-id="previewItem.appearance.cover",
+    nova-item-type="image",
+    ng-if="!previewItem.profileUserId && previewItem.appearance.cover")
+div.cover.novaItemScope.novaItem.novaItemPreview(
+    nova-item-id="previewItem.profileUserId",
+    nova-item-type="user",
+    nova-item-preview-type="simple",
+    ng-if="previewItem.profileUserId")
+div.parameters
+    div.parameter
+        div.label(ng-if="!previewItem.profileUserId") {{::item.name}}
+        div.label.userProject(ng-if="previewItem.profileUserId") {{::user.name}}
+    div.parameter
+        div.value {{previewItem.members.length}}
+        div.label(translate="'novaProjectPreviewList_members'")

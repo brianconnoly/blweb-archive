@@ -1,0 +1,424 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('flowView', function(updateService, contentService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, checkElem, currentElem, currentHead, elem, filtersDiffer, findNew, getPage, hasToLoad, helper, isLoading, itemHei, itemWid, lastPeriod, lastValue, page, pageSizeX, pageSizeY, processItems, reloadOnScroll, reloadView, smartPosition, updateId;
+      scope.items = [];
+      scope.periods = [];
+      lastPeriod = null;
+      itemWid = 0;
+      itemHei = 0;
+      pageSizeX = 0;
+      pageSizeY = 0;
+      page = 0;
+      isLoading = false;
+      hasToLoad = true;
+      lastValue = null;
+      elem = $(element);
+      body = elem.parents('.stepView');
+      helper = body.parent().find('.flowViewHelper');
+      if (helper.length < 1) {
+        helper = $('<div>', {
+          "class": 'flowViewHelper'
+        });
+        body.parent().append(helper);
+      }
+      helper.css({
+        top: -30
+      });
+      reloadOnScroll = false;
+      currentElem = null;
+      currentHead = null;
+      checkElem = function(scroll) {
+        var pos;
+        if (currentElem == null) {
+          return false;
+        }
+        pos = currentElem.position();
+        if (scroll > pos.top + currentElem.height()) {
+          return false;
+        }
+        if (scroll < pos.top) {
+          return false;
+        }
+        return true;
+      };
+      smartPosition = function(scroll) {
+        var pos;
+        pos = currentElem.position();
+        if (scroll > pos.top + currentElem.height() - 30) {
+          helper.css({
+            'top': pos.top + currentElem.height() - 30 - scroll
+          });
+          return;
+        }
+        if (scroll <= pos.top - 30) {
+          helper.css({
+            'top': pos.top - 30 - scroll
+          });
+          return;
+        }
+        helper.css({
+          'top': 0
+        });
+        return true;
+      };
+      findNew = function(scroll) {
+        var candidates;
+        if (scroll == null) {
+          scroll = 0;
+        }
+        candidates = body.find('.periodBlock');
+        return candidates.each(function() {
+          var pos;
+          elem = $(this);
+          pos = elem.position();
+          if ((pos.top <= scroll && scroll < pos.top + elem.height())) {
+            currentElem = elem;
+            currentHead = currentElem.children('.periodHead');
+            helper.html(currentHead.html());
+            body.find('.periodHead.active').removeClass('active');
+            currentHead.addClass('active');
+            return smartPosition(scroll);
+          }
+        });
+      };
+      findNew();
+      scope.checkToLoad = function() {
+        if (currentElem != null) {
+          if (!checkElem(body[0].scrollTop)) {
+            findNew(body[0].scrollTop);
+          }
+          smartPosition(body[0].scrollTop);
+        } else {
+          findNew(body[0].scrollTop);
+        }
+        if (hasToLoad === true && body[0].scrollTop + body.height() > body[0].scrollHeight - 400) {
+          if (page > 0 && isLoading !== true) {
+            getPage();
+            return true;
+          }
+        }
+        return false;
+      };
+      elem.on('mousewheel', function() {
+        if (scope.checkToLoad()) {
+          return scope.$apply();
+        }
+      });
+      getPage = function() {
+        var key, process, query, ref, types, val;
+        query = angular.copy(scope.currentStep.query || {});
+        types = [];
+        ref = scope.currentStep.filterTypes;
+        for (key in ref) {
+          val = ref[key];
+          if (val === true) {
+            types.push(key);
+          }
+        }
+        if (types.length > 0) {
+          query.contentType = {
+            '$in': types
+          };
+        }
+        if (lastValue != null) {
+          query[scope.currentStep.sortBy] = {
+            $lt: lastValue
+          };
+        }
+        query.limit = pageSizeX * pageSizeY * 2;
+        query.parent = scope.currentStep.parent || 'null';
+        query.sortBy = scope.currentStep.sortBy;
+        query.sortType = scope.currentStep.sortType || 'desc';
+        if (typeof scope.prepareQuery === "function") {
+          scope.prepareQuery(query);
+        }
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        isLoading = true;
+        return scope.queryFunction(query, function(items, total) {
+          processItems(items, function(item) {
+            if (item[scope.currentStep.sortBy] < lastValue || (lastValue == null)) {
+              return lastValue = item[scope.currentStep.sortBy];
+            }
+          });
+          if (process != null) {
+            scope.progress.finish(process);
+          }
+          if (items.length < query.limit) {
+            hasToLoad = false;
+          }
+          isLoading = false;
+          page++;
+          return true;
+        });
+      };
+      reloadView = function() {
+        var dateObj, day, key, process, query, ref, startDay, startDayTS, startYear, types, val;
+        helper.css({
+          top: -30
+        });
+        dateObj = new Date();
+        startDay = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+        startYear = new Date(dateObj.getFullYear(), 0, 1);
+        day = dateObj.getDay();
+        day -= 1;
+        if (day < 0) {
+          day = 7;
+        }
+        startDayTS = startDay.getTime();
+        scope.periods = [
+          {
+            title: 'group_by_today',
+            filter: {
+              gt: startDayTS - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_yesterday',
+            filter: {
+              lt: startDayTS,
+              gt: startDayTS - DAY - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_currentWeek',
+            filter: {
+              lt: startDayTS - DAY,
+              gt: startDayTS - DAY * day - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_lastWeek',
+            filter: {
+              lt: startDayTS - DAY * day,
+              gt: startDayTS - DAY * (day + 7) - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_currentMonth',
+            filter: {
+              lt: startDayTS - DAY * (day + 7),
+              gt: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1) - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_lastMonth',
+            filter: {
+              lt: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1),
+              gt: new Date(dateObj.getFullYear(), dateObj.getMonth() - 1, 1) - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_thisYear',
+            filter: {
+              lt: new Date(dateObj.getFullYear(), dateObj.getMonth() - 1, 1),
+              gt: new Date(dateObj.getFullYear(), 0, 1) - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_lastYear',
+            filter: {
+              lt: new Date(dateObj.getFullYear(), 0, 1),
+              gt: new Date(dateObj.getFullYear() - 1, 0, 1) - 1
+            },
+            items: []
+          }, {
+            title: 'group_by_laterThenEver',
+            filter: {
+              lt: new Date(dateObj.getFullYear() - 1, 0, 1)
+            },
+            items: []
+          }
+        ];
+        types = [];
+        ref = scope.currentStep.filterTypes;
+        for (key in ref) {
+          val = ref[key];
+          if (val === true) {
+            types.push(key);
+          }
+        }
+        switch (scope.session.zoom) {
+          case 'min':
+            itemWid = 90;
+            itemHei = 74;
+            break;
+          case 'mid':
+            itemWid = 159;
+            itemHei = 126;
+            break;
+          case 'max':
+            itemWid = 197;
+            itemHei = 151;
+        }
+        pageSizeX = Math.floor(scope.session.size.width / itemWid);
+        pageSizeY = Math.floor(scope.session.size.height / itemHei);
+        lastValue = null;
+        page = 0;
+        query = angular.copy(scope.currentStep.query || {});
+        if (types.length > 0) {
+          query.contentType = {
+            '$in': types
+          };
+        }
+        if (lastValue != null) {
+          query[scope.currentStep.sortBy] = {
+            $lt: lastValue
+          };
+        }
+        query.limit = pageSizeX * pageSizeY * 2;
+        query.parent = scope.currentStep.parent || 'null';
+        query.sortBy = scope.currentStep.sortBy;
+        query.sortType = scope.currentStep.sortType || 'desc';
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        isLoading = true;
+        return scope.queryFunction(query, function(items, total) {
+          if (total == null) {
+            total = 0;
+          }
+          processItems(items, function(item) {
+            if (item[scope.currentStep.sortBy] < lastValue || (lastValue == null)) {
+              return lastValue = item[scope.currentStep.sortBy];
+            }
+          });
+          if (process != null) {
+            scope.progress.finish(process);
+          }
+          if (items.length < query.limit) {
+            hasToLoad = false;
+          } else {
+            hasToLoad = true;
+          }
+          isLoading = false;
+          page = 1;
+          return true;
+        });
+      };
+      processItems = function(items, fn) {
+        var i, item, j, key, len, len1, period, ref, ref1, ref2, type, types, val;
+        types = [];
+        ref = scope.currentStep.filterTypes;
+        for (key in ref) {
+          val = ref[key];
+          if (val === true) {
+            types.push(key);
+          }
+        }
+        for (i = 0, len = items.length; i < len; i++) {
+          item = items[i];
+          if (typeof fn === "function") {
+            fn(item);
+          }
+          type = item.type;
+          if (type === 'text' || type === 'image' || type === 'audio' || type === 'video' || type === 'url' || type === 'folder' || type === 'poll' || type === 'file') {
+            type = 'content';
+          }
+          if (type !== scope.currentStep.itemType) {
+            continue;
+          }
+          if (types.length > 0) {
+            if (ref1 = item.type, indexOf.call(types, ref1) < 0) {
+              continue;
+            }
+          }
+          if ((item.parent || null) !== (scope.currentStep.parent || null)) {
+            continue;
+          }
+          ref2 = scope.periods;
+          for (j = 0, len1 = ref2.length; j < len1; j++) {
+            period = ref2[j];
+            if (((period.filter.gt == null) || item[scope.currentStep.sortBy] > period.filter.gt) && ((period.filter.lt == null) || item[scope.currentStep.sortBy] < period.filter.lt)) {
+              if (indexOf.call(period.items, item) < 0) {
+                period.items.push(item);
+              }
+            }
+            true;
+          }
+          true;
+        }
+        return true;
+      };
+      filtersDiffer = function(a, b) {
+        var k, v;
+        for (k in a) {
+          v = a[k];
+          if (b[k] !== v) {
+            return true;
+          }
+        }
+        return false;
+      };
+      scope.itemsFilter = function(item) {
+        if (item.deleted) {
+          return false;
+        }
+        if (scope.currentStep.parent == null) {
+          return item.parent == null;
+        } else {
+          return scope.currentStep.parent === item.parent;
+        }
+      };
+      scope.getContext = function() {
+        if (scope.currentStep.parent == null) {
+          return null;
+        }
+        return contentService.getById(scope.currentStep.parent);
+      };
+      scope.$watch('currentStep', function(nVal, oVal) {
+        if (nVal != null) {
+          return reloadView();
+        }
+      }, true);
+      updateId = updateService.registerUpdateHandler(function(data, action, items) {
+        if (action === 'update' || action === 'create') {
+          if (data[scope.currentStep.itemType] != null) {
+            if (scope.currentStep.contentType != null) {
+              if (data[scope.currentStep.contentType] != null) {
+                processItems(items);
+                scope.$apply();
+              }
+            } else {
+              processItems(items);
+              scope.$apply();
+            }
+          }
+        }
+        return scope.checkToLoad();
+      });
+      scope.$on('$destroy', function() {
+        updateService.unRegisterUpdateHandler(updateId);
+        return helper.remove();
+      });
+      return true;
+    }
+  };
+});
+
+buzzlike.directive('afterRender', function($parse) {
+  return {
+    priority: 1,
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      var fn, handler;
+      fn = $parse(attrs.afterRender);
+      handler = null;
+      return scope.$watch('period', function() {
+        if (handler == null) {
+          return handler = setTimeout(function() {
+            if (typeof fn === "function") {
+              fn();
+            }
+            return handler = null;
+          }, 500);
+        }
+      });
+    }
+  };
+});

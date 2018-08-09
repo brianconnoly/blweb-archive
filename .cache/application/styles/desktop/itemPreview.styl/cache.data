@@ -1,0 +1,30 @@
+.itemsContainer {
+  padding: 15px;
+}
+.previewContainer {
+  width: 167px;
+  height: 131px;
+  margin: 15px;
+  float: left;
+}
+.previewContainer img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+.previewContainer .taskDescription {
+  color: #fff;
+  padding: 10px;
+}
+.itemPreview {
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.itemPreview complex-preview {
+  position: initial;
+}

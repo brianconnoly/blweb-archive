@@ -1,0 +1,64 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('switcher', function() {
+  return {
+    restrict: 'E',
+    require: 'ngModel',
+    replace: true,
+    transclude: true,
+    template: tC['/inputs/switcher'],
+    scope: {},
+    link: function(scope, element, attrs, ctrl) {
+      var counter, elem, options, values;
+      elem = $(element);
+      options = [];
+      values = [];
+      counter = 0;
+      scope.next = function() {
+        counter++;
+        if (counter >= options.length) {
+          counter = 0;
+        }
+        options.removeClass('active');
+        $(options[counter]).addClass('active');
+        return ctrl.$setViewValue(values[counter]);
+      };
+      ctrl.$render = function() {
+        values.length = 0;
+        options = elem.find('[option]');
+        return options.addClass('option').each(function(i, el) {
+          var intVal, j, len, ref, v, val, vals, vals_tmp;
+          val = el.attributes.option.value;
+          vals = [];
+          if (val.indexOf('/') > -1) {
+            vals_tmp = val.split('/');
+          } else {
+            vals_tmp = [val];
+          }
+          for (j = 0, len = vals_tmp.length; j < len; j++) {
+            v = vals_tmp[j];
+            if (v === 'null') {
+              vals.push(null);
+            } else if (v === 'undefined') {
+              vals.push(void 0);
+            } else {
+              intVal = +v;
+              if (!isNaN(intVal)) {
+                v = intVal;
+              }
+              vals.push(v);
+            }
+          }
+          val = vals[0];
+          values.push(val);
+          if (ref = ctrl.$viewValue, indexOf.call(vals, ref) >= 0) {
+            options.removeClass('active');
+            $(el).addClass('active');
+            return counter = i;
+          }
+        });
+      };
+      return true;
+    }
+  };
+});

@@ -1,0 +1,42 @@
+buzzlike.directive('filterPanel', function(localization, $compile) {
+  return {
+    restrict: 'C',
+    scope: {
+      sections: '=',
+      select: '=',
+      current: '=',
+      sortTypes: '=',
+      params: '=',
+      extra: '=',
+      filterMessage: '=?',
+      currentChild: '=?'
+    },
+    template: tC['/filterCatalog/filterPanel'],
+    link: function(scope, element, attrs) {
+      var appendTo, elem, extended, filterBody;
+      elem = $(element);
+      filterBody = elem.children('.filterBody');
+      scope.localization = localization;
+      scope.children = [];
+      scope.$watch('current', function(nVal) {
+        if ((nVal != null) && nVal.showChildren === true) {
+          if (typeof nVal.widgets === 'function') {
+            return scope.children = nVal.widgets();
+          } else {
+            return scope.children = nVal.widgets;
+          }
+        }
+      });
+      if (attrs.extended != null) {
+        extended = $compile('<div class="' + attrs.extended + '"></div>')(scope);
+        if (antiscrollOn) {
+          appendTo = filterBody.find('.scroll-box .size');
+        } else {
+          appendTo = filterBody;
+        }
+        $(extended).appendTo(appendTo);
+      }
+      return true;
+    }
+  };
+});

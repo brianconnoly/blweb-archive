@@ -1,0 +1,195 @@
+//checkbox input
+
+.importPanel
+    .bl-checkbox
+        border 2px solid #fff
+
+.importPanel
+    .bl-checkbox
+
+        &:focus
+            border-color #fff
+
+        &.checked .tumbler
+            background #fff
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+
+.bl-checkbox
+    display inline-block
+    position: relative;
+    outline: none;
+    width 17px
+    height 17px
+    border 2px solid #3a363b
+    border-radius 50%
+
+    &:focus
+        border-color orange
+
+    .tumbler
+        display none
+        sprite "/resources/images/icons/checkbox-checked.png"
+        border-radius 50%
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+
+        .button
+            display none
+
+    &.checked
+        .tumbler
+            display block
+
+    &.long
+        width 40px
+        height 20px
+        border-radius 13px
+        transition all ease 0.25s
+        background white
+        border 1px solid #ccc
+
+        .tumbler
+            display block
+            transition all ease 0.25s
+            size 'abs' -1px 19px -1px -1px
+            //background #fff
+            background #ccc
+            border-radius 12px
+
+            .button
+                display block
+                transition all ease 0.25s
+                size 'abs' 1px 1px auto auto
+                width 20px
+                height 20px
+                background #fff
+                border-radius 50%
+                margin 0
+
+        &.checked
+            .tumbler
+                right -1px !important
+                //background $mainColor
+                background #97C35A
+
+
+//text input
+::-webkit-input-placeholder
+    color rgba(255, 255, 255, 0.3)
+
+::-moz-placeholder
+    color rgba(255, 255, 255, 0.3)
+
+.err-msg
+    display none
+    float: right;
+    margin-top: -47px;
+    width 100px
+    height 38px
+    background #ff6c6c
+    padding-top 8px
+    font-size 12px
+    color white
+
+    &:after
+        display: block;
+        margin-top: 8px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+input
+    height 25px
+    border 0
+    border-radius 0
+    padding 0 0 2px 0
+    background transparent
+    color #3a363b
+    font-size: 21px;
+    line-height 24px
+
+    &:-moz-placeholder
+        color white
+
+    &:-ms-input-placeholder
+        color white
+
+    &:focus
+        //border-bottom-color #bbb
+        outline initial
+
+    &.ng-invalid.show-msg
+        border-bottom-color #ff6c6c
+        + .err-msg
+            display block
+            &:after
+                content "некорректно"
+
+    &.ng-invalid-email.show-msg
+        border-bottom-color #ff6c6c
+        + .err-msg
+            display block
+            &:after
+                margin-top 3px
+                content "некорректный\A e-mail"
+                white-space pre
+
+//radio input
+
+.bl-radio
+    width 16px
+    height 16px
+    border-radius 50%
+    border 1px solid #666
+    cursor pointer
+
+    label
+        size 'full'
+        cursor pointer
+
+        input
+            display none
+            margin 0
+            cursor pointer
+
+    &.checked
+        background #666
+
+    &:focus
+        outline none
+
+
+
+
+//droplist input
+.bl-droplist
+    white-space: nowrap;
+    .list-value
+        position relative
+        width 100%
+        height 100%
+        overflow hidden
+
+    .list-position
+        position absolute
+        left 0
+        //display none
+        width 100%
+        overflow-x hidden
+        overflow-y auto
+
+        &.visible
+            display block
+
+    .list-animation
+        padding 0
+
+
+

@@ -1,0 +1,33 @@
+.confirmBox {
+  text-align: center;
+}
+.confirmBox .window {
+  overflow: hidden;
+  display: inline-block;
+  background: rgba(255,255,255,0.97);
+  -webkit-box-shadow: #333 0 0 6px 2px;
+  box-shadow: #333 0 0 6px 2px;
+}
+.confirmBox .window .message {
+  margin: 22px 50px;
+  font-size: 36px;
+  font-weight: lighter;
+}
+.confirmBox .window .buttons {
+  font-size: 24px;
+}
+.confirmBox .window .buttons div {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 13px;
+  font-weight: lighter;
+}
+.confirmBox .window .buttons div.yes:hover {
+  background: rgba(0,255,0,0.4);
+}
+.confirmBox .window .buttons div.no:hover {
+  background: rgba(255,0,0,0.4);
+}

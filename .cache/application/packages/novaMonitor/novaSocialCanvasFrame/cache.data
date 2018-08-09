@@ -1,0 +1,224 @@
+tC['/novaSocialCanvasFrame/template.jade'] = "<div ng-class=\"{'collapsed':paletteColapsed}\"> <div class=\"socialCanvas\"></div> <div class=\"socialPalette\"> <div class=\"paletteBar\"> <div class=\"progressBar\"></div> <div class=\"statusMessage\"></div> <div ng-click=\"paletteColapsed=!paletteColapsed\" ng-class=\"{'collapsed':paletteColapsed}\" class=\"paletteButton toggleBar\">&darr;</div> <div ng-click=\"addPaint()\" class=\"paletteButton addPaint\">+</div> </div> <div class=\"paletteList\"> <div ng-repeat=\"paint in paints\" class=\"novaSocialCanvasPaint\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaSocialCanvasFrame', function(novaWizard, localStorageService, rpc) {
+  return {
+    restrict: 'C',
+    template: tC['/novaSocialCanvasFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var adjust, canvas, colorCursor, colors, currentColor, elem, handler, network, networkOptions, nextColor, progressBar, statusMessage, updateAgain, updateAll, updateInProgress;
+      elem = $(element);
+      progressBar = $(elem.find('.progressBar')[0]);
+      statusMessage = $(elem.find('.statusMessage')[0]);
+      canvas = elem.find('.socialCanvas')[0];
+      network = null;
+      networkOptions = {
+        nodes: {
+          shape: 'dot',
+          size: 16
+        },
+        physics: {
+          forceAtlas2Based: {
+            gravitationalConstant: -26,
+            centralGravity: 0.005,
+            springLength: 230,
+            springConstant: 0.18
+          },
+          maxVelocity: 146,
+          solver: 'forceAtlas2Based',
+          timestep: 0.35,
+          stabilization: {
+            iterations: 150
+          }
+        },
+        interaction: {
+          multiselect: true,
+          keyboard: {
+            enabled: true
+          }
+        }
+      };
+      adjust = function() {
+        s.startForceAtlas2({
+          adjustSizes: true,
+          strongGravityMode: true
+        });
+        return setTimeout(function() {
+          return s.stopForceAtlas2();
+        }, 2 * SEC);
+      };
+      scope.paints = JSON.parse(localStorageService.get('socialCanvas' + scope.appItem.id)) || [];
+      scope.addPaint = function() {
+        return novaWizard.fire('socialPaintPicker', {
+          cb: function(result) {
+            var arr, item, j, len, resArr;
+            switch (result.type) {
+              case 'vkUsers':
+              case 'vkGroups':
+                arr = result.value.split("\n");
+                resArr = [];
+                for (j = 0, len = arr.length; j < len; j++) {
+                  item = arr[j];
+                  if ($.trim(item).length > 0) {
+                    resArr.push({
+                      value: $.trim(item)
+                    });
+                  }
+                }
+                return scope.paints.push({
+                  active: true,
+                  type: result.type,
+                  items: resArr
+                });
+            }
+          }
+        });
+      };
+      colors = ['#CC0033', '#FF6600', '#FFCC00', '#339900', '#3FA9F5', '#2D51BD', '#F53FAE'];
+      colorCursor = -1;
+      currentColor = null;
+      nextColor = function() {
+        colorCursor++;
+        if (colorCursor > colors.length - 1) {
+          colorCursor = 0;
+        }
+        return currentColor = colors[colorCursor];
+      };
+      updateInProgress = false;
+      updateAll = function() {
+        var g, i, item, j, k, l, len, len1, len2, paint, publicIds, ref, ref1, ref2, ref3, updateAgain, userIds;
+        if (updateInProgress) {
+          updateAgain = true;
+          return;
+        }
+        updateInProgress = true;
+        if (network != null) {
+          if (typeof network.destroy === "function") {
+            network.destroy();
+          }
+        }
+        network = null;
+        localStorageService.add('socialCanvas' + scope.appItem.id, JSON.stringify(scope.paints));
+        if (((ref = scope.paints) != null ? ref.length : void 0) > 0) {
+          g = {
+            nodes: [],
+            edges: []
+          };
+          userIds = [];
+          publicIds = [];
+          ref1 = scope.paints;
+          for (i = j = 0, len = ref1.length; j < len; i = ++j) {
+            paint = ref1[i];
+            if (!paint.active) {
+              continue;
+            }
+            switch (paint.type) {
+              case 'vkUsers':
+                nextColor();
+                ref2 = paint.items;
+                for (k = 0, len1 = ref2.length; k < len1; k++) {
+                  item = ref2[k];
+                  userIds.push(item.value | 0);
+                  g.nodes.push({
+                    id: 'id' + item.value,
+                    label: 'id' + item.value,
+                    group: i,
+                    value: 0.1
+                  });
+                }
+                break;
+              case 'vkGroups':
+                ref3 = paint.items;
+                for (l = 0, len2 = ref3.length; l < len2; l++) {
+                  item = ref3[l];
+                  publicIds.push(item.value);
+                  g.nodes.push({
+                    id: 'club' + item.value,
+                    label: 'club' + item.value,
+                    group: i,
+                    value: 0.2
+                  });
+                }
+            }
+          }
+          if (userIds.length > 0) {
+            return rpc.call({
+              method: 'socialCanvas.getEdges',
+              data: {
+                userIds: userIds,
+                publicIds: publicIds
+              },
+              progress: function(status, perc) {
+                statusMessage.html(status);
+                progressBar.css({
+                  'width': perc + '%'
+                });
+                if (perc === 100) {
+                  statusMessage.html("");
+                  return progressBar.css({
+                    'width': 0
+                  });
+                }
+              },
+              error: function() {
+                updateInProgress = false;
+                if (updateAgain) {
+                  return updateAll();
+                }
+              },
+              success: function(res) {
+                var edge, len3, m;
+                if ((res != null ? res.length : void 0) > 0) {
+                  for (i = m = 0, len3 = res.length; m < len3; i = ++m) {
+                    edge = res[i];
+                    g.edges.push({
+                      from: edge.source,
+                      to: edge.target
+                    });
+                  }
+                  network = new vis.Network(canvas, {
+                    nodes: g.nodes,
+                    edges: g.edges
+                  }, networkOptions);
+                }
+                updateInProgress = false;
+                if (updateAgain) {
+                  return updateAll();
+                }
+              }
+            });
+          } else {
+            network = new vis.Network(canvas, {
+              nodes: g.nodes,
+              edges: g.edges
+            }, networkOptions);
+            updateInProgress = false;
+            if (updateAgain) {
+              return updateAll();
+            }
+          }
+        } else {
+          return updateInProgress = false;
+        }
+      };
+      handler = null;
+      updateAgain = false;
+      scope.$watch('paints', function(nVal) {
+        if (handler == null) {
+          return handler = setTimeout(function() {
+            updateAll();
+            return handler = null;
+          }, 1000);
+        }
+      }, true);
+      scope.refresh = function() {
+        s.renderers[0].resize();
+        s.refresh();
+        return adjust();
+      };
+      return scope.analyse = function() {};
+    }
+  };
+});
+
+registerStyles('novaSocialCanvasFrame', ".novaSocialCanvasFrame.collapsed .socialCanvas {\n  bottom: 30px;\n}\n.novaSocialCanvasFrame.collapsed .socialPalette {\n  height: 30px;\n}\n.novaSocialCanvasFrame .socialCanvas {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 50%;\n  min-height: 50%;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaSocialCanvasFrame .socialCanvas canvas {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaSocialCanvasFrame .socialPalette {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 50%;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background: #fff;\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar {\n  height: 30px;\n  background: #f2f2f2;\n  -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);\n  box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar .progressBar {\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 2px;\n  background: #f00;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  z-index: 2;\n  pointer-events: none;\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar .statusMessage {\n  position: absolute;\n  right: 0;\n  top: 0;\n  bottom: 0;\n  height: 30px;\n  line-height: 30px;\n  padding: 0 10px;\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar .paletteButton {\n  width: 30px;\n  height: 30px;\n  line-height: 30px;\n  float: left;\n  cursor: pointer;\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar .addPaint {\n  font-size: 24px;\n  line-height: 29px;\n  text-align: center;\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar .toggleBar {\n  font-size: 20px;\n  text-align: center;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  float: left;\n}\n.novaSocialCanvasFrame .socialPalette .paletteBar .toggleBar.collapsed {\n  -webkit-transform: rotate(180deg);\n  -moz-transform: rotate(180deg);\n  -o-transform: rotate(180deg);\n  -ms-transform: rotate(180deg);\n  transform: rotate(180deg);\n}\n.novaSocialCanvasFrame .socialPalette .paletteList {\n  padding: 5px;\n  overflow-y: auto;\n}\n");

@@ -1,0 +1,64 @@
+buzzlike.directive("lotRepostInfo", function(contentService, communityService, scheduleService, $filter, localization, requestService, $rootScope) {
+  return {
+    restrict: "C",
+    scope: {
+      post: "=",
+      lot: "=",
+      status: "="
+    },
+    template: tC['/itemPreview/overlays/lotRepostInfo'],
+    link: function(scope, element, attrs) {
+      var elem, id, sched;
+      elem = $(element);
+      id = scope.post.id;
+      sched = scope.$parent.$parent.$parent.sched || {};
+      scheduleService.getOriginalByPostId(id, function(originalSched) {
+        if (!originalSched) {
+          return true;
+        }
+        return communityService.getById(originalSched.communityId, function(community) {
+          var img, scheduleId;
+          img = elem.find('img.communityIcon')[0];
+          if (community.id === sched.communityId) {
+            img.src = '/resources/images/timeline/market-logo@2x.png';
+          } else {
+            img.src = community.photo;
+          }
+          img.onload = function() {
+            var size;
+            size = elem.height();
+            return imageIn(this, size, size);
+          };
+          scheduleId = sched.id || originalSched.id;
+          return requestService.query({
+            scheduleId: scheduleId
+          }, function(data) {
+            var cost, request, statusView;
+            request = data[0];
+            if (scope.lot.buzzLot === true) {
+              cost = humanizeDays(scope.lot.price);
+            } else {
+              cost = (request != null ? request.cost : void 0) || scope.lot.price;
+              cost = $filter('formatNumber')(cost) + ' ' + localization.translate('currency_rub');
+            }
+            elem.find('.info').html(cost);
+            statusView = elem.find('.status');
+            if (scope.status) {
+              statusView.addClass(scope.status);
+            }
+            if (scope.status === 'socialNetwork') {
+              statusView.find('.bgColor').css({
+                background: $rootScope.networksData[community.socialNetwork].background
+              });
+              return statusView.find('.icon').html(community.socialNetwork);
+            } else if (scope.status === 'requestStatus' && request) {
+              statusView.find('.bgColor').addClass('active');
+              return statusView.find('.icon').addClass(request.requestStatus);
+            }
+          });
+        });
+      });
+      return true;
+    }
+  };
+});

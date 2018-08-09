@@ -1,0 +1,78 @@
+.paginator, .pagination, .superPaginator
+    position absolute
+    left 10px
+    right 10px
+    bottom 10px
+    height 30px
+    text-align center
+
+    overflow hidden
+
+    // .showRight &
+    //     right $rightPanelWidth
+
+    &.arrows
+        padding 0 20px
+
+    &.doubleArrows
+        padding 0 40px
+
+
+    .arrow, .doubleArrow
+        position: absolute
+        top 0
+        bottom 0
+        width 20px
+        cursor: pointer
+        text-align center
+        sprite "/resources/images/icons/arrows/pagination.png" 0 2px 80px 20px
+
+    .arrow
+        &.right
+            right 10px
+            background-position -40px 2px
+
+        &.left
+            left 10px
+            background-position -20px 2px
+
+    .doubleArrow
+        &.left
+            left 0px
+
+        &.right
+            right 0px
+            background-position -60px 2px
+
+    .centerPages
+        position relative
+        //margin auto
+        display inline-block
+        //width 100%
+        height 100%
+        overflow hidden
+
+    .center-inline, .center
+        display inline-block
+
+    .marker
+        font-size 23px
+        float left
+        cursor: pointer
+        margin 0 4px
+        line-height 30px
+        color: rgba(0,0,0,0.4)
+
+        div
+            color: rgba(0,0,0,0.4)
+            cursor: pointer
+
+        &.active
+            opacity: 1
+            font-size 30px
+            cursor: default
+            color #000
+
+            div
+                color #000
+                cursor: default

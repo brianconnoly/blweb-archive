@@ -1,0 +1,1 @@
+registerStyles('novaModuleActivator', ".novaModuleActivator {\n  width: 100%;\n}\n.novaModuleActivator .title {\n  font-size: 12px;\n  height: 25px;\n  line-height: 25px;\n  padding-left: 18px;\n  color: #000;\n}\n.novaModuleActivator .title.active {\n  background: #f6f4f4;\n}\n.novaModuleActivator .title:hover {\n  cursor: pointer;\n}\n");

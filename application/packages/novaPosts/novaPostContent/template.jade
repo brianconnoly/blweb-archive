@@ -1,0 +1,8 @@
+div(ng-if="postImages.length > 0")
+    div.bigPicture.novaItem.novaItemPreview(
+        nova-item-object="previewData.activeImage",
+        nova-item-watch)
+    div.pictureSelector(ng-if="postImages.length > 1")
+        div.postImageItem(ng-repeat="item in postImages track by item.id", ng-click="setBigPicture(item)", ng-class="{'active':previewData.activeImage==item}")
+            div.novaItem.novaItemPreview
+            div.selector

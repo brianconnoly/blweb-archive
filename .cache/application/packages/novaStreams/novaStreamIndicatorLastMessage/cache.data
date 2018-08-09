@@ -1,0 +1,133 @@
+tC['/novaStreamIndicatorLastMessage/template.jade'] = "<div ng-click=\"launchStreamFrame()\"> <div ng-if=\"streamUpdates &gt; 0\" class=\"indicator\">{{streamUpdates}}</div> <div ng-if=\"empty\" translate=\"'novaStreamIndicator_noMessages'\" class=\"noUpdates\"></div> </div>";
+
+buzzlike.directive('novaStreamIndicatorLastMessage', function(updateService, userService, streamItemService, $compile) {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamIndicatorLastMessage/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var addMessage, currentElem, currentScope, elem, first, generateMessage, inProgress, queue, unreg, updateId;
+      elem = $(element);
+      scope.empty = false;
+      unreg = scope.$watch('streamParentItem.type', function(nVal) {
+        if (nVal != null) {
+          unreg();
+          return streamItemService.getLastMessage(scope.streamParentItem.id, function(item) {
+            if (item == null) {
+              return scope.empty = true;
+            } else {
+              scope.empty = false;
+              return addMessage(item);
+            }
+          });
+        }
+      });
+      scope.active = false;
+      currentScope = null;
+      currentElem = null;
+      queue = [];
+      inProgress = false;
+      first = true;
+      generateMessage = function(streamItem, first) {
+        var msgElem, newScope;
+        if (first == null) {
+          first = false;
+        }
+        newScope = scope.$new();
+        newScope.user = userService.getById(streamItem.userId);
+        newScope.streamItem = streamItem;
+        newScope.capitalize = true;
+        newScope.parentId = scope.streamParentItem.id;
+        newScope.onLoad = function() {
+          var exElem, exScope;
+          if (currentElem != null) {
+            currentElem.addClass('hideUp');
+          }
+          msgElem.removeClass('new');
+          exElem = currentElem;
+          exScope = currentScope;
+          currentElem = msgElem;
+          currentScope = newScope;
+          setTimeout(function() {
+            if (exScope != null) {
+              exScope.$destroy();
+            }
+            return exElem != null ? exElem.remove() : void 0;
+          }, 500);
+          if (queue.length > 0) {
+            return setTimeout(function() {
+              return generateMessage(queue.shift());
+            }, 2000);
+          } else {
+            return inProgress = false;
+          }
+        };
+        msgElem = $('<div>', {
+          "class": first ? 'novaStreamLastMessage' : 'novaStreamLastMessage new'
+        });
+        elem.append(msgElem);
+        msgElem = $($compile(msgElem)(newScope));
+        console.log('STREAM INDICATOR', elem.hasClass('active'));
+        return typeof scope.heightChanged === "function" ? scope.heightChanged() : void 0;
+      };
+      addMessage = function(streamItem) {
+        scope.empty = false;
+        if (first) {
+          elem.addClass('active');
+          elem.parent().addClass('active');
+        }
+        if (inProgress === true) {
+          queue.push(streamItem);
+        } else {
+          inProgress = true;
+          scope.active = true;
+          generateMessage(streamItem, first);
+        }
+        return first = false;
+      };
+      updateId = updateService.registerUpdateHandler(function(data, action, items) {
+        var affected, i, item, j, len, len1, parent, ref, ref1;
+        if (action === 'update' || action === 'create') {
+          if (data['streamItem'] != null) {
+            affected = [];
+            for (i = 0, len = items.length; i < len; i++) {
+              item = items[i];
+              if (item.type !== 'streamItem' || ((ref = item.parents) != null ? ref.length : void 0) < 1) {
+                continue;
+              }
+              ref1 = item.parents;
+              for (j = 0, len1 = ref1.length; j < len1; j++) {
+                parent = ref1[j];
+                if ((parent != null ? parent.id : void 0) === scope.streamParentItem.id) {
+                  addMessage(item);
+                  break;
+                }
+              }
+            }
+            return scope.$applyAsync();
+          }
+        }
+      });
+      scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+      return scope.launchStreamFrame = function() {
+        if (scope.flowFrame != null) {
+          return scope.flowFrame.flowBox.addFlowFrame({
+            title: 'task',
+            directive: 'novaStreamFrame',
+            item: scope.streamParentItem
+          }, scope.flowFrame);
+        } else {
+          return scope.flow.addFrame({
+            title: 'task',
+            directive: 'novaStreamFrame',
+            item: scope.streamParentItem
+          });
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaStreamIndicatorLastMessage', ".novaStreamIndicatorLastMessage {\n  height: 40px;\n  -webkit-transition: height 0.2s ease;\n  -moz-transition: height 0.2s ease;\n  -o-transition: height 0.2s ease;\n  -ms-transition: height 0.2s ease;\n  transition: height 0.2s ease;\n}\n.novaStreamIndicatorLastMessage:hover {\n  cursor: pointer;\n}\n.novaStreamIndicatorLastMessage:hover * {\n  pointer-events: none;\n}\n.novaStreamIndicatorLastMessage.active {\n  height: 40px;\n}\n.novaStreamIndicatorLastMessage .noUpdates {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  text-align: center;\n  line-height: 40px;\n  font-size: 12px;\n  color: rgba(0,0,0,0.4);\n}\n.novaStreamIndicatorLastMessage .indicator {\n  position: absolute;\n  top: 5px;\n  right: 100%;\n  margin-right: -25px;\n  background: #d4145a;\n  color: #fff;\n  font-size: 9px;\n  text-align: center;\n  -webkit-border-radius: 6px;\n  border-radius: 6px;\n  min-width: 12px;\n  height: 12px;\n  line-height: 13px;\n  font-weight: 400;\n  z-index: 1;\n}\n.novaStreamIndicatorLastMessage .novaStreamLastMessage {\n  top: 0;\n  left: 0;\n  right: 0;\n  position: absolute;\n  -webkit-transition: 0.5s cubic-bezier(0.51, -1.24, 0.41, 2.53) top;\n  -moz-transition: 0.5s cubic-bezier(0.51, -1.24, 0.41, 2.53) top;\n  -o-transition: 0.5s cubic-bezier(0.51, -1.24, 0.41, 2.53) top;\n  -ms-transition: 0.5s cubic-bezier(0.51, -1.24, 0.41, 2.53) top;\n  transition: 0.5s cubic-bezier(0.51, -1.24, 0.41, 2.53) top;\n}\n.novaStreamIndicatorLastMessage .novaStreamLastMessage.new {\n  top: 40px;\n}\n.novaStreamIndicatorLastMessage .novaStreamLastMessage.hideUp {\n  top: -40px;\n}\n.novaStreamIndicatorLastMessage .entities {\n  display: none;\n}\n");

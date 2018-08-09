@@ -1,0 +1,11 @@
+buzzlike.directive('notificationCheckerror', function(requestService) {
+  return {
+    template: tC['/notificationCenter/notificationCheckerror'],
+    link: function(scope, element, attrs) {
+      requestService.getById(scope.notification.itemList[0].id, function(request) {
+        return scope.lotId = request.lotId;
+      });
+      return true;
+    }
+  };
+});

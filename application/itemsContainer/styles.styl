@@ -1,0 +1,152 @@
+.groupedView
+    overflow-y auto
+    
+.stepView
+    min-height 100%
+    overflow-y: auto
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+
+.flowViewHelper
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    padding: 8px 17px
+    background: #f2f2f2
+    font-size 14px
+    color: #454545
+    font-weight: bolder
+    
+    opacity 0.95
+    
+    z-index 10
+    
+.flowView
+    .periodBlock
+        overflow: hidden
+        width: 100%
+        
+        .periodHead
+            width: 100%
+            padding: 8px 17px
+            background: #f2f2f2
+            font-size 14px
+            color: #454545
+            font-weight: bolder
+            
+            &.active
+                visibility: hidden
+            
+        .itemsContainer
+            overflow: hidden
+        
+.groupView
+    overflow: hidden
+    
+    
+    &:last-child
+        
+        .paginator
+            margin-bottom 15px
+    
+    .title
+        margin-left 20px
+        margin-bottom -10px
+        margin-top 8px
+        
+        font-size 16px
+        line-height 16px
+        
+        position: relative
+        z-index 55
+        cursor: pointer
+        height 20px
+        line-height 20px
+        overflow: hidden
+        
+        .groupIcon
+            cursor: pointer
+            float: left
+            position: relative
+            width 28px
+            height 20px
+            margin-right 10px
+        
+        .text
+            cursor: pointer
+            float: left
+        
+    .singleView
+        padding-bottom: 200px
+    
+    .activeBar
+        position: absolute
+        top 0
+        bottom 0
+        width 60px
+        z-index 50
+        background: #fff
+        opacity: 0
+        transition opacity 0.2s ease
+        
+        &:hover
+            opacity 0.4
+        
+    .goRight
+        right 0
+        cursor e-resize
+    
+    .goLeft
+        left 0
+        cursor w-resize 
+    
+    .screen
+        overflow: hidden
+        float: left
+        
+    .screens
+        overflow: hidden
+        transition transform 0.2s ease
+        z-index 0
+        position: relative
+        
+        .zoom_min &
+            max-height 242px
+        
+        .zoom_mid &
+            max-height 389px
+
+        .zoom_max &
+            max-height 513px
+        
+.paginatorCircle
+    position: relative
+    top auto
+    left auto
+    right auto
+    bottom auto 
+    height: auto
+    
+    text-align: center
+    width 100%
+    margin-top 3px
+    
+    .page
+        display: inline-block
+        
+        width 10px
+        height 10px
+        
+        border-radius 12px
+        border 1px solid
+        margin: 0 3px
+        
+        cursor: pointer
+        
+        &.active
+            cursor: default
+                

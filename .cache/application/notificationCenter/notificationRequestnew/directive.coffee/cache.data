@@ -1,0 +1,30 @@
+buzzlike.directive('notificationRequestnew', function(lotService, stateManager, notificationService, desktopService, localization) {
+  return {
+    template: tC['/notificationCenter/notificationRequestnew'],
+    link: function(scope, element, attrs) {
+      var ref, ref1;
+      if (((ref = scope.notification) != null ? (ref1 = ref.itemList) != null ? ref1[3] : void 0 : void 0) != null) {
+        scope.lotId = scope.notification.itemList[3].id;
+      }
+      scope.getSumm = function() {
+        if (scope.notification.buzzLot) {
+          return scope.notification.cost + ' ' + localization.declensionPhrase(scope.notification.cost, 'costDays');
+        } else {
+          return scope.notification.cost + ' ' + localization.declensionPhrase(scope.notification.cost, 'roubles');
+        }
+      };
+      scope.actions = [
+        {
+          phrase: 'go_to_lot_requests',
+          action: function() {
+            notificationService.markRead(scope.notification.id);
+            return desktopService.launchApp('lotManager', {
+              lotId: scope.notification.itemList[3].id
+            });
+          }
+        }
+      ];
+      return true;
+    }
+  };
+});

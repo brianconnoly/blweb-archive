@@ -1,0 +1,26 @@
+buzzlike.service('novaStateTree', function() {
+  var StateTree;
+  StateTree = (function() {
+    function StateTree() {
+      this.showed = false;
+      this.stack = [];
+      this.activeState = null;
+      this.handler = null;
+    }
+
+    StateTree.prototype.applyState = function(state) {
+      if (this.activeState != null) {
+        this.stack.push(this.activeState);
+      }
+      return this.activeState = state;
+    };
+
+    StateTree.prototype.goBack = function() {
+      return this.activeState = this.stack.pop();
+    };
+
+    return StateTree;
+
+  })();
+  return StateTree;
+});

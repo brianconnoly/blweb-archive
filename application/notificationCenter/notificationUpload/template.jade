@@ -1,0 +1,10 @@
+div.previews(class="previewsCount{{previewsCount}}")
+    div.itemPreview(ng-repeat="itemId in previewItems", type="content", id="itemId")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header {{translate('notification_upload')}}
+    div.description {{translate('notification_uploadedCount')}} {{notification.ids.length}}
+
+div.notificationButtons

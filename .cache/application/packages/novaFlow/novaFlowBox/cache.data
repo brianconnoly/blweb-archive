@@ -1,0 +1,11 @@
+tC['/novaFlowBox/template.jade'] = "";
+
+buzzlike.directive('novaFlowBox', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaFlowBox/template.jade'],
+    link: function(scope, element, attrs, ngModel) {}
+  };
+});
+
+registerStyles('novaFlowBox', ".novaFlowBox {\n  height: 100%;\n  top: -1;\n  position: absolute;\n  border-right: 1px solid #ddd;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  overflow: hidden;\n  border-top: 1px solid #ddd;\n  -webkit-transition: border-radius 0.2s ease;\n  -moz-transition: border-radius 0.2s ease;\n  -o-transition: border-radius 0.2s ease;\n  -ms-transition: border-radius 0.2s ease;\n  transition: border-radius 0.2s ease;\n}\n.novaFlowBox.right {\n  border-left: 1px solid #ddd;\n  border-right: none;\n}\n.novaFlowBox.last {\n  border-right: 1px solid #ddd !important;\n  -webkit-border-radius: 0 8px 0 0;\n  border-radius: 0 8px 0 0;\n}\n.novaFlowBox:last-child {\n  border-right: none;\n}\n.novaFlowBox:first-child {\n  border-left: 1px solid #ddd;\n}\n");

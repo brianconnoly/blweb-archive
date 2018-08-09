@@ -1,0 +1,161 @@
+ul.eternity li.interval {
+  position: absolute;
+  height: 100%;
+}
+ul.eternity li.interval div.part {
+  position: absolute;
+  overflow: hidden;
+  height: 100%;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+ul.eternity li.interval div.part div.smallMark {
+  position: absolute;
+  top: 50%;
+  margin-top: -7px;
+  right: -1px;
+  height: 14px;
+  width: 2px;
+  background: #494949;
+}
+ul.eternity li.interval div.part div.dayBreak {
+  position: absolute;
+  overflow: hidden;
+  color: #61a3cb;
+  height: 54px;
+  width: 100%;
+  text-align: center;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  top: 50%;
+  margin-top: -27px;
+}
+.compact ul.eternity li.interval div.part div.dayBreak {
+  margin-top: 25px;
+  height: 100px;
+}
+.glued ul.eternity li.interval div.part div.dayBreak .weekDay {
+  font-size: 15px;
+}
+ul.eternity li.interval div.part div.dayBreak .weekDay {
+  position: absolute;
+  display: block;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  line-height: 50px;
+  text-align: center;
+  font-size: 17px;
+  -webkit-transition: 0.2s all ease;
+  -moz-transition: 0.2s all ease;
+  -o-transition: 0.2s all ease;
+  -ms-transition: 0.2s all ease;
+  transition: 0.2s all ease;
+}
+.compact ul.eternity li.interval div.part div.dayBreak .weekDay {
+  width: 100px;
+  margin-left: -50px;
+  height: 30px;
+  line-height: 40px;
+  font-size: 15px;
+}
+ul.eternity li.interval div.part div.dayBreak .date {
+  position: absolute;
+  top: 0px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  line-height: 60px;
+  font-size: 50px;
+  text-align: center;
+  font-weight: normal;
+}
+.compact ul.eternity li.interval div.part div.dayBreak .date {
+  top: 25px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 30px;
+}
+ul.eternity li.interval div.part div.dayBreak .month {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 18px;
+  line-height: 20px;
+}
+.compact ul.eternity li.interval div.part div.dayBreak .month {
+  height: 10px;
+  line-height: 10px;
+  font-size: 12px;
+}
+ul.eternity li.interval div.part div.dayBreak .year {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  text-align: center;
+  font-size: 14px;
+}
+.compact ul.eternity li.interval div.part div.dayBreak .year {
+  height: 25px;
+}
+ul.eternity li.interval div.part div.hourMark {
+  position: absolute;
+  overflow: hidden;
+  color: #61a3cb;
+  font-size: 40px;
+  line-height: 40px;
+  height: 40px;
+  width: 100%;
+  text-align: center;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  top: 50%;
+  margin-top: -20px;
+}
+.glued ul.eternity li.interval div.part div.hourMark {
+  font-size: 20px;
+}
+ul.eternity li.interval div.part div.freePlace {
+  height: 100%;
+}
+ul.eternity li.interval div.part div.freePlace.freeMarks {
+  background: url("/resources/images/desktop/timeline/dividerMulti360.svg") top left repeat-y;
+}
+.glued ul.eternity li.interval div.part div.freePlace {
+  display: none;
+}
+ul.eternity li.interval div.part div.freePlace div.column {
+  width: 35px;
+  height: 100%;
+  float: left;
+  position: relative;
+}
+ul.eternity li.interval div.part div.freePlace div.column.spriteMark {
+  padding-left: 1px;
+  background: url("/resources/images/desktop/timeline/dividerSingle.svg") top left repeat-y;
+}
+ul.eternity li.interval div.part div.freePlace div.column.absolute {
+  position: absolute;
+}
+ul.eternity li.interval div.part div.freePlace div.column .longMark {
+  position: absolute;
+  top: 50%;
+  margin-top: -25px;
+  right: -1px;
+  height: 50px;
+  width: 2px;
+  background: #494949;
+}

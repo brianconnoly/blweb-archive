@@ -1,0 +1,17 @@
+div.pocketSwitcher
+    div.typeSwitcher(ng-mouseenter="hoverPocket(pocket)", ng-repeat="pocket in buffer.buffer", class="switcherStyle_{{$index}}", ng-class="{'active':pocket==buffer.currentPocket}", ng-style="{'width':pocket.width}", ng-click="switchPocket(pocket)") 
+        span.closePocket(ng-click="closeBuffer(pocket, $event)")
+    div.addBuffer.droppableItem(dropable-item="{type:'newPocket'}", ng-click="addBuffer()", ng-if="buffer.buffer.length < 5")
+
+div.pocket.itemsContainer.multiselect(class="bufferSize_{{buffer.size}}", antiscroll, ng-class="{'zoom_min':buffer.size == 'mini', 'zoom_max':buffer.size == 'full'}")
+    div.item.pocketItem.previewContainer.selectableItem.droppableItem.contextMenu.editableItem(context="buffer.currentPocket", ng-repeat="item in buffer.currentPocket.items | reverse")
+        div.itemPreview(item="item", overlay="rightPanel")
+        div.removeElement.flushMousedown(ng-click="removeElement(item, $event)")
+
+//- ul.actions(ng-class="{'wide':buffer.width==430}")
+//-     li.action.flushMousedown(translate="'rightPanel_hide_all_actions'", ng-click="showAll = false", ng-show="showAll && lowerActions.length > 0")
+//-     li.action.flushMousedown(translate="'rightPanel_show_all_actions'", ng-click="showAll = true", ng-show="!showAll && lowerActions.length > 0")
+//-     li.action(ng-show="showAll", ng-repeat="action in lowerActions", ng-click="callAction(action,$event)", translate="action.phrase")
+//-         div.stickyAction(ng-click="callSticky(action,$event)", ng-if="action.sticky")
+//-     li.action(ng-repeat="action in actions", ng-click="callAction(action,$event)", translate="action.phrase")
+//-         div.stickyAction(ng-click="callSticky(action,$event)", ng-if="action.sticky")

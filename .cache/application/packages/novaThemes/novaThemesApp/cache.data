@@ -1,0 +1,61 @@
+tC['/novaThemesApp/template.jade'] = "<div nova-item-id=\"session.item.id\" nova-item-type=\"comb\" class=\"novaItem novaItemDroppable\"> <div class=\"novaAppLeftPanel\"></div> <div class=\"workarea novaFlow\"></div> </div>";
+
+buzzlike.directive('novaThemesApp', function(combService, account, projectService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemesApp/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var buildProjectUnits, elem;
+      elem = $(element);
+      scope.session.noItem = true;
+      scope.session.size = {
+        width: 800,
+        height: 600
+      };
+      scope.isInvited = false;
+      scope.headUnits = [];
+      scope.units = [];
+      buildProjectUnits = function() {
+        scope.units.length = 0;
+        scope.headUnits.push({
+          title: 'overview',
+          directive: 'novaThemeOverview'
+        });
+        scope.units.push({
+          title: 'timeline',
+          directive: 'novaThemeTimeline'
+        });
+        scope.units.push({
+          title: 'timeline',
+          directive: 'novaThemePosts'
+        });
+        scope.units.push({
+          title: 'tasks',
+          directive: 'novaProjectTasks'
+        });
+        scope.units.push({
+          title: 'content',
+          directive: 'novaProjectContent'
+        });
+        return scope.units.push({
+          title: 'content',
+          directive: 'novaProjectCollectors'
+        });
+      };
+      combService.getById(scope.session.item.id, function(comb) {
+        scope.comb = comb;
+        if (comb.projectId != null) {
+          scope.project = projectService.getById(comb.projectId);
+        }
+        return buildProjectUnits();
+      });
+      scope.activeModule = null;
+      return scope.init = function() {
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaThemesApp', ".novaThemesApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: #f2f2f2;\n}\n");

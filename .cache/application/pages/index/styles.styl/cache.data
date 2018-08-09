@@ -1,0 +1,9 @@
+#pocket {
+  display: block;
+  position: absolute;
+  right: 0;
+  width: 200px;
+  top: 0;
+  bottom: 0;
+  background: #fff;
+}

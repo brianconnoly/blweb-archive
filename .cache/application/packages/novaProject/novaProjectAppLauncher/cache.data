@@ -1,0 +1,22 @@
+tC['/novaProjectAppLauncher/template.jade'] = "<div nova-item-type=\"content\" nova-item-id=\"project.appearance.cover\" ng-if=\"!project.profileUserId &amp;&amp; project.appearance.cover\" nova-item-preview-type=\"simple\" class=\"novaItem novaItemPreview\"></div> <div nova-item-type=\"user\" nova-item-id=\"user.id\" nova-item-preview-type=\"simple\" ng-if=\"project.profileUserId\" class=\"novaItem novaItemPreview\"></div>";
+
+buzzlike.directive('novaProjectAppLauncher', function(projectService, account) {
+  return {
+    restrict: 'C',
+    template: null,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.user = account.user;
+      return scope.project = projectService.getById(scope.appData.item.id, function(item) {
+        if (item.profileUserId != null) {
+          return elem.parent().attr('title', scope.user.name);
+        } else {
+          return elem.parent().attr('title', item.name);
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaProjectAppLauncher', ".novaProjectAppLauncher .novaItem {\n  pointer-events: none;\n}\n.novaProjectAppLauncher .userPic {\n  -webkit-border-radius: 0 !important;\n  border-radius: 0 !important;\n}\n");

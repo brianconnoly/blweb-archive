@@ -1,0 +1,206 @@
+buzzlike.directive('ugcDropBack', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'image';
+        },
+        drop: function(elem, e) {
+          ugcService.save({
+            id: scope.currentCollector.id,
+            background: elem.dragObject.items[0].id
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropLogo', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'image';
+        },
+        drop: function(elem, e) {
+          ugcService.save({
+            id: scope.currentCollector.id,
+            logo: elem.dragObject.items[0].id
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropTeam', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'team';
+        },
+        drop: function(elem, e) {
+          ugcService.save({
+            id: scope.currentCollector.id,
+            teamId: elem.dragObject.items[0].id
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropPopupImage', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'image';
+        },
+        drop: function(elem, e) {
+          scope.currentCollector.settings.popupImageId = elem.dragObject.items[0].id;
+          ugcService.save({
+            id: scope.currentCollector.id,
+            settings: scope.currentCollector.settings
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropRatingHeaderImage', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'image';
+        },
+        drop: function(elem, e) {
+          scope.currentCollector.settings.ratingHeaderImageId = elem.dragObject.items[0].id;
+          ugcService.save({
+            id: scope.currentCollector.id,
+            settings: scope.currentCollector.settings
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropRatingPostImage', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'image';
+        },
+        drop: function(elem, e) {
+          scope.currentCollector.settings.finalRatingPostImageId = elem.dragObject.items[0].id;
+          ugcService.save({
+            id: scope.currentCollector.id,
+            settings: scope.currentCollector.settings
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropLoaderImage', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'image';
+        },
+        drop: function(elem, e) {
+          scope.currentCollector.settings.loaderImageId = elem.dragObject.items[0].id;
+          ugcService.save({
+            id: scope.currentCollector.id,
+            settings: scope.currentCollector.settings
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+}).directive('ugcDropFaqText', function(ugcService, dragMaster) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('content-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('content-drop');
+        },
+        canAccept: function(elem, e) {
+          return elem.dragObject.items.length === 1 && elem.dragObject.items[0].type === 'text';
+        },
+        drop: function(elem, e) {
+          scope.currentCollector.settings.faqTextId = elem.dragObject.items[0].id;
+          ugcService.save({
+            id: scope.currentCollector.id,
+            settings: scope.currentCollector.settings
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+});

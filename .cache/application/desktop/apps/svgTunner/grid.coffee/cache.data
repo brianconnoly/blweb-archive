@@ -1,0 +1,32 @@
+buzzlike.directive('svgTunnerGrid', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var buildLines, elem;
+      elem = $(element);
+      buildLines = function() {
+        var i, j, ref, ref1, results, x, y;
+        elem.empty();
+        for (x = i = 1, ref = scope.size.width; 1 <= ref ? i <= ref : i >= ref; x = 1 <= ref ? ++i : --i) {
+          elem.append($('<div>', {
+            "class": 'vertLine',
+            css: {
+              'left': x * scope.size.zoom
+            }
+          }));
+        }
+        results = [];
+        for (y = j = 1, ref1 = scope.size.height; 1 <= ref1 ? j <= ref1 : j >= ref1; y = 1 <= ref1 ? ++j : --j) {
+          results.push(elem.append($('<div>', {
+            "class": 'horLine',
+            css: {
+              'top': y * scope.size.zoom
+            }
+          })));
+        }
+        return results;
+      };
+      return scope.$watch('size', buildLines, true);
+    }
+  };
+});

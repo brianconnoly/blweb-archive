@@ -1,0 +1,30 @@
+div.rightSide
+    div.stickyLauncher.appSession.novaAppLauncher(
+        session="streamsApp.session",
+        app-data="streamsApp",
+        ng-click="launchApp(streamsApp)", 
+        ng-class="{'active':novaDesktop.isActive(streamsApp.session), 'launched':streamsApp.session}")
+    div.rightSideItem.novaBufferActivator.novaItem.novaItemDroppable(nova-item-object="newBuffer")
+
+div.systemMenu(ng-click="showSystemMenu($event)") 
+    img(src="/resources/images/login/light.svg")
+
+div.stickyLauncher.appSession.novaAppLauncher(
+    session="launcher.session",
+    app-data="launcher",
+    ng-repeat="launcher in getLaunchers() | orderBy:'order' track by launcher.id", 
+    ng-click="launchApp(launcher)", 
+    ng-class="{'active':novaDesktop.isActive(launcher.session), 'launched':launcher.session, 'static':launcher.static}")
+
+div.separator
+
+div.apps(ng-if="novaDesktop.sessions.length > 0")
+    div.appsContainer
+        div.appsWrapper
+            div.appSession.novaAppLauncher.launched(
+                ng-click="novaDesktop.activate(session)"
+                ng-repeat="session in novaDesktop.sessions", 
+                ng-class="{'active':novaDesktop.isActive(session)}")
+    div.separator
+
+div.novaAdd

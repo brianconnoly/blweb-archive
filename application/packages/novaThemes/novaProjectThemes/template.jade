@@ -1,0 +1,7 @@
+div.title(translate="moduleName", ng-click="activateAll()", ng-class="{'active':flow.currentCode == 'projectThemes'}")
+div.subItem.extended.noDrag(ng-repeat="combId in appItem.modules.combs.pinned", ng-click="activatePinned(combId)")
+    div.pinnedItem.novaItemScope.novaItem.novaItemPreview.novaItemDraggable.novaItemDroppable.novaItemMenu(
+        nova-item-id="combId", 
+        nova-item-type="comb",
+        nova-item-preview-type="pinned",
+        nova-item-context="appItem")

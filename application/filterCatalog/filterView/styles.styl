@@ -1,0 +1,87 @@
+$LW = $leftPanelWidth
+$RW = $rightPanelWidth
+$LW2 = $LW / 2
+$RW2 = $RW / 2
+
+.filterView
+    size 'abs' 40px 0 0 $LW2
+    transition all ease 0.2s
+
+    .screen
+        margin-top 0
+        padding-top 0
+
+    .title
+        color #fff
+        padding 20px 15px 15px 12px
+        text-shadow: rgba(0,0,0,0.45) 0 0 0.6em
+        font-family "DINCyr-Light", sans-serif
+        font-size 26px
+        line-height 26px
+        font-weight lighter
+        margin: 0
+        box-sizing border-box
+        display inline-block
+
+        transition margin 0.2s ease
+
+        .back
+            margin-right 30px
+            font-size 20px
+            float left
+            cursor pointer
+
+        .caption, .communityTitle
+            float left
+
+        span
+            cursor: pointer
+
+    // .filterWidget
+    //     .sideMargin
+    //         margin-left $RW2
+
+    // .sideMargin
+    //     margin-left $RW2
+
+    .content
+        transition all ease 0.2s
+        
+
+        .list
+            margin 0 auto
+            overflow hidden
+
+        .arrow
+            position: absolute
+            background-color: rgba(255, 255, 255, .5)
+            sprite "/resources/images/icons/timeline-buttons.png" 10px center 50px 42px
+            top 10px
+            bottom 10px
+            width 30px
+            z-index 1
+
+            transition background 0.2s ease
+
+            cursor: pointer
+
+            &:hover
+                background-color: rgba(255, 255, 255, .9)
+
+            &.left
+                left 10px //20px
+
+            &.right
+                right 10px //20px
+                background-position -28px center
+
+    .showLeft &
+        left $LW
+
+    .showRight &
+        right $RW
+
+        .sideMargin
+            margin-left 0px
+
+

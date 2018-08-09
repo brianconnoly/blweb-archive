@@ -1,0 +1,19 @@
+tC['/novaTextPreviewEditor/template.jade'] = "<div ng-model=\"item.value\" ng-change=\"saveText()\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }\" placeholder-text=\"'novaTextEdit_enterText'\" class=\"editor novaEditableDiv\"></div>";
+
+buzzlike.directive('novaTextPreviewEditor', function(contentService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTextPreviewEditor/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.saveText = function() {
+        return contentService.save({
+          id: scope.item.id,
+          type: 'text',
+          value: scope.item.value
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaTextPreviewEditor', ".novaTextPreviewEditor {\n  min-height: 16px;\n}\n");

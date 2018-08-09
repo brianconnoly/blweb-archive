@@ -1,0 +1,9 @@
+div(ng-click="pickValue()")
+    div.value.novaItemScope.novaItem.novaItemPreview(
+        ng-if="value && !customValue"
+        nova-item-object="value"
+        nova-item-watch
+        nova-item-preview-type="line")
+    div.value.placeholder(ng-if="!value && !customValue", translate="'novaScreenPicker_placeholder_'+phrase")
+    div.value.customValue(ng-if="customValue") {{customValue()}}
+    div.activator

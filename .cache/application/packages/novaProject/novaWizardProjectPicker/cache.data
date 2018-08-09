@@ -1,0 +1,50 @@
+tC['/novaWizardProjectPicker/template.jade'] = "<div class=\"pickerBody\"> <div ng-repeat=\"item in items track by item.id\" ng-click=\"wizard.pick(item)\" ng-class=\"{'picked':wizard.isPicked(item)}\" nova-item-preview-type=\"square\" class=\"pickerItem novaItem novaItemPreview\"></div> </div>";
+
+buzzlike.directive('novaWizardProjectPicker', function(projectService, userService, account) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardProjectPicker/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var updateItems;
+      scope.items = [];
+      updateItems = function() {
+        var id, member, project, ref, results;
+        scope.items.length = 0;
+        ref = projectService.storage;
+        results = [];
+        for (id in ref) {
+          project = ref[id];
+          if (project.blank === true) {
+            continue;
+          }
+          if (project.id === scope.wizard.data.projectId) {
+            scope.wizard.pick(project);
+          }
+          results.push((function() {
+            var i, len, ref1, results1;
+            ref1 = project.members;
+            results1 = [];
+            for (i = 0, len = ref1.length; i < len; i++) {
+              member = ref1[i];
+              if (member.userId === account.user.id) {
+                scope.items.push(project);
+                break;
+              } else {
+                results1.push(void 0);
+              }
+            }
+            return results1;
+          })());
+        }
+        return results;
+      };
+      return scope.$watch(function() {
+        return projectService.storage;
+      }, function(nVal) {
+        return updateItems();
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaWizardProjectPicker', ".novaWizardProjectPicker .pickerBody {\n  padding: 5px 25px;\n}\n.novaWizardProjectPicker .pickerBody .pickerItem {\n  width: 100px;\n  height: 100px;\n  margin: 5px;\n  float: left;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-box-shadow: 0 0 5px -1px rgba(0,0,0,0.4);\n  box-shadow: 0 0 5px -1px rgba(0,0,0,0.4);\n}\n.novaWizardProjectPicker .pickerBody .pickerItem.picked {\n  -webkit-box-shadow: 0 0 0 4px #3496f2;\n  box-shadow: 0 0 0 4px #3496f2;\n}\n");

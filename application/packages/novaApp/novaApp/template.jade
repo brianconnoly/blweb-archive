@@ -1,0 +1,14 @@
+div.novaAppDrag.justCreated.styleBlack(ng-style="{'zIndex':session.index}", ng-mousedown="desktop.activate(session)")
+    div.novaAppControls
+    div.novaAppItem(ng-if="session.noItem != true")
+
+    //- Resize stuff
+    div.novaAppResize.noDrag.top
+    div.novaAppResize.noDrag.bottom
+    div.novaAppResize.noDrag.left
+    div.novaAppResize.noDrag.right
+
+    div.novaAppResize.noDrag.topleft
+    div.novaAppResize.noDrag.topright
+    div.novaAppResize.noDrag.bottomright
+    div.novaAppResize.noDrag.bottomleft

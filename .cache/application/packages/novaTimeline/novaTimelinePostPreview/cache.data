@@ -1,0 +1,41 @@
+tC['/novaTimelinePostPreview/template.jade'] = "<div ng-class=\"{'floating':postImages.length&gt;0}\" ng-if=\"postText.length &gt; 0\" class=\"postText\">{{postText}}</div> <div class=\"novaPostContent\"></div>";
+
+buzzlike.directive('novaTimelinePostPreview', function(postService, contentService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelinePostPreview/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var currentStyle, elem, prepareText;
+      elem = $(element);
+      scope.items = [];
+      currentStyle = null;
+      scope.postImages = [];
+      scope.postText = "";
+      prepareText = function(ids) {
+        scope.postText = "";
+        return contentService.getByIdsOptimized(ids, function(textItems) {
+          var i, len, text;
+          for (i = 0, len = textItems.length; i < len; i++) {
+            text = textItems[i];
+            if (scope.postText !== "") {
+              scope.postText += "\n";
+            }
+            scope.postText += text.value;
+          }
+          if (scope.postText.length > 87) {
+            scope.postText = scope.postText.substring(0, 87);
+            return scope.postText += '…';
+          }
+        });
+      };
+      return scope.$watch('item.contentIds.text', function(nVal) {
+        scope.items.length = 0;
+        if (nVal != null) {
+          return prepareText(nVal);
+        }
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaTimelinePostPreview', ".novaTimelinePostPreview {\n  width: 100%;\n}\n.novaTimelinePostPreview .postText {\n  background: rgba(242,242,242,0.6);\n  color: #000;\n  font-size: 12px;\n  line-height: 14px;\n  padding: 5px 10px;\n}\n.novaTimelinePostPreview .postText.floating {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 1;\n}\n.novaTimelinePostPreview .novaPostContent {\n  height: 240px;\n  width: 100%;\n}\n");

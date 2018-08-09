@@ -1,0 +1,60 @@
+buzzlike.directive("selectcourse", function($rootScope, tutorialService, stateManager) {
+  return {
+    restrict: "C",
+    template: templateCache['/tutorial/selectcourse'],
+    link: function(scope, element, attrs) {
+      var buildCourseList, builded, tutorialState;
+      scope.courseList = [];
+      builded = false;
+      tutorialState = {
+        'escape': function() {
+          scope.hideCourseList();
+          return stateManager.goBack();
+        }
+      };
+      scope.$watch(function() {
+        return tutorialService.status.courses;
+      }, function(nValue) {
+        if ((nValue != null) && !builded) {
+          buildCourseList();
+          return builded = true;
+        }
+      }, true);
+      buildCourseList = function() {
+        var course, i, len, ref, results;
+        scope.courseList = [];
+        ref = tutorialService.status.courses;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          course = ref[i];
+          course.show = false;
+          results.push(scope.courseList.push(course));
+        }
+        return results;
+      };
+      scope.init = function() {
+        return stateManager.applyState(tutorialState);
+      };
+      scope.hideCourseList = function() {
+        $('.selectcourse').remove();
+        return true;
+      };
+      scope.toggleCourse = function(course) {
+        var courseItem, i, len, ref;
+        if (!course.locked) {
+          ref = tutorialService.status.courses;
+          for (i = 0, len = ref.length; i < len; i++) {
+            courseItem = ref[i];
+            courseItem.show = false;
+          }
+          return course.show = true;
+        }
+      };
+      scope.openCourse = function(course) {
+        tutorialService.showLesson(course.code, null, true);
+        return scope.hideCourseList();
+      };
+      return scope.init();
+    }
+  };
+});

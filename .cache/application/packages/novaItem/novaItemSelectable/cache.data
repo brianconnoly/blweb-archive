@@ -1,0 +1,54 @@
+buzzlike.directive('novaItemSelectable', function(novaMenu) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      if (scope.multiselect == null) {
+        return;
+      }
+      if (scope.multiselect.isSelected(scope.item)) {
+        elem.addClass('selected');
+      }
+      elem.off('.novaItemSelectable');
+      elem.on('mousedown.novaItemSelectable', function(e) {
+        var cmd;
+        if ($(e.target).parents('.novaItemSelectable')[0] !== element[0]) {
+          return true;
+        }
+        cmd = e.ctrlKey || e.metaKey;
+        novaMenu.hide();
+        $(':focus').blur();
+        if (!cmd && !elem.hasClass('selected')) {
+          scope.multiselect.flush();
+          elem.addClass('selected');
+        }
+        if (cmd) {
+          elem.toggleClass('selected');
+        }
+        if (elem.hasClass('selected')) {
+          scope.multiselect.select(scope.item);
+        }
+        scope.multiselect.activate();
+        scope.$apply();
+        return true;
+      });
+      return scope.getSelectedItems = function() {
+        var i, item, len, ref, selectedItems;
+        selectedItems = [];
+        if (scope.multiselect != null) {
+          ref = scope.multiselect.selected;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            selectedItems.push(item);
+          }
+        } else if (scope.item != null) {
+          selectedItems.push(scope.item);
+        }
+        return selectedItems;
+      };
+    }
+  };
+});
+
+registerStyles('novaItemSelectable', ".novaItemSelectable.selected {\n  -webkit-box-shadow: 0 0 0 4px #eee;\n  box-shadow: 0 0 0 4px #eee;\n  -webkit-transition: box-shadow 0.2s ease;\n  -moz-transition: box-shadow 0.2s ease;\n  -o-transition: box-shadow 0.2s ease;\n  -ms-transition: box-shadow 0.2s ease;\n  transition: box-shadow 0.2s ease;\n}\n.novaMultiselect.active .novaItemSelectable.selected {\n  -webkit-box-shadow: 0 0 0 4px #3496f2;\n  box-shadow: 0 0 0 4px #3496f2;\n}\n");

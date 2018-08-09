@@ -1,0 +1,29 @@
+buzzlike.service('dynamicStyle', function() {
+  var dynamicStyle, uniqCnt;
+  uniqCnt = 0;
+  dynamicStyle = (function() {
+    function dynamicStyle(styleName, styleData) {
+      this.styleName = styleName;
+      if (styleData == null) {
+        styleData = "";
+      }
+      this.className = 'dynamicStyle_' + uniqCnt++;
+      this.styleName = this.styleName.replace('$', this.className);
+      this.style = $('<style>');
+      this.style.appendTo('head');
+      this.update(styleData);
+    }
+
+    dynamicStyle.prototype.update = function(data) {
+      return this.style.html(this.styleName + " {\n" + data + "\n}\n");
+    };
+
+    dynamicStyle.prototype.destroy = function() {
+      return this.style.remove();
+    };
+
+    return dynamicStyle;
+
+  })();
+  return dynamicStyle;
+});

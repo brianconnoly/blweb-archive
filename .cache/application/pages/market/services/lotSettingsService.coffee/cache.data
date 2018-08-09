@@ -1,0 +1,25 @@
+buzzlike.service('lotSettings', function(overlayManager, lotService) {
+  var close, editLotById, state;
+  state = {
+    currentLot: null
+  };
+  editLotById = function(lotId) {
+    var lot;
+    lot = lotService.lotsById[lotId];
+    if (lot == null) {
+      return false;
+    }
+    state.currentLot = lot;
+    overlayManager.loadOverlay('lotSettings');
+    return true;
+  };
+  close = function() {
+    overlayManager.unloadOverlay('lotSettings');
+    return state.currentLot = null;
+  };
+  return {
+    state: state,
+    editLotById: editLotById,
+    close: close
+  };
+});

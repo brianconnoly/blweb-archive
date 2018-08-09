@@ -1,0 +1,8 @@
+div(ng-show="contextStatus.active")
+    div.postPreview(ng-if="multiselectState.buffer!=null && contextStatus.showPost")
+        li.item.itemPreview(item="multiselectState.buffer")
+        div.clear(ng-mousedown="clearBuffer($event)") {{localization.translate('contextmenu_clear_buffer')}}
+    div.menuTimeInfo(ng-show="contextStatus.time")
+        span.time {{contextStatus.time | timestampMask: 'time'}}
+        span.date {{contextStatus.time | timestampMask: 'DD ofMMMM YYYY'}}
+    div.item(ng-repeat="action in contextStatus.actions | reverse", ng-mousedown="fireAction(action.action, $event)", translate="action.phrase")

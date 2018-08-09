@@ -1,0 +1,97 @@
+.appContainer.mediaPreview {
+  background: #75a843;
+}
+.appContainer.mediaPreview .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background: none;
+}
+.drag .appContainer.mediaPreview .content {
+  pointer-events: none;
+}
+.appContainer.mediaPreview .lightboxPreview {
+  background: #f2f2f2;
+}
+.appContainer.mediaPreview .lightboxPreview .window {
+  width: 100%;
+  height: 100%;
+}
+.appContainer.mediaPreview .lightboxPreview .window .download {
+  overflow: hidden;
+  height: 30px;
+  width: 100%;
+}
+.appContainer.mediaPreview .lightboxPreview .window .download .button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 29px;
+  bottom: 0px;
+  cursor: pointer;
+  background: #fff url("/resources/images/desktop/actions/black/header-button-download.svg") center center no-repeat;
+  border-bottom: 1px solid #aaa;
+  border-left: 1px solid #aaa;
+}
+.appContainer.mediaPreview .lightboxPreview .window .download .url {
+  position: absolute;
+  top: 0;
+  right: 30px;
+  left: 0;
+  bottom: 0px;
+  line-height: 30px;
+  font-size: 16px;
+  padding: 0 7px;
+  background: #fff;
+  border-bottom: 1px solid #aaa;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  cursor: pointer;
+}
+.appContainer.mediaPreview .lightboxPreview .window .picture img {
+  position: absolute;
+  width: 100%;
+}
+.appContainer.mediaPreview .lightboxPreview .window .picture.wide img {
+  width: 100%;
+}
+.appContainer.mediaPreview .lightboxPreview .window .picture.tall img {
+  height: 100%;
+}
+.appContainer.mediaPreview .lightboxPreview .window .arrow {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  -webkit-border-radius: 30px;
+  border-radius: 30px;
+  border: 2px solid #fff;
+  background-color: rgba(0,0,0,0.5);
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  -webkit-transition: background-color 0.2s ease;
+  -moz-transition: background-color 0.2s ease;
+  -o-transition: background-color 0.2s ease;
+  -ms-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+}
+.appContainer.mediaPreview .lightboxPreview .window .arrow:hover {
+  background-color: rgba(0,0,0,0.7);
+}
+.appContainer.mediaPreview .lightboxPreview .window .arrow.left {
+  background-image: url("/resources/images/desktop/white/leftArrow.svg");
+  margin-left: -40px;
+}
+.appContainer.mediaPreview .lightboxPreview .window .arrow.right {
+  background-image: url("/resources/images/desktop/white/rightArrow.svg");
+  margin-left: 10px;
+}
+.appContainer.mediaPreview .lightboxPreview .video {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}

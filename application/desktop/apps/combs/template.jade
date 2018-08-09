@@ -1,0 +1,46 @@
+div.dragHandler.topBar.black.withHelp
+    process-bar
+
+    div.appControls
+
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+    div.actionsPanel
+        div.action
+            div.icon
+                img.flushMousedown(src="/resources/images/desktop/actions/black/header-button-newText.svg", ng-click="newText()")
+            div.settingsText.flushMousedown(translate="'contentApp_newText'", ng-click="newText()")
+
+        div.action
+            div.icon.folder
+                img.flushMousedown(src="/resources/images/desktop/actions/black/header-button-newPost.svg", ng-click="newPost()")
+            div.settingsText.flushMousedown(translate="'combsApp_newPost'", ng-click="newPost()")
+
+        div.action
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/black/header-button-settings.svg", ng-click="showMoreMenu($event)")
+            div.settingsText.flushMousedown(translate="'contentApp_more'", ng-click="showMoreMenu($event)")
+    
+    div.switcherPanel
+        zoom-switch
+
+        div.switcher
+            div.iconButton
+                img(src="/resources/images/desktop/black/sortby.svg", ng-click="showSortMenu($event)")
+            div.settingsText(translate="'generalApp_sortType'")
+
+        div.switcher
+            div.iconButton
+                img(ng-show="currentStep.type != 'shared'", src="/resources/images/desktop/black/sharedWithMe.svg", ng-click="triggerShared($event)")
+                img(ng-show="currentStep.type == 'shared'", src="/resources/images/desktop/black/sharedWithMe-active.svg", ng-click="triggerShared($event)")
+            div.settingsText(translate="'combsApp_shared'")
+
+div.body.widthCrombs.droppableItem(no-effects, dropable-item="{'type':'combsApp'}", class="zoom_{{session.zoom}}", antiscroll)
+    items-container
+    
+bread-crombs
+
+help-browser

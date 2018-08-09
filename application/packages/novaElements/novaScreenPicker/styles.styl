@@ -1,0 +1,26 @@
+cursor pointer
+
+&.placeholder
+    .value
+        color rgba(0,0,0,0.5)
+
+.value
+    display inline-block
+    font-size 14px
+    cursor pointer
+
+    *
+        pointer-events none
+
+    &.placeholder
+        color rgba(0,0,0,0.5)
+
+.activator
+    display inline-block
+    width 4px
+    height 4px
+    top -2px
+    border-top 1px solid #555454
+    border-right 1px solid #555454
+    transform rotate(45deg)
+    cursor pointer

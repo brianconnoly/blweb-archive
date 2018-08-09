@@ -1,0 +1,12 @@
+buzzlike.directive('lotContentPreview', function(operationsService) {
+  return {
+    restrict: 'C',
+    template: tC['/pages/market/directives/lotContentPreview'],
+    link: function(scope, element, attrs) {
+      operationsService.get(scope.item.entityType, scope.item.entityId, function(result) {
+        return scope.previewItem = result;
+      });
+      return true;
+    }
+  };
+});

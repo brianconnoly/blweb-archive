@@ -1,0 +1,21 @@
+tC['/loginRules/template.jade'] = "<div ng-click=\"backToSocial()\" class=\"backText\"><img src=\"/resources/images/login/arrowUp.svg\" width=\"30px\" height=\"50px\"/></div> <div antiscroll=\"antiscroll\" class=\"text\"></div>";
+
+buzzlike.directive('loginRules', function(loginService) {
+  return {
+    restrict: 'C',
+    template: tC['/loginRules/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem, textElem;
+      elem = $(element);
+      textElem = elem.children('.text');
+      textElem.empty();
+      textElem.append($(tC['/static/terms_ru'])[3]);
+      scope.backToSocial = function() {
+        return loginService.state.mode = 'default';
+      };
+      return true;
+    }
+  };
+});
+
+registerStyles('loginRules', ".loginRules {\n  background: #fff;\n}\n.loginRules .html-content {\n  width: 700px;\n  margin: 0 auto;\n}\n.loginRules .shade {\n  position: absolute;\n  left: 50%;\n  margin-left: -342px;\n  width: 684px;\n  height: 1px;\n  background: #e0e0df;\n}\n.loginRules .shade.top {\n  top: 0;\n}\n.loginRules .shade.bottom {\n  bottom: 0;\n}\n.loginRules .text {\n  position: absolute;\n  top: 120px;\n  bottom: 20px;\n  left: 0;\n  right: 0;\n  text-align: left;\n}\n.loginRules .backText {\n  position: absolute;\n  top: 50px;\n  left: 10%;\n  width: 50px;\n  height: 50px;\n  -webkit-border-radius: 50px;\n  border-radius: 50px;\n  text-align: center;\n  border: 1px solid #585757;\n  -webkit-border-radius: 70px;\n  border-radius: 70px;\n  -webkit-transition: all 0.1s ease;\n  -moz-transition: all 0.1s ease;\n  -o-transition: all 0.1s ease;\n  -ms-transition: all 0.1s ease;\n  transition: all 0.1s ease;\n  z-index: 999;\n}\n.loginRules .backText:hover {\n  cursor: pointer;\n  background: #fff;\n}\n.loginRules .backText img {\n  margin-top: 0px;\n}\n");

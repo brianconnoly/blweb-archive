@@ -1,0 +1,27 @@
+buzzlike.directive('lazyRequests', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, elem;
+      elem = $(element);
+      body = elem.parents('.leftPanel');
+      return elem.on('mousewheel', function(e) {
+        scope.requestScrollValue = elem[0].scrollTop;
+        if (scope.requestParams.isLoading === true) {
+          return;
+        }
+        if (elem[0].scrollTop === 0 && scope.requestParams.reloadOnStart === true) {
+          scope.requestParams.reloadOnStart = false;
+          scope.resetRequestList();
+          scope.fetchRequestsPage();
+          return scope.$apply();
+        } else if (scope.requestParams.pageSize * scope.requestParams.page < scope.requestParams.total) {
+          if (elem[0].scrollTop + elem.height() > elem[0].scrollHeight - 200) {
+            scope.fetchRequestsPage();
+            return scope.$apply();
+          }
+        }
+      });
+    }
+  };
+});

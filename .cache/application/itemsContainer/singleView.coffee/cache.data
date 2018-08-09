@@ -1,0 +1,166 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('singleView', function(operationsService, updateService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, elem, filtersDiffer, getPage, hasToLoad, isLoading, itemHei, itemWid, page, pageSizeX, pageSizeY, reloadView, updateId;
+      scope.items = [];
+      itemWid = 0;
+      itemHei = 0;
+      pageSizeX = 0;
+      pageSizeY = 0;
+      page = 0;
+      isLoading = false;
+      hasToLoad = true;
+      elem = $(element);
+      body = elem.parents('.body');
+      elem.on('mousewheel', function(e) {
+        if (hasToLoad === true && body[0].scrollTop + body.height() > body[0].scrollHeight - 400) {
+          if (page > 0 && isLoading !== true) {
+            getPage();
+            return scope.$apply();
+          }
+        }
+      });
+      getPage = function() {
+        var key, process, query, ref, types, val;
+        query = angular.copy(scope.currentStep.query || {});
+        types = [];
+        ref = scope.currentStep.filterTypes;
+        for (key in ref) {
+          val = ref[key];
+          if (val === true) {
+            types.push(key);
+          }
+        }
+        if (types.length > 0) {
+          query.contentType = {
+            '$in': types
+          };
+        }
+        query.page = page;
+        query.limit = pageSizeX * pageSizeY * 2;
+        query.sortBy = scope.currentStep.sortBy;
+        query.sortType = scope.currentStep.sortType || 'desc';
+        if (typeof scope.prepareQuery === "function") {
+          scope.prepareQuery(query);
+        }
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        isLoading = true;
+        return scope.queryFunction(query, function(items, total) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (indexOf.call(scope.items, item) < 0) {
+              scope.items.push(item);
+            }
+          }
+          if (process != null) {
+            scope.progress.finish(process);
+          }
+          if (total < (page + 1) * pageSizeX * pageSizeY * 2) {
+            hasToLoad = false;
+          }
+          isLoading = false;
+          page++;
+          return true;
+        });
+      };
+      reloadView = function() {
+        var key, process, query, ref, types, val;
+        types = [];
+        ref = scope.currentStep.filterTypes;
+        for (key in ref) {
+          val = ref[key];
+          if (val === true) {
+            types.push(key);
+          }
+        }
+        switch (scope.session.zoom) {
+          case 'min':
+            itemWid = 90;
+            itemHei = 74;
+            break;
+          case 'mid':
+            itemWid = 159;
+            itemHei = 126;
+            break;
+          case 'max':
+            itemWid = 197;
+            itemHei = 151;
+        }
+        pageSizeX = Math.floor(scope.session.size.width / itemWid);
+        pageSizeY = Math.floor(scope.session.size.height / itemHei);
+        page = 0;
+        query = angular.copy(scope.currentStep.query || {});
+        if (types.length > 0) {
+          query.contentType = {
+            '$in': types
+          };
+        }
+        query.limit = pageSizeX * pageSizeY * 2;
+        query.sortBy = scope.currentStep.sortBy;
+        query.sortType = scope.currentStep.sortType || 'desc';
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        isLoading = true;
+        return scope.queryFunction(query, function(items, total) {
+          var i, item, len;
+          if (total == null) {
+            total = 0;
+          }
+          scope.items.length = 0;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            scope.items.push(item);
+          }
+          if (process != null) {
+            scope.progress.finish(process);
+          }
+          if (total < (page + 1) * pageSizeX * pageSizeY * 2) {
+            hasToLoad = false;
+          } else {
+            hasToLoad = true;
+          }
+          isLoading = false;
+          page = 1;
+          return true;
+        });
+      };
+      filtersDiffer = function(a, b) {
+        var k, v;
+        for (k in a) {
+          v = a[k];
+          if (b[k] !== v) {
+            return true;
+          }
+        }
+        return false;
+      };
+      scope.$watch('currentStep', function(nVal, oVal) {
+        if (nVal != null) {
+          return reloadView();
+        }
+      }, true);
+      updateId = updateService.registerUpdateHandler(function(data) {
+        if (data[scope.currentStep.itemType] != null) {
+          if (scope.currentStep.contentType != null) {
+            if (data[scope.currentStep.contentType] != null) {
+              return reloadView();
+            }
+          } else {
+            return reloadView();
+          }
+        }
+      });
+      scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+      return true;
+    }
+  };
+});

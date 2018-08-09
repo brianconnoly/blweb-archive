@@ -1,0 +1,13 @@
+div.logBar(ng-if="log.type!='answer'")
+    div.time(ng-if="log.timestamp") {{::log.timestamp | timestampMask:"mm:ss"}}
+    div.marker →
+    div.url(title="{{log.url}}") {{::log.jobId}} {{::log.url}}
+
+div.logBar(ng-if="log.type=='answer'")
+    div.time(ng-if="log.timestamp") {{::log.timestamp | timestampMask:"mm:ss"}}
+    div.marker ←
+    div.url {{::log.jobId}} Response
+
+div.response(ng-if="log.params") {{::getContent(log.params)}}
+div.response(ng-if="log.body") {{::getContent(log.body)}}
+div.response(ng-if="log.err") {{::getContent(log.err)}}

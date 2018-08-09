@@ -1,0 +1,19 @@
+div.message(ng-repeat="notification in messages", ng-class="{'error': notification.error}", ng-click="removeMessage(notification)", ng-mouseenter="removeMessage(notification, 'hover')")
+    div(ng-switch="notification.type")
+
+        div.notificationItem(ng-switch-when="notification")
+            div.notificationPreview
+
+        div.notificationItem(ng-switch-default)
+            div.preview(ng-if="hasPreview(notification)")
+                div.itemPreview(type="{{notification.item.type}}", id="notification.item.id")
+            div.preview(ng-if="!hasPreview(notification)")
+                img(ng-if="notification.error == true", src="/resources/images/elements/achtung.svg", width="60px", height="60px")
+                img(ng-if="notification.error != true", src="/resources/images/elements/greenCircle.svg", width="60px", height="60px")
+
+            div.text
+                div.header(ng-if="notification.realText") {{::notification.realText}}
+                div.header(ng-if="!notification.realText", translate="notification.text")
+                div.description(ng-if="notification.description") {{::notification.description}}
+
+            div.notificationButtons

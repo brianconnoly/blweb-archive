@@ -1,0 +1,14 @@
+div.novaAppLeftPanelOverview
+    div.overviewBar
+        div.overviewCover.border03
+            div.itemPreview(type="content",id="comb.coverId")
+        
+        div.overviewText
+            div.lightTitle {{project.name}}
+            div.mainTitle {{comb.name}}
+            div.activity
+                span(translate="'novaThemeOverview_activity'")
+                span {{comb.lastStats.total || '—'}}
+        
+    div.projectStream.novaStreamIndicator(nova-stream-item="appItem")
+        div.novaStreamIndicatorLastMessage

@@ -1,0 +1,13 @@
+tC['/novaWizardThemeCreate/template.jade'] = "<div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardThemeCreate_title'\" translate-placeholder=\"'novaWizardThemeCreate_title_placeholder'\" class=\"titleText\"></div> </div> <div class=\"value\"> <input ng-model=\"wizard.data.name\"/> </div> </div> <div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardGroupCreate_project'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"wizard.goStep('project')\" class=\"edit\"></div> </div> <div class=\"value\"> <div nova-item-id=\"wizard.data.projectId\" nova-item-type=\"project\" nova-item-preview-type=\"square\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaWizardThemeCreate', function(communityService, $filter) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardThemeCreate/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      if (scope.wizard.data.name == null) {
+        return scope.wizard.data.name = $filter('timestampMask')('hh:mm, DD ofMMM');
+      }
+    }
+  };
+});

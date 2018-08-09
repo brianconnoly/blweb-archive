@@ -1,0 +1,365 @@
+div.addfilter,
+div.item-selector {
+  display: block;
+  position: absolute;
+  top: 5px;
+  right: 3px;
+  width: 11px;
+  height: 11px;
+  background: $circle;
+  border: 2px solid #1f8cb0;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+div.addfilter:hover,
+div.item-selector:hover {
+  cursor: pointer;
+}
+div.addfilter.selected,
+div.item-selector.selected {
+  background: $activeCircle;
+  border-color: #ffce98;
+}
+.remove-circle-button {
+  cursor: pointer;
+  background: #000;
+  border: 1px solid #000;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-transition: all ease 0.15s;
+  -moz-transition: all ease 0.15s;
+  -o-transition: all ease 0.15s;
+  -ms-transition: all ease 0.15s;
+  transition: all ease 0.15s;
+  display: block;
+}
+.remove-circle-button:hover {
+  background: #555;
+}
+.remove-circle-button:active {
+  background: #fff;
+}
+.remove-circle-button:after {
+  content: "";
+  background-image: url("../resources/images/icons/remove-button.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 7px 7px;
+  -moz-background-size: 7px 7px;
+  background-size: 7px 7px;
+  width: 7px;
+  height: 7px;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  overflow: hidden;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .remove-circle-button:after {
+    width: 7px;
+    height: 7px;
+    background-image: url("../resources/images/icons/remove-button@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 7px 7px;
+    -moz-background-size: 7px 7px;
+    background-size: 7px 7px;
+  }
+}
+.remove-button {
+  width: 13px;
+  height: 13px;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  background-color: #abb3bb;
+  background-image: url("../resources/images/icons/plus-buttons.png");
+  background-position: 3px 3px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 30px 15px;
+  -moz-background-size: 30px 15px;
+  background-size: 30px 15px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .remove-button {
+    background-image: url("../resources/images/icons/plus-buttons@2x.png");
+    background-position: 3px 3px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 30px 15px;
+    -moz-background-size: 30px 15px;
+    background-size: 30px 15px;
+  }
+}
+.remove-button:hover {
+  cursor: pointer;
+}
+.removeBox {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 22px;
+  height: 22px;
+  background-image: url("/resources/images/icons/square-cross.png");
+  background-position: -3px -3px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 28px 28px;
+  -moz-background-size: 28px 28px;
+  background-size: 28px 28px;
+  -webkit-box-shadow: 0px 0px 6px 1px #000;
+  box-shadow: 0px 0px 6px 1px #000;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .removeBox {
+    background-image: url("/resources/images/icons/square-cross@2x.png");
+    background-position: -3px -3px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 28px 28px;
+    -moz-background-size: 28px 28px;
+    background-size: 28px 28px;
+  }
+}
+:hover > .removeBox {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.removeBox:hover {
+  cursor: pointer;
+}
+.sched-alarm {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-image: url("/resources/images/icons/sched-alarm.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+  width: 30px;
+  height: 30px;
+  -webkit-transition: all 0.1s ease;
+  -moz-transition: all 0.1s ease;
+  -o-transition: all 0.1s ease;
+  -ms-transition: all 0.1s ease;
+  transition: all 0.1s ease;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  z-index: 600;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .sched-alarm {
+    width: 30px;
+    height: 30px;
+    background-image: url("/resources/images/icons/sched-alarm@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+:hover > .sched-alarm {
+  opacity: 0.7;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+  filter: alpha(opacity=70);
+}
+.sched-alarm:hover {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  cursor: pointer;
+}
+.close-button {
+  background-image: url("../resources/images/icons/closer.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .close-button {
+    background-image: url("../resources/images/icons/closer@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.add-button {
+  width: 15px;
+  height: 15px;
+  margin: 6px;
+  border: 1px solid #fff;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  background-image: url("../resources/images/icons/plus-buttons.png");
+  background-position: -17px 2px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 30px 15px;
+  -moz-background-size: 30px 15px;
+  background-size: 30px 15px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .add-button {
+    background-image: url("../resources/images/icons/plus-buttons@2x.png");
+    background-position: -17px 2px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 30px 15px;
+    -moz-background-size: 30px 15px;
+    background-size: 30px 15px;
+  }
+}
+.add-button:hover {
+  cursor: pointer;
+}
+button {
+  background: #555;
+  border: 0;
+  height: 31px;
+  color: #fff;
+  font-size: 18px;
+}
+button:hover,
+button *:hover {
+  cursor: pointer;
+}
+button[disabled] {
+  opacity: 0.4;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
+  filter: alpha(opacity=40);
+}
+button[disabled]:hover {
+  cursor: default;
+}
+.hidden {
+  -webkit-transition: all ease 0.3s;
+  -moz-transition: all ease 0.3s;
+  -o-transition: all ease 0.3s;
+  -ms-transition: all ease 0.3s;
+  transition: all ease 0.3s;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.no-antiscroll {
+  overflow: auto !important;
+  height: auto;
+}
+.antiscroll {
+  overflow: hidden !important;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.antiscroll .scroll-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: scroll;
+}
+.antiscroll .scroll-box .size {
+  height: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.antiscroll.hover.show .scrollbar-bottom,
+.antiscroll.hover.show .scrollbar-right {
+  opacity: 0.6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: alpha(opacity=60);
+}
+.antiscroll .scrollbar-bottom,
+.antiscroll .scrollbar-right {
+  position: absolute;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all ease 0.3s;
+  -moz-transition: all ease 0.3s;
+  -o-transition: all ease 0.3s;
+  -ms-transition: all ease 0.3s;
+  transition: all ease 0.3s;
+  display: none;
+  overflow: hidden;
+  z-index: 10;
+}
+.antiscroll .scrollbar-bottom .scroll-bottom,
+.antiscroll .scrollbar-right .scroll-bottom,
+.antiscroll .scrollbar-bottom .scroll-right,
+.antiscroll .scrollbar-right .scroll-right {
+  background: rgba(57,181,74,0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.antiscroll .scrollbar-bottom .scroll-bottom:hover,
+.antiscroll .scrollbar-right .scroll-bottom:hover,
+.antiscroll .scrollbar-bottom .scroll-right:hover,
+.antiscroll .scrollbar-right .scroll-right:hover,
+.antiscroll .scrollbar-bottom .scroll-bottom:active,
+.antiscroll .scrollbar-right .scroll-bottom:active,
+.antiscroll .scrollbar-bottom .scroll-right:active,
+.antiscroll .scrollbar-right .scroll-right:active {
+  cursor: pointer;
+}
+.antiscroll .scrollbar-bottom:hover,
+.antiscroll .scrollbar-right:hover,
+.antiscroll .scrollbar-bottom:active,
+.antiscroll .scrollbar-right:active,
+.antiscroll .scrollbar-bottom.active,
+.antiscroll .scrollbar-right.active {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.antiscroll .scrollbar-bottom {
+  height: 10px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+.antiscroll .scrollbar-bottom .scroll-bottom {
+  width: 50px;
+  height: 100%;
+  top: 0px;
+}
+.antiscroll .scrollbar-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+}
+.antiscroll .scrollbar-right .scroll-right {
+  width: 100%;
+  left: 0px;
+  height: 50px;
+}
+.drop-hover {
+  background: rgba(255,255,255,0.2);
+}
+.uploadHelper,
+.importHelper {
+  position: absolute;
+  top: -999px;
+}
+.text-shader {
+  text-shadow: rgba(0,0,0,0.35) 0 0 0.5em;
+}

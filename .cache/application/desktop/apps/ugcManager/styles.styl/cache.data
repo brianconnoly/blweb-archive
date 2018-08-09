@@ -1,0 +1,756 @@
+div.topBar .centerButtons {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+}
+div.topBar .centerButtons .tabSwitch {
+  display: inline-block;
+  width: 94px;
+  height: 25px;
+  margin: 0 4px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  background: #fff;
+  font-size: 12px;
+  line-height: 25px;
+  cursor: pointer;
+}
+div.topBar .centerButtons .tabSwitch.active {
+  background: #3870b1;
+  color: #fff;
+  cursor: default;
+}
+.appContainer.ugcManager .settingsMenu {
+  float: left;
+  width: 150px;
+  height: 272px;
+  border-right: 1px solid #dbdbdb;
+}
+.appContainer.ugcManager .settingsMenu .settingsItem {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 35px;
+  width: 150px;
+  padding-left: 15px;
+  text-align: left;
+  line-height: 35px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.appContainer.ugcManager .settingsMenu .settingsItem.active {
+  cursor: default;
+  color: #fff;
+  background: #4685bf;
+}
+.appContainer.ugcManager .bl-checkbox {
+  margin-top: 5px;
+  width: 25px;
+  height: 13px;
+  background: #ccc;
+}
+.appContainer.ugcManager .bl-checkbox.checked .tumbler {
+  background: #3870b1;
+}
+.appContainer.ugcManager .bl-checkbox .tumbler {
+  right: 11px;
+}
+.appContainer.ugcManager .bl-checkbox .button {
+  top: 2px;
+  right: 2px;
+  width: 11px;
+  height: 11px;
+}
+.appContainer.ugcManager .appSettingsLayout.appSettingsLayout_showed .appSettingsLayout_settings {
+  top: -119px !important;
+}
+.appContainer.ugcManager .appSettingsLayout.showSettings .appSettingsLayout_settings {
+  top: 40px !important;
+}
+.appContainer.ugcManager .appSettingsLayout.showSettings .appSettingsLayout_body {
+  top: 313px !important;
+}
+.appContainer.ugcManager .appSettingsLayout .appSettingsLayout_settings {
+  top: -273px;
+  height: 272px;
+  background: #fff;
+  border-bottom: 1px solid #e6e6e6;
+}
+.appContainer.ugcManager .ugcSettings .parameters {
+  float: left;
+  width: 420px;
+  height: 118px;
+  padding-top: 30px;
+}
+.appContainer.ugcManager .ugcSettings .parameter {
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .datePicker {
+  border: 1px solid #ebebeb;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  height: 20px;
+  width: 70px;
+  text-align: center;
+}
+.appContainer.ugcManager .ugcSettings .parameter .title {
+  width: 135px;
+  text-align: left;
+  font-size: 12px;
+  float: left;
+  margin-right: 4px;
+  line-height: 21px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .title.single {
+  width: 160px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value {
+  float: left;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .timePicker {
+  border: 1px solid #ebebeb;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  height: 20px;
+  width: 40px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .timePicker span {
+  display: block;
+  float: left;
+  height: 20px;
+  line-height: 20px;
+  margin: 0;
+  color: #000;
+  font-size: 12px;
+  line-height: 20px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .timePicker input {
+  display: block;
+  float: left;
+  background: none;
+  border: none;
+  color: #000;
+  width: 18px;
+  padding: 0 2px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .bl-checkbox {
+  margin-left: 3px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value input {
+  font-size: 12px;
+  line-height: 13px;
+  border: 1px solid #ebebeb;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  height: 20px;
+  padding: 0 4px;
+  width: 179px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value input.short {
+  width: 40px;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .mini {
+  float: left;
+  margin-right: 4px;
+  width: 40px;
+  text-align: center;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .red {
+  color: #f00;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .green {
+  color: #0f0;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .blue {
+  color: #00f;
+}
+.appContainer.ugcManager .ugcSettings .parameter .value .demo {
+  float: left;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+.appContainer.ugcManager .ugcSettings .parameter textarea {
+  width: 179px;
+  height: 45px;
+  float: left;
+  padding: 2px 4px;
+  font-size: 12px;
+  line-height: 13px;
+  border: 1px solid #ebebeb;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  resize: none;
+}
+.appContainer.ugcManager .ugcSettings .parameter textarea.tall {
+  height: 200px;
+}
+.appContainer.ugcManager .ugcSettings .settingsColumn {
+  float: left;
+  width: 190px;
+  margin: 20px 0 0 20px;
+}
+.appContainer.ugcManager .ugcSettings .settingsColumn .dropSetting {
+  margin: 10px 0;
+  float: none;
+  overflow: hidden;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting {
+  float: left;
+  width: 190px;
+  margin: 20px 0 0 20px;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .remove {
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .title {
+  font-size: 12px;
+  float: left;
+  margin-top: 20px;
+  margin-left: 10px;
+  width: 100px;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .dropArea {
+  width: 80px;
+  height: 80px;
+  float: left;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .dropArea:hover .remove {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .dropArea .itemPreview .name {
+  font-size: 10px;
+  line-height: 11px;
+  padding: 4px 2px;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .dropArea .value {
+  width: 100%;
+  height: 100%;
+}
+.appContainer.ugcManager .ugcSettings .dropSetting .dropArea .helper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: 1px solid #ebebeb;
+  font-size: 11px;
+  line-height: 15px;
+  text-align: center;
+  padding-top: 15px;
+}
+.appContainer.ugcManager .collectorItem {
+  overflow: hidden;
+  cursor: pointer;
+}
+.appContainer.ugcManager .collectorItem * {
+  cursor: pointer;
+}
+.appContainer.ugcManager .collectorItem.active {
+  background: #3870b1;
+  cursor: default;
+}
+.appContainer.ugcManager .collectorItem.active * {
+  cursor: default;
+}
+.appContainer.ugcManager .collectorItem.active .collectorInfo .title,
+.appContainer.ugcManager .collectorItem.active .collectorInfo .counters {
+  color: #fff;
+}
+.appContainer.ugcManager .collectorItem .communityPreview {
+  overflow: hidden;
+  border: 1px solid #f2f2f2;
+  float: left;
+  width: 58px;
+  height: 42px;
+  margin: 10px;
+}
+.appContainer.ugcManager .collectorItem .collectorInfo {
+  float: left;
+  width: 125px;
+  margin-top: 12px;
+}
+.appContainer.ugcManager .collectorItem .collectorInfo div {
+  height: 19px;
+  line-height: 19px;
+}
+.appContainer.ugcManager .collectorItem .collectorInfo .title {
+  font-size: 12px;
+  color: #555454;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.appContainer.ugcManager .collectorItem .collectorInfo .counters {
+  font-size: 10px;
+  color: #b3b3b3;
+  font-weight: bolder;
+}
+.appContainer.ugcManager .currentCollector .smallPreview {
+  float: left;
+  width: 30px;
+  height: 30px;
+  margin: 5px 10px;
+  overflow: hidden;
+}
+.appContainer.ugcManager .currentCollector .title {
+  padding-right: 200px;
+}
+.appContainer.ugcManager .currentCollector .filterBlock {
+  float: left;
+  width: 500px;
+  height: 30px;
+  margin: 4px 0;
+  padding: 0 10px;
+  border: 1px solid #efefef;
+  background: #fff;
+}
+.appContainer.ugcManager .currentCollector .filterBlock input {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+.appContainer.ugcManager .currentCollector .filterBlock input::-webkit-input-placeholder {
+  color: #999;
+}
+.appContainer.ugcManager .currentCollector .filterBlock input::-moz-input-placeholder {
+  color: #999;
+}
+.appContainer.ugcManager .ratingList .cell {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.appContainer.ugcManager .ratingList .cell.userPlace {
+  width: 50px;
+}
+.appContainer.ugcManager .ratingList .cell.userAvatar {
+  width: 60px;
+}
+.appContainer.ugcManager .ratingList .cell.userName {
+  width: 320px;
+}
+.appContainer.ugcManager .ratingList .cell.userRating {
+  width: 100px;
+}
+.appContainer.ugcManager .ratingList .cell.userProposed {
+  width: 65px;
+}
+.appContainer.ugcManager .ratingList .cell.userAccepted {
+  width: 65px;
+}
+.appContainer.ugcManager .ratingList .cell.userPublished {
+  width: 65px;
+}
+.appContainer.ugcManager .ratingList .cell.userRejected {
+  width: 65px;
+}
+.appContainer.ugcManager .ratingList .tableLine .cell {
+  line-height: 60px;
+}
+.appContainer.ugcManager .ratingList .tableLine .userPlace {
+  text-align: center;
+}
+.appContainer.ugcManager .ratingList .tableLine .userAvatar {
+  cursor: pointer;
+  padding: 0;
+}
+.appContainer.ugcManager .ratingList .tableLine .userAvatar .userPic {
+  border: 1px solid #f2f2f2;
+  cursor: pointer;
+  margin: 4px;
+}
+.appContainer.ugcManager .ratingList .tableLine .userName {
+  padding: 0 20px;
+}
+.appContainer.ugcManager .ratingList .tableLine .userRating {
+  text-align: center;
+}
+.appContainer.ugcManager .ratingList .tableLine .userProposed {
+  text-align: center;
+}
+.appContainer.ugcManager .ratingList .tableLine .userAccepted {
+  text-align: center;
+}
+.appContainer.ugcManager .ratingList .tableLine .userPublished {
+  text-align: center;
+}
+.appContainer.ugcManager .ratingList .tableLine .userRejected {
+  text-align: center;
+}
+.appContainer.ugcManager .proposedList {
+  background: #fff;
+}
+.appContainer.ugcManager .proposedList .tableLine {
+  height: 120px;
+}
+.appContainer.ugcManager .proposedList .tableLine .vk {
+  background: #466b91;
+  width: 10px;
+  height: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.appContainer.ugcManager .proposedList .tableLine .cell {
+  height: 120px;
+}
+.appContainer.ugcManager .proposedList .tableLine.ratingLine {
+  height: 60px;
+}
+.appContainer.ugcManager .proposedList .tableLine.ratingLine .cell {
+  height: 60px;
+}
+.appContainer.ugcManager .proposedList .tableLine.selected {
+  outline: none;
+  background: #3870b1;
+  color: #fff;
+}
+.appContainer.ugcManager .proposedList .tableLine.selected * {
+  color: #fff;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.ugcManager .proposedList .head .cell {
+  font-size: 10px;
+  text-align: center;
+}
+.appContainer.ugcManager .proposedList .cell.user {
+  width: 80px;
+  text-align: center;
+}
+.appContainer.ugcManager .proposedList .cell.text {
+  width: 280px;
+}
+.appContainer.ugcManager .proposedList .cell.attach {
+  width: 245px;
+}
+.appContainer.ugcManager .proposedList .cell.date {
+  width: 85px;
+  text-align: center;
+}
+.appContainer.ugcManager .proposedList .cell.actions {
+  width: 185px;
+}
+.appContainer.ugcManager .proposedList .proposedItem {
+  margin-bottom: 1px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .userPic {
+  margin: 10px 15px 5px;
+  width: 50px;
+  height: 50px;
+  -webkit-border-radius: 25px;
+  border-radius: 25px;
+  overflow: hidden;
+}
+.appContainer.ugcManager .proposedList .proposedItem .user {
+  padding: 0;
+}
+.appContainer.ugcManager .proposedList .proposedItem .user .userName {
+  text-align: center;
+  font-size: 11px;
+  line-height: 12px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .text {
+  padding: 20px 10px;
+  font-size: 11px;
+  line-height: 12px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .text div {
+  white-space: pre-wrap;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach {
+  padding: 11px 0;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach .attachment {
+  width: 45px;
+  height: 45px;
+  margin: 2px;
+  float: left;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach .attachment .removeCross {
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach .attachment:hover .removeCross {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_1 {
+  padding: 2;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_1 .attachment {
+  width: 237px;
+  height: 112px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_2 {
+  padding: 0 2px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_2 .attachment {
+  width: 116px;
+  height: 116px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_3 {
+  padding: 19px 0;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_3 .attachment {
+  width: 77px;
+  height: 77px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_4 {
+  padding: 29px 0;
+}
+.appContainer.ugcManager .proposedList .proposedItem .attach.attachCount_4 .attachment {
+  width: 57px;
+  height: 57px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .date {
+  text-align: center;
+  font-size: 10px;
+  line-height: 30px;
+  padding: 0;
+}
+.appContainer.ugcManager .proposedList .proposedItem .date.doubleLines {
+  line-height: 60px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions {
+  padding: 2px 2px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode {
+  overflow: hidden;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode.mediaplanner .timeBox {
+  padding-top: 6px;
+  padding-left: 6px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .buttons {
+  overflow: hidden;
+  margin-top: 25px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .buttons.single {
+  margin-top: 15px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .buttons.single .action {
+  height: 20px;
+  margin-left: 60px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .bottom {
+  text-align: center;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .bottom .textAction {
+  font-size: 12px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .bottom .action {
+  float: none;
+  font-size: 12px;
+  height: 20px;
+  line-height: 20px;
+  display: inline-block;
+  margin: 0 10px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeScroller {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeScroller .scrollerButton.right {
+  right: 55px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeScroller .scrollerButton.right.doubleArrow {
+  right: 20px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeScroller .scrollerButton.left {
+  left: 55px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeScroller .scrollerButton.left.doubleArrow {
+  left: 20px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock {
+  margin-top: 20px;
+  margin-left: 12px;
+  overflow: hidden;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock .timeBox {
+  float: left;
+  width: 130px;
+  color: #434242;
+  font-size: 46px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock .timeBox input,
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock .timeBox span {
+  color: #434242;
+  font-size: 46px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock .timeBox input {
+  width: 50px;
+  height: 50px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock .dateBox {
+  margin-top: 10px;
+  float: left;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .mode .timeBlock .dateBox .dateLine {
+  font-size: 12px;
+  line-height: 12px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .action {
+  float: left;
+  margin: 0 4px;
+  width: 50px;
+  height: 40px;
+  font-size: 10px;
+  line-height: 11px;
+  text-align: center;
+  border: 1px solid #e6e6e6;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: table;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .action p {
+  display: table-cell;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .action:hover,
+.appContainer.ugcManager .proposedList .proposedItem .actions .action.blueButton {
+  background: #3870b1;
+  color: #fff;
+}
+.appContainer.ugcManager .proposedList .proposedItem .actions .action.toRight {
+  width: 80px;
+}
+.appContainer.ugcManager .proposedList .proposedItem .fader {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%, #fff 70%);
+  background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, #fff 70%);
+  background: -o-linear-gradient(top, rgba(255,255,255,0) 0%, #fff 70%);
+  background: -ms-linear-gradient(top, rgba(255,255,255,0) 0%, #fff 70%);
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 70%);
+}
+.appContainer.ugcManager .proposedList .proposedItem:nth-child(2n) .fader {
+  background: -webkit-linear-gradient(top, rgba(249,249,249,0) 0%, #f9f9f9 70%);
+  background: -moz-linear-gradient(top, rgba(249,249,249,0) 0%, #f9f9f9 70%);
+  background: -o-linear-gradient(top, rgba(249,249,249,0) 0%, #f9f9f9 70%);
+  background: -ms-linear-gradient(top, rgba(249,249,249,0) 0%, #f9f9f9 70%);
+  background: linear-gradient(to bottom, rgba(249,249,249,0) 0%, #f9f9f9 70%);
+}
+.appContainer.ugcManager .proposedList .proposedItem.selected .text .fader {
+  background: -webkit-linear-gradient(top, rgba(56,112,177,0) 0%, #3870b1 70%);
+  background: -moz-linear-gradient(top, rgba(56,112,177,0) 0%, #3870b1 70%);
+  background: -o-linear-gradient(top, rgba(56,112,177,0) 0%, #3870b1 70%);
+  background: -ms-linear-gradient(top, rgba(56,112,177,0) 0%, #3870b1 70%);
+  background: linear-gradient(to bottom, rgba(56,112,177,0) 0%, #3870b1 70%);
+}
+.appContainer.ugcManager .proposedList .proposedItem.selected .action:hover {
+  background: #fff !important;
+  color: #3870b1 !important;
+}
+.appContainer.ugcManager .proposedList .proposedItem.selected .action:hover p {
+  color: #3870b1 !important;
+}
+.appContainer.ugcManager .proposedList .proposedItem.selected .timePicker input,
+.appContainer.ugcManager .proposedList .proposedItem.selected .timePicker span {
+  color: #fff !important;
+}
+.appContainer.ugcManager .proposedList .proposedItem.selected .timeBox {
+  color: #fff !important;
+}
+body > .proposedItem {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #dfdfdf;
+  pointer-events: none;
+}
+body > .proposedItem .cell.user {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  z-index: 10;
+}
+body > .proposedItem .userPic {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
+  border: 1px solid #dfdfdf;
+}
+body > .proposedItem .userName,
+body > .proposedItem .cell.date,
+body > .proposedItem .cell.actions {
+  display: none;
+}
+body > .proposedItem .text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 5px;
+  font-size: 10px;
+}
+body > .proposedItem .attach {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: #fff;
+}
+body > .proposedItem .attach .attachment {
+  width: 15px;
+  height: 15px;
+  overflow: hidden;
+  float: left;
+  margin: 2px;
+}

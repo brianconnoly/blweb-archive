@@ -1,0 +1,290 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.factory('stateManager', function($rootScope, multiselect, $injector) {
+  var applyState, appsService, callAction, callEscape, clearTree, combEdit, createTextLock, currentState, currentTree, defaultState, faderClick, flushState, folderView, getContext, goBack, goRoot, goState, handler, holdKeys, putOnTop, registerState, resetState, root, setDefaultState, setState, setTree, stack, states;
+  states = {};
+  currentState = null;
+  currentTree = null;
+  stack = [];
+  root = null;
+  createTextLock = false;
+  handler = null;
+  folderView = null;
+  combEdit = null;
+  appsService = null;
+  $rootScope.keymodes = {
+    shift: false,
+    alt: false,
+    cmd: false
+  };
+  callAction = function(key, modifier, repeat, e) {
+    var base, base1, k, ref, ref1, ref2, result, v;
+    if ((states[root] == null) && (currentState == null) && (currentTree == null)) {
+      return false;
+    }
+    key = key;
+    for (k in modifier) {
+      v = modifier[k];
+      if (v) {
+        key += ' ' + k;
+      }
+    }
+    if ((currentTree != null ? (ref = currentTree.activeState) != null ? ref[key] : void 0 : void 0) != null) {
+      if (currentTree.activeState[key] === 'default') {
+        return false;
+      }
+      result = typeof (base = currentTree.activeState)[key] === "function" ? base[key](repeat, (ref1 = states[root]) != null ? ref1[key] : void 0, e) : void 0;
+      return result !== false;
+    } else if ((currentState != null ? currentState[key] : void 0) != null) {
+      if (currentState[key] === 'default') {
+        return false;
+      }
+      if (typeof currentState[key] === "function") {
+        currentState[key](repeat);
+      }
+      return true;
+    } else if (((ref2 = states[root]) != null ? ref2[key] : void 0) != null) {
+      if (typeof (base1 = states[root])[key] === "function") {
+        base1[key](repeat);
+      }
+      return true;
+    } else if ((typeof defaultState !== "undefined" && defaultState !== null ? defaultState[key] : void 0) != null) {
+      if (typeof defaultState[key] === "function") {
+        defaultState[key](repeat);
+      }
+      return true;
+    }
+    return false;
+  };
+  holdKeys = {};
+  $(document).on('keydown', function(e) {
+    var contenteditable, forceDefault, mod, name, prevent, textWriting;
+    mod = {
+      shift: e.shiftKey,
+      alt: e.altKey,
+      cmd: isCmd(e)
+    };
+    $rootScope.keymodes = mod;
+    prevent = false;
+    name = $(e.target).prop("tagName");
+    textWriting = name === 'TEXTAREA' || name === 'INPUT';
+    contenteditable = $(e.target).attr('contenteditable') || false;
+    forceDefault = $(e.target).attr('forcedefault') || false;
+    if (e.keyCode === 13 && !forceDefault) {
+      prevent = callAction('enter', mod, null, e);
+    }
+    if (e.keyCode === 32 && !textWriting && !contenteditable) {
+      prevent = callAction('space', mod);
+      if (!prevent) {
+        prevent = callAction('enter', mod);
+      }
+    }
+    if (e.keyCode === 27) {
+      prevent = callAction('escape', mod);
+    }
+    if ((e.keyCode === 8 || e.keyCode === 46) && !textWriting && !contenteditable) {
+      prevent = callAction('delete', mod);
+      prevent = true;
+    }
+    if (e.keyCode === 68 && !textWriting && !contenteditable) {
+      prevent = callAction('D', mod);
+    }
+    if (e.keyCode === 65 && !textWriting && !contenteditable) {
+      prevent = callAction('A', mod);
+    }
+    if (e.keyCode === 37 && !textWriting && !contenteditable) {
+      prevent = callAction('left', mod, holdKeys['left']);
+      holdKeys['left'] = true;
+    }
+    if (e.keyCode === 39 && !textWriting && !contenteditable) {
+      prevent = callAction('right', mod, holdKeys['right']);
+      holdKeys['right'] = true;
+    }
+    if (e.keyCode === 38 && !textWriting && !contenteditable) {
+      prevent = callAction('up', mod);
+    }
+    if (e.keyCode === 40 && !textWriting && !contenteditable) {
+      prevent = callAction('down', mod);
+    }
+    if (e.keyCode === 73) {
+      prevent = callAction('I', mod);
+    }
+    if (e.keyCode === 78) {
+      prevent = callAction('N', mod);
+    }
+    if (e.keyCode === 85) {
+      prevent = callAction('U', mod);
+    }
+    if (e.keyCode === 67) {
+      prevent = callAction('C', mod);
+    }
+    if (e.keyCode === 86 && !textWriting && !contenteditable) {
+      prevent = callAction('V', mod);
+    }
+    if (e.keyCode === 49 || e.keyCode === 50 || e.keyCode === 51) {
+      prevent = callAction(e.keyCode, mod);
+    }
+    if (e.keyCode === 70) {
+      prevent = callAction('F', mod);
+    }
+    if ((e.keyCode === 192 || e.keyCode === 221) && !textWriting && !contenteditable) {
+      prevent = callAction('Tilda', mod);
+    }
+    if (prevent) {
+      e.preventDefault();
+      e.stopPropagation();
+      $rootScope.$apply();
+      return false;
+    }
+  });
+  $(document).on('keyup', function(e) {
+    var contenteditable, mod, name, prevent, textWriting;
+    mod = {
+      shift: e.shiftKey,
+      alt: e.altKey,
+      cmd: isCmd(e),
+      up: true
+    };
+    $rootScope.keymodes = mod;
+    prevent = false;
+    name = $(e.target).prop("tagName");
+    textWriting = name === 'TEXTAREA' || name === 'INPUT';
+    contenteditable = $(e.target).attr('contenteditable') || false;
+    if (e.keyCode === 37 && !textWriting && !contenteditable) {
+      holdKeys['left'] = false;
+      prevent = callAction('left', mod);
+    }
+    if (e.keyCode === 39 && !textWriting && !contenteditable) {
+      holdKeys['right'] = false;
+      prevent = callAction('right', mod);
+    }
+    if (e.keyCode === 38 && !textWriting && !contenteditable) {
+      prevent = callAction('up', mod);
+    }
+    if (e.keyCode === 40 && !textWriting && !contenteditable) {
+      prevent = callAction('down', mod);
+    }
+    if (prevent) {
+      e.preventDefault();
+      e.stopPropagation();
+      return $rootScope.$apply();
+    }
+  });
+  callEscape = function() {
+    return callAction('escape');
+  };
+  registerState = function(name, state) {
+    states[name] = state;
+    return true;
+  };
+  putOnTop = function(state) {
+    if (state === currentState) {
+      return;
+    }
+    if (indexOf.call(stack, state) >= 0) {
+      removeElementFromArray(state, stack);
+      stack.push(currentState);
+      return currentState = state;
+    }
+  };
+  applyState = function(state) {
+    var k, prop;
+    if (state === currentState) {
+      return;
+    }
+    if ((currentState != null ? currentState.name : void 0) === 'notificationState') {
+      faderClick();
+    }
+    if (currentState != null) {
+      if (state.child === true) {
+        for (k in currentState) {
+          prop = currentState[k];
+          if (state[k] == null) {
+            state[k] = prop;
+          }
+        }
+      }
+      stack.push(currentState);
+    }
+    return currentState = state;
+  };
+  setState = function(state) {
+    if (state === currentState) {
+      return;
+    }
+    stack.length = 0;
+    currentState = state;
+    return stack.push(currentState);
+  };
+  flushState = function() {
+    stack.length = 0;
+    return currentState = null;
+  };
+  getContext = function() {
+    return currentState != null ? currentState.context : void 0;
+  };
+  goState = function(name) {
+    root = name;
+    stack.length = 0;
+    currentState = null;
+    return resetState();
+  };
+  goRoot = function() {
+    if (root != null) {
+      return goState(root);
+    }
+  };
+  goBack = function(noDeselect) {
+    if (currentState != null) {
+      currentState = stack.pop();
+    } else if (currentTree != null) {
+      currentTree.goBack();
+    }
+    return resetState(noDeselect);
+  };
+  faderClick = function() {
+    if (currentState['fader'] != null) {
+      currentState['fader']();
+      return true;
+    } else {
+      return callAction('escape', {});
+    }
+  };
+  resetState = function(noDeselect) {
+    if (noDeselect == null) {
+      $('.selected.selectableItem', $('.workarea')).removeClass('selected');
+      multiselect.flush();
+    }
+    return $('.starcraft', $('body')).remove();
+  };
+  defaultState = {};
+  setDefaultState = function(state) {
+    return defaultState = state;
+  };
+  setTree = function(tree) {
+    return currentTree = tree;
+  };
+  clearTree = function() {
+    return currentTree = null;
+  };
+  return {
+    setDefaultState: setDefaultState,
+    registerState: registerState,
+    applyState: applyState,
+    getCurrentState: function() {
+      return currentState;
+    },
+    callEscape: callEscape,
+    callAction: callAction,
+    faderClick: faderClick,
+    putOnTop: putOnTop,
+    goState: goState,
+    goBack: goBack,
+    goRoot: goRoot,
+    getContext: getContext,
+    setTree: setTree,
+    clearTree: clearTree,
+    setState: setState,
+    flushState: flushState
+  };
+});

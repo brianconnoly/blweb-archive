@@ -1,0 +1,1765 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('postService', function(novaWizard, novaDesktop, notificationCenter, confirmBox, taskService, desktopService, groupService, actionsService, account, ruleService, lotService, $injector, tableImport, inspectorService, smartDate, multiselect, itemService, rpc, buffer, contextMenu, scheduleService, contentService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    var requestService;
+
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'post';
+
+    requestService = null;
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byUgcId = {};
+      this.byCombId = {};
+    }
+
+    classEntity.prototype.initDeps = function() {
+      return requestService = $injector.get('requestService');
+    };
+
+    classEntity.prototype.getByCombId = function(combId, cb) {
+      if (this.byCombId[combId] == null) {
+        this.byCombId[combId] = [];
+        this.query({
+          combId: combId
+        }, function(result) {
+          return typeof cb === "function" ? cb(this.byCombId[combId]) : void 0;
+        });
+      } else {
+        if (typeof cb === "function") {
+          cb(this.byCombId[combId]);
+        }
+      }
+      return this.byCombId[combId];
+    };
+
+    classEntity.prototype.getByUgcId = function(ugcId, cb) {
+      if (this.byUgcId[ugcId] == null) {
+        this.byUgcId[ugcId] = [];
+        this.query({
+          proposedTo: ugcId
+        }, function(result) {
+          return typeof cb === "function" ? cb(this.byUgcId[ugcId]) : void 0;
+        });
+      } else {
+        if (typeof cb === "function") {
+          cb(this.byUgcId[ugcId]);
+        }
+      }
+      return this.byUgcId[ugcId];
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var item;
+      item = this.storage[id];
+      if ((item != null ? item.proposedTo : void 0) != null) {
+        removeElementFromArray(item, this.byUgcId[item.proposedTo]);
+      }
+      if ((item != null ? item.combId : void 0) != null) {
+        removeElementFromArray(item, this.byCombId[item.combId]);
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var stored;
+      stored = this.storage[item.id];
+      if ((stored != null ? stored.blank : void 0) !== true && item.needWork === 'ready' && stored.needWork !== 'ready') {
+        notificationCenter.addMessage({
+          text: 'post_now_ready_to_be_sent',
+          item: stored
+        });
+      }
+      stored = classEntity.__super__.handleItem.call(this, item);
+      if ((stored.proposedTo != null) && (this.byUgcId[stored.proposedTo] != null)) {
+        if (this.byUgcId[stored.proposedTo].indexOf(stored) === -1) {
+          this.byUgcId[stored.proposedTo].push(stored);
+        }
+      }
+      if (this.byCombId[stored.combId] != null) {
+        if (this.byCombId[stored.combId].indexOf(stored) === -1) {
+          return this.byCombId[stored.combId].push(stored);
+        }
+      }
+    };
+
+    classEntity.prototype.fetchMy = function(cb) {
+      return this.query({
+        scheduled: false,
+        limit: 100
+      }, function(items) {
+        return typeof cb === "function" ? cb(items) : void 0;
+      });
+    };
+
+    classEntity.prototype.unscheduleById = function(postId, cb) {
+      return rpc.call(this.itemType + '.unschedule', postId, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.init = function() {
+      var setPostNeedWork;
+      classEntity.__super__.init.call(this);
+      novaWizard.register('post', {
+        type: 'simple',
+        action: (function(_this) {
+          return function(data) {
+            return novaDesktop.launchApp({
+              app: 'novaPostCreateApp',
+              data: data
+            });
+          };
+        })(this)
+      });
+      actionsService.registerParser('post', function(item) {
+        if (item.scheduled) {
+          return ['scheduledPost'];
+        } else {
+          return ['notScheduledPost'];
+        }
+      });
+      actionsService.registerParser('timeline', function(item) {
+        return [item.socialNetwork + 'Timeline'];
+      });
+      actionsService.registerParser('schedule', function(item) {
+        return [item.scheduleType + 'Schedule'];
+      });
+      setPostNeedWork = (function(_this) {
+        return function(postId, status) {
+          return confirmBox.init({
+            phrase: 'confirmBox_set_post_needWork_' + status,
+            description: 'confirmBox_set_post_needWork_' + status + '_description'
+          }, function() {
+            return _this.call('setNeedWork', {
+              postId: postId,
+              needWork: status
+            });
+          });
+        };
+      })(this);
+      actionsService.registerAction({
+        sourceType: 'post',
+        phrase: 'set_needWork_inprogress',
+        check2: function(data) {
+          var i, item, len, ref;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if (item.needWork !== 'inprogress') {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(setPostNeedWork(item.id, 'inprogress'));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        phrase: 'set_needWork_ready',
+        check2: function(data) {
+          var i, item, len, ref;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if ((item.needWork != null) && item.needWork !== 'ready') {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(setPostNeedWork(item.id, 'ready'));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'postSchedule',
+        phrase: 'set_needWork_inprogress',
+        check2: (function(_this) {
+          return function(data) {
+            var i, item, len, post, ref;
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              post = _this.getById(item.postId);
+              if (post.needWork !== 'inprogress') {
+                return true;
+              }
+            }
+            return false;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(setPostNeedWork(item.postId, 'inprogress'));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'postSchedule',
+        phrase: 'set_needWork_ready',
+        check2: (function(_this) {
+          return function(data) {
+            var i, item, len, post, ref;
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              post = _this.getById(item.postId);
+              if ((post.needWork != null) && post.needWork !== 'ready') {
+                return true;
+              }
+            }
+            return false;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(setPostNeedWork(item.postId, 'ready'));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        phrase: 'send_now',
+        action: function(data) {
+          var i, id, len, ref, results;
+          console.log(data);
+          ref = data.ids;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            id = ref[i];
+            results.push(scheduleService.sendNow(id));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 1,
+        phrase: 'view_send_log',
+        check2: function(data) {
+          var ref;
+          if (window.event.altKey === true) {
+            return true;
+          }
+          if (((ref = account.user.roles) != null ? ref.Morpheus : void 0) === true) {
+            return true;
+          }
+        },
+        action: function(data) {
+          return desktopService.launchApp('sendLogViewer', {
+            scheduleId: data.item.id
+          });
+        }
+      });
+      actionsService.registerAction({
+        targetType: 'image',
+        sourceNumber: 1,
+        contextType: 'post',
+        sourceType: 'text',
+        only: 'dragndrop',
+        phrase: 'add_image_description',
+        action: (function(_this) {
+          return function(data) {
+            data.context.picComments[data.target.id] = data.item.id;
+            return _this.save({
+              id: data.context.id,
+              picComments: data.context.picComments
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        category: "C",
+        targetType: "task",
+        sourceType: "content/post/comb",
+        phrase: "task_bind_content",
+        check2: function(data) {
+          var hasNew, i, item, j, len, len1, ref, ref1, src;
+          if (data.target.entities.length === 0) {
+            return true;
+          }
+          hasNew = false;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            src = ref[i];
+            ref1 = data.target.entities;
+            for (j = 0, len1 = ref1.length; j < len1; j++) {
+              item = ref1[j];
+              if (src.id !== item.id) {
+                hasNew = true;
+                break;
+              }
+            }
+          }
+          return hasNew;
+        },
+        action: function(data) {
+          var ent, entities, found, i, item, j, l, len, len1, len2, ref, ref1, results;
+          entities = [];
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            entities.push({
+              type: item.type,
+              id: item.id
+            });
+          }
+          if (data.target.id != null) {
+            return taskService.call('addEntity', {
+              taskId: data.target.id,
+              entities: entities
+            }, function() {
+              return true;
+            });
+          } else {
+            results = [];
+            for (j = 0, len1 = entities.length; j < len1; j++) {
+              item = entities[j];
+              found = false;
+              ref1 = data.target.entities;
+              for (l = 0, len2 = ref1.length; l < len2; l++) {
+                ent = ref1[l];
+                if (ent.id === item.id) {
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                results.push(data.target.entities.push(item));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          }
+        }
+      });
+      actionsService.registerAction({
+        category: "C",
+        contextType: "task",
+        sourceType: "content/post/comb",
+        phrase: "task_unbind_content",
+        action: function(data) {
+          return taskService.call('removeEntity', {
+            taskId: data.target.id,
+            entityIds: data.ids
+          }, function() {
+            return true;
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'placeholder',
+        sourceNumber: 1,
+        targetType: 'timeline',
+        phrase: 'move_placeholder',
+        action: (function(_this) {
+          return function(data) {
+            var item, newItem;
+            item = data.items[0];
+            if (item.rule.type === 'single') {
+              item.rule.timestampStart = smartDate.getShiftTimeline(data.target.timestamp);
+              item.rule.timestampEnd = smartDate.getShiftTimeline(data.target.timestamp) + DAY;
+              item.rule.groupId = data.target.groupId;
+              item.rule.communityId = data.target.communityId;
+              return ruleService.save(item.rule);
+            } else {
+              newItem = {
+                type: 'rule',
+                ruleType: 'single',
+                timestampStart: smartDate.getShiftTimeline(data.target.timestamp),
+                timestampEnd: smartDate.getShiftTimeline(data.target.timestamp) + DAY,
+                ad: item.rule.ad,
+                interval: item.rule.interval,
+                dayMask: item.rule.dayMask,
+                groupId: data.target.groupId,
+                communityId: data.target.communityId
+              };
+              ruleService.create(newItem, function(item) {
+                return true;
+              });
+              return ruleService.removePlaceholders([item]);
+            }
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'placeholder',
+        sourceNumber: 1,
+        targetType: 'timeline',
+        phrase: 'copy_placeholder',
+        action: (function(_this) {
+          return function(data) {
+            var item, newItem;
+            item = data.items[0];
+            newItem = {
+              type: 'rule',
+              ruleType: 'single',
+              timestampStart: smartDate.getShiftTimeline(data.target.timestamp),
+              timestampEnd: smartDate.getShiftTimeline(data.target.timestamp) + DAY,
+              ad: item.rule.ad,
+              interval: item.rule.interval,
+              dayMask: item.rule.dayMask,
+              groupId: data.target.groupId,
+              communityId: data.target.communityId
+            };
+            return ruleService.create(newItem, function(item) {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        sourceNumber: 1,
+        targetType: 'timeline/placeholder',
+        phrase: 'plan_from_comb',
+        priority: 70,
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('postPicker', {
+              communityId: data.target.communityId,
+              timestamp: smartDate.getShiftTimeline(data.target.timestamp),
+              socialNetwork: data.target.socialNetwork,
+              combId: data.item.id,
+              placeholder: false,
+              groupId: data.target.groupId
+            }, data.e);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'repostLot',
+        sourceNumber: 1,
+        targetType: 'timeline/placeholder',
+        phrase: 'create_repost_request',
+        priority: 400,
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('requestMaster', {
+              lotId: data.item.id,
+              timestamp: smartDate.getShiftTimeline(data.target.timestamp),
+              communityId: data.target.communityId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'placeholder/timeline',
+        phrase: 'create_and_schedule_post',
+        priority: 71,
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.create({
+              scheduleType: 'post',
+              timestamp: data.target.timestamp,
+              items: data.ids,
+              communityId: data.target.communityId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'fill_mediaplan...',
+        priority: 78,
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('optionsList', {
+              message: {
+                phrase: 'posting_through_rule_or_time',
+                description: 'posting_through_rule_or_time_description'
+              },
+              options: [
+                {
+                  text: 'posting_through_time',
+                  action: function() {
+                    ruleService.fill({
+                      communityId: data.target.communityId,
+                      groupId: data.target.groupId,
+                      timestamp: data.target.timestamp,
+                      items: data.ids
+                    });
+                    return true;
+                  }
+                }, {
+                  text: 'posting_through_rule',
+                  action: function() {
+                    ruleService.fill({
+                      communityId: data.target.communityId,
+                      groupId: data.target.groupId,
+                      timestamp: data.target.timestamp,
+                      items: data.ids
+                    });
+                    return true;
+                  }
+                }
+              ]
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'fill_group_mediaplan...',
+        priority: 79,
+        check: function(ids, items, target) {
+          var group, ref;
+          group = groupService.getById(target.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('optionsList', {
+              message: {
+                phrase: 'posting_through_rule_or_time',
+                description: 'posting_through_rule_or_time_description'
+              },
+              options: [
+                {
+                  text: 'posting_through_time',
+                  action: function() {
+                    ruleService.fill({
+                      groupId: data.target.groupId,
+                      timestamp: data.target.timestamp,
+                      items: data.ids,
+                      wholeGroup: data.target.groupId
+                    });
+                    return true;
+                  }
+                }, {
+                  text: 'posting_through_rule',
+                  action: function() {
+                    ruleService.fill({
+                      ruleId: data.target.rule.id,
+                      timestamp: data.target.timestamp,
+                      items: data.ids,
+                      wholeGroup: data.target.groupId
+                    });
+                    return true;
+                  }
+                }
+              ]
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'placeholder/timeline',
+        phrase: 'create_whole_group',
+        priority: 80,
+        check: function(ids, items, target) {
+          var group, ref;
+          group = groupService.getById(target.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.create({
+              scheduleType: 'post',
+              timestamp: data.target.timestamp,
+              items: data.ids,
+              groupId: data.target.groupId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'notScheduledPost',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'plan_here',
+        priority: 43,
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.create({
+              scheduleType: 'post',
+              timestamp: data.target.timestamp,
+              postId: data.items[0].id,
+              communityId: data.target.communityId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'notScheduledPost',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'clone_whole_group',
+        priority: 47,
+        check: function(ids, items, target) {
+          var group, ref;
+          group = groupService.getById(target.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.clonePost({
+              postId: data.items[0].id,
+              groupId: data.target.groupId,
+              timestamp: data.target.timestamp
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'scheduledPost',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'create_repost',
+        priority: 72,
+        check: function(ids, items, target) {
+          var sched;
+          sched = scheduleService.getOriginalByPostId(items[0].id);
+          return sched.communityId !== target.communityId;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.repost({
+              postId: data.items[0].id,
+              communityId: data.target.communityId,
+              timestamp: data.target.timestamp
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'scheduledPost',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'move_schedule',
+        priority: 102,
+        action: (function(_this) {
+          return function(data) {
+            var sched;
+            sched = scheduleService.getOriginalByPostId(data.item.id);
+            return scheduleService.save({
+              id: sched.id,
+              communityId: data.target.communityId,
+              timestamp: data.target.timestamp
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'notScheduledPost',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'fill_mediaplan_time',
+        priority: 121,
+        action: (function(_this) {
+          return function(data) {
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              groupId: data.target.groupId,
+              timestamp: data.target.timestamp,
+              postIds: data.ids
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'notScheduledPost',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'fill_mediaplan_rule',
+        priority: 120,
+        action: (function(_this) {
+          return function(data) {
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              ruleId: data.target.rule.id,
+              timestamp: data.target.timestamp,
+              postIds: data.ids
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'move_schedule',
+        priority: 102,
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.save({
+              id: data.items[0].id,
+              timestamp: data.target.timestamp,
+              communityId: data.target.communityId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'create_repost',
+        priority: 72,
+        check: function(ids, items, target) {
+          return items[0].communityId !== target.communityId;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return scheduleService.repost({
+              postId: data.items[0].postId,
+              timestamp: data.target.timestamp,
+              communityId: data.target.communityId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 1,
+        targetType: 'placeholder/timeline',
+        phrase: 'create_repost_whole_group',
+        priority: 73,
+        check: function(ids, items, target) {
+          var group, ref;
+          if (items[0].communityId === target.communityId) {
+            return false;
+          }
+          group = groupService.getById(target.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var feed, group, i, len, ref, results;
+            group = groupService.getById(data.target.groupId);
+            ref = group.feeds;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              feed = ref[i];
+              results.push(scheduleService.repost({
+                postId: data.items[0].postId,
+                timestamp: data.target.timestamp,
+                communityId: feed.communityId
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'move_schedules_mediaplan_time',
+        priority: 103,
+        action: (function(_this) {
+          return function(data) {
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              groupId: data.target.groupId,
+              timestamp: data.target.timestamp,
+              schedIds: data.ids
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'move_schedules_mediaplan_rule',
+        priority: '104',
+        action: (function(_this) {
+          return function(data) {
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              ruleId: data.target.rule.id,
+              timestamp: data.target.timestamp,
+              schedIds: data.ids
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'repost_mediaplan_time',
+        priority: 74,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, postIds, ref;
+            postIds = [];
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              postIds.push(item.postId);
+            }
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              groupId: data.target.groupId,
+              timestamp: data.target.timestamp,
+              postIds: postIds,
+              repost: true
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'repost_mediaplan_rule',
+        priority: 75,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, postIds, ref;
+            postIds = [];
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              postIds.push(item.postId);
+            }
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              ruleId: data.target.rule.id,
+              timestamp: data.target.timestamp,
+              postIds: postIds,
+              repost: true
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'repost_mediaplan_time_whole_group',
+        priority: 76,
+        check: function(ids, items, target) {
+          var group, ref;
+          group = groupService.getById(target.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, postIds, ref;
+            postIds = [];
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              postIds.push(item.postId);
+            }
+            return ruleService.fill({
+              groupId: data.target.groupId,
+              timestamp: data.target.timestamp,
+              postIds: postIds,
+              repost: true,
+              wholeGroup: groupId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 'many',
+        targetType: 'placeholder',
+        phrase: 'repost_mediaplan_rule_whole_group',
+        priority: 77,
+        check: function(ids, items, target) {
+          var group, ref;
+          group = groupService.getById(target.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, postIds, ref;
+            postIds = [];
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              postIds.push(item.postId);
+            }
+            return ruleService.fill({
+              ruleId: data.target.rule.id,
+              timestamp: data.target.timestamp,
+              postIds: postIds,
+              repost: true,
+              wholeGroup: groupId
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        sourceNumber: 1,
+        targetType: 'placeholder',
+        phrase: 'comb_fill_mediaplan_time',
+        priority: 122,
+        action: (function(_this) {
+          return function(data) {
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              groupId: data.target.groupId,
+              timestamp: data.target.timestamp,
+              combId: data.items[0].id
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        sourceNumber: 1,
+        targetType: 'placeholder',
+        phrase: 'comb_fill_mediaplan_rule',
+        priority: 123,
+        action: (function(_this) {
+          return function(data) {
+            return ruleService.fill({
+              communityId: data.target.communityId,
+              ruleId: data.target.rule.id,
+              timestamp: data.target.timestamp,
+              combId: data.items[0].id
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        sourceNumber: 1,
+        targetType: 'schedule',
+        phrase: 'plan_instead',
+        priority: 100,
+        action: (function(_this) {
+          return function(data) {
+            var dragPost, firstPost, secondSched, toDeleteIds, toSched;
+            firstPost = _this.getById(data.target.postId);
+            dragPost = data.items[0];
+            toDeleteIds = [data.target.id];
+            toSched = [];
+            if (!data.e.altKey) {
+              buffer.removeItem(dragPost);
+            }
+            toSched.push({
+              type: 'schedule',
+              scheduleType: 'post',
+              postId: dragPost.id,
+              timestamp: data.target.timestamp,
+              communityId: data.target.communityId
+            });
+            if (dragPost.scheduled === true) {
+              secondSched = scheduleService.getOriginalByPostId(dragPost.id);
+              toDeleteIds.push(secondSched.id);
+              toSched.push({
+                type: 'schedule',
+                scheduleType: 'post',
+                postId: firstPost.id,
+                timestamp: secondSched.timestamp,
+                communityId: secondSched.communityId
+              });
+            }
+            scheduleService.deleteByIds(toDeleteIds, function(result) {
+              var i, len, sched;
+              for (i = 0, len = toSched.length; i < len; i++) {
+                sched = toSched[i];
+                scheduleService.create(sched);
+              }
+              if (toSched.length < 2) {
+                return buffer.addItems([firstPost]);
+              }
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 1,
+        targetType: 'schedule',
+        phrase: 'switch_places',
+        priority: 101,
+        action: (function(_this) {
+          return function(data) {
+            var firstPost, firstSched, secondPost, secondSched;
+            firstPost = _this.getById(data.target.postId);
+            secondPost = _this.getById(data.items[0].postId);
+            firstSched = {
+              type: 'schedule',
+              scheduleType: 'post',
+              postId: secondPost.id,
+              timestamp: data.target.timestamp,
+              communityId: data.target.communityId
+            };
+            secondSched = {
+              type: 'schedule',
+              scheduleType: 'post',
+              postId: firstPost.id,
+              timestamp: data.items[0].timestamp,
+              communityId: data.items[0].communityId
+            };
+            scheduleService.deleteByIds([data.target.id, data.items[0].id], function(result) {
+              scheduleService.create(firstSched);
+              return scheduleService.create(secondSched);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'schedule',
+        phrase: 'add_to_post',
+        priority: 140,
+        action: (function(_this) {
+          return function(data) {
+            var postItem;
+            postItem = _this.getById(data.target.postId);
+            return _this.addContentIds(postItem, data.ids);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        category: "C",
+        targetType: "post",
+        sourceType: "content",
+        phrase: "remove_from_post",
+        priority: "27",
+        restrict: "dragndrop",
+        check2: (function(_this) {
+          return function(data) {
+            return _this.hasContentIds(data.target, data.ids);
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            if (data.target.virtual) {
+              ref = data.items;
+              results = [];
+              for (i = 0, len = ref.length; i < len; i++) {
+                item = ref[i];
+                results.push(removeElementFromArray(item.id, data.target.contentIds[item.type]));
+              }
+              return results;
+            } else {
+              return _this.removeContentIds(data.target, data.ids);
+            }
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'post',
+        phrase: 'add_to_post',
+        restrict: 'contextMenu',
+        priority: 140,
+        check2: function(data) {
+          var arr, found, i, id, k, len, ref, ref1, ref2;
+          if (((ref = data.target) != null ? ref.contentIds : void 0) == null) {
+            return false;
+          }
+          ref1 = data.ids;
+          for (i = 0, len = ref1.length; i < len; i++) {
+            id = ref1[i];
+            found = false;
+            ref2 = data.target.contentIds;
+            for (k in ref2) {
+              arr = ref2[k];
+              if (indexOf.call(arr, id) >= 0) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              break;
+            }
+          }
+          return !found;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, ref1, results;
+            if (data.target.virtual) {
+              ref = data.items;
+              results = [];
+              for (i = 0, len = ref.length; i < len; i++) {
+                item = ref[i];
+                if (ref1 = item.id, indexOf.call(data.target.contentIds[item.type], ref1) < 0) {
+                  results.push(data.target.contentIds[item.type].push(item.id));
+                } else {
+                  results.push(void 0);
+                }
+              }
+              return results;
+            } else {
+              return _this.addContentIds(data.target, data.ids);
+            }
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        phrase: 'new_text',
+        priority: 66,
+        action: (function(_this) {
+          return function(data) {
+            return contentService.create({
+              type: 'text',
+              value: ""
+            }, function(textItem) {
+              var i, item, len, ref;
+              ref = data.items;
+              for (i = 0, len = ref.length; i < len; i++) {
+                item = ref[i];
+                _this.addContentIds(item, [textItem.id]);
+              }
+              return desktopService.launchApp('textEditor', {
+                textId: textItem.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        phrase: 'new_post',
+        priority: 88,
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({}, function(newPost) {
+              return buffer.addItems([newPost]);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        phrase: 'unpublish_from_market',
+        leaveItems: true,
+        priority: 30,
+        check: function(ids, items, context) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (item.onSale === true && item.userId === account.user.id) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return lotService.query({
+              postId: {
+                '$in': data.ids
+              }
+            }, function(items, total) {
+              var i, item, len;
+              for (i = 0, len = items.length; i < len; i++) {
+                item = items[i];
+                lotService.unpublish(item.id);
+              }
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'lot',
+        phrase: 'unpublish_from_market',
+        priority: 30,
+        leaveItems: true,
+        check: function(ids, items, context) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (item.userId === account.user.id && item.published === true) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, id, len, ref;
+            ref = data.ids;
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              lotService.unpublish(id);
+            }
+            return true;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        phrase: 'add_to_market',
+        leaveItems: true,
+        priority: 42,
+        check: function(ids, items, context) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (item.userId === account.user.id && item.scheduled === true && item.onSale !== true) {
+              return true;
+            }
+            false;
+          }
+        },
+        action: (function(_this) {
+          return function(data) {
+            var first, i, item, len, ref;
+            first = true;
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              if (item.onSale !== true) {
+                scheduleService.getOriginalByPostId(item.id, function(schedule) {
+                  var lot;
+                  if (schedule.userId !== account.user.id) {
+                    return;
+                  }
+                  lot = {
+                    type: 'lot',
+                    price: 0,
+                    minSubscribers: 1,
+                    lotType: 'repost',
+                    postId: schedule.postId,
+                    scheduleId: schedule.id
+                  };
+                  return lotService.create(lot, function(newLot) {
+                    if (first === true) {
+                      first = false;
+                      return desktopService.launchApp('lotManager', {
+                        lotId: newLot.id
+                      });
+                    }
+                  });
+                });
+              }
+            }
+            return true;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        phrase: 'unschedule',
+        priority: 29,
+        check: function(ids, items, context) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (item.scheduled === true) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, id, len, ref, results;
+            ref = data.ids;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              results.push(_this.unscheduleById(id));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        phrase: 'unchedule',
+        priority: 29,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, postIds, ref, ref1;
+            postIds = [];
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              if (ref1 = item.postId, indexOf.call(postIds, ref1) < 0) {
+                postIds.push(item.postId);
+                _this.unscheduleById(item.postId);
+              }
+            }
+            return true;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'scheduledPost',
+        phrase: 'remove_reposts',
+        priority: 28,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(scheduleService.removeReposts(item.id));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'postSchedule',
+        phrase: 'remove_reposts',
+        priority: 28,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(scheduleService.removeReposts(item.postId));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'scheduledPost',
+        sourceNumber: 'many',
+        phrase: 'remove_scheduled',
+        only: 'rightPanel',
+        priority: 151,
+        action: function(data) {
+          return true;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'notScheduledPost',
+        sourceNumber: 'many',
+        only: 'rightPanel',
+        phrase: 'remove_not_scheduled',
+        priority: 150,
+        action: function(data) {
+          return true;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        sourceNumber: 1,
+        phrase: 'copy',
+        priority: 48,
+        action: (function(_this) {
+          return function(data) {
+            var post;
+            post = _this.getById(data.items[0].postId);
+            return multiselect.copyItem(post);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        sourceNumber: 1,
+        phrase: 'copy',
+        priority: 48,
+        action: (function(_this) {
+          return function(data) {
+            return multiselect.copyItem(data.items[0]);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        phrase: 'add_to_market',
+        priority: 42,
+        check: function(ids, items, context) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (item.onSale !== true) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var first, i, item, len, ref, results;
+            first = true;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(lotService.create({
+                type: 'lot',
+                lotType: 'repost',
+                postId: item.postId,
+                scheduleId: item.id
+              }, function(newLot) {
+                if (first === true) {
+                  first = false;
+                  return desktopService.launchApp('lotManager', {
+                    lotId: newLot.id
+                  });
+                }
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'schedule',
+        phrase: 'unpublish_from_market',
+        leaveItems: true,
+        priority: 30,
+        check: function(ids, items, context) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (item.userId === account.user.id && item.onSale === true) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, postIds, ref, ref1;
+            postIds = [];
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              if (ref1 = item.postId, indexOf.call(postIds, ref1) < 0) {
+                postIds.push(item.postId);
+              }
+            }
+            return lotService.query({
+              postId: {
+                '$in': postIds
+              }
+            }, function(items, total) {
+              var j, len1;
+              for (j = 0, len1 = items.length; j < len1; j++) {
+                item = items[j];
+                lotService.unpublish(item.id);
+              }
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        targetType: 'timelineApp',
+        phrase: 'add_feed',
+        priority: 63,
+        action: function(data) {
+          return desktopService.launchApp('addFeed');
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline/placeholder',
+        phrase: 'new_post',
+        priority: 88,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(scheduleService.create({
+                items: [],
+                communityId: item.communityId,
+                timestamp: item.timestamp
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline',
+        phrase: 'new_comb',
+        priority: 67,
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(scheduleService.create({
+                items: [],
+                groupId: item.groupId,
+                timestamp: item.timestamp
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline/placeholder',
+        phrase: 'paste_repost',
+        priority: 46,
+        check: function() {
+          return multiselect.state.buffer !== null && multiselect.getBuffer().scheduled === true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, post, ref, results;
+            post = multiselect.getBuffer();
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(scheduleService.repost({
+                postId: post.id,
+                communityId: item.communityId,
+                timestamp: item.timestamp
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline/placeholder',
+        sourceNumber: 1,
+        phrase: 'plan_here',
+        priority: 43,
+        check: function() {
+          return multiselect.state.buffer !== null;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var item, post;
+            post = multiselect.getBuffer();
+            item = data.items[0];
+            return scheduleService.getOriginalByPostId(post.id, function(sched) {
+              if (sched != null) {
+                return scheduleService.save({
+                  id: sched.id,
+                  communityId: item.communityId,
+                  timestamp: item.timestamp
+                });
+              } else {
+                return scheduleService.create({
+                  communityId: item.communityId,
+                  timestamp: item.timestamp,
+                  postId: post.id
+                });
+              }
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline/placeholder',
+        sourceNumber: 1,
+        phrase: 'copy_here',
+        check: function() {
+          return multiselect.state.buffer !== null;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var item, post;
+            post = multiselect.getBuffer();
+            item = data.items[0];
+            return _this.create({
+              contentIds: post.contentIds,
+              picComments: post.picComments,
+              combId: post.combId
+            }, function(newPost) {
+              return scheduleService.create({
+                communityId: item.communityId,
+                timestamp: item.timestamp,
+                postId: newPost.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline/placeholder',
+        sourceNumber: 1,
+        phrase: 'copy_here_group',
+        check2: function(data) {
+          var group, ref;
+          if (multiselect.state.buffer === null) {
+            return false;
+          }
+          group = groupService.getById(data.item.groupId);
+          return ((ref = group.feeds) != null ? ref.length : void 0) > 1;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var item, post;
+            post = multiselect.getBuffer();
+            item = data.items[0];
+            return _this.create({
+              contentIds: post.contentIds,
+              picComments: post.picComments,
+              combId: post.combId
+            }, function(newPost) {
+              return scheduleService.clonePost({
+                postId: newPost.id,
+                groupId: data.item.groupId,
+                timestamp: data.item.timestamp
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline',
+        sourceNumber: 1,
+        phrase: 'plan_post',
+        priority: 69,
+        action: function(data) {
+          var item;
+          item = data.items[0];
+          desktopService.launchApp('postPicker', {
+            groupId: item.groupId,
+            communityId: item.communityId,
+            timestamp: smartDate.getShiftTimeline(item.timestamp)
+          }, data.e);
+          return true;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'timeline',
+        sourceNumber: 1,
+        phrase: 'new_placeholder',
+        priority: 65,
+        action: function(data) {
+          var item;
+          item = data.items[0];
+          return ruleService.create({
+            type: 'rule',
+            ruleType: 'single',
+            timestampStart: smartDate.getShiftTimeline(item.timestamp),
+            timestampEnd: null,
+            ad: false,
+            interval: 30,
+            dayMask: [true, true, true, true, true, true, true],
+            communityId: item.communityId,
+            groupId: item.groupId,
+            end: false
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'placeholder',
+        sourceNumber: 1,
+        phrase: 'edit',
+        priority: 51,
+        action: (function(_this) {
+          return function(data) {
+            return inspectorService.initInspector(data.items[0]);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'community',
+        sourceNumber: 1,
+        phrase: 'import_csv',
+        priority: 161,
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('importXLS', {
+              communityId: data.item.id
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'community',
+        sourceNumber: 1,
+        phrase: 'export_sheds',
+        priority: 161,
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('exportXLS', {
+              communityId: data.item.id
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'team',
+        sourceNumber: 1,
+        targetType: 'group',
+        phrase: 'bind_team_to_group',
+        priority: 220,
+        action: (function(_this) {
+          return function(data) {
+            return groupService.call('bindTeam', {
+              id: data.target.id,
+              teamId: data.item.id
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      return actionsService.registerAction({
+        sourceType: 'placeholder',
+        sourceNumber: 1,
+        phrase: 'plan_post',
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('postPicker', {
+              communityId: data.items[0].communityId,
+              timestamp: data.items[0].timestamp
+            }, data.e);
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

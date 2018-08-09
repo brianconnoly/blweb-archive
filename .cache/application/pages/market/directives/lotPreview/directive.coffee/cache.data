@@ -1,0 +1,31 @@
+buzzlike.directive('lotPreview', function($compile, lotService, operationsService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem, lot, preview, previewDirective;
+      elem = $(element);
+      lot = scope.item;
+      if (lot == null) {
+        return;
+      }
+      previewDirective = null;
+      switch (lot.lotType) {
+        case 'post':
+        case 'repost':
+          previewDirective = 'lotPostPreview';
+          break;
+        case 'content':
+          previewDirective = 'lotContentPreview';
+      }
+      scope.showPreview = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+      };
+      if (previewDirective != null) {
+        preview = $compile('<div class="' + previewDirective + ' innerPreview" ng-dblclick="showPreview($event)"></div>')(scope);
+        return elem.append(preview);
+      }
+    }
+  };
+});

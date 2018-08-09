@@ -1,0 +1,97 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        title Нам очень жаль, но сюда пока нельзя
+        //-link(rel="stylesheet", href="/htdocs/application/styles/system/main.css")
+        style.
+
+            @font-face {
+                font-family: 'Helvetica Neue';
+                src: url("/fonts/HelveticaNeue-Light.eot");
+                src: local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/HelveticaNeueLTPro-Lt.otf") format("otf"), url("/fonts/HelveticaNeue-Light.svg#HelveticaNeue-Light") format("svg"), url("/fonts/HelveticaNeue-Light.woff") format("woff"), url("/fonts/HelveticaNeue-Light.ttf") format("ttf");
+                font-weight: 300;
+            }
+            @font-face {
+                font-family: 'Helvetica Neue';
+                src: url("/fonts/HelveticaNeue-Medium.eot");
+                src: local("Helvetica Neue Medium"), local("HelveticaNeue-Medium"), url("/fonts/HelveticaNeue-Medium.svg#HelveticaNeue-Medium") format("svg"), url("/fonts/HelveticaNeue-Medium.woff") format("woff");
+                font-weight: 400;
+            }
+            @font-face {
+                font-family: "DINCyr-Light";
+                src: url("/fonts/HelveticaNeue-Light.eot");
+                src: local("DINCyr-Light"), url("/fonts/DinCyLt.ttf"), local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/HelveticaNeueLTPro-Lt.otf") format("otf"), url("/fonts/HelveticaNeue-Light.svg#HelveticaNeue-Light") format("svg"), url("/fonts/HelveticaNeue-Light.woff") format("woff");
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }
+            body{
+                background: #eee;
+                color: #3a363b;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                -webkit-font-smoothing: antialiased;
+                font-family: "Helvetica Neue", sans-serif;
+                font-weight: 300;
+            }
+            div.position {
+                position: relative;
+                width: 333px;
+                height: 100%;
+                margin: auto;
+            }
+            div.block {
+                position: absolute;
+                width: 100%;
+                top: 10%;
+            }
+            div.logo {
+                font-size: 70px;
+                text-transform: uppercase;
+                text-align: left;
+                -webkit-transform: matrix(1.04, 0, 0, 1, 0, 0);
+                -moz-transform: matrix(1.04, 0, 0, 1, 0, 0);
+                transform: matrix(1.04, 0, 0, 1, 0, 0);
+            }
+            button {
+                width: 100%;
+                height: 33px;
+                margin-top: 25px;
+                background: #3a363b;
+                color: #eee;
+            }
+            button:hover {
+                cursor: pointer;
+            }
+            a {
+                color: #3a363b;
+            }
+            a:hover {
+                color: orange;
+            }
+
+
+    body
+        div.position
+            div.block
+                div.logo
+                    span BUZZ
+                    span LIKE
+                div.body
+                    div.message Вас, к сожалению, нет в списке для альфа-тестирования. Обратитесь к&nbsp;
+                        a(href='http://vk.com/buzzlike') Павлу
+                    button(onclick="shutDown()") OK
+        div(style="position: absolute; top: 50%; font-size: 45px")
+
+        script.
+            function shutDown(){
+                window.close()
+            }
+
+

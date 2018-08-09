@@ -1,0 +1,30 @@
+buzzlike.directive('novaTimelineDayBreak', function($compile) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem, sepElem, sepScope;
+      elem = $(element);
+      scope.block.elem = elem;
+      if (scope.block["static"]) {
+        sepElem = $('<div>', {
+          "class": 'novaTimelineDayView'
+        });
+        sepScope = scope.$new();
+        sepScope.block = scope.block;
+        sepElem = $($compile(sepElem)(sepScope));
+        return elem.append(sepElem);
+      } else {
+        return scope.scroller.requestSeparator({
+          elem: elem,
+          pos: elem.parent().position(),
+          block: scope.block,
+          page: scope.page
+        }, function(sep) {
+          return elem.append(sep);
+        });
+      }
+    }
+  };
+});
+
+registerStyles('novaTimelineDayBreak', ".novaTimelineDayBreak {\n  height: 140px;\n  width: 100%;\n}\n");

@@ -1,0 +1,4 @@
+div.actions(ng-if="action || hasMoreActions")
+    div.action(translate="'teamManagerApp_taskAction_' + action", ng-click="setStatus(action)", ng-if="action")
+    div.menu(ng-click="showMenu($event)", ng-if="hasMoreActions")
+div.statusBlock(ng-if="!action", translate="'teamManagerApp_taskStatus_' + statusActionTask.status", ng-class="statusActionTask.status")

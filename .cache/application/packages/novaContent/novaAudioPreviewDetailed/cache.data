@@ -1,0 +1,15 @@
+tC['/novaAudioPreviewDetailed/template.jade'] = "<audio controls=\"controls\" ng-src=\"{{getAudioUrl()}}\"></audio>";
+
+buzzlike.directive('novaAudioPreviewDetailed', function($sce) {
+  return {
+    restrict: 'C',
+    template: tC['/novaAudioPreviewDetailed/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.getAudioUrl = function() {
+        return $sce.trustAsResourceUrl(scope.item.source);
+      };
+    }
+  };
+});
+
+registerStyles('novaAudioPreviewDetailed', ".novaAudioPreviewDetailed {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.novaAudioPreviewDetailed audio {\n  margin-top: -15px;\n  top: 50%;\n  position: absolute;\n}\n");

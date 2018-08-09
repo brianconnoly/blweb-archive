@@ -1,0 +1,174 @@
+buzzlike.directive("inspector", function(localization, $rootScope, $filter, stateManager, desktopService, ruleService, inspectorService, account, scheduleService, multiselect, smartDate) {
+  return {
+    scope: true,
+    restrict: "C",
+    template: templateCache['/pages/timeline/directives/inspector'],
+    link: function(scope, element, attrs, ctrl) {
+      var correctEndTime, inspectorStatus, saveMulti, saveRule;
+      scope.status = inspectorStatus = inspectorService.status;
+      scope.daysArray = [1, 2, 3, 4, 5, 6, 0];
+      scope.daysValues = {};
+      localization.onLangLoaded(function() {
+        var day, i, len, ref, results;
+        ref = scope.daysArray;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          day = ref[i];
+          results.push(scope.daysValues[day] = localization.translate(147 + day)[1]);
+        }
+        return results;
+      });
+      scope.closeInspector = function() {
+        inspectorService.closeInspector();
+        return true;
+      };
+      scope.saveRule = saveRule = function() {
+        if (inspectorStatus.currentRule != null) {
+          if (inspectorStatus.currentRule.timestampEnd - inspectorStatus.currentRule.timestampStart < 1 * MIN) {
+            inspectorStatus.currentRule.timestampEnd = inspectorStatus.currentRule.timestampStart + (2 * MIN);
+          }
+          ruleService.save(inspectorStatus.currentRule);
+        }
+        return true;
+      };
+      scope.saveMulti = saveMulti = function() {
+        var i, len, placeholder, ref, results, rule;
+        ref = inspectorStatus.selectedPlaceholders;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          placeholder = ref[i];
+          rule = placeholder.rule;
+          rule.dayMask = inspectorStatus.multiDayMask;
+          if (inspectorStatus.multiEnd === true) {
+            rule.end = true;
+            if (inspectorStatus.multiEndDay == null) {
+              inspectorStatus.multiEndDay = rule.timestampStart + DAY * 7;
+            }
+            rule.timestampEnd = inspectorStatus.multiEndDay;
+          }
+          if (inspectorStatus.multiAd === true) {
+            rule.ad = inspectorStatus.multiAd;
+          }
+          results.push(ruleService.save(rule));
+        }
+        return results;
+      };
+      correctEndTime = function() {
+        if (scope.status.currentRule.timestampEnd === null) {
+          if (scope.status.currentRule.ruleType === 'daily') {
+            return scope.status.currentRule.timestampEnd = scope.status.currentRule.timestampStart + DAY * 7;
+          } else if (scope.status.currentRule.ruleType === 'chain') {
+            return scope.status.currentRule.timestampEnd = scope.status.currentRule.timestampStart + HOUR * 6;
+          }
+        }
+      };
+      scope.getDayClass = function(day) {
+        var classes, mask;
+        if (!inspectorStatus.showInspector) {
+          return "";
+        }
+        if (inspectorStatus.currentRule != null) {
+          mask = inspectorStatus.currentRule.dayMask;
+        } else {
+          if (inspectorStatus.multiDayMask == null) {
+            return "";
+          }
+          mask = inspectorStatus.multiDayMask;
+        }
+        classes = "";
+        if (mask[day] === true) {
+          classes += 'active';
+        }
+        if (day === 0) {
+          return classes;
+        }
+        if (day === 6) {
+          if (mask[6] === mask[0]) {
+            classes += ' wideright';
+          }
+          return classes;
+        }
+        if (day < 7 && mask[day + 1] === mask[day]) {
+          classes += ' wideright';
+        }
+        return classes;
+      };
+      scope.setPlan = function(type) {
+        var activeRule;
+        if (type != null) {
+          inspectorService.status.selectedType = type;
+          activeRule = scope.status.currentRule;
+          activeRule.ruleType = type;
+          correctEndTime();
+          saveRule();
+        }
+        return true;
+      };
+      scope.setMultiPlan = function(type) {
+        return inspectorService.setMultiType(type);
+      };
+      scope.selectDay = function($event, day) {
+        var mask;
+        if (inspectorStatus.currentRule != null) {
+          mask = inspectorStatus.currentRule.dayMask;
+        } else {
+          if (inspectorStatus.multiDayMask == null) {
+            return false;
+          }
+          mask = inspectorStatus.multiDayMask;
+        }
+        mask[day] = !mask[day];
+        if (inspectorStatus.currentRule != null) {
+          saveRule();
+        } else {
+          saveMulti();
+        }
+        return true;
+      };
+      scope.removeAll = function() {
+        return desktopService.launchApp('optionsList', {
+          message: 'inspector_removeAllQuestion',
+          options: [
+            {
+              text: 'inspector_removeAll',
+              action: function() {
+                ruleService.removeByGroupId(scope.status.currentRule.groupId);
+                return scope.closeInspector();
+              }
+            }
+          ]
+        });
+      };
+      scope.$watch(function() {
+        return multiselect.state.focusedHash;
+      }, function(nValue) {
+        return inspectorService.updateInspector();
+      }, true);
+      scope.setFocusRule = function() {
+        var placeholder;
+        placeholder = multiselect.getFocused()[0];
+        multiselect.flush();
+        angular.element($('.rule_' + placeholder.rule.id).first()).scope().showInspector();
+        return true;
+      };
+      return scope.focusDay = function() {
+        var date, elm, elm_date, elms, i, len, results;
+        elms = $('.placeholder_highlighted');
+        multiselect.flush();
+        date = getClearDataTimestamp(inspectorService.status.currentPlaceholder.timestamp);
+        results = [];
+        for (i = 0, len = elms.length; i < len; i++) {
+          elm = elms[i];
+          elm_date = getClearDataTimestamp(angular.element(elm).scope().item.timestamp);
+          if (date === elm_date) {
+            $(elm).addClass('selected');
+            results.push(multiselect.addToFocus(angular.element(elm).scope().item));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+    }
+  };
+});

@@ -1,0 +1,180 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+div.body
+
+    div.leftPanel
+
+        div.menuItem(ng-repeat="section in sections", ng-class="{'active':state.currentSection==section}" ng-click="selectSection(section)")
+            span(translate="'settings_section_' + section")
+
+    div.rightContent.wallpaperDropable(ng-switch="state.currentSection", antiscroll)
+
+        div.settingsFrame(ng-switch-when="personal")
+
+            div.header(translate="'settingsApp_personalInfo'")
+
+            div.section
+                div.line
+                    div.lineTitle(translate="'userOptions_main_name'")
+                    input(ng-model='user.firstName', placeholder='', bl-sanitize="username", enter-update, bl-maxlength="20", ng-model-options="{ updateOn: 'blur', debounce: {'default': 500, 'blur': 0} }", ng-change="setOptions()")
+                div.line
+                    div.lineTitle(translate="'userOptions_main_surname'")
+                    input(ng-model='user.lastName', placeholder='', bl-sanitize="username", enter-update, bl-maxlength="20", ng-model-options="{ updateOn: 'blur', debounce: {'default': 500, 'blur': 0} }", ng-change="setOptions()")
+                div.line
+                    div.lineTitle(translate="'userOptions_main_email'")
+                    input.login(ng-model='user.login', placeholder='', enter-update, ng-model-options="{ updateOn: 'blur', debounce: {'default': 500, 'blur': 0} }", ng-change="setUserEmail()", ng-disabled="user.registered")
+            
+            div.resend(ng-show="showNotConfirmed()", ng-click="resendConfirm()", translate="'userOptions_main_notConfirmed'")
+
+            div.header(translate="'settingsApp_password'")
+
+            div.section
+                div.line
+                    div.lineTitle(translate="'userOptions_main_newPassword'")
+                    input(ng-model='passwords.first', placeholder='●●●●●●●●', type='password', translate-into-english="password", ng-disabled="!user.registered")
+                div.line.err(ng-show="passwords.first && passwords.first.length<6", translate="'userOptions_main_newPassword-error'")
+                div.line
+                    div.lineTitle(translate="'userOptions_main_confirmPassword'")
+                    input(ng-model='passwords.second', placeholder='●●●●●●●●', type='password', translate-into-english="password", ng-disabled="!user.registered")
+                div.line.err(ng-if="passwords.first && passwords.second && passwords.first!=passwords.second", translate="'userOptions_main_confirmPassword-error'")
+                div.line(ng-if="needCurrentPassword()")
+                    div.lineTitle(translate="'userOptions_main_currentPassword'")
+                    input(ng-model='passwords.password', placeholder='●●●●●●●●', type='password', translate-into-english="password", ng-disabled="!user.registered")
+
+            div.line.setUserData(ng-click='setUserData()', ng-if="passwords.first && passwords.second && passwords.password && passwords.first==passwords.second", translate="'userOptions_main_confirm'")
+
+            div.header(translate="'settingsApp_regionalSettings'")
+
+            div.section
+                div.line
+                    div.lineTitle(translate="'userOptions_main_timezone'")
+                    combobox(ng-model="user.timezone", list="timezonesList", ng-change="setTimezone()")
+                div.line
+                    div.lineTitle(translate="'userOptions_main_lang'")
+                    combobox(ng-model="langParams.selectedLang", list="langList", ng-change="updateLang()")
+
+        div.settingsFrame.accountsSettingsFrame(ng-switch-when="accounts")
+
+            div.header(translate="'settingsApp_addAccount'")
+
+            div.section.sectionItemContainer
+                div.sectionItem(ng-repeat='sn in networks | filter: {enable: true}', ng-click="addAccount(sn.type)")
+                    div.snPic(ng-style="{background: sn.background}") {{sn.type.toUpperCase()}}
+                    //- {{sn.type.toUpperCase()}}
+                    div.snTitle {{sn.name}}
+            
+            div.header(translate="'settingsApp_connectedAccounts'")
+
+            div.section
+                li.line(ng-repeat='acc in user.accounts', ng-class='{white: !acc.enabled}')
+                    div.icon 
+                        //- (style="background: url({{proxyImage(acc.photo)}}); background-size: 100%;")
+                        div.shield(ng-style="{background: networksData[acc.socialNetwork].background}") {{acc.socialNetwork}}
+                    div.name.lineTitle {{acc.name}}
+                    div.float-right
+                        checkbox.long.tl_accenable(ng-model='acc.enabled', ng-change='changeAccEnabled(acc)')
+                        div.detacher(ng-click='detachAccount(acc, $event)')
+
+        div.settingsFrame(ng-switch-when="appearance")
+
+            //- div.header Настройки
+
+            //- div.section.optionsSection
+            //-     li.line
+            //-         div.name.lineTitle(translate="'turbo'")
+            //-         checkbox.long(ng-model='user.settings.turbo', ng-change='setOptions()')
+
+            div.header(translate="'settingsApp_backgroundColor'")
+
+            div.section.colorsSection
+                div.color(ng-repeat="color in solidColors", ng-style="{'background':color.value}", ng-class="{'active':color.value==user.settings.wallpaperSettings.color}", title="{{color.title}}", ng-click="setBackground(color.value)")
+
+            div.header(translate="'settingsApp_wallpaper'")
+            div.section.colorsSection.droppableItem(dropable-item="{'type':'wallpaperSettings'}")
+                div.color.none(ng-class="{'active':null==user.settings.wallpaperSettings.wallpaper}", ng-click="setWallpaper(null)")
+
+                div.color(ng-repeat="id in user.wallpapers", ng-class="{'active':id==user.settings.wallpaperSettings.wallpaper}", ng-click="setWallpaper(id)")
+                    div.itemPreview(id="id", type="image")
+                    div.remove(ng-click="removeWallpaper(id)")
+                        
+                div.color(ng-repeat="id in coreSettings.wallpapers", ng-class="{'active':id==user.settings.wallpaperSettings.wallpaper}", ng-click="setWallpaper(id)")
+                    div.itemPreview(id="id", type="image")
+        
+        div.settingsFrame(ng-switch-when="billing")
+
+            div.header(translate="'settingsApp_fillBalance'")
+
+            div.section
+                li.line(ng-click="selectSublevel('billing_fill')")
+                    div.lineTitle(translate="'userOptions_main_amount'")
+                    div.float-right
+                        div.value {{user.amount + ' ' + localization.declensionPhrase(user.amount,'roubles')}}
+                        div.arrow-right
+                li.line.clickable(ng-click="selectSublevel('billing_fill')")
+                    div.lineTitle(translate="'settingsApp_doFill'")
+
+            div.header(translate="'settingsApp_prolong'")
+
+            div.section
+                li.line(ng-click="selectSublevel('billing_prolong')")
+                    div.lineTitle(translate="'userOptions_main_expires'")
+                    div.float-right
+                        div.value {{user.expiredDate | timestampMask:"DD.MM.YYYY в hh:mm"}}
+                        div.arrow-right
+                li.line.clickable(ng-click="selectSublevel('billing_prolong')")
+                    div.lineTitle(translate="'settingsApp_doFill'")
+
+        div.settingsFrame(ng-switch-when="billing_fill")
+            div.header(translate="'settingsApp_fillBalance'")
+
+            div.section.textSection(translate="'settings_billing_filling_details'")
+            
+            div.section.billingItems
+                li.line.clickable(ng-repeat="item in chargeList") 
+                    div.price(ng-if="!$last", ng-click="charge(item)") {{item.value + ' ' + localization.declensionPhrase(item.value,'roubles')}}
+                    div.price(ng-if="$last", translate="'settingsApp_prolong_anyAmount'", ng-click="selectSublevel('billing_prolong_anyAmount')") 
+
+        div.settingsFrame(ng-switch-when="billing_prolong")
+            div.header(translate="'settingsApp_prolong'")
+
+            div.section.textSection(translate="'settings_billing_prolong_details'")
+            
+            div.section.billingItems
+                li.line.clickable(ng-repeat="item in prolongList", ng-click="prolong(item)")
+                    span {{item.value}} 
+                    span {{localization.declensionPhrase(item.value, 'costDays')}} 
+                    span.za за 
+                    span {{item.amount + ' ' + localization.declensionPhrase(item.amount, 'roubles')}}
+
+        div.settingsFrame(ng-switch-when="billing_prolong_anyAmount")
+            div.header(translate="'settingsApp_prolong'")
+
+            div.section.textSection(translate="'settings_billing_prolongAny_details'")
+            
+            div.section.billingItems
+                li.line
+                    input(ng-model="prolongSumm")
+                li.line.clickable(ng-click="check(prolongSumm)", translate="'settingsApp_doFill'")
+
+        div.settingsFrame(ng-switch-when="other")
+
+            div.header(translate="'settingsApp_otherSettings'")
+
+            div.section.optionsSection
+                li.line
+                    div.name.lineTitle(translate="'userOptions_takeUploadToRight'")
+                    checkbox.long(ng-model='user.settings.takeUploadToRight', ng-change='setOptions()')
+                li.line
+                    div.name.lineTitle(translate="'userOptions_simpleMode'")
+                    checkbox.long(ng-model='user.settings.simpleMode', ng-change='setOptions()')
+
+        div.dropHelperMsg(translate="'userOptions_add_user_wallpapers'")
+            
+bread-crombs

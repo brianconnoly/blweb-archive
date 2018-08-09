@@ -1,0 +1,87 @@
+buzzlike.service('queryService', function(httpWrapped, env, notificationCenter, $injector, lotService, rpc) {
+  var callBacks, combService, contentService, fireQuery, init, postService, query, queryId, status;
+  callBacks = {};
+  queryId = 0;
+  status = {
+    handler: null,
+    queries: []
+  };
+  contentService = null;
+  combService = null;
+  postService = null;
+  init = function() {
+    contentService = $injector.get('contentService');
+    combService = $injector.get('combService');
+    return postService = $injector.get('postService');
+  };
+  query = function(queryData, cb) {
+    var progress;
+    progress = notificationCenter.registerProgress(true);
+    return rpc.call(queryData.entityType + '.query', queryData, function(result) {
+      var i, item, items, len, ref;
+      progress.value = 100;
+      notificationCenter.updateStatus(progress);
+      items = [];
+      ref = result.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (contentService.isContent(item)) {
+          items.push(contentService.handleItem(item));
+          continue;
+        }
+        if (item.type === 'comb') {
+          items.push(combService.handleItem(item));
+          continue;
+        }
+        if (item.type === 'lot') {
+          items.push(lotService.handleItem(item));
+          continue;
+        }
+        if (item.type === 'post') {
+          items.push(postService.handleItem(item));
+          continue;
+        }
+      }
+      return cb(items, result.total);
+    });
+  };
+  fireQuery = function(list, cbs) {
+    var progress;
+    progress = notificationCenter.registerProgress(true);
+    return httpWrapped.post(env.baseurl + '/query', list, function(results) {
+      var i, item, items, j, len, len1, ref, result, results1;
+      progress.value = 100;
+      notificationCenter.updateStatus(progress);
+      results1 = [];
+      for (i = 0, len = results.length; i < len; i++) {
+        result = results[i];
+        items = [];
+        ref = result.items;
+        for (j = 0, len1 = ref.length; j < len1; j++) {
+          item = ref[j];
+          if (contentService.isContent(item)) {
+            items.push(contentService.registerContent(item));
+            continue;
+          }
+          if (item.type === 'comb') {
+            items.push(combService.registerComb(item));
+          }
+          if (item.type === 'lot') {
+            items.push(lotService.registerLot(item));
+          }
+        }
+        if (callBacks[result.queryId] != null) {
+          callBacks[result.queryId](items, result.total);
+          results1.push(delete callBacks[result.queryId]);
+        } else {
+          results1.push(void 0);
+        }
+      }
+      return results1;
+    });
+  };
+  return {
+    init: init,
+    query: query
+  };
+});

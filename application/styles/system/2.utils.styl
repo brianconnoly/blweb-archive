@@ -1,0 +1,95 @@
+//Подставляет увеличенные в 2 раза спрайты под ретину
+//dx, dy, - смещение по спрайту
+//w, h - финальный размер спрайта
+//sw, sh - обрезание (опционально)
+
+sprite-url(path)
+    background-image: url(path)
+
+    min_pixel_ratio = 1.5
+
+    s = 'all and (-webkit-min-device-pixel-ratio:' + min_pixel_ratio + '),'
+    s = s + '(min--moz-device-pixel-ratio:' + min_pixel_ratio + '),'
+    s = s + '(-o-min-device-pixel-ratio:' + min_pixel_ratio + '/1),'
+    s = s + '(min-device-pixel-ratio:' + min_pixel_ratio + '),'
+    s = s + '(min-resolution:' + unit(min_pixel_ratio*92, dpi) + '),'
+    s = s + '(min-resolution:' + unit(min_pixel_ratio, dppx) + ')'
+
+    @media s
+        ext = extname(path)
+        path = pathjoin(dirname(path), basename(path, ext) + '@2x' + ext)
+
+        background-image: url(path)
+
+
+sprite(path, dx = 0, dy = 0, w = 100%, h = 100%, repeat = no-repeat, sw = 0, sh = 0, min_pixel_ratio = 1.5)
+  background-image: url(path)
+  background-position: dx dy
+  background-repeat: repeat
+  background-size: w h
+
+  if sw
+      width: sw
+  if sh
+      height: sh
+  
+  ext = extname(path)
+  
+  if ext != '.svg'
+    s = 'all and (-webkit-min-device-pixel-ratio:' + min_pixel_ratio + '),'
+    s = s + '(min--moz-device-pixel-ratio:' + min_pixel_ratio + '),'
+    s = s + '(-o-min-device-pixel-ratio:' + min_pixel_ratio + '/1),'
+    s = s + '(min-device-pixel-ratio:' + min_pixel_ratio + '),'
+    s = s + '(min-resolution:' + unit(min_pixel_ratio*92, dpi) + '),'
+    s = s + '(min-resolution:' + unit(min_pixel_ratio, dppx) + ')'
+
+    @media s
+      path = pathjoin(dirname(path), basename(path, ext) + '@2x' + ext)
+
+      if sw
+        width: sw
+      if sh
+        height: sh
+
+      background-image: url(path)
+      background-position: dx dy
+      background-repeat: repeat
+      background-size: w h
+
+
+
+size(param, t=auto, r=auto, b=auto, l=auto)
+
+    if param == 'full'
+        position absolute
+        top 0
+        left 0
+        right 0
+        bottom 0
+
+    if param == 'abs'
+        position absolute
+        top t if t!=''
+        left l if l!=''
+        right r if r!=''
+        bottom b if b!=''
+
+    if param == 'center'
+        position absolute
+        top 50%
+        left 50%
+
+        l = r
+        height t
+        width l
+        t = -(t/2) if t!=auto
+        l = -(l/2) if l!=auto
+        margin-top t
+        margin-left l
+
+    if param == 'v-center'
+        position absolute
+        top 50%
+        height t
+        margin-top -(t/2) if t!=auto
+

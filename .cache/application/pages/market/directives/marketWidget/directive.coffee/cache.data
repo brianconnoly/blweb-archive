@@ -1,0 +1,114 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('marketWidget', function(lotService, resize) {
+  return {
+    restrict: 'C',
+    template: tC['/pages/market/directives/marketWidget'],
+    link: function(scope, element, attrs) {
+      var cat, elem, i, itemH, itemW, len, newCats, query, ref, ref1, screen;
+      elem = $(element);
+      itemH = 170;
+      if (indexOf.call(scope.widget.query.contentTypes != null, 'post') >= 0 || indexOf.call(scope.widget.query.contentTypes != null, 'post') >= 0) {
+        itemW = 320;
+      } else {
+        itemW = 170;
+      }
+      elem.find('.content').height(scope.widget.lines * itemH);
+      screen = {
+        wid: 0,
+        hei: 0
+      };
+      resize.registerCb(function(wid, hei) {
+        var nu_hei, nu_wid;
+        nu_wid = (wid - 300) / itemW | 0;
+        nu_hei = (hei - 150) / itemH | 0;
+        if (screen.wid !== nu_wid || screen.hei !== nu_hei) {
+          screen.wid = nu_wid;
+          screen.hei = nu_hei;
+          return elem.find('.content').width(screen.wid * itemW);
+        }
+      });
+      scope.pages = [];
+      scope.currentPage = 0;
+      scope.currentLots = [];
+      scope.noRight = true;
+      scope.noLeft = true;
+      query = $.extend({}, scope.widget.query);
+      if (query.catsIn != null) {
+        newCats = [];
+        ref = query.catsIn;
+        for (i = 0, len = ref.length; i < len; i++) {
+          cat = ref[i];
+          newCats.push((ref1 = lotService.categoriesKeys[cat]) != null ? ref1.id : void 0);
+        }
+        query.catsIn = newCats;
+      }
+      query.count = screen.wid * scope.widget.lines * scope.widget.screens;
+      query.page = 0;
+      lotService.fetchLotsByQuery(query, function(result) {
+        var cnt, item, j, len1, page;
+        page = 0;
+        cnt = 0;
+        for (j = 0, len1 = result.length; j < len1; j++) {
+          item = result[j];
+          if (cnt >= screen.wid * scope.widget.lines) {
+            page++;
+            cnt = 0;
+          }
+          if (scope.pages[page] == null) {
+            scope.pages[page] = [];
+          }
+          if (item) {
+            scope.pages[page].push(item);
+          }
+          cnt++;
+        }
+        if (page > 0) {
+          scope.noRight = false;
+        }
+        return scope.currentPage = scope.pages[0];
+      });
+      scope.freshOnTop = function(item) {
+        return -item.createdWhen;
+      };
+      scope.goPage = function(page) {
+        var index;
+        scope.currentPage = page;
+        scope.noRight = false;
+        scope.noLeft = false;
+        index = scope.pages.indexOf(scope.currentPage);
+        if (index === scope.pages.length - 1) {
+          scope.noRight = true;
+        }
+        if (index === 0) {
+          scope.noLeft = true;
+        }
+        return true;
+      };
+      scope.goRight = function() {
+        var index;
+        index = scope.pages.indexOf(scope.currentPage);
+        if (index < scope.pages.length) {
+          scope.currentPage = scope.pages[index + 1];
+        }
+        if (index === scope.pages.length - 2) {
+          scope.noRight = true;
+        }
+        scope.noLeft = false;
+        return false;
+      };
+      return scope.goLeft = function() {
+        var index;
+        index = scope.pages.indexOf(scope.currentPage);
+        if (index > 0) {
+          scope.currentPage = scope.pages[index - 1];
+        }
+        if (index === 1) {
+          scope.noLeft = true;
+        }
+        scope.noRight = false;
+        return false;
+      };
+    }
+  };
+});

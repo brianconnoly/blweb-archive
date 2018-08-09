@@ -1,0 +1,18 @@
+.lotInfo {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 50px;
+  z-index: 600;
+}
+.lotInfo .cornerMarker {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-top: 25px solid transparent;
+  border-left: 25px solid transparent;
+  border-right: 25px solid #fff200;
+  border-bottom: 25px solid #fff200;
+  z-index: 1;
+}

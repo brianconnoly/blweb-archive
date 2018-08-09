@@ -1,0 +1,1 @@
+<div ng-if="buttons.length &gt; 0" class="notificationButtons"><div ng-repeat="button in buttons" ng-click="button.action()" ng-class="{'single':buttons.length == 1}" class="notificationButton"> <div class="buttonText">{{translate(button.phrase)}}</div></div></div>

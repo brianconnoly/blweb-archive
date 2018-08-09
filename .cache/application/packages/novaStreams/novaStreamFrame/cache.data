@@ -1,0 +1,220 @@
+tC['/novaStreamFrame/template.jade'] = "<div ng-if=\"loadingInProgress\" class=\"loading\"> <div class=\"novaLoader\"></div> </div> <div scroll-glue=\"\" class=\"historyView\"> <div ng-repeat=\"item in smartItems track by item.idmap\" class=\"novaStreamItemSmartView\"></div> </div> <div nova-item-object=\"streamMessage\" class=\"writeMessage novaItem novaItemDroppable\"> <div class=\"inputBox\"> <textarea ng-model=\"message\" ng-focus=\"onFocus($event)\" ng-keyup=\"keyDown($event)\" translate=\"\" translate-placeholder=\"'streamFrame_message_enterText'\"></textarea> </div> <div ng-click=\"doSend()\" ng-class=\"{'inactive':message.length == 0 &amp;&amp; !(streamMessage.items.length &gt; 0)}\" translate=\"'streamFrame_sendButton'\" class=\"novaButton sendButton\"></div> <div class=\"boundedItems\"> <div ng-click=\"pickItems($event)\" class=\"addItems\">+</div> <div ng-repeat=\"item in streamMessage.items\" class=\"novaItem\"> <div class=\"novaItemPreview\"></div> <div ng-click=\"removeItem(item)\" class=\"novaRemove\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaStreamFrame', function(streamItemService, account, operationsService, novaWizard, novaMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamFrame/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var addItems, elem, flushUnread, historyView, unreg;
+      elem = $(element);
+      addItems = $(elem.find('.addItems')[0]);
+      historyView = $(elem.find('.historyView')[0]);
+      scope.flowFrame.maxWidth = 500;
+      scope.parentId = scope.flowFrame.item.id;
+      scope.streamItems = streamItemService.getByStreamId(scope.flowFrame.item.id);
+      scope.streamParentItem = operationsService.get(scope.flowFrame.item.type || 'stream', scope.flowFrame.item.id);
+      scope.message = "";
+      scope.loadingInProgress = false;
+      historyView.on('mousewheel', function(e, delta) {
+        if (!scope.loadingInProgress && historyView[0].scrollTop < 200) {
+          scope.loadingInProgress = true;
+          streamItemService.nextPageByStreamId(scope.flowFrame.item.id, function() {
+            return scope.loadingInProgress = false;
+          });
+          return scope.$applyAsync();
+        }
+      });
+      scope.$watch('streamItems', function(nVal) {
+        var oldHei;
+        oldHei = historyView[0].scrollHeight;
+        return setTimeout(function() {
+          return historyView[0].scrollTop = historyView[0].scrollTop + historyView[0].scrollHeight - oldHei;
+        }, 0);
+      }, true);
+      scope.doSend = function() {
+        var entities, item, j, len, ref;
+        if (scope.message.length > 0 || scope.streamMessage.items.length > 0) {
+          entities = [];
+          ref = scope.streamMessage.items;
+          for (j = 0, len = ref.length; j < len; j++) {
+            item = ref[j];
+            entities.push({
+              id: item.id,
+              type: item.type
+            });
+          }
+          streamItemService.create({
+            parent: {
+              id: scope.flowFrame.item.id,
+              type: scope.flowFrame.item.type || 'stream'
+            },
+            value: scope.message,
+            entities: entities
+          }, function() {
+            return true;
+          });
+          scope.message = "";
+          return scope.streamMessage.items.length = 0;
+        }
+      };
+      scope.onFocus = function(e) {
+        return flushUnread();
+      };
+      scope.onActivate = function() {
+        return flushUnread();
+      };
+      scope.keyDown = function(e) {
+        flushUnread();
+        if (e.which === 13 && !e.shiftKey) {
+          return scope.doSend();
+        }
+      };
+      scope.orderFunc = function(item) {
+        return item.created;
+      };
+      scope.smartItems = [];
+      scope.$watch('streamItems', function(nVal) {
+        var append, i, item, j, lastItem, len, results, smartItem;
+        scope.smartItems.length = 0;
+        lastItem = null;
+        results = [];
+        for (i = j = 0, len = nVal.length; j < len; i = ++j) {
+          item = nVal[i];
+          append = false;
+          if ((lastItem != null ? lastItem.streamItemType : void 0) === item.streamItemType && lastItem.userId === item.userId && (lastItem.parent.id === item.parent.id || lastItem.parent.type !== 'project')) {
+            if (item.streamItemType === 'user' && item.created - lastItem.created < MIN) {
+              append = true;
+            } else {
+              if (item.value === lastItem.value && item.created - lastItem.created < MIN * 10) {
+                append = true;
+              }
+            }
+          }
+          if (append) {
+            lastItem.items.push(item);
+            results.push(lastItem.idmap += item.id);
+          } else {
+            if ((lastItem != null ? lastItem.created : void 0) === item.created) {
+              continue;
+            }
+            smartItem = {
+              userId: item.userId,
+              value: item.value,
+              streamItemType: item.streamItemType,
+              created: item.created,
+              items: [item],
+              idmap: item.id,
+              parent: {
+                id: item.parent.id,
+                type: item.parent.type
+              },
+              smartDate: i === 0 || item.created - lastItem.created > 15 * MIN
+            };
+            scope.smartItems.push(smartItem);
+            results.push(lastItem = smartItem);
+          }
+        }
+        return results;
+      }, true);
+      scope.streamMessage = {
+        items: [],
+        type: 'streamMessageBox'
+      };
+      flushUnread = function() {
+        var ref, ref1, ref2;
+        if (((ref = scope.streamParentItem) != null ? ref.totalUpdates : void 0) - ((ref1 = scope.streamParentItem.userUpdated) != null ? (ref2 = ref1['uid' + account.user.id]) != null ? ref2.updates : void 0 : void 0) > 0) {
+          return operationsService.call(scope.flowFrame.item.type || 'stream', 'setUserUpdate', {
+            id: scope.flowFrame.item.id,
+            userId: account.user.id
+          });
+        }
+      };
+      unreg = scope.$watch('streamParentItem.type', function(nVal) {
+        if (nVal == null) {
+          return;
+        }
+        unreg();
+        return flushUnread();
+      });
+      scope.removeItem = function(item) {
+        return removeElementFromArray(item, scope.streamMessage.items);
+      };
+      return scope.pickItems = function(e) {
+        var offset, sections;
+        sections = [
+          {
+            type: 'actions',
+            items: [
+              {
+                phrase: 'streamFrame_upload_content',
+                description: 'streamFrame_upload_content_description',
+                action: function() {
+                  return novaWizard.fire('upload', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    cb: function(items) {
+                      var item, j, len, results;
+                      results = [];
+                      for (j = 0, len = items.length; j < len; j++) {
+                        item = items[j];
+                        results.push(scope.streamMessage.items.push(item));
+                      }
+                      return results;
+                    }
+                  });
+                }
+              }, {
+                phrase: 'streamFrame_from_storage',
+                description: 'streamFrame_from_storage_description',
+                action: function() {
+                  return novaWizard.fire('contentBrowser', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    cb: function(items) {
+                      var item, j, len, results;
+                      results = [];
+                      for (j = 0, len = items.length; j < len; j++) {
+                        item = items[j];
+                        results.push(scope.streamMessage.items.push(item));
+                      }
+                      return results;
+                    }
+                  });
+                }
+              }, {
+                phrase: 'streamFrame_import',
+                description: 'streamFrame_import_description',
+                action: function() {
+                  return novaWizard.fire('importContent', {
+                    projectId: scope.appItem.type === 'project' ? scope.appItem.id : void 0,
+                    cb: function(items) {
+                      var item, j, len, results;
+                      results = [];
+                      for (j = 0, len = items.length; j < len; j++) {
+                        item = items[j];
+                        results.push(scope.streamMessage.items.push(item));
+                      }
+                      return results;
+                    }
+                  });
+                }
+              }
+            ]
+          }
+        ];
+        offset = addItems.offset();
+        novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(addItems.width() / 2),
+            y: offset.top,
+            hei: addItems.height()
+          },
+          sections: sections,
+          menuStyle: 'center',
+          noApply: true
+        });
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaStreamFrame', ".novaStreamFrame .loading {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 40px;\n}\n.novaStreamFrame .loading .novaLoader {\n  left: 50%;\n  margin-left: -5px;\n  top: 50%;\n  margin-top: -7px;\n}\n.novaStreamFrame .historyView {\n  position: absolute;\n  top: 0;\n  bottom: 106px;\n  left: 0;\n  right: 0;\n  padding-bottom: 10px;\n  overflow-y: auto;\n}\n.novaStreamFrame .writeMessage {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 106px;\n  background: #efefef;\n}\n.novaStreamFrame .writeMessage .inputBox {\n  height: 60px;\n  margin: 10px;\n  margin-bottom: 5px;\n  background: #fff;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n}\n.novaStreamFrame .writeMessage .inputBox textarea {\n  width: 100%;\n  height: 100%;\n  padding: 5px 10px;\n  font-size: 11px;\n  line-height: 13px;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  border: none;\n  resize: none;\n}\n.novaStreamFrame .writeMessage .inputBox textarea::-webkit-input-placeholder {\n  color: #999;\n}\n.novaStreamFrame .writeMessage .inputBox textarea::-moz-input-placeholder {\n  color: #999;\n}\n.novaStreamFrame .writeMessage .boundedItems {\n  margin-left: 10px;\n}\n.novaStreamFrame .writeMessage .boundedItems .addItems {\n  float: left;\n  height: 27px;\n  width: 27px;\n  margin-right: 8px;\n  line-height: 27px;\n  text-align: center;\n  font-size: 25px;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n  cursor: pointer;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaStreamFrame .writeMessage .boundedItems .addItems:active {\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n}\n.novaStreamFrame .writeMessage .boundedItems .addItems:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaStreamFrame .writeMessage .boundedItems .novaItem {\n  float: left;\n  width: 36px;\n  height: 27px;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  overflow: hidden;\n  margin-right: 4px;\n}\n.novaStreamFrame .writeMessage .boundedItems .novaItem .novaItemPreview {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.novaStreamFrame .writeMessage .boundedItems .novaItem:hover .novaRemove {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaStreamFrame .writeMessage .boundedItems .novaItem .novaRemove {\n  position: absolute;\n  right: 2px;\n  top: 2px;\n}\n.novaStreamFrame .writeMessage .sendButton {\n  float: right;\n  margin-right: 10px;\n}\n.novaStreamFrame .writeMessage .sendButton.inactive {\n  background: #ccc;\n}\n");

@@ -1,0 +1,55 @@
+buzzlike.directive('bufferPanel', function(buffer, dragMaster) {
+  return {
+    restrict: 'C',
+    template: tC['/pages/desktop/bufferPanel'],
+    link: function(scope, element, attrs) {
+      var actions, body, elem, pocket, pocketSwitcher;
+      elem = $(element);
+      scope.buffer = buffer;
+      scope.actions = buffer.actions;
+      scope.lowerActions = buffer.lowerActions;
+      scope.activeTypes = buffer.activeTypes;
+      pocket = elem.children('.pocket');
+      actions = elem.children('.actions');
+      pocketSwitcher = elem.children('.pocketSwitcher');
+      body = $('body');
+      scope.hoverPocket = function(pocket) {
+        if (dragMaster.dragInProgress()) {
+          return buffer.setPocket(pocket);
+        }
+      };
+      scope.switchPocket = function(pocket) {
+        buffer.setPocket(pocket);
+        return true;
+      };
+      scope.callAction = function(action, e) {
+        var items;
+        items = action.action(e);
+        if (action.leaveItems !== true) {
+          return buffer.removeItems(items);
+        }
+      };
+      scope.callSticky = function(action, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return action.action(e);
+      };
+      scope.removeElement = function(item, e) {
+        e.stopPropagation();
+        return buffer.removeItem(item, true);
+      };
+      scope.addBuffer = function() {
+        return buffer.addPocket();
+      };
+      scope.closeBuffer = function(pocket, e) {
+        if (buffer.buffer.length > 1) {
+          $(e.target).parents('.typeSwitcher').css({
+            'display': 'none'
+          });
+        }
+        return buffer.closePocket(pocket);
+      };
+      return true;
+    }
+  };
+});

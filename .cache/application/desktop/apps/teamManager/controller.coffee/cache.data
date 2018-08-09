@@ -1,0 +1,822 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.controller('teamManagerCtrl', function($scope, localization, buffer, $filter, smartDate, complexMenu, actionsService, multiselect, taskService, userService, teamService, updateService, account, confirmBox, desktopService) {
+  var applyStep, flushHandler, flushTeam, getUsers, preloadTask, preloadTeam, process, tsCache, updateId;
+  $scope.myUser = account.user;
+  $scope.session.textMemory = {};
+  $scope.tasksScrollValue = 0;
+  $scope.stateTree.applyState({
+    'enter': function(a, b, e) {
+      var focused, ref;
+      if ((ref = $(e.target).prop("tagName")) === 'INPUT' || ref === 'TEXTAREA') {
+        return false;
+      }
+      focused = multiselect.getFocused();
+      if (focused.length > 0) {
+        return buffer.addItems(focused);
+      } else if ($scope.currentTeam != null) {
+        return buffer.addItem($scope.currentTeam);
+      }
+    },
+    'delete': function() {
+      var items;
+      items = multiselect.getFocused();
+      if (items.length > 0) {
+        return confirmBox.init({
+          realText: localization.translate(32) + ' ' + items.length + ' ' + localization.declensionPhrase(items.length, 'teamManagerApp_removeTasks_declension') + '?',
+          description: 'teamManagerApp_removeTasks_description'
+        }, function() {
+          var i, ids, item, j, len, len1, results;
+          ids = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            ids.push(item.id);
+          }
+          buffer.removeItems(items);
+          results = [];
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            results.push(taskService["delete"]({
+              id: item.id,
+              type: item.type
+            }));
+          }
+          return results;
+        });
+      }
+    },
+    'V cmd': function(repeat, defaultAction) {
+      var i, item, items, len, tasks;
+      items = multiselect.getFocused();
+      tasks = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (item.type === 'task') {
+          tasks.push(item);
+        }
+      }
+      if (tasks.length > 0) {
+        return defaultAction(tasks);
+      } else if ($scope.currentTask.id != null) {
+        return defaultAction([$scope.currentTask]);
+      } else {
+        return defaultAction();
+      }
+    },
+    'U cmd': function(repeat, defaultAction) {
+      var i, item, items, len, tasks;
+      items = multiselect.getFocused();
+      tasks = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (item.type === 'task') {
+          tasks.push(item);
+        }
+      }
+      if (tasks.length > 0) {
+        return defaultAction(tasks);
+      } else if ($scope.currentTask.id != null) {
+        return defaultAction([$scope.currentTask]);
+      } else {
+        return defaultAction();
+      }
+    },
+    'escape': function() {
+      if ($scope.currentTask.created > Date.now() - 3 * SEC) {
+        taskService["delete"]($scope.currentTask);
+        $scope.closeApp();
+        return;
+      }
+      return $scope.stepBack();
+    }
+  });
+  $scope.isInvited = function() {
+    var i, len, ref, ref1, user;
+    if ($scope.currentTeam == null) {
+      return false;
+    }
+    ref = $scope.currentTeam.members;
+    for (i = 0, len = ref.length; i < len; i++) {
+      user = ref[i];
+      if (user.userId === account.user.id && ((ref1 = user.roles) != null ? ref1.invited : void 0) === true) {
+        return true;
+      }
+    }
+    return false;
+  };
+  $scope.inviteDecline = function() {
+    var process;
+    process = $scope.progress.add();
+    return teamService.call('declineInvite', {
+      teamId: $scope.currentTeam.id
+    }, function() {
+      $scope.progress.finish(process);
+      $scope.currentTeam.hide = true;
+      $scope.currentStep = $scope.stepStack[0];
+      $scope.stepStack.length = 1;
+      return applyStep($scope.currentStep);
+    });
+  };
+  $scope.inviteAccept = function() {
+    var process;
+    process = $scope.progress.add();
+    return teamService.call('acceptInvite', {
+      teamId: $scope.currentTeam.id
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  tsCache = {};
+  $scope.getFormatedDate = function(ts) {
+    ts = smartDate.getShiftTimeline(ts);
+    if (tsCache[ts] == null) {
+      tsCache[ts] = $filter('timestampMask')(ts, 'DD.MMM.YY hh:mm');
+    }
+    return tsCache[ts];
+  };
+  $scope.account = account;
+  $scope.newMessage = {
+    text: ""
+  };
+  $scope.chatActive = false;
+  $scope.setChat = function(value) {
+    return $scope.chatActive = !!value;
+  };
+  $scope.sendOnEnter = function(e) {
+    if (e.which === 13 && !e.shiftKey) {
+      e.preventDefault();
+      return $scope.sendMessage();
+    }
+  };
+  $scope.sendMessage = function() {
+    var process, toSend;
+    if ($.trim($scope.newMessage.text) === "") {
+      return;
+    }
+    toSend = $.trim($scope.newMessage.text);
+    $scope.newMessage.text = "";
+    process = $scope.progress.add();
+    return taskService.call('addMessage', {
+      taskId: $scope.currentTask.id,
+      text: toSend
+    }, function() {
+      $scope.progress.finish(process);
+      return true;
+    });
+  };
+  $scope.getUser = function(id) {
+    return userService.getById(id);
+  };
+  $scope.invite = function() {
+    var ref;
+    if (((ref = $scope.currentTeam) != null ? ref.id : void 0) == null) {
+      return;
+    }
+    return desktopService.launchApp('inviteUser', {
+      api: {
+        pickUser: function(user, rule) {
+          var process;
+          process = $scope.progress.add();
+          return teamService.call('invite', {
+            teamId: $scope.currentTeam.id,
+            userId: user.id,
+            role: rule
+          }, function(res) {
+            $scope.progress.finish(process);
+            return getUsers();
+          });
+        }
+      }
+    });
+  };
+  $scope.crateTeam = function() {
+    var process;
+    process = $scope.progress.add();
+    return teamService.create({
+      name: 'Новая команда',
+      members: [
+        {
+          'userId': account.user.id,
+          'roles': {
+            'owner': true
+          }
+        }
+      ]
+    }, function(team) {
+      $scope.progress.finish(process);
+      return $scope.selectTeam(team);
+    });
+  };
+  $scope.justCreated = null;
+  $scope.createTask = function(e) {
+    var process, ref, ref1, ref2;
+    process = $scope.progress.add();
+    return taskService.create({
+      name: 'Новая задача',
+      description: '',
+      teamId: ((ref = $scope.currentTask) != null ? ref.teamId : void 0) || ((ref1 = $scope.currentTeam) != null ? ref1.id : void 0),
+      status: 'created',
+      parent: (ref2 = $scope.currentTask) != null ? ref2.id : void 0
+    }, function(task) {
+      $scope.progress.finish(process);
+      $scope.justCreated = task;
+      if (isCmd(e)) {
+        return desktopService.launchApp('teamManager', {
+          teamId: task.teamId,
+          taskId: task.id
+        });
+      } else {
+        return task.editMode = true;
+      }
+    });
+  };
+  $scope.showMoreMenu = function(e) {
+    var action, actions, groups, i, items, itemsActions, k, len, list, ref, ref1;
+    items = multiselect.getFocused();
+    if (items.length > 0) {
+      itemsActions = actionsService.getActions({
+        source: items,
+        context: $scope.currentTask || $scope.currentTeam
+      });
+    } else if (((ref = $scope.currentTeam) != null ? ref.id : void 0) != null) {
+      itemsActions = actionsService.getActions({
+        source: [$scope.currentTeam]
+      });
+    } else if (((ref1 = $scope.currentTask) != null ? ref1.id : void 0) != null) {
+      itemsActions = actionsService.getActions({
+        source: [$scope.currentTask]
+      });
+    } else {
+      itemsActions = actionsService.getActions({
+        source: [
+          {
+            type: 'teamManagerApp'
+          }
+        ]
+      });
+    }
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (i = 0, len = itemsActions.length; i < len; i++) {
+        action = itemsActions[i];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      complexMenu.show(groups, {
+        top: $(e.target).offset().top + 27,
+        left: $(e.target).offset().left
+      });
+    }
+    return true;
+  };
+  $scope.users = [];
+  getUsers = function() {
+    var i, j, len, len1, ref, ref1, ref2, ref3, results, results1, user;
+    $scope.users.length = 0;
+    if (((ref = $scope.currentTeam) != null ? ref.members : void 0) != null) {
+      ref1 = $scope.currentTeam.members;
+      results = [];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        user = ref1[i];
+        results.push($scope.users.push(user.userId));
+      }
+      return results;
+    } else if (((ref2 = $scope.currentTask) != null ? ref2.users : void 0) != null) {
+      ref3 = $scope.currentTask.users;
+      results1 = [];
+      for (j = 0, len1 = ref3.length; j < len1; j++) {
+        user = ref3[j];
+        results1.push($scope.users.push(user));
+      }
+      return results1;
+    } else {
+      return $scope.users.push(account.user.id);
+    }
+  };
+  $scope.$watch('currentTask.users', function(nVal) {
+    return getUsers();
+  }, true);
+  $scope.$watch('currentTeam.members', function(nVal) {
+    return getUsers();
+  }, true);
+  $scope.inTask = function(userId) {
+    var ref;
+    if (((ref = $scope.currentTask) != null ? ref.id : void 0) == null) {
+      return true;
+    }
+    return indexOf.call($scope.currentTask.users, userId) >= 0;
+  };
+  $scope.notInTask = function(userId) {
+    var ref;
+    if (((ref = $scope.currentTask) != null ? ref.id : void 0) == null) {
+      return false;
+    }
+    return indexOf.call($scope.currentTask.users, userId) < 0;
+  };
+  $scope.userCode = function() {
+    var ref;
+    return account.user.firstName[0].toUpperCase() + (((ref = account.user.lastName) != null ? ref[0] : void 0) != null ? account.user.lastName[0].toUpperCase() : '');
+  };
+  $scope.myTasks = false;
+  $scope.triggerMy = function() {
+    $scope.myTasks = !$scope.myTasks;
+    $scope.resetTaskList();
+    return $scope.fetchTasksPage();
+  };
+  $scope.memberRole = function(id) {
+    var i, len, member, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, user;
+    if (((ref = $scope.currentTeam) != null ? ref.id : void 0) == null) {
+      return 'member';
+    }
+    member = null;
+    ref1 = $scope.currentTeam.members;
+    for (i = 0, len = ref1.length; i < len; i++) {
+      user = ref1[i];
+      if (user.userId === id) {
+        member = user;
+      }
+    }
+    if (member == null) {
+      return 'member';
+    }
+    if ($scope.currentTeam.userId === member.userId) {
+      return 'owner';
+    }
+    if ((ref2 = member.roles) != null ? ref2.invited : void 0) {
+      return 'invited';
+    }
+    if ((ref3 = member.roles) != null ? ref3.mainEditor : void 0) {
+      return 'mainEditor';
+    }
+    if ((ref4 = member.roles) != null ? ref4.editor : void 0) {
+      return 'editor';
+    }
+    if ((ref5 = member.roles) != null ? ref5.contentManager : void 0) {
+      return 'contentManager';
+    }
+    if ((ref6 = member.roles) != null ? ref6.timeManager : void 0) {
+      return 'timeManager';
+    }
+    if ((ref7 = member.roles) != null ? ref7.postManager : void 0) {
+      return 'postManager';
+    }
+    if ((ref8 = member.roles) != null ? ref8.client : void 0) {
+      return 'client';
+    }
+    return 'member';
+  };
+  $scope.currentTask = null;
+  $scope.selectTask = function(task) {
+    var index, ref;
+    index = $scope.stepStack.indexOf($scope.currentStep);
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.splice(index + 1, $scope.stepStack.length - index);
+    }
+    $scope.currentStep.scrollValue = $scope.tasksScrollValue;
+    $scope.tasksScrollValue = 0;
+    $scope.currentStep = {
+      translateTitle: ((ref = task.name) != null ? ref.length : void 0) > 0 ? null : 'taskManagerApp_taskTasks',
+      title: task.name,
+      taskId: task.id,
+      teamId: task.teamId
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return preloadTask(task);
+  };
+  preloadTask = function(task) {
+    var ref;
+    $scope.currentTask = task;
+    $scope.tasks.length = 0;
+    if (((ref = task.description) != null ? ref.length : void 0) > 0 || task.entities.length > 0) {
+      $scope.showSettings = true;
+    } else {
+      $scope.showSettings = false;
+    }
+    $scope.resetTaskList();
+    $scope.fetchTasksPage();
+    if ($scope.session.textMemory[task.id] == null) {
+      $scope.session.textMemory[task.id] = {
+        text: ""
+      };
+    }
+    $scope.newMessage = $scope.session.textMemory[task.id];
+    return getUsers();
+  };
+  $scope.saveTask = function(task) {
+    var process;
+    process = $scope.progress.add();
+    taskService.save(task || $scope.currentTask, function() {
+      return $scope.progress.finish(process);
+    });
+    return task != null ? task.editMode = false : void 0;
+  };
+  $scope.currentTeam = null;
+  $scope.taskTeams = [];
+  $scope.showSettings = false;
+  $scope.tasks = [];
+  flushHandler = null;
+  flushTeam = function(teamId) {
+    if (flushHandler !== null) {
+      clearTimeout(flushHandler);
+      flushHandler = null;
+    }
+    return flushHandler = setTimeout(function() {
+      var process;
+      process = $scope.progress.add();
+      return teamService.flushNew(teamId, function() {
+        return $scope.progress.finish(process);
+      });
+    }, 5000);
+  };
+  $scope.selectTeam = function(team) {
+    var ref;
+    $scope.showSettings = false;
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.splice(1, $scope.stepStack.length - 1);
+    }
+    $scope.currentStep = {
+      translateTitle: ((ref = team.name) != null ? ref.length : void 0) > 0 ? null : 'teamManagerApp_teamTasks',
+      title: team.name,
+      teamId: team.id
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return preloadTeam(team);
+  };
+  preloadTeam = function(team, fetchTasks) {
+    if (fetchTasks == null) {
+      fetchTasks = true;
+    }
+    $scope.currentTeam = team;
+    $scope.currentTask = null;
+    $scope.tasks.length = 0;
+    if (fetchTasks) {
+      $scope.resetTaskList();
+      $scope.fetchTasksPage();
+      return getUsers();
+    }
+  };
+  $scope.saveTeam = function() {
+    var process;
+    process = $scope.progress.add();
+    return teamService.save($scope.currentTeam, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.isOwner = function() {
+    return account.user.id === $scope.currentTeam.userId;
+  };
+  $scope.leaveTeam = function() {
+    return confirmBox.init({
+      phrase: 'teamManager_confirm_leave_team',
+      description: 'teamManager_confirm_leave_team_description'
+    }, function() {
+      return teamService.call('removeMembers', {
+        teamId: $scope.currentTeam.id,
+        users: [account.user.id]
+      }, function() {
+        $scope.stepBack();
+        return true;
+      });
+    }, function() {
+      return true;
+    });
+  };
+  $scope.$watch('currentTeam.deleted', function(nVal) {
+    if (nVal === true) {
+      $scope.currentStep = $scope.stepStack[0];
+      applyStep($scope.currentStep);
+      return $scope.stepStack.lenght = 1;
+    }
+  });
+  $scope.teamOrder = function(item) {
+    var map, ref;
+    map = item != null ? (ref = item.userUpdated) != null ? ref[0] : void 0 : void 0;
+    if ((map != null ? map.userId : void 0) === account.user.id) {
+      if (map.unread) {
+        return '3' + map.timestamp;
+      }
+      if (map.updates > 0) {
+        return '2' + map.timestamp;
+      }
+      return '1' + map.timestamp;
+    }
+  };
+  $scope.teamFilter = function(item) {
+    var i, len, ref, user;
+    if (item.deleted === true || item.hide === true) {
+      return false;
+    }
+    if (item.userId === account.user.id) {
+      return true;
+    }
+    ref = item.members;
+    for (i = 0, len = ref.length; i < len; i++) {
+      user = ref[i];
+      if (user.userId === account.user.id) {
+        return true;
+      }
+    }
+    return false;
+  };
+  $scope.teamParams = {
+    pageSize: 0,
+    page: 0,
+    total: 0,
+    isLoading: false,
+    reloadOnStart: false
+  };
+  $scope.resetTeamList = function() {
+    $scope.teamParams.pageSize = Math.ceil(($scope.session.size.height - 100) / 120) * 2;
+    $scope.teamParams.page = 0;
+    $scope.teamParams.total = 0;
+    $scope.teamParams.isLoading = false;
+    return $scope.teamParams.reloadOnStart = false;
+  };
+  $scope.resetTeamList();
+  $scope.fetchTeamsPage = function() {
+    var tasksProcess;
+    if ($scope.teamParams.isLoading === true) {
+      return;
+    }
+    tasksProcess = $scope.progress.add();
+    $scope.teamParams.isLoading = true;
+    return teamService.query({
+      member: account.user.id
+    }, function(items, total) {
+      var i, item, len;
+      if ($scope.taskParams.page === 0) {
+        $scope.tasks.length = 0;
+      }
+      $scope.progress.finish(tasksProcess);
+      $scope.teamParams.page++;
+      $scope.teamParams.total = total;
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call($scope.taskTeams, item) < 0) {
+          $scope.taskTeams.push(item);
+        }
+      }
+      return $scope.teamParams.isLoading = false;
+    });
+  };
+  $scope.showAccepted = false;
+  $scope.triggerAccepted = function() {
+    $scope.showAccepted = !$scope.showAccepted;
+    $scope.resetTaskList();
+    return $scope.fetchTasksPage();
+  };
+  $scope.taskOrder = function(item) {
+    var multiply, ref, ref1, ref2;
+    multiply = '1';
+    if (item.status === 'started') {
+      multiply = '5';
+      if (ref = account.user.id, indexOf.call(item.users, ref) >= 0) {
+        multiply = '9';
+      }
+    }
+    if (item.status === 'rejected') {
+      multiply = '4';
+      if (ref1 = account.user.id, indexOf.call(item.users, ref1) >= 0) {
+        multiply = '8';
+      }
+    }
+    if (item.status === 'created') {
+      multiply = '2';
+      if (ref2 = account.user.id, indexOf.call(item.users, ref2) >= 0) {
+        multiply = '7';
+      }
+    }
+    if (item.status === 'finished') {
+      multiply = '6';
+      if (account.user.id === item.userId) {
+        multiply = 'a';
+      }
+    }
+    if (item.status === 'accepted') {
+      multiply = '0';
+    }
+    return multiply + (item.lastUpdated || item.created);
+  };
+  $scope.taskFilter = function(item) {
+    if ($scope.currentTeam != null) {
+      if ($scope.currentTask != null) {
+        return item.parent === $scope.currentTask.id;
+      } else {
+        return item.parent == null;
+      }
+    } else {
+      return true;
+    }
+  };
+  $scope.taskParams = {
+    pageSize: 0,
+    page: 50,
+    total: 0,
+    isLoading: false,
+    reloadOnStart: false
+  };
+  $scope.resetTaskList = function() {
+    $scope.taskParams.pageSize = Math.ceil(($scope.session.size.height - 100) / 40) * 2;
+    $scope.taskParams.page = 0;
+    $scope.taskParams.total = 0;
+    $scope.taskParams.isLoading = false;
+    return $scope.taskParams.reloadOnStart = false;
+  };
+  $scope.fetchTasksPage = function() {
+    var ref, ref1, ref2, tasksProcess;
+    if ($scope.taskParams.isLoading === true) {
+      return;
+    }
+    $scope.taskParams.isLoading = true;
+    tasksProcess = $scope.progress.add();
+    return taskService.query({
+      teamId: (ref = $scope.currentTeam) != null ? ref.id : void 0,
+      parent: ((ref1 = $scope.currentTask) != null ? ref1.id : void 0) || ($scope.currentTeam != null ? 'null' : void 0),
+      limit: $scope.currentTeam != null ? void 0 : $scope.taskParams.pageSize,
+      page: $scope.taskParams.page,
+      member: $scope.myTasks ? account.user.id : ((ref2 = $scope.currentTeam) != null ? ref2.id : void 0) != null ? void 0 : account.user.id,
+      sortBy: 'created',
+      sortType: 'desc',
+      status: $scope.showAccepted === true ? void 0 : {
+        '$ne': 'accepted'
+      }
+    }, function(items, total) {
+      var i, item, len;
+      if ($scope.taskParams.page === 0) {
+        multiselect.flush();
+        $scope.tasks.length = 0;
+      }
+      $scope.taskParams.page++;
+      $scope.taskParams.total = total;
+      if ($scope.currentTeam != null) {
+        $scope.taskParams.pageSize = total;
+      }
+      $scope.progress.finish(tasksProcess);
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call($scope.tasks, item) < 0) {
+          $scope.tasks.push(item);
+        }
+      }
+      return $scope.taskParams.isLoading = false;
+    });
+  };
+  updateId = updateService.registerUpdateHandler(function(data) {
+    if (data['team'] != null) {
+      if ($scope.teamParams.page < 2 || $scope.tasksScrollValue < 300) {
+        $scope.resetTeamList();
+        $scope.fetchTeamsPage();
+      } else {
+        $scope.teamParams.reloadOnStart = true;
+      }
+    }
+    if (data['task'] != null) {
+      if ($scope.taskParams.page < 2 || $scope.tasksScrollValue < 300) {
+        $scope.resetTaskList();
+        return $scope.fetchTasksPage();
+      } else {
+        return $scope.taskParams.reloadOnStart = true;
+      }
+    }
+  });
+  $scope.$on('$destroy', function() {
+    if (flushHandler !== null) {
+      clearTimeout(flushHandler);
+    }
+    return updateService.unRegisterUpdateHandler(updateId);
+  });
+  $scope.fetchTeamsPage();
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+      $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+      return applyStep($scope.currentStep);
+    }
+  };
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'teamManagerApp_title'
+  };
+  $scope.stepStack.push($scope.currentStep);
+  applyStep = function(step) {
+    var process;
+    $scope.showSettings = false;
+    $scope.chatActive = false;
+    $scope.tasksScrollValue = step.scrollValue || 0;
+    if (step.teamId != null) {
+      process = $scope.progress.add();
+      return teamService.getById(step.teamId, function(item) {
+        $scope.progress.finish(process);
+        if (step.taskId != null) {
+          preloadTeam(item, false);
+          process = $scope.progress.add();
+          return taskService.getById(step.taskId, function(item) {
+            $scope.progress.finish(process);
+            return preloadTask(item);
+          });
+        } else {
+          $scope.currentTask = null;
+          return preloadTeam(item);
+        }
+      });
+    } else if (step.taskId != null) {
+      process = $scope.progress.add();
+      return taskService.getById(step.taskId, function(item) {
+        $scope.progress.finish(process);
+        return preloadTask(item);
+      });
+    } else {
+      $scope.resetTaskList();
+      $scope.currentTeam = null;
+      $scope.currentTask = null;
+      $scope.fetchTasksPage();
+      return getUsers();
+    }
+  };
+  $scope.onJumpStep = function() {
+    return applyStep($scope.currentStep);
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: angular.copy($scope.stepStack),
+      current: angular.copy($scope.stepStack.indexOf($scope.currentStep))
+    };
+  }, function(data) {
+    var i, len, ref, ref1, step;
+    if ($scope.session.teamId != null) {
+      delete $scope.session.teamId;
+    }
+    if ($scope.session.taskId != null) {
+      delete $scope.session.taskId;
+    }
+    if (((ref = data.stack) != null ? ref.length : void 0) > 0) {
+      $scope.stepStack.length = 0;
+      ref1 = data.stack;
+      for (i = 0, len = ref1.length; i < len; i++) {
+        step = ref1[i];
+        $scope.stepStack.push(step);
+      }
+      return $scope.currentStep = $scope.stepStack[data.current * 1];
+    }
+  });
+  $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  if ($scope.session.teamId != null) {
+    process = $scope.progress.add();
+    teamService.getById($scope.session.teamId, function(teamItem) {
+      $scope.progress.finish(process);
+      $scope.selectTeam(teamItem);
+      if ($scope.session.taskId != null) {
+        process = $scope.progress.add();
+        return taskService.getById($scope.session.taskId, function(taskItem) {
+          $scope.progress.finish(process);
+          return $scope.selectTask(taskItem);
+        });
+      }
+    });
+  } else if ($scope.session.taskId != null) {
+    process = $scope.progress.add();
+    taskService.getById($scope.session.taskId, function(taskItem) {
+      $scope.progress.finish(process);
+      return $scope.selectTask(taskItem);
+    });
+  } else {
+    applyStep($scope.currentStep);
+  }
+  return true;
+}).directive('loadFirstTeam', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      if ((scope.currentTeam == null) && scope.$index === 0) {
+        return scope.selectTeam(scope.item);
+      }
+    }
+  };
+});

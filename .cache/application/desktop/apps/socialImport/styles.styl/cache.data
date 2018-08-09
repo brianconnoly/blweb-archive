@@ -1,0 +1,317 @@
+.socialWrapperAccountSocial {
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 20px;
+  line-height: 32px;
+  text-align: center;
+  color: #fff;
+}
+.appContainer.socialImport {
+  background: #75a843;
+}
+.appContainer.socialImport .scroll-bottom,
+.appContainer.socialImport .scroll-right {
+  background: rgba(117,168,67,0.8) !important;
+}
+.appContainer.socialImport .paginator .page {
+  border-color: #75a843;
+}
+.appContainer.socialImport .paginator .page.active {
+  background: #75a843;
+}
+.appContainer.socialImport .itemPreview.community img.cover,
+.appContainer.socialImport .itemPreview.importAlbum img.cover,
+.appContainer.socialImport .itemPreview.importContent img.cover {
+  width: 100%;
+}
+.zoom_min .appContainer.socialImport .itemPreview.importAlbum,
+.appContainer.socialImport.zoom_min .itemPreview.importAlbum,
+.zoom_min .appContainer.socialImport .itemPreview.importContent,
+.appContainer.socialImport.zoom_min .itemPreview.importContent {
+  width: 70px;
+  height: 54px;
+}
+.zoom_mid .appContainer.socialImport .itemPreview.importAlbum,
+.appContainer.socialImport.zoom_mid .itemPreview.importAlbum,
+.zoom_mid .appContainer.socialImport .itemPreview.importContent,
+.appContainer.socialImport.zoom_mid .itemPreview.importContent {
+  width: 139px;
+  height: 103px;
+}
+.zoom_max .appContainer.socialImport .itemPreview.importAlbum,
+.appContainer.socialImport.zoom_max .itemPreview.importAlbum,
+.zoom_max .appContainer.socialImport .itemPreview.importContent,
+.appContainer.socialImport.zoom_max .itemPreview.importContent {
+  width: 167px;
+  height: 131px;
+}
+.appContainer.socialImport .previewContainer .name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  background: rgba(51,51,51,0.9);
+  color: #fff;
+  max-height: none;
+}
+.appContainer.socialImport .previewContainer .size {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(51,51,51,0.9);
+  color: #fff;
+  text-align: center;
+  padding: 2px;
+}
+.appContainer.socialImport .rightContent .previewContainer .name,
+.appContainer.socialImport .rightContent .previewContainer .size {
+  background: rgba(117,168,67,0.9);
+}
+.appContainer.socialImport .rightContent .previewContainer .importContent .name {
+  background: rgba(51,51,51,0.9);
+}
+.appContainer.socialImport .leftPanel .previewContainer {
+  width: 140px;
+  height: 106px;
+}
+.appContainer.socialImport .leftPanel .panelItem.big .size {
+  display: none;
+}
+.appContainer.socialImport .leftPanel .panelItem.small .size {
+  font-size: 9px;
+  line-height: 11px;
+}
+.appContainer.socialImport div.empty {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  display: none;
+}
+.appContainer.socialImport div.empty.active {
+  display: block;
+}
+.appContainer.socialImport div.empty div.message {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  top: 40%;
+  font-size: 35px;
+  color: #fff;
+}
+.appContainer.socialImport .communitiesList {
+  top: 0px;
+}
+.appContainer.socialImport .communitiesList .spacer {
+  width: 100%;
+  height: 50px;
+}
+.appContainer.socialImport .communitiesList .socialBrowser {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker {
+  position: relative;
+  display: block;
+  height: 50px;
+  overflow: hidden;
+}
+@media (min-width: 1100px) {
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker {
+    height: 70px;
+  }
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker.expanded {
+  height: auto;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker.expanded .head {
+  background: rgba(255,255,255,0.3);
+  display: none;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker.expanded ul.communities {
+  display: block;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head {
+  margin: 0 auto;
+  display: block;
+  overflow: hidden;
+  width: 270px;
+  height: 40px;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+@media (min-width: 1100px) {
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head {
+    margin-bottom: 10px;
+    height: 60px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head span.type {
+    height: 60px;
+    width: 60px;
+    line-height: 60px;
+    font-size: 22px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head span.name {
+    height: 60px;
+    line-height: 60px;
+    font-size: 20px;
+  }
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head div.separate {
+  position: absolute;
+  display: none;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: #485157;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head .type {
+  position: relative;
+  height: 40px;
+  width: 40px;
+  margin-right: 10px;
+  display: block;
+  float: left;
+  text-align: center;
+  line-height: 40px;
+  font-size: 18px;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.2);
+  z-index: 10;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker div.head .name {
+  height: 40px;
+  line-height: 40px;
+  display: block;
+  float: left;
+  font-size: 18px;
+  color: #fff;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities {
+  display: none;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent {
+  margin: 0 auto;
+  margin-top: 1px;
+  position: relative;
+  width: 270px;
+  overflow: hidden;
+  display: block;
+  color: #fff;
+  -webkit-transition: margin 0.2s ease;
+  -moz-transition: margin 0.2s ease;
+  -o-transition: margin 0.2s ease;
+  -ms-transition: margin 0.2s ease;
+  transition: margin 0.2s ease;
+}
+@media (min-width: 1100px) {
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent {
+    margin-top: 10px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent.tl_selectaccount {
+    height: 60px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent.tl_selectaccount .type {
+    margin-left: 0;
+    height: 60px;
+    width: 60px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent.tl_selectaccount .type .communityImageMin {
+    height: 60px;
+    width: 60px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent.tl_selectaccount .name {
+    height: 60px;
+    line-height: 60px;
+    font-size: 20px;
+  }
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent div.socialWrapperAccountSocial {
+    width: 60px;
+    height: 60px;
+    font-size: 20px;
+    line-height: 60px;
+  }
+}
+@media (min-width: 1400px) {
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent {
+    margin-top: 20px;
+  }
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent .communityImageMin {
+  width: 40px;
+  -webkit-transform: scale(1, 1);
+  -moz-transform: scale(1, 1);
+  -o-transform: scale(1, 1);
+  -ms-transform: scale(1, 1);
+  transform: scale(1, 1);
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent .socialWrapperAccountSocial {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  z-index: 30;
+  left: 0;
+  top: 0;
+  font-size: 18px;
+  text-align: center;
+  line-height: 40px;
+  color: #fff;
+  text-transform: uppercase;
+  background: rgba(70,107,145,0.6);
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent.active .name {
+  background: rgba(255,255,255,0.8) !important;
+  color: #000;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent *:hover {
+  cursor: pointer;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent:hover .name {
+  background: rgba(255,255,255,0.2);
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent span.type {
+  position: relative;
+  height: 40px;
+  width: 40px;
+  display: block;
+  float: left;
+  text-align: center;
+  line-height: 40px;
+  font-size: 18px;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.1);
+  z-index: 10;
+}
+@media (min-width: 1100px) {
+  .appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent span.type {
+    margin-left: 20px;
+  }
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent span.name {
+  padding: 0 10px;
+  height: 40px;
+  line-height: 40px;
+  display: block;
+  float: left;
+  font-size: 16px;
+  width: 190px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.appContainer.socialImport .communitiesList .socialBrowser .accountPicker ul.communities li.communityContent span.name .text {
+  display: block;
+  width: 190px;
+  overflow: hidden;
+}

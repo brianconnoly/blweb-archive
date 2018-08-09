@@ -1,0 +1,23 @@
+buzzlike.directive('dropHelper', function(dropHelper, localization, buffer) {
+  return {
+    restrict: 'C',
+    scope: {},
+    replace: true,
+    template: tC['/dragdrop/dropHelper'],
+    link: function(scope, element, attrs) {
+      scope.status = dropHelper.status;
+      scope.fireAction = function(action, e) {
+        var items;
+        items = action.action(e);
+        if (!e.altKey && dropHelper.fromBuffer && this.status.actions[0].leaveItems !== true) {
+          buffer.removeItems(items);
+        }
+        return dropHelper.flush(true);
+      };
+      scope.closeHelper = function() {
+        return dropHelper.flush(true);
+      };
+      return true;
+    }
+  };
+});

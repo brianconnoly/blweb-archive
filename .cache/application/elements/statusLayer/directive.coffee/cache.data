@@ -1,0 +1,227 @@
+buzzlike.directive('statusLayer', function($parse, localization) {
+  return {
+    restrict: 'C',
+    template: tC['/elements/statusLayer'],
+    link: function(scope, element, attrs) {
+      var comment, currentStep, destinationStep, elem, filled, goStep, lastStatus, progressHandler, sched, sendProgress, setSpinnerProgress, setText, showError, simpleCache, smartGoStep, spinner, steps, stepsRunning;
+      elem = $(element);
+      sched = $(elem.parents('.feedItem')[0]);
+      spinner = elem.find('.spinner');
+      comment = $(elem.find('.comment')[0]);
+      sendProgress = $(elem.find('.sendProgress')[0]);
+      scope.sched = scope.$parent.$parent.sched;
+      scope.currentStatus = scope.sched.status;
+      lastStatus = scope.sched.status;
+      scope.$watch('sched.status', function(nVal, oVal) {
+        if (nVal === 'pending' || nVal === 'ready' || nVal === 'completed' || nVal === 'error') {
+          elem.addClass('visible');
+        }
+        if (nVal === oVal && (nVal === 'planned' || nVal === 'completed')) {
+          switch (nVal) {
+            case 'planned':
+              steps[0]();
+              break;
+            case 'completed':
+              elem.addClass('permCompleted');
+              if (scope.sched.stats.length > 0) {
+                elem.addClass('showStats');
+              }
+              steps[4]();
+          }
+        } else {
+          switch (nVal) {
+            case 'pending':
+              smartGoStep(1);
+              break;
+            case 'ready':
+              smartGoStep(3);
+              break;
+            case 'completed':
+              smartGoStep(4);
+              break;
+            case 'error':
+              showError();
+          }
+        }
+        return lastStatus = nVal;
+      }, true);
+      showError = function() {
+        elem.addClass('error');
+        spinner.addClass('hide').remove();
+        return setText('error');
+      };
+      setText = function(text) {
+        scope.currentStatus = text;
+        return localization.onLangLoaded(function() {
+          return comment.html(localization.translate('timelineApp_schedule_status' + scope.currentStatus));
+        });
+      };
+      filled = 0;
+      progressHandler = null;
+      setSpinnerProgress = function(progress, cb) {
+        if (progress === 100) {
+          if (filled < 1) {
+            if (progressHandler != null) {
+              clearTimeout(progressHandler);
+            }
+            spinner.addClass('halfFull');
+            progressHandler = setTimeout(function() {
+              spinner.addClass('full');
+              filled = 2;
+              return progressHandler = setTimeout(function() {
+                return typeof cb === "function" ? cb(true) : void 0;
+              }, 200);
+            }, 100);
+          } else {
+            spinner.addClass('full');
+            filled = 2;
+            progressHandler = setTimeout(function() {
+              return typeof cb === "function" ? cb(true) : void 0;
+            }, 200);
+          }
+          return;
+        }
+        if (progress > 50) {
+          if (filled < 1) {
+            if (progressHandler != null) {
+              clearTimeout(progressHandler);
+            }
+            spinner.addClass('halfProgress');
+            progressHandler = setTimeout(function() {
+              spinner.addClass('halfFull');
+              return progressHandler = setTimeout(function() {
+                filled = 1;
+                spinner.addClass('almostDone');
+                return typeof cb === "function" ? cb(true) : void 0;
+              }, 100);
+            }, 15 * SEC);
+          }
+          return;
+        }
+        if (progress === 0) {
+          if (progressHandler != null) {
+            clearTimeout(progressHandler);
+          }
+          spinner.addClass('fullSpeed');
+          spinner.removeClass('halfFull');
+          spinner.removeClass('halfProgress');
+          spinner.removeClass('full');
+          spinner.removeClass('almostDone');
+          progressHandler = setTimeout(function() {
+            spinner.removeClass('fullSpeed');
+            return typeof cb === "function" ? cb(true) : void 0;
+          }, 100);
+          return filled = 0;
+        }
+      };
+      currentStep = 0;
+      steps = [
+        function(cb) {
+          spinner.detach();
+          setText('planned');
+          return typeof cb === "function" ? cb(true) : void 0;
+        }, function(cb) {
+          sendProgress.append(spinner);
+          setText('pending');
+          return setTimeout(function() {
+            setSpinnerProgress(80);
+            return cb(true);
+          }, 100);
+        }, function(cb) {
+          return setSpinnerProgress(100, function() {
+            if (scope.sched.timestamp - Date.now() > 5 * SEC) {
+              setText('ready');
+              spinner.addClass('hide');
+              return setTimeout(function() {
+                elem.addClass('completed');
+                setSpinnerProgress(0);
+                return setTimeout(function() {
+                  elem.removeClass('completed');
+                  spinner.removeClass('hide');
+                  return setTimeout(function() {
+                    setText('sending');
+                    return cb(true);
+                  }, 200);
+                }, scope.sched.timestamp - Date.now() - 5 * SEC);
+              }, 200);
+            } else {
+              return setSpinnerProgress(0, function() {
+                return setTimeout(function() {
+                  return cb(true);
+                }, 200);
+              });
+            }
+          });
+        }, function(cb) {
+          setText('sending');
+          setSpinnerProgress(80);
+          return cb(true);
+        }, function(cb) {
+          setText('completed');
+          return setSpinnerProgress(100, function() {
+            var unreg;
+            spinner.addClass('hide');
+            setTimeout(function() {
+              elem.addClass('completed');
+              return setTimeout(function() {
+                spinner.remove();
+                return typeof cb === "function" ? cb(true) : void 0;
+              }, 200);
+            }, 200);
+            if (scope.sched.stats.length > 0) {
+              return elem.addClass('showStats');
+            } else {
+              return unreg = scope.$watch('sched.stats', function(nVal) {
+                if (nVal.length > 0) {
+                  unreg();
+                  elem.removeClass('permCompleted');
+                  return elem.addClass('showStats');
+                }
+              }, true);
+            }
+          });
+        }
+      ];
+      destinationStep = currentStep;
+      stepsRunning = false;
+      smartGoStep = function(step, cb) {
+        if (step > destinationStep) {
+          destinationStep = step;
+        }
+        if (!stepsRunning) {
+          return goStep(function() {
+            return typeof cb === "function" ? cb(true) : void 0;
+          });
+        }
+      };
+      goStep = function(cb) {
+        if (currentStep < destinationStep) {
+          currentStep++;
+          return steps[currentStep](function() {
+            return goStep(cb);
+          });
+        } else {
+          return cb(true);
+        }
+      };
+      scope.makeDiff = function(val) {
+        return Math.abs(Math.ceil(val * 100)) + '%';
+      };
+      simpleCache = {};
+      scope.simpleNumber = function(number) {
+        if (simpleCache[number] != null) {
+          return simpleCache[number];
+        }
+        if (number >= 1000000) {
+          simpleCache[number] = Math.round(number / 1000000) + 'm';
+        } else if (number >= 1000) {
+          simpleCache[number] = Math.round(number / 1000) + 'k';
+        } else {
+          simpleCache[number] = number | 0;
+        }
+        return simpleCache[number];
+      };
+      return true;
+    }
+  };
+});

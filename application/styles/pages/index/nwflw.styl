@@ -1,0 +1,103 @@
+.option-blur-on .liveBackground
+    .container
+        vendor filter blur(3px)
+    &.settingsShowed .container, &.overlayShowed .container
+        vendor filter blur(20px)
+
+.nwflw_view
+    position absolute
+
+    top 0
+    right 0
+    left 0
+    bottom 0
+    overflow: hidden
+    transition filter 0.2s ease
+
+    .option-blur-on &.settingsShowed, .option-blur-on &.overlayShowed
+            vendor filter blur(20px)
+
+    .workarea
+        vendor perspective, 800px
+        vendor transform-style, preserve-3d
+
+        display: block
+        position: absolute
+
+        top 0
+        bottom 0
+        left 0
+        right 0
+
+    .rpON
+        right 200px
+
+    .fader
+        background rgba(0,0,0,0.7)
+        display block
+
+        position: absolute
+
+        top 0
+        right 0
+        left auto
+        width 0
+        bottom 0
+
+        z-index 20000
+
+        opacity 0
+        transition opacity 0.5s ease
+
+        .turbo &
+            background: none !important
+
+    .viewport3d
+        transition all .3s ease
+        opacity: 1
+        //border: 1px solid #fff
+        height 100%
+
+        .option-blur-on &
+            vendor filter blur(0px)
+
+    &.faded
+
+        .viewport3d
+            //transform scale(0.8) translateX(130px)
+            opacity 0.6
+
+            .option-blur-on &
+                opacity 1
+                vendor filter blur(20px)
+
+        .fader
+            display block
+            left 0
+            width auto
+            //background: rgba(0,0,0,0.7)
+            opacity 1
+
+
+.helper-transparent
+    opacity 0.9
+    -webkit-user-select none
+    -moz-user-select none
+    -ms-user-select none
+    user-select none
+
+    *
+        -webkit-user-select none
+        -moz-user-select none
+        -ms-user-select none
+        user-select none
+
+.content-drop
+    transform scale(1.1)
+    transition transform 0.2s ease
+
+    .shield
+        opacity 0 !important
+
+.tutorialsShowed
+    vendor filter blur(20px)

@@ -1,0 +1,59 @@
+tC['/novaTextEditApp/template.jade'] = "<div nova-item-object=\"appItem\" class=\"textItem novaItemScope novaItem novaItemDraggable noDrag\"></div> <div class=\"textHeader\"> <div ng-model=\"editableItem.name\" placeholder-text=\"'novaTextEdit_enterTitle'\" ng-change=\"saveText()\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }\" class=\"textTitle novaEditableDiv\"></div> </div> <div class=\"textBody\"> <div ng-model=\"editableItem.value\" placeholder-text=\"'novaTextEdit_enterText'\" ng-change=\"saveText()\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }\" class=\"textContents novaEditableDiv\"></div> </div> <div class=\"bottomHider\"></div>";
+
+buzzlike.directive('novaTextEditApp', function(contentService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTextEditApp/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem, mode, sessionCode, textContents;
+      elem = $(element);
+      textContents = elem.children('.textBody');
+      scope.session.noItem = true;
+      scope.session.size = {
+        width: 550,
+        height: 600
+      };
+      sessionCode = Date.now() + getRandomInt(10000, 100000);
+      mode = 'full';
+      textContents.on('mousewheel', function(e, delta) {
+        if (textContents[0].scrollTop > 10 && mode === 'full') {
+          elem.addClass('simple');
+          mode = 'simple';
+          return;
+        }
+        if (textContents[0].scrollTop <= 10 && mode === 'simple') {
+          elem.removeClass('simple');
+          mode = 'full';
+        }
+      });
+      contentService.getById(scope.session.item.id, function(textItem) {
+        scope.originalItem = textItem;
+        scope.editableItem = {
+          name: textItem.name,
+          value: textItem.value
+        };
+        return scope.$watch('originalItem', function(nVal) {
+          if (nVal.lastEditSession !== sessionCode) {
+            if (scope.editableItem.name !== nVal.name) {
+              scope.editableItem.name = nVal.name;
+            }
+            if (scope.editableItem.value !== nVal.value) {
+              return scope.editableItem.value = nVal.value;
+            }
+          }
+        }, true);
+      });
+      return scope.saveText = function() {
+        return contentService.save({
+          id: scope.originalItem.id,
+          type: 'text',
+          value: scope.editableItem.value,
+          name: scope.editableItem.name,
+          lastEditSession: sessionCode
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaTextEditApp', ".novaTextEditApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: #ededed;\n  overflow-y: auto !important;\n}\n.novaTextEditApp .textItem {\n  position: absolute;\n  top: 35px;\n  left: 35px;\n  width: 28px;\n  height: 28px;\n  border: 1px solid #c1c1c1;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  z-index: 2;\n}\n.novaTextEditApp .textItem:hover {\n  border: 1px solid #acacac;\n  background: #dedede;\n}\n.novaTextEditApp .textTitle.placeholder,\n.novaTextEditApp .textContents.placeholder {\n  color: #ccc;\n}\n.novaTextEditApp.simple .textHeader {\n  padding-top: 15px;\n  color: #333;\n  padding-bottom: 15px;\n}\n.novaTextEditApp.simple .textHeader.placeholder {\n  color: #ccc;\n}\n.novaTextEditApp .textHeader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 16px;\n  padding: 45px 100px 0 100px;\n  width: auto;\n  text-align: center;\n  font-size: 18px;\n  font-weight: 400;\n  background: rgba(237,237,237,0.94);\n  z-index: 1;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTextEditApp .textBody {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow-y: auto;\n  padding: 80px 100px 80px 100px;\n}\n.novaTextEditApp .textBody .textContents {\n  font-size: 14px;\n  line-height: 22px;\n  text-align: justify;\n  min-height: 100%;\n}\n.novaTextEditApp .bottomHider {\n  position: absolute;\n  bottom: 0;\n  height: 30px;\n  left: 0;\n  right: 0;\n  z-index: 1;\n  background: rgba(237,237,237,0.94);\n}\n");

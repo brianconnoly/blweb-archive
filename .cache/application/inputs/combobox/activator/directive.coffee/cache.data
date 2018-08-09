@@ -1,0 +1,121 @@
+buzzlike.directive('combobox', function(comboboxService, complexMenu, localization) {
+  return {
+    restrict: 'E',
+    require: '^ngModel',
+    scope: {
+      list: '=',
+      settings: '=',
+      "default": '@'
+    },
+    replace: true,
+    template: tC['/inputs/combobox/activator'],
+    link: function(scope, element, attrs, ctrl) {
+      var c, defaultSettings, defaultValue, elem, i, initContentPosition, item, len, listClass, ref, ref1, selectItem, settings;
+      elem = $(element);
+      scope.translate = localization.translate;
+      settings = {};
+      defaultSettings = {
+        minLines: 3,
+        maxLines: 0,
+        hideSelected: false
+      };
+      updateObject(settings, defaultSettings, scope.settings);
+      selectItem = function(item) {
+        ctrl.$setViewValue(item.value || item);
+        return scope.selected = item;
+      };
+      if (scope["default"] && ((ref = scope.list) != null ? ref.length : void 0)) {
+        item = findObjectByFields(scope.list, {
+          value: scope["default"]
+        });
+        if (item) {
+          defaultValue = scope["default"];
+          selectItem(item);
+        } else {
+          if (scope["default"] === 'last') {
+            scope["default"] = scope.list.length - 1;
+          }
+          if (+scope["default"]) {
+            item = scope.list[scope["default"]];
+            defaultValue = item.value;
+            selectItem(item);
+          }
+        }
+      }
+      scope.value = null;
+      scope.title = null;
+      scope.state = comboboxService.state;
+      listClass = [];
+      ref1 = elem[0].classList;
+      for (i = 0, len = ref1.length; i < len; i++) {
+        c = ref1[i];
+        if (c === 'combobox' || c.indexOf('ng-') + 1) {
+          continue;
+        }
+        listClass.push(c);
+      }
+      listClass = listClass.join(' ');
+      initContentPosition = function() {
+        var bottomSpace, contentHeight, lineHeight, lines, offset, pos, screen;
+        lines = scope.list.length;
+        lineHeight = settings.lineHeight = elem.height();
+        contentHeight = scope.list.length * lineHeight;
+        offset = elem.offset();
+        offset.top += lineHeight;
+        pos = {
+          left: offset.left,
+          minWidth: elem.width()
+        };
+        screen = {
+          width: $(window).width(),
+          height: $(window).height() - 42 - 5 - 5
+        };
+        if (settings.maxLines) {
+          if (lines > settings.maxLines) {
+            lines = settings.maxLines;
+          }
+        }
+        contentHeight = lines * lineHeight;
+        pos.height = contentHeight > screen.height ? screen.height : contentHeight;
+        bottomSpace = screen.height - (offset.top + contentHeight);
+        if (bottomSpace < 0) {
+          pos.bottom = 5;
+        } else {
+          pos.top = offset.top;
+        }
+        return pos;
+      };
+      scope.open = function(list) {
+        var ref2;
+        complexMenu.show([
+          {
+            selectFunction: selectItem,
+            value: (ref2 = scope.selected) != null ? ref2.value : void 0,
+            type: 'select',
+            items: list
+          }
+        ], {
+          top: elem.offset().top + 30,
+          left: elem.offset().left
+        });
+        return true;
+      };
+      ctrl.$render = function() {
+        var j, len1, ref2, value;
+        if (scope.list != null) {
+          ref2 = scope.list;
+          for (j = 0, len1 = ref2.length; j < len1; j++) {
+            item = ref2[j];
+            value = item.value || item;
+            if (value === ctrl.$viewValue) {
+              scope.state.value = scope.value;
+              scope.selected = item;
+            }
+          }
+        }
+        return true;
+      };
+      return true;
+    }
+  };
+});

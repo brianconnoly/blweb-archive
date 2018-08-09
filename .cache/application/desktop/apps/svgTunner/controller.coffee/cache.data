@@ -1,0 +1,10 @@
+buzzlike.controller('svgTunnerCtrl', function($scope) {
+  $scope.size = {
+    width: 10,
+    height: 10,
+    zoom: 50
+  };
+  $scope.gridOnTop = false;
+  $scope.path = '';
+  return true;
+});

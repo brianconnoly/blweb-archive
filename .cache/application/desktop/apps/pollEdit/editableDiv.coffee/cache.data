@@ -1,0 +1,88 @@
+buzzlike.directive('editableDiv', function($sce, localization, $parse) {
+  return {
+    restrict: 'C',
+    require: '?ngModel',
+    link: function(scope, element, attrs, ngModel) {
+      var elem, jElem, placeholder, read;
+      if (!ngModel) {
+        return;
+      }
+      elem = element[0];
+      jElem = $(elem);
+      elem.contentEditable = true;
+      if (attrs.placeholderText != null) {
+        placeholder = localization.translate($parse(attrs.placeholderText)(scope));
+        if ($sce.getTrustedHtml(ngModel.$viewValue || '') === '') {
+          element.html(placeholder);
+        }
+        scope.$watch(function() {
+          return localization.state;
+        }, function(nVal) {
+          placeholder = localization.translate($parse(attrs.placeholderText)(scope));
+          if (element.hasClass('placeholder')) {
+            return element.html(placeholder);
+          }
+        }, true);
+      }
+      ngModel.$render = function() {
+        var value;
+        value = $sce.getTrustedHtml(ngModel.$viewValue || '');
+        element.removeClass('placeholder');
+        if (document.activeElement !== elem && value === '' && (placeholder != null ? placeholder.length : void 0) > 0) {
+          value = placeholder;
+          element.addClass('placeholder');
+        }
+        return element.html(value);
+      };
+      element.on('blur keyup change', function() {
+        return scope.$evalAsync(read);
+      });
+      element.on('paste', function(e) {
+        return setTimeout(function() {
+          var html;
+          html = elem.innerText || elem.textContent;
+          element.html(html);
+          return ngModel.$setViewValue(html);
+        }, 0);
+      });
+      element.on('mousedown', function(e) {
+        return e.stopPropagation();
+      });
+      element.on('focus', function(e) {
+        var html;
+        html = elem.innerText || elem.textContent;
+        if (html === placeholder) {
+          element.html('');
+          return element.removeClass('placeholder');
+        }
+      });
+      element.on('blur', function(e) {
+        var html;
+        html = elem.innerText || elem.textContent;
+        if (html === '') {
+          element.html(placeholder);
+          return element.addClass('placeholder');
+        }
+      });
+      read = function() {
+        var html;
+        html = elem.innerText || elem.textContent;
+        if (html === placeholder) {
+          html = '';
+        }
+        return ngModel.$setViewValue(html);
+      };
+      if (attrs.disabled != null) {
+        scope.$watch(attrs.disabled, function(nVal) {
+          if (nVal === true) {
+            return elem.contentEditable = false;
+          } else {
+            return elem.contentEditable = true;
+          }
+        });
+      }
+      read();
+      return true;
+    }
+  };
+});

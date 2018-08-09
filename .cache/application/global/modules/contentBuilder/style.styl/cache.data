@@ -1,0 +1,90 @@
+.contentBuilder .topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42px;
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+}
+.contentBuilder .left-panel {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  background: rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+.contentBuilder .left-panel .tab {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  -webkit-transition: all ease 0.3s;
+  -moz-transition: all ease 0.3s;
+  -o-transition: all ease 0.3s;
+  -ms-transition: all ease 0.3s;
+  transition: all ease 0.3s;
+  color: #fff;
+}
+.contentBuilder .left-panel .tab.menu {
+  -webkit-transform: translateX(-200px);
+  -moz-transform: translateX(-200px);
+  -o-transform: translateX(-200px);
+  -ms-transform: translateX(-200px);
+  transform: translateX(-200px);
+}
+.contentBuilder .left-panel .tab.figures,
+.contentBuilder .left-panel .tab.properties,
+.contentBuilder .left-panel .tab.text {
+  -webkit-transform: translateX(200px);
+  -moz-transform: translateX(200px);
+  -o-transform: translateX(200px);
+  -ms-transform: translateX(200px);
+  transform: translateX(200px);
+}
+.contentBuilder .left-panel .tab.visible {
+  -webkit-transform: translateX(0);
+  -moz-transform: translateX(0);
+  -o-transform: translateX(0);
+  -ms-transform: translateX(0);
+  transform: translateX(0);
+}
+.contentBuilder .left-panel .tab.left {
+  -webkit-transform: translateX(-200px);
+  -moz-transform: translateX(-200px);
+  -o-transform: translateX(-200px);
+  -ms-transform: translateX(-200px);
+  transform: translateX(-200px);
+}
+.contentBuilder .left-panel .tab.right {
+  -webkit-transform: translateX(200px);
+  -moz-transform: translateX(200px);
+  -o-transform: translateX(200px);
+  -ms-transform: translateX(200px);
+  transform: translateX(200px);
+}
+.contentBuilder .left-panel .tab .caption {
+  padding: 8px 10px;
+  font-size: 18px;
+}
+.contentBuilder .left-panel .tab .figure {
+  padding: 4px 20px;
+  font-size: 18px;
+}
+.contentBuilder .content {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.contentBuilder .content .canvas-container {
+  border: 1px solid #8a2be2;
+  margin: -1px 0 0 -1px;
+}
+.contentBuilder .content canvas {
+  width: 100%;
+  height: 100%;
+}

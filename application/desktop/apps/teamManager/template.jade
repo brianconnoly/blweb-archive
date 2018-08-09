@@ -1,0 +1,135 @@
+div.dragHandler.topBar.noMaximize.black
+    process-bar
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+    
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+    div.actionsPanel
+        div.action(ng-click="createTask($event)")
+            div.icon
+                img(src="/resources/images/desktop/black/createTask.svg")
+            div.settingsText(translate="'teamManagerApp_createTask'")
+
+        div.action(ng-class="{'disabled':!currentTeam}")
+            div.icon
+                img(src="/resources/images/desktop/black/inviteCrewman.svg", ng-click="invite()")
+            div.settingsText(translate="'teamManagerApp_invite'", ng-click="invite()")
+
+        div.action
+            div.icon.folder
+                img.flushMousedown(src="/resources/images/desktop/black/createTeam.svg", ng-click="crateTeam()")
+            div.settingsText.flushMousedown(translate="'teamManagerApp_crateTeam'", ng-click="crateTeam()")
+
+        div.action
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/black/header-button-settings.svg", ng-click="showMoreMenu($event)")
+            div.settingsText.flushMousedown(translate="'contentApp_more'", ng-click="showMoreMenu($event)")
+
+    div.switcherPanel
+        div.switcher.myTasks(ng-class="{'active':myTasks}")
+            div.iconButton 
+                div.code(ng-click="triggerMy()") {{::userCode()}}
+            div.settingsText(translate="'teamManagerApp_myTasks'", ng-click="triggerMy()")
+
+        div.switcher.showAccepted.flushMousedown(ng-class="{'active':showAccepted}", ng-click="triggerAccepted()")
+            div.iconButton 
+                img(ng-if="!showAccepted", src="/resources/images/desktop/filters/black/kreezh.svg")
+                img(ng-if="showAccepted", src="/resources/images/desktop/filters/white/kreezh.svg")
+            div.settingsText(translate="'teamManagerApp_showAccepted'")
+
+div.body.panelWide.withRight
+    div.leftPanel.itemsContainer.zoom_mid.lazyTeams.rememberScroll(scroll-value="teamScrollValue", antiscroll)
+        div.panelItem(ng-class="{'active': currentTeam == null}", ng-click="jumpStep(stepStack[0])", ng-if="!myUser.settings.simpleMode")
+            div.previewContainer.droppableItem(dropable-item="myUser")
+                div.itemPreview(item="myUser")
+
+        div.panelItem.loadFirstTeam(ng-repeat="item in taskTeams | filter:teamFilter | orderBy:teamOrder:true ", ng-class="{'active': item == currentTeam}", ng-click="selectTeam(item)")
+            div.notify(ng-class="{'active':item.userUpdated[0].unread || item.userUpdated[0].updates > 0}") 
+                div.counter(ng-if="item.userUpdated[0].updates > 0") {{item.userUpdated[0].updates}}
+            div.previewContainer.droppableItem.contextMenu.selectableItem
+                div.itemPreview(item="item")
+
+    
+    div.rightContent.itemsContainer.appSettingsLayout(ng-class="{'showSettings':showSettings, 'appSettingsLayout_showed':currentTeam || currentTask}")
+        div.currentTeam.appSettingsLayout_topBar.droppableItem(no-effects, dropable-item="currentTask", context="currentTeam")
+            div.params
+                div.settings.gearIcon.flushMousedown.appSettingsLayout_activator(ng-click="showSettings = !showSettings")
+                div.switcher(ng-class="{'chatActive':chatActive}", ng-if="currentTask")
+                    div.button.chat(ng-click="setChat(true)")
+                        img.inactive(src="/resources/images/desktop/black/chat.svg")
+                        img.active(src="/resources/images/desktop/black/chat-active.svg")
+                    div.button.tasks(ng-click="setChat(false)")
+                        img.inactive(src="/resources/images/desktop/black/list.svg")
+                        img.active(src="/resources/images/desktop/black/list-active.svg")
+                
+                div.inviteBlock(ng-if="isInvited()")
+                    div.inviteButton(ng-click="inviteDecline()") {{translate('teamManagerApp_invite_decline')}}
+                    div.inviteButton(ng-click="inviteAccept()") {{translate('teamManagerApp_invite_accept')}}
+
+                div.taskStatusAction.itemActionBlock(ng-if="currentTask")
+
+            div.title
+                input(ng-if="!currentTask && currentTeam", ng-model="currentTeam.name", ng-change="saveTeam(currentTeam)" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }")
+                input.inviteFocus(ng-if="currentTask", ng-model="currentTask.name", ng-change="saveTask(currentTask)" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }")
+
+        div.teamSettings.appSettingsLayout_settings.droppableItem(no-effects, dropable-item="currentTask", context="currentTeam")
+
+            div.previewColumn(ng-if="!currentTask && currentTeam")
+                div.setting(ng-if="isOwner()", translate="", translate-title="'teamManager_team_open_content_description'")
+                    div.name(translate="'teamManager_team_open_content'")
+                    checkbox.long(ng-model="currentTeam.openContent", ng-change="saveTeam()")
+
+                button(ng-if="!isOwner()", ng-click="leaveTeam()", translate="'teamManager_leave_team'")
+
+            div.taskBounded.previewColumn.itemsContainer.zoom_min.multiselect(ng-if="currentTask")
+                div.dropHere(translate="'teamManagerApp_dropItemsHere'", ng-if="currentTask.entities.length == 0")
+                div.previewContainer.selectableItem.editableItem.contextMenu.droppableItem(ng-repeat="itemData in currentTask.entities | reverse ", type="{{itemData.type}}", id="{{itemData.id}}", context="currentTask")
+                    div.itemPreview(type="{{itemData.type}}", id="itemData.id")
+
+            div.paramsColumn(ng-class="{'disabled':currentTeam.published}")
+
+                div.descriptionContainer
+                    div.containerTitle(translate="'teamManagerApp_description'")
+                    textarea(ng-if="!currentTask && currentTeam", ng-model="currentTeam.description", ng-change="saveTeam(currentTeam)" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }")
+                    textarea(ng-if="currentTask", ng-model="currentTask.description", ng-change="saveTask(currentTask)", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }")
+
+        div.appSettingsLayout_body
+            div.entityChat(ng-if="currentTask && chatActive")
+                div.messagesList(scroll-glue="")
+                    div.chatMessage(ng-repeat="message in currentTask.messages")
+                        div.timeInfo {{::getFormatedDate(message.timestamp)}}
+                        div.userName {{getUser(message.userId).name}}
+                        div.messageUser
+                            div.itemPreview(type="user", id="message.userId", noname="true")
+                        div.message {{::message.text}}
+                div.newMessage
+                    div.pictureBox
+                        div.itemPreview(type="user", id="account.user.id", noname="true")
+                    div.newMessageText
+                        textarea.sendOnEnter(ng-keydown="sendOnEnter($event)", ng-model="newMessage.text", translate="", translate-placeholder="'teamManager_task_enter_message_text'") 
+                    button.sendMessage(ng-click="sendMessage()", translate="'teamManager_task_add_message'")
+
+            div.blTable.tasksList(ng-if="!chatActive || !currentTask")
+                div.head
+                    div.cell.title(translate="'teamManagerApp_column_taskTitle'")
+                    div.cell.from(translate="'teamManagerApp_column_from'")
+                    div.cell.to(translate="'teamManagerApp_column_to'")
+                    div.cell.taskStatus(translate="'teamManagerApp_column_status'")
+
+                div.list.lazyTasks.rememberTaskScroll.multiselect(scroll-value="taskScrollValue", antiscroll)
+                    task-item(ng-repeat="item in tasks | filter:taskFilter | orderBy:taskOrder:true")
+    
+    div.rightPanel.multiselect.zoom_min.itemsContainer(antiscroll)
+        div.previewContainer.selectableItem.droppableItem.contextMenu(ng-repeat="id in users | filter:inTask", type="user", id="{{id}}", context="currentTask || currentTeam")
+            div.itemPreview(id="id", type="user")
+            div.userRole(ng-if="currentTeam", translate="'team_role_' + memberRole(id)")
+
+        div.divider(ng-if="currentTask && currentTask.users.length > 0")
+
+        div.previewContainer.selectableItem.droppableItem.contextMenu.inactive(ng-repeat="id in users | filter:notInTask", type="user", id="{{id}}", context="currentTask || currentTeam")
+            div.itemPreview(id="id", type="user")
+            div.userRole(ng-if="currentTeam", translate="'team_role_' + memberRole(id)")
+
+bread-crombs

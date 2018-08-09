@@ -1,0 +1,126 @@
+.paginator,
+.pagination,
+.superPaginator {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  height: 30px;
+  text-align: center;
+  overflow: hidden;
+}
+.paginator.arrows,
+.pagination.arrows,
+.superPaginator.arrows {
+  padding: 0 20px;
+}
+.paginator.doubleArrows,
+.pagination.doubleArrows,
+.superPaginator.doubleArrows {
+  padding: 0 40px;
+}
+.paginator .arrow,
+.pagination .arrow,
+.superPaginator .arrow,
+.paginator .doubleArrow,
+.pagination .doubleArrow,
+.superPaginator .doubleArrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  cursor: pointer;
+  text-align: center;
+  background-image: url("/resources/images/icons/arrows/pagination.png");
+  background-position: 0 2px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 80px 20px;
+  -moz-background-size: 80px 20px;
+  background-size: 80px 20px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .paginator .arrow,
+  .pagination .arrow,
+  .superPaginator .arrow,
+  .paginator .doubleArrow,
+  .pagination .doubleArrow,
+  .superPaginator .doubleArrow {
+    background-image: url("/resources/images/icons/arrows/pagination@2x.png");
+    background-position: 0 2px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 80px 20px;
+    -moz-background-size: 80px 20px;
+    background-size: 80px 20px;
+  }
+}
+.paginator .arrow.right,
+.pagination .arrow.right,
+.superPaginator .arrow.right {
+  right: 10px;
+  background-position: -40px 2px;
+}
+.paginator .arrow.left,
+.pagination .arrow.left,
+.superPaginator .arrow.left {
+  left: 10px;
+  background-position: -20px 2px;
+}
+.paginator .doubleArrow.left,
+.pagination .doubleArrow.left,
+.superPaginator .doubleArrow.left {
+  left: 0px;
+}
+.paginator .doubleArrow.right,
+.pagination .doubleArrow.right,
+.superPaginator .doubleArrow.right {
+  right: 0px;
+  background-position: -60px 2px;
+}
+.paginator .centerPages,
+.pagination .centerPages,
+.superPaginator .centerPages {
+  position: relative;
+  display: inline-block;
+  height: 100%;
+  overflow: hidden;
+}
+.paginator .center-inline,
+.pagination .center-inline,
+.superPaginator .center-inline,
+.paginator .center,
+.pagination .center,
+.superPaginator .center {
+  display: inline-block;
+}
+.paginator .marker,
+.pagination .marker,
+.superPaginator .marker {
+  font-size: 23px;
+  float: left;
+  cursor: pointer;
+  margin: 0 4px;
+  line-height: 30px;
+  color: rgba(0,0,0,0.4);
+}
+.paginator .marker div,
+.pagination .marker div,
+.superPaginator .marker div {
+  color: rgba(0,0,0,0.4);
+  cursor: pointer;
+}
+.paginator .marker.active,
+.pagination .marker.active,
+.superPaginator .marker.active {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  font-size: 30px;
+  cursor: default;
+  color: #000;
+}
+.paginator .marker.active div,
+.pagination .marker.active div,
+.superPaginator .marker.active div {
+  color: #000;
+  cursor: default;
+}

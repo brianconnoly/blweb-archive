@@ -1,0 +1,10 @@
+div.previews
+    div.itemPreview(type="post", id="notification.itemList[0].id", overlay="rightPanel")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header {{translate('postStatus_failed')}}
+    div.description {{translate('rpc_error_' + notification.details.code)['caption']}}. {{translate('rpc_error_' + notification.details.code)['text']}}
+
+div.notificationButtons

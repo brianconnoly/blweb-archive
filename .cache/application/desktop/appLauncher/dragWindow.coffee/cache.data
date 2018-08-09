@@ -1,0 +1,135 @@
+buzzlike.service('dragWinow', function(desktopService) {
+  var dragWindow;
+  dragWindow = (function() {
+    dragWindow.prototype.flushDrag = function(scope, elem) {
+      return (function(_this) {
+        return function(e) {
+          elem.removeClass('drag');
+          _this.body.off('mousemove.dragWindow');
+          _this.body.off('mouseup.dragWindow');
+          if (scope.session.noSnap !== true) {
+            if (_this.dragHelper.hasClass('rightHalf') && _this.dragHelper.hasClass('topHalf')) {
+              scope.setPosition(_this.bodyWid / 2, 0);
+              scope.setWidth(_this.bodyWid / 2);
+              scope.setHeight(_this.bodyHei / 2);
+              scope.resized(_this.bodyWid / 2, _this.bodyHei / 2);
+            } else if (_this.dragHelper.hasClass('leftHalf') && _this.dragHelper.hasClass('topHalf')) {
+              scope.setPosition(0, 0);
+              scope.setWidth(_this.bodyWid / 2);
+              scope.setHeight(_this.bodyHei / 2);
+              scope.resized(_this.bodyWid / 2, _this.bodyHei / 2);
+            } else if (_this.dragHelper.hasClass('leftHalf') && _this.dragHelper.hasClass('bottomHalf')) {
+              scope.setPosition(0, _this.bodyHei / 2);
+              scope.setWidth(_this.bodyWid / 2);
+              scope.setHeight(_this.bodyHei / 2);
+              scope.resized(_this.bodyWid / 2, _this.bodyHei / 2);
+            } else if (_this.dragHelper.hasClass('rightHalf') && _this.dragHelper.hasClass('bottomHalf')) {
+              scope.setPosition(_this.bodyWid / 2, _this.bodyHei / 2);
+              scope.setWidth(_this.bodyWid / 2);
+              scope.setHeight(_this.bodyHei / 2);
+              scope.resized(_this.bodyWid / 2, _this.bodyHei / 2);
+            } else if (_this.dragHelper.hasClass('rightHalf')) {
+              scope.setPosition(_this.bodyWid / 2, 0);
+              scope.setWidth(_this.bodyWid / 2);
+              scope.setHeight(_this.bodyHei);
+              scope.resized(_this.bodyWid / 2, _this.bodyHei);
+            } else if (_this.dragHelper.hasClass('leftHalf')) {
+              scope.setPosition(0, 0);
+              scope.setWidth(_this.bodyWid / 2);
+              scope.setHeight(_this.bodyHei);
+              scope.resized(_this.bodyWid / 2, _this.bodyHei);
+            } else if (_this.dragHelper.hasClass('bottomHalf')) {
+              scope.setPosition(0, _this.body.height() / 2);
+              scope.setWidth('100%');
+              scope.setHeight(_this.body.height() / 2);
+              scope.resized($(scope.session.element).width(), _this.body.height() / 2);
+            } else {
+              scope.setPosition(e.clientX - _this.offset.x, e.clientY - _this.offset.y);
+            }
+          } else {
+            scope.setPosition(e.clientX - _this.offset.x, e.clientY - _this.offset.y);
+          }
+          _this.dragHelper.attr('class', '');
+          scope.stateSaver.save();
+          return scope.$apply();
+        };
+      })(this);
+    };
+
+    function dragWindow() {
+      this.body = $('body');
+      this.dragHelper = $('#windowDragHelper');
+    }
+
+    dragWindow.prototype.startDrag = function(e, elem, scope) {
+      var currentTransform;
+      if (scope.session.maximized === true) {
+        return;
+      }
+      elem.addClass('drag');
+      if ($(e.target).prop("tagName") !== 'INPUT') {
+        e.preventDefault();
+      }
+      if (scope.session.coords != null) {
+        currentTransform = [scope.session.coords.x, scope.session.coords.y];
+      } else {
+        currentTransform = elem.css("transform");
+        if ((currentTransform != null ? currentTransform.length : void 0) > 10) {
+          currentTransform = currentTransform.split('(')[1];
+          currentTransform = currentTransform.split(')')[0];
+          currentTransform = currentTransform.split(',');
+        } else {
+          currentTransform = [0, 0];
+        }
+      }
+      this.offset = {
+        x: e.clientX - parseInt(currentTransform[0]),
+        y: e.clientY - parseInt(currentTransform[1])
+      };
+      this.bodyWid = this.body.width();
+      this.bodyHei = this.body.height();
+      this.body.on('mousemove.dragWindow', (function(_this) {
+        return function(e) {
+          if (e.which === 0) {
+            _this.flushDrag(scope)(e);
+            return;
+          }
+          _this.dragHelper.attr('class', '');
+          elem.css('transform', 'translate3d(' + (e.clientX - _this.offset.x) + 'px,' + (e.clientY - _this.offset.y) + 'px, 0)');
+          if (scope.session.noSnap !== true) {
+            if (e.clientY < 20) {
+              true;
+            } else if (e.clientY > _this.bodyHei - 50) {
+              _this.dragHelper.addClass('bottomHalf');
+            }
+            if (e.clientX < 20) {
+              return _this.dragHelper.addClass('leftHalf');
+            } else if (e.clientX > _this.bodyWid - 20) {
+              return _this.dragHelper.addClass('rightHalf');
+            }
+          }
+        };
+      })(this));
+      return this.body.on('mouseup.dragWindow', this.flushDrag(scope, elem));
+    };
+
+    return dragWindow;
+
+  })();
+  return new dragWindow();
+}).directive('dragHandler', function(dragWinow) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return elem.on('mousedown.dragWindow', function(e) {
+        if (attrs.ignoreTextarea && $(e.target).prop("tagName") === 'TEXTAREA') {
+          return;
+        }
+        $('*').blur();
+        return dragWinow.startDrag(e, elem.parents('.appLauncher'), scope);
+      });
+    }
+  };
+});

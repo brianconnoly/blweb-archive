@@ -1,0 +1,122 @@
+div.header {
+  margin-top: 0px;
+}
+div.addPanel {
+  position: absolute;
+  top: 0px;
+  bottom: 0;
+  width: 250px;
+  z-index: 20000;
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  overflow: auto;
+}
+.turbo div.addPanel {
+  background: #111;
+}
+.overlay div.addPanel {
+  top: 40px;
+}
+div.addPanel .add-button {
+  margin: 6px;
+  float: right;
+}
+div.addPanel .remove-button {
+  margin: 10px 45px 0 0;
+  float: right;
+}
+div.addPanel ul.options {
+  display: block;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+div.addPanel ul.options li.option {
+  line-height: 40px;
+  height: 40px;
+  padding: 0 15px;
+  font-size: 20px;
+}
+div.addPanel ul.options li.option .wrap {
+  margin-left: 36px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  font-size: 11px;
+  border-bottom: 1px solid #fff;
+}
+div.addPanel ul.options li.option .wrap span.descr {
+  font-size: 15px;
+  line-height: 34px;
+}
+div.addPanel ul.options li.option *:hover {
+  cursor: pointer;
+}
+div.addPanel ul.options li.option:hover {
+  background: rgba(255,255,255,0.3);
+  -webkit-transition: all ease 0.3;
+  -moz-transition: all ease 0.3;
+  -o-transition: all ease 0.3;
+  -ms-transition: all ease 0.3;
+  transition: all ease 0.3;
+}
+div.addPanel ul.options li.option.cur {
+  background: rgba(255,255,255,0.3);
+}
+div.addPanel ul.options li.network-type {
+  height: 30px;
+  background: rgba(0,0,0,0.25);
+  font-family: "HelveticaNeue", "Helvetica";
+}
+div.addPanel ul.options li.network-type span.descr {
+  font-size: 19px;
+  line-height: 30px;
+}
+div.addPanel ul.options li.network-type .icon {
+  width: 22px;
+  height: 22px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  float: left;
+  margin: 4px 6px;
+}
+div.addPanel ul.options li.network-type .icon .name {
+  margin: 4px 3px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+div.addPanel ul.options li.videoImporter {
+  display: block;
+  height: 40px;
+  background: rgba(255,255,255,0.2);
+  overflow: hidden;
+}
+div.addPanel ul.options li.videoImporter.expanded {
+  height: auto;
+}
+div.addPanel ul.options li.videoImporter div.head {
+  display: block;
+  height: 40px;
+}
+div.addPanel ul.options li.videoImporter div.head span.type {
+  height: 40px;
+  width: 40px;
+  margin-right: 10px;
+  display: block;
+  float: left;
+  text-align: center;
+  line-height: 40px;
+  font-size: 25px;
+  background: rgba(255,255,255,0.2);
+}
+div.addPanel ul.options li.videoImporter div.head span.name {
+  height: 40px;
+  line-height: 40px;
+  display: block;
+  float: left;
+}

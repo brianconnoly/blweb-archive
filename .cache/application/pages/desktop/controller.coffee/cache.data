@@ -1,0 +1,3 @@
+buzzlike.controller('desktopCtrl', function($scope, account, appsService, desktopService, buffer, notificationCenter, uploadService, tableImport, confirmBox, socketAuth, localization, stateManager) {
+  return true;
+});

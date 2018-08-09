@@ -1,0 +1,111 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('statsCutService', function(itemService, rpc) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    var _cumulativeQuery, _handler;
+
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'statsCut';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byCommunity = {};
+    }
+
+    _handler = null;
+
+    _cumulativeQuery = {
+      communityIds: [],
+      timestamp: {
+        $gte: null,
+        $lte: null
+      },
+      cbs: []
+    };
+
+    classEntity.prototype.delayedFetch = function(query, cb) {
+      var ref;
+      if (ref = query.communityId, indexOf.call(_cumulativeQuery.communityIds, ref) < 0) {
+        _cumulativeQuery.communityIds.push(query.communityId);
+      }
+      _cumulativeQuery.cbs.push(cb);
+      if (query.timestamp < _cumulativeQuery.timestamp.$gte || _cumulativeQuery.timestamp.$gte === null) {
+        _cumulativeQuery.timestamp.$gte = query.timestamp;
+      }
+      if (query.timestamp > _cumulativeQuery.timestamp.$lte || _cumulativeQuery.timestamp.$lte === null) {
+        _cumulativeQuery.timestamp.$lte = query.timestamp;
+      }
+      if (_handler === null) {
+        return _handler = setTimeout((function(_this) {
+          return function() {
+            var cbs;
+            cbs = _cumulativeQuery.cbs;
+            _handler = null;
+            _this.query({
+              communityId: {
+                $in: _cumulativeQuery.communityIds
+              },
+              timestamp: _cumulativeQuery.timestamp
+            }, function() {
+              var callback, i, len, results;
+              results = [];
+              for (i = 0, len = cbs.length; i < len; i++) {
+                callback = cbs[i];
+                results.push(typeof callback === "function" ? callback() : void 0);
+              }
+              return results;
+            });
+            return _cumulativeQuery = {
+              communityIds: [],
+              timestamp: {
+                $gte: null,
+                $lte: null
+              },
+              cbs: []
+            };
+          };
+        })(this), 1000);
+      }
+    };
+
+    classEntity.prototype.get = function(query, cb) {
+      var ref;
+      if (((ref = this.byCommunity[query.communityId]) != null ? ref[query.timestamp] : void 0) != null) {
+        if (typeof cb === "function") {
+          cb(this.byCommunity[query.communityId][query.timestamp]);
+        }
+        return this.byCommunity[query.communityId][query.timestamp];
+      }
+      if (this.byCommunity[query.communityId] == null) {
+        this.byCommunity[query.communityId] = {};
+      }
+      if (this.byCommunity[query.communityId][query.timestamp] == null) {
+        this.byCommunity[query.communityId][query.timestamp] = {};
+      }
+      this.delayedFetch(query, typeof cb === "function" ? cb(this.byCommunity[query.communityId][query.timestamp]) : void 0);
+      return this.byCommunity[query.communityId][query.timestamp];
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var handled, ts;
+      handled = classEntity.__super__.handleItem.call(this, item);
+      if (this.byCommunity[handled.communityId] == null) {
+        this.byCommunity[handled.communityId] = {};
+      }
+      ts = handled.timestamp;
+      if (this.byCommunity[handled.communityId][ts] == null) {
+        this.byCommunity[handled.communityId][ts] = {};
+      }
+      this.byCommunity[handled.communityId][handled.timestamp][handled.statsCutType] = handled;
+      return handled;
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

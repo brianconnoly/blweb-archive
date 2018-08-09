@@ -1,0 +1,17 @@
+buzzlike.directive('restoreDeleted', function(confirmBox, contentService, localization) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      elem.bind('dblclick', function(e) {
+        confirmBox.init(localization.translate(56), function() {
+          return contentService.restoreItem(scope.item);
+        });
+        e.stopPropagation();
+        return e.preventDefault();
+      });
+      return true;
+    }
+  };
+});

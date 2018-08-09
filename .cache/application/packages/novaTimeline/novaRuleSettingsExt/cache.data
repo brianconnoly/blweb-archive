@@ -1,0 +1,48 @@
+tC['/novaRuleSettingsExt/template.jade'] = "<div ng-if=\"rule.timestampStart &gt; 0\" translate=\"'novaChannelSettings_create_rule'\" ng-click=\"createRule()\" class=\"textButton\"></div> <div ng-if=\"rule.timestampStart == 0\" ng-click=\"setTime()\" class=\"timePlaceholder\"><span>- - </span><span>: </span><span>- -</span></div> <div ng-if=\"rule.timestampStart &gt; 0\" ng-model=\"rule.timestampStart\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }\" ng-change=\"saveRule()\" class=\"timePicker\"></div> <div class=\"daysTrigger\"> <div ng-repeat=\"day in daysArray track by $index\" translate=\"147+day\" index=\"1\" ng-class=\"{'active':rule.dayMask[day]}\" ng-click=\"triggerDay(day)\" class=\"day\"></div> </div>";
+
+buzzlike.directive('novaRuleSettingsExt', function(ruleService, $parse) {
+  return {
+    restrict: 'C',
+    template: tC['/novaRuleSettingsExt/template.jade'],
+    scope: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.rule = {
+        timestampStart: 0,
+        dayMask: [true, true, true, true, true, true, true],
+        groupId: $parse(attrs.groupId)(scope),
+        combId: $parse(attrs.combId)(scope)
+      };
+      scope.daysArray = [1, 2, 3, 4, 5, 6, 0];
+      scope.setTime = function() {
+        return scope.rule.timestampStart = toMinutes(Date.now()) + 10 * MIN;
+      };
+      scope.triggerDay = function(day) {
+        if (scope.rule.timestampStart === 0) {
+          scope.setTime();
+        }
+        scope.rule.dayMask[day] = !scope.rule.dayMask[day];
+        if (scope.rule.id != null) {
+          return ruleService.save({
+            id: scope.rule.id,
+            type: scope.rule.type,
+            dayMask: scope.rule.dayMask
+          });
+        }
+      };
+      scope.saveRule = function() {
+        return ruleService.save({
+          id: scope.rule.id,
+          type: scope.rule.type,
+          timestampStart: scope.rule.timestampStart
+        });
+      };
+      return scope.createRule = function() {
+        ruleService.create(scope.rule);
+        scope.rule.timestampStart = 0;
+        return scope.rule.dayMask = [true, true, true, true, true, true, true];
+      };
+    }
+  };
+});
+
+registerStyles('novaRuleSettingsExt', ".novaRuleSettingsExt .timePicker {\n  float: left;\n  margin-right: 5px;\n}\n.novaRuleSettingsExt .timePicker input,\n.novaRuleSettingsExt .timePicker span {\n  color: #000;\n  font-size: 14px;\n}\n.novaRuleSettingsExt .timePicker input {\n  width: 16px;\n}\n.novaRuleSettingsExt .timePicker span {\n  margin: 0;\n}\n.novaRuleSettingsExt .timePlaceholder {\n  width: 35px;\n  text-align: center;\n  font-size: 14px;\n  line-height: 24px;\n  float: left;\n  margin-right: 5px;\n}\n.novaRuleSettingsExt .daysTrigger {\n  overflow: hidden;\n  float: left;\n}\n.novaRuleSettingsExt .daysTrigger .day {\n  width: 20px;\n  height: 20px;\n  text-align: center;\n  line-height: 20px;\n  font-size: 12px;\n  text-transform: uppercase;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  margin: 2px;\n  cursor: pointer;\n  color: #999;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  float: left;\n}\n.novaRuleSettingsExt .daysTrigger .day.active {\n  color: #e6e6e6;\n  background: #a6a6a6;\n}\n");

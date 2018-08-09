@@ -1,0 +1,5 @@
+div.breadCrombs.dragHandler
+    div.cromb(ng-repeat="step in stepStack", ng-class="{'active':step==currentStep}")
+        div.text(ng-if="step.translateTitle", translate="step.translateTitle", ng-click="jumpStep(step)")
+        div.text(ng-if="!step.translateTitle", ng-click="jumpStep(step)") {{step.title}}
+        div.arrow(ng-if="!lastStep(step)")

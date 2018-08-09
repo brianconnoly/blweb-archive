@@ -1,0 +1,1 @@
+<div title="{{localization.translate('saleInfo_audience')}}" class="info"><div class="users">{{lot.audienceCount}}</div><div ng-if="button()=='options'" ng-click="openEditor()" ng-class="lotStatus()" class="options"></div><div ng-if="button()=='buy'" ng-click="take()" class="buy"><div class="icon"></div></div></div>

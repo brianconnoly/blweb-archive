@@ -1,0 +1,25 @@
+buzzlike.service('comboboxService', function(stateManager) {
+  var showList, state;
+  state = {
+    opened: false,
+    position: {},
+    value: null,
+    list: [],
+    cb: null
+  };
+  showList = function(data) {
+    updateObject(state, data);
+    return stateManager.applyState({
+      'noMenu': 'inherit',
+      'hideRight': 'inherit',
+      'escape': function() {
+        state.opened = false;
+        return stateManager.goBack();
+      }
+    });
+  };
+  return {
+    state: state,
+    showList: showList
+  };
+});

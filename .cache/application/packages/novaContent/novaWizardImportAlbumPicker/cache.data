@@ -1,0 +1,57 @@
+tC['/novaWizardImportAlbumPicker/template.jade'] = "<div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardAlbumPicker_album'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"flush()\" ng-if=\"picked\" class=\"edit\"></div> <div ng-if=\"!picked\" class=\"typePicker\"> <div ng-repeat=\"type in types\" translate=\"'socialImportApp_'+type+'s'\" ng-click=\"pickAlbumType(type)\" ng-class=\"{'active':type == currentType}\" class=\"edit type\"></div> </div> </div> <div ng-if=\"!picked\" class=\"value pickItems\"> <div ng-repeat=\"item in items\" ng-click=\"pick(item)\" ng-class=\"{'active':isPicked(item)}\" class=\"pickerItem novaItem\"> <div nova-item-preview-type=\"square\" class=\"novaItemPreview\"></div> </div> </div> <div ng-if=\"picked\" class=\"value\"> <div nova-item-id=\"wizard.data[step.variable]\" nova-item-type=\"importAlbum\" nova-item-preview-type=\"square\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaWizardImportAlbumPicker', function(communityService, accountService, account, importAlbumService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardImportAlbumPicker/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var fetchContent, seq;
+      scope.items = [];
+      scope.types = ['image', 'audio', 'video'];
+      scope.currentType = scope.wizard.data.albumType || 'image';
+      scope.pickAlbumType = function(type) {
+        scope.currentType = type;
+        scope.wizard.data.albumType = type;
+        scope.items.length = 0;
+        return fetchContent();
+      };
+      fetchContent = function(cb) {
+        return importAlbumService.query({
+          type: scope.currentType,
+          communityId: seq.community.id,
+          sn: seq.community.socialNetwork
+        }, function(items) {
+          var i, item, len;
+          scope.items.length = 0;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            scope.items.push(item);
+          }
+          return typeof cb === "function" ? cb(true) : void 0;
+        });
+      };
+      seq = new Sequence({
+        name: 'Fetch albums'
+      });
+      seq.addStep({
+        name: 'Get community',
+        "var": 'community',
+        action: function(next) {
+          return communityService.getById(scope.wizard.data.communityId, next);
+        }
+      });
+      seq.addStep({
+        name: 'Query albums',
+        "var": 'albums',
+        action: function(next) {
+          return fetchContent(next);
+        }
+      });
+      return seq.fire(function() {
+        return true;
+      });
+    }
+  };
+});
+
+registerStyles('novaWizardImportAlbumPicker', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardImportAlbumPicker\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

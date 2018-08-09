@@ -1,0 +1,17 @@
+buzzlike.factory('properties', [
+  function() {
+    var properties;
+    properties = {
+      serverUrl: '$ServerUrl',
+      version: '$frontVersion'
+    };
+    return {
+      getProperty: function(name) {
+        if (properties[name].indexOf('$') === 0) {
+          return void 0;
+        }
+        return properties[name];
+      }
+    };
+  }
+]);

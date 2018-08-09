@@ -1,0 +1,103 @@
+.loading
+    position absolute
+    top 0
+    left 0
+    right 0
+    height 40px
+
+    .novaLoader
+        left 50%
+        margin-left -5px
+        top 50%
+        margin-top -7px
+
+.historyView
+    position absolute
+    top 0
+    bottom 106px
+    left 0
+    right 0
+    padding-bottom 10px
+
+    overflow-y auto
+
+.writeMessage
+    position absolute
+    bottom 0
+    left 0
+    right 0
+    height 106px
+    background #efefef
+
+    .inputBox
+        height 60px
+        margin 10px
+        margin-bottom 5px
+        background #fff
+        border-radius 3px
+
+        textarea
+            width 100%
+            height 100%
+            padding 5px 10px
+            font-size 11px
+            line-height 13px
+            border-radius 3px
+
+            border: none
+            resize: none
+
+            set-placeholder-style color #999
+
+    .boundedItems
+        margin-left 10px
+
+        .addItems
+            float left
+            height 27px
+            width 27px
+            margin-right 8px
+            line-height 27px
+            text-align center
+            font-size 25px
+            opacity 0.6
+            cursor pointer
+            transform scale(1)
+            transition all 0.2s ease
+
+            &:active
+                transform scale(0.9)
+
+            &:hover
+                opacity 1
+
+        .novaItem
+            float left
+            width 36px
+            height 27px
+
+            border-radius 3px
+            overflow hidden
+            margin-right 4px
+
+            .novaItemPreview
+                position absolute
+                top 0
+                bottom 0
+                left 0
+                right 0
+
+            &:hover .novaRemove
+                opacity 1
+
+            .novaRemove
+                position absolute
+                right 2px
+                top 2px
+
+    .sendButton
+        float right
+        margin-right 10px
+
+        &.inactive
+            background #ccc

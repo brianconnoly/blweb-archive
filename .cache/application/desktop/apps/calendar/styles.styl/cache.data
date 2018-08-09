@@ -1,0 +1,127 @@
+.appContainer.calendar {
+  background: #f2f2f2;
+  overflow: hidden;
+  color: #494949;
+  padding: 5px;
+  -webkit-box-shadow: 3px 3px 12px rgba(0,0,0,0.7);
+  box-shadow: 3px 3px 12px rgba(0,0,0,0.7);
+  z-index: 111;
+}
+.appContainer.calendar .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  padding-bottom: 0;
+}
+.appContainer.calendar table {
+  margin: 0 15px;
+  border-collapse: collapse;
+}
+.appContainer.calendar .removeBox {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.turbo .appContainer.calendar {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+.appContainer.calendar .head {
+  color: #494949;
+  white-space: nowrap;
+}
+.appContainer.calendar .head .arrow {
+  float: left;
+  height: 37px;
+  width: 49px;
+  text-align: center;
+  line-height: 40px;
+  margin-top: 10px;
+  position: relative;
+  top: 17px;
+}
+.appContainer.calendar .head .arrow:hover {
+  cursor: pointer;
+}
+.appContainer.calendar .head .arrow div {
+  width: 7px;
+  height: 12px;
+  cursor: pointer;
+}
+.appContainer.calendar .head .month {
+  font-weight: bolder;
+  float: left;
+  font-size: 16px;
+  line-height: 40px;
+  margin-top: 12px;
+  width: 100px;
+}
+.appContainer.calendar .head .left {
+  float: right;
+  background-image: url("/resources/images/desktop/black/leftArrow.svg");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+.appContainer.calendar .head .right {
+  float: left;
+  background-image: url("/resources/images/desktop/black/rightArrow.svg");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+.appContainer.calendar .head .center {
+  text-align: center;
+  line-height: 46px;
+  float: left;
+  width: 106px;
+  height: 56px;
+}
+.appContainer.calendar .week .day {
+  font-weight: bolder;
+}
+.appContainer.calendar .week .day .day {
+  width: 29px;
+  height: 33px;
+  float: left;
+  display: block;
+  text-align: center;
+  line-height: 32px;
+  font-size: 12px;
+  color: #777;
+}
+.appContainer.calendar .week .day .day.other {
+  color: #bbb !important;
+}
+.appContainer.calendar .week .day .day .dayNumber {
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  margin: 4px 2px;
+  float: left;
+  line-height: 24px;
+}
+.appContainer.calendar .week .day .day.active {
+  cursor: pointer;
+  color: #494949;
+}
+.appContainer.calendar .week .day .day.active:hover {
+  background: rgba(255,255,255,0.3);
+}
+.appContainer.calendar .week .day .day.active:hover .dayNumber {
+  background: #e6e6e6;
+  cursor: pointer;
+}
+.appContainer.calendar .week .day .day.selected .dayNumber {
+  background: #494949 !important;
+  color: #f2f2f2 !important;
+}
+.appContainer.calendar .week .day .day.dayname {
+  color: #494949;
+  height: 40px;
+  line-height: 39px;
+}

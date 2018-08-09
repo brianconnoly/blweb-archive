@@ -1,0 +1,98 @@
+.appContainer.callApi {
+  background: #d3d3d3;
+}
+.appContainer.callApi .call {
+  background: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.callApi .call_form,
+.appContainer.callApi .call_result {
+  background: rgba(255,255,255,0.2);
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  padding: 5px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.appContainer.callApi .call_form {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  width: 320px;
+}
+.appContainer.callApi .call_form .form_title {
+  text-align: left;
+  font-weight: bolder;
+  padding: 6px 0;
+  margin-left: 10px;
+}
+.appContainer.callApi .call_form .form_submit {
+  width: 100%;
+  margin-top: 7px;
+}
+.appContainer.callApi .call_form .form_fields {
+  margin: 10px 0;
+  background: rgba(255,255,255,0.2);
+}
+.appContainer.callApi .call_form .form_field {
+  margin-bottom: 1px;
+  height: 30px;
+  line-height: 30px;
+}
+.appContainer.callApi .call_form .form_field .field_key,
+.appContainer.callApi .call_form .form_field .field_val,
+.appContainer.callApi .call_form .form_field .field_separator,
+.appContainer.callApi .call_form .form_field .field_delete,
+.appContainer.callApi .call_form .form_field .field_delete_button {
+  height: 30px;
+  line-height: 30px;
+}
+.appContainer.callApi .call_form .form_field .field_delete {
+  float: left;
+  width: 20px;
+  color: #fa5f5a;
+  overflow: hidden;
+  text-align: center;
+}
+.appContainer.callApi .call_form .form_field .field_delete span {
+  cursor: pointer;
+}
+.appContainer.callApi .call_form .form_field .field_key {
+  float: left;
+  width: 130px;
+}
+.appContainer.callApi .call_form .form_field .field_val {
+  float: right;
+  width: 150px;
+}
+.appContainer.callApi .call_form .form_field input {
+  background: #3d3d3d;
+  color: #fff;
+}
+.appContainer.callApi .call_result {
+  height: 100%;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 370px;
+  right: 0;
+  bottom: auto;
+}
+.appContainer.callApi .call_result .result_select {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.appContainer.callApi .call_result #result {
+  width: 100%;
+  min-height: 500px;
+  word-break: break-word;
+  -webkit-user-select: initial;
+  -moz-user-select: initial;
+  -ms-user-select: initial;
+  user-select: initial;
+  cursor: text;
+}

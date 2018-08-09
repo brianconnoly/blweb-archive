@@ -1,0 +1,240 @@
+.requestPreview,
+.lotPreview {
+  display: inline-block;
+  background: #272727;
+  color: #fff;
+  position: relative;
+  margin: 10px;
+}
+.requestPreview .innerPreview,
+.lotPreview .innerPreview {
+  overflow: hidden;
+}
+.requestPreview .innerPreview.lotPostPreview,
+.lotPreview .innerPreview.lotPostPreview {
+  width: 300px;
+  height: 150px;
+}
+.requestPreview .innerPreview.warn,
+.lotPreview .innerPreview.warn {
+  background: rgba(222,47,47,0.9) !important;
+}
+.requestPreview .innerPreview .cancel,
+.lotPreview .innerPreview .cancel {
+  position: absolute;
+  font-size: 20px;
+  font-weight: bold;
+  top: 80px;
+  width: 100%;
+  text-align: center;
+  text-shadow: #000 1px 1px 2px;
+  z-index: 100500;
+  cursor: pointer;
+}
+.requestPreview .previewContainer,
+.lotPreview .previewContainer {
+  float: left;
+}
+.requestPreview .detailsContainer,
+.lotPreview .detailsContainer {
+  text-align: left;
+  float: left;
+  width: 150px;
+  height: 150px;
+  padding: 10px 0 0 8px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.requestPreview .detailsContainer div.makeFavourite,
+.lotPreview .detailsContainer div.makeFavourite {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+.requestPreview .detailsContainer div.makeFavourite.active,
+.lotPreview .detailsContainer div.makeFavourite.active {
+  color: #fccb2b;
+}
+.requestPreview .detailsContainer div.makeFavourite.active:hover,
+.lotPreview .detailsContainer div.makeFavourite.active:hover {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.requestPreview .detailsContainer div.makeFavourite:hover,
+.lotPreview .detailsContainer div.makeFavourite:hover {
+  color: #f9df9d;
+  opacity: 0.7;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+  filter: alpha(opacity=70);
+}
+.requestPreview .detailsContainer h3.title,
+.lotPreview .detailsContainer h3.title {
+  width: 105px;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 10px;
+  font-weight: bolder;
+}
+.requestPreview .detailsContainer .detail,
+.lotPreview .detailsContainer .detail {
+  font-size: 11px;
+  line-height: 12px;
+  padding: 3px 0 0 26px;
+  margin-bottom: 5px;
+  width: 100%;
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.requestPreview .detailsContainer .detail *,
+.lotPreview .detailsContainer .detail * {
+  font-weight: bolder;
+}
+.requestPreview .detailsContainer .detail .title,
+.lotPreview .detailsContainer .detail .title {
+  float: left;
+  width: 100px;
+  min-height: 12px;
+}
+.requestPreview .detailsContainer .detail .value,
+.lotPreview .detailsContainer .detail .value {
+  display: inline-block;
+}
+.requestPreview .detailsContainer .detail .value .word,
+.lotPreview .detailsContainer .detail .value .word,
+.requestPreview .detailsContainer .detail .value .time,
+.lotPreview .detailsContainer .detail .value .time {
+  float: left;
+}
+.requestPreview .detailsContainer .detail .value .word,
+.lotPreview .detailsContainer .detail .value .word {
+  width: 20px;
+}
+.requestPreview .detailsContainer .detail.image_author,
+.lotPreview .detailsContainer .detail.image_author {
+  background-image: url("/resources/images/icons/market/lot_author.png");
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 16px 16px;
+  -moz-background-size: 16px 16px;
+  background-size: 16px 16px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .requestPreview .detailsContainer .detail.image_author,
+  .lotPreview .detailsContainer .detail.image_author {
+    background-image: url("/resources/images/icons/market/lot_author@2x.png");
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+    background-size: 16px 16px;
+  }
+}
+.requestPreview .detailsContainer .detail.image_date,
+.lotPreview .detailsContainer .detail.image_date {
+  background-image: url("/resources/images/icons/market/lot_date.png");
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 16px 16px;
+  -moz-background-size: 16px 16px;
+  background-size: 16px 16px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .requestPreview .detailsContainer .detail.image_date,
+  .lotPreview .detailsContainer .detail.image_date {
+    background-image: url("/resources/images/icons/market/lot_date@2x.png");
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+    background-size: 16px 16px;
+  }
+}
+.requestPreview .detailsContainer .detail.image_users,
+.lotPreview .detailsContainer .detail.image_users {
+  background-image: url("/resources/images/icons/market/lot_users.png");
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 16px 16px;
+  -moz-background-size: 16px 16px;
+  background-size: 16px 16px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .requestPreview .detailsContainer .detail.image_users,
+  .lotPreview .detailsContainer .detail.image_users {
+    background-image: url("/resources/images/icons/market/lot_users@2x.png");
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+    background-size: 16px 16px;
+  }
+}
+.requestPreview .detailsContainer .schedule,
+.lotPreview .detailsContainer .schedule {
+  margin-top: 23px;
+}
+.requestPreview .detailsContainer .schedule .icon,
+.lotPreview .detailsContainer .schedule .icon {
+  float: left;
+  width: 50px;
+  height: 50px;
+  background: #eee;
+}
+.requestPreview .detailsContainer .schedule .info,
+.lotPreview .detailsContainer .schedule .info {
+  float: left;
+  width: 210px;
+  height: 50px;
+  margin: 0 10px;
+  background: #eee;
+}
+.requestPreview .detailsContainer .schedule .info .title,
+.lotPreview .detailsContainer .schedule .info .title {
+  font-size: 14px;
+  line-height: 25px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.requestPreview .detailsContainer .schedule .info .date,
+.lotPreview .detailsContainer .schedule .info .date {
+  font-size: 20px;
+}
+.requestPreview .detailsContainer .cancel,
+.lotPreview .detailsContainer .cancel {
+  margin-top: 12px;
+  font-size: 16px;
+  display: inline-block;
+  cursor: pointer;
+}
+.requestPreview .detailsContainer .requestStatus,
+.lotPreview .detailsContainer .requestStatus {
+  width: 75px;
+  height: 75px;
+  top: initial;
+  left: initial;
+  right: 0;
+  bottom: 0;
+}
+.lotPreview .previewContainer .requestStatus {
+  display: none;
+}
+.requestPreview .previewContainer .requestStatus {
+  -webkit-transform: scale(0.6);
+  -moz-transform: scale(0.6);
+  -o-transform: scale(0.6);
+  -ms-transform: scale(0.6);
+  transform: scale(0.6);
+  -webkit-transform-origin: right bottom;
+  -moz-transform-origin: right bottom;
+  -o-transform-origin: right bottom;
+  -ms-transform-origin: right bottom;
+  transform-origin: right bottom;
+}

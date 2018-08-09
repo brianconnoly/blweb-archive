@@ -1,0 +1,1098 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('userService', function(novaWizard, itemService, rpc, contextMenu, actionsService, updateService, account, projectService, taskService, postService, desktopService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'user';
+
+    classEntity.prototype.init = function() {
+      var getUserRoles, makeEntities, userEditor, userMainEditor;
+      classEntity.__super__.init.call(this);
+      novaWizard.register('welcome', {
+        system: true,
+        type: 'sequence',
+        steps: [
+          {
+            id: 'welcome',
+            directive: 'novaWizardWelcome'
+          }, {
+            id: 'license',
+            directive: 'novaWizardWelcomeLicense',
+            provide: 'license_accepted'
+          }, {
+            id: 'personal',
+            directive: 'novaWizardWelcomePersonal'
+          }, {
+            id: 'migrating',
+            directive: 'novaWizardWelcomeMigrating',
+            provide: 'complete'
+          }, {
+            id: 'final',
+            directive: 'novaWizardWelcomeFinal'
+          }
+        ]
+      });
+      userEditor = function(user, project) {
+        var i, len, member, ref, ref1;
+        if (project.userId === user.id) {
+          return true;
+        }
+        ref = project.members;
+        for (i = 0, len = ref.length; i < len; i++) {
+          member = ref[i];
+          if (member.userId === user.id) {
+            if ((ref1 = member.role) === 'mainEditor' || ref1 === 'editor') {
+              return true;
+            }
+            break;
+          }
+        }
+        return false;
+      };
+      userMainEditor = function(user, project) {
+        var i, len, member, ref;
+        if (project.userId === user.id) {
+          return true;
+        }
+        ref = project.members;
+        for (i = 0, len = ref.length; i < len; i++) {
+          member = ref[i];
+          if (member.userId === user.id) {
+            if (member.role === 'mainEditor') {
+              return true;
+            }
+            break;
+          }
+        }
+        return false;
+      };
+      getUserRoles = function(user, project) {
+        var i, len, member, ref;
+        ref = project.members;
+        for (i = 0, len = ref.length; i < len; i++) {
+          member = ref[i];
+          if (member.userId === user.id) {
+            return member.role;
+          }
+        }
+        return null;
+      };
+      makeEntities = function(items) {
+        var i, item, len, results;
+        results = [];
+        for (i = 0, len = items.length; i < len; i++) {
+          item = items[i];
+          results.push({
+            type: item.type,
+            id: item.id
+          });
+        }
+        return results;
+      };
+      actionsService.registerParser('user', function(item) {
+        if (account.user.id === item.id) {
+          return ['userMe'];
+        } else {
+          return ['userNotMe'];
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'task',
+        sourceNumber: 1,
+        target: 'task',
+        phrase: 'make_executor',
+        check2: function(data) {
+          if (data.target.executor === data.items[0].id) {
+            return false;
+          }
+          return true;
+        },
+        action: function(data) {
+          if (data.target.id != null) {
+            return taskService.call('setExecutor', {
+              taskId: data.target.id,
+              userId: data.items[0].id
+            });
+          } else {
+            return data.target.executor = data.items[0].id;
+          }
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'task',
+        sourceNumber: 1,
+        target: 'task',
+        phrase: 'remove_executor',
+        check2: function(data) {
+          if (data.target.executor === data.items[0].id) {
+            return true;
+          }
+          return false;
+        },
+        action: function(data) {
+          if (data.target.id != null) {
+            return taskService.call('removeExecutor', {
+              taskId: data.target.id
+            });
+          } else {
+            return data.target.executor = null;
+          }
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'task',
+        phrase: 'take_task',
+        check2: function(data) {
+          var i, id, len, notInTask, ref, ref1, ref2, task;
+          notInTask = false;
+          id = account.user.id;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            task = ref[i];
+            if (indexOf.call(task.users, id) < 0) {
+              notInTask = true;
+            }
+          }
+          if (!notInTask) {
+            return false;
+          }
+          if (((ref1 = data.target) != null ? ref1.userId : void 0) === account.user.id) {
+            return true;
+          }
+          console.log(data.context, data);
+          if (((ref2 = data.context) != null ? ref2.type : void 0) === 'project') {
+            return userEditor(account.user, data.context);
+          }
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, id, len, ref, results;
+            ref = data.ids;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              results.push(taskService.call('addUsers', {
+                taskId: id,
+                users: [account.user.id]
+              }, function() {
+                return true;
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'text',
+        targetType: 'project/task',
+        phrase: 'create_tasks_from_text',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(taskService.create({
+              name: item.name || item.value.substring(0, 300),
+              description: item.value,
+              status: 'created',
+              projectId: data.target.type === 'project' ? data.target.id : data.target.projectId,
+              parent: data.target.type === 'project' ? null : data.target.id
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        targetType: 'postPanel',
+        phrase: 'create_new_post_task',
+        priority: 501,
+        action: (function(_this) {
+          return function(data) {
+            return postService.create({
+              combId: data.target.comb.id
+            }, function(createdPost) {
+              return taskService.create({
+                projectId: data.sourceContext.id,
+                users: data.ids,
+                status: 'created',
+                entities: [
+                  {
+                    id: createdPost.id,
+                    type: createdPost.type
+                  }
+                ],
+                name: 'Сформировать пост'
+              }, function(createdTask) {
+                return desktopService.launchApp('teamManager', {
+                  taskId: createdTask.id
+                });
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'image',
+        sourceNumber: 1,
+        targetType: 'user',
+        phrase: 'set_avatar',
+        check2: function(data) {
+          return data.target.id === account.user.id;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return account.set({
+              photo: data.item.thumbnail
+            }, function(user) {
+              return _this.handleItem(user);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'task',
+        targetType: 'task/teamAdmin',
+        phrase: 'put_tasks_into_task',
+        action: function(data) {
+          var cnt, i, len, ref, results, task;
+          cnt = 0;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            task = ref[i];
+            results.push(taskService.call('setParent', {
+              taskId: task.id,
+              parent: data.target.type === 'task' ? data.target.id : null
+            }, function() {
+              cnt++;
+              if (cnt === data.items.length) {
+                updateService.triggerUpdate([
+                  {
+                    type: 'task',
+                    projectId: data.target.type === 'task' ? data.target.projectId : data.target.id
+                  }
+                ]);
+              }
+              return true;
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'taskAdmin',
+        phrase: 'open_task_in_new_window',
+        category: "A",
+        action: function(data) {
+          var i, len, ref, results, task;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            task = ref[i];
+            results.push(desktopService.launchApp('teamManager', {
+              taskId: task.id
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        targetType: 'postPanel',
+        phrase: 'create_comb_posts_task',
+        priority: 502,
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              status: 'created',
+              entities: [
+                {
+                  id: data.target.comb.id,
+                  type: data.target.comb.type
+                }
+              ],
+              name: 'Сформировать посты в теме'
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                task: createdTask
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        targetType: 'post',
+        phrase: 'create_post_task',
+        priority: 503,
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              status: 'created',
+              entities: [
+                {
+                  id: data.target.id,
+                  type: data.target.type
+                }
+              ],
+              name: 'Сформировать пост'
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        targetType: 'comb',
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'create_comb_task',
+        priority: 504,
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              status: 'created',
+              entities: [
+                {
+                  id: data.target.id,
+                  type: data.target.type
+                }
+              ],
+              name: 'Подготовить материалы'
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'user',
+        contextType: 'task/project',
+        phrase: 'create_content_task',
+        priority: 505,
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              projectId: data.context.projectId || data.context.id,
+              parent: data.context.type === 'task' ? data.context.id : void 0,
+              name: 'Подготовить контент',
+              entities: makeEntities(data.items),
+              status: 'created',
+              users: [data.target.id]
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        targetType: 'user',
+        contextType: 'task/project',
+        phrase: 'create_comb_task',
+        priority: 504,
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              projectId: data.context.projectId || data.context.id,
+              parent: data.context.type === 'task' ? data.context.id : void 0,
+              name: 'Подготовить комб' + (data.items.length > 1 ? 'ы' : ''),
+              entities: makeEntities(data.items),
+              status: 'created',
+              users: [data.target.id]
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        targetType: 'user',
+        contextType: 'task/project',
+        phrase: 'create_post_task',
+        priority: 503,
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              projectId: data.context.projectId || data.context.id,
+              parent: data.context.type === 'task' ? data.context.id : void 0,
+              name: 'Подготовить пост' + (data.items.length > 1 ? 'ы' : ''),
+              entities: makeEntities(data.items),
+              status: 'created',
+              users: [data.target.id]
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        targetType: 'content',
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'create_content_task_in_comb',
+        priority: 506,
+        action: (function(_this) {
+          return function(data) {
+            var taskName;
+            taskName = "Новая задача";
+            switch (data.target.type) {
+              case 'text':
+                taskName = "Написать текст";
+                break;
+              case 'image':
+                taskName = 'Подготовить картинку';
+                break;
+              case 'audio':
+                taskName = 'Подготовить аудиозапись';
+                break;
+              case 'video':
+                taskName = 'Подготовить видео';
+                break;
+              case 'url':
+                taskName = 'Подготовить ссылку';
+            }
+            return taskService.create({
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              entities: [
+                {
+                  id: data.target.id,
+                  type: data.target.type
+                }
+              ],
+              status: 'created',
+              name: taskName
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        targetType: 'user',
+        sourceType: 'task',
+        phrase: 'bind_tasks_to_user',
+        priority: 507,
+        action: (function(_this) {
+          return function(data) {
+            var i, len, ref, results, task;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              task = ref[i];
+              results.push(taskService.call('addUsers', {
+                taskId: task.id,
+                users: [data.target.id]
+              }, function() {
+                return true;
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        targetType: 'task',
+        phrase: 'team_member_bind_to_task',
+        priority: 508,
+        check2: function(data) {
+          var i, id, len, notInTask, ref, ref1;
+          notInTask = false;
+          ref = data.ids;
+          for (i = 0, len = ref.length; i < len; i++) {
+            id = ref[i];
+            if (indexOf.call(data.target.users, id) < 0) {
+              notInTask = true;
+              break;
+            }
+          }
+          if (!notInTask) {
+            return false;
+          }
+          if (data.target.userId === account.user.id) {
+            return true;
+          }
+          if (((ref1 = data.context) != null ? ref1.type : void 0) === 'project') {
+            return userEditor(account.user, data.context);
+          }
+        },
+        action: (function(_this) {
+          return function(data) {
+            return taskService.call('addUsers', {
+              taskId: data.target.id,
+              users: data.ids
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        targetType: 'task',
+        phrase: 'team_member_create_subtask',
+        priority: 510,
+        check2: function(data) {
+          var ref;
+          if (data.target.userId === account.user.id) {
+            return true;
+          }
+          if (((ref = data.context) != null ? ref.type : void 0) === 'project') {
+            return userEditor(account.user, data.context);
+          }
+        },
+        action: (function(_this) {
+          return function(data) {
+            var ref;
+            return taskService.create({
+              name: 'Новая задача',
+              description: '',
+              projectId: (ref = data.context) != null ? ref.id : void 0,
+              parent: data.target.id,
+              users: data.ids,
+              status: 'created'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        targetType: 'project',
+        phrase: 'team_member_create_task',
+        priority: 511,
+        check: (function(_this) {
+          return function(ids, data, context) {
+            return userEditor(account.user, context);
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            return taskService.create({
+              name: 'Новая задача',
+              description: '',
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              status: 'created'
+            }, function(createdTask) {
+              return desktopService.launchApp('teamManager', {
+                taskId: createdTask.id
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceNumber: 1,
+        sourceContext: 'project',
+        phrase: 'team_member_make_mainEditor',
+        priority: 210,
+        check2: function(data) {
+          var i, len, project, ref, ref1, user;
+          project = data.sourceContext;
+          if (project == null) {
+            return false;
+          }
+          if (project.userId !== account.user.id) {
+            return false;
+          }
+          if (data.items[0].id === project.userId) {
+            return false;
+          }
+          ref = project.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            user = ref[i];
+            if (((ref1 = user.roles) != null ? ref1.mainEditor : void 0) === true) {
+              return false;
+            }
+          }
+          return true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('setMembersRole', {
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              role: 'mainEditor'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_make_editor',
+        priority: 209,
+        check2: function(data) {
+          var project;
+          project = data.sourceContext;
+          if ((project != null ? project.type : void 0) !== 'project') {
+            return false;
+          }
+          if (data.items.length === 1 && data.items[0].id === account.user.id) {
+            return false;
+          }
+          if (data.items.length === 1 && data.items[0].id === project.userId) {
+            return false;
+          }
+          return userMainEditor(account.user, project);
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('setMembersRole', {
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              role: 'editor'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_make_contentManager',
+        priority: 208,
+        check2: function(data) {
+          var i, len, member, myRoles, project, ref, ref1, ref2, ref3;
+          project = data.sourceContext;
+          if ((project != null ? project.type : void 0) !== 'project') {
+            return false;
+          }
+          if (!userEditor(account.user, project)) {
+            return false;
+          }
+          if (data.items.length === 1) {
+            if (data.items[0].id === account.user.id || data.items[0].id === project.userId) {
+              return false;
+            }
+          }
+          if (account.user.id === project.userId) {
+            return true;
+          }
+          myRoles = getUserRoles(account.user, project);
+          ref = project.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            member = ref[i];
+            if (ref1 = member.userId, indexOf.call(data.ids, ref1) >= 0) {
+              if ((ref2 = member.roles) != null ? ref2.mainEditor : void 0) {
+                return false;
+              }
+              if (((ref3 = member.roles) != null ? ref3.editor : void 0) && myRoles !== 'mainEditor') {
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('setMembersRole', {
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              role: 'contentManager'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_make_timeManager',
+        priority: 207,
+        check2: function(data) {
+          var i, len, member, myRoles, project, ref, ref1, ref2, ref3;
+          project = data.sourceContext;
+          if (project == null) {
+            return false;
+          }
+          if (!userEditor(account.user, project)) {
+            return false;
+          }
+          if (data.items.length === 1) {
+            if (data.items[0].id === account.user.id || data.items[0].id === project.userId) {
+              return false;
+            }
+          }
+          if (account.user.id === project.userId) {
+            return true;
+          }
+          myRoles = getUserRoles(account.user, project);
+          ref = project.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            member = ref[i];
+            if (ref1 = member.userId, indexOf.call(data.ids, ref1) >= 0) {
+              if ((ref2 = member.roles) != null ? ref2.mainEditor : void 0) {
+                return false;
+              }
+              if (((ref3 = member.roles) != null ? ref3.editor : void 0) && myRoles !== 'mainEditor') {
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('setMembersRole', {
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              role: 'timeManager'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_make_client',
+        priority: 207,
+        check2: function(data) {
+          var i, len, member, myRoles, project, ref, ref1, ref2, ref3;
+          project = data.sourceContext;
+          if (project == null) {
+            return false;
+          }
+          if (!userEditor(account.user, project)) {
+            return false;
+          }
+          if (data.items.length === 1) {
+            if (data.items[0].id === account.user.id || data.items[0].id === project.userId) {
+              return false;
+            }
+          }
+          if (account.user.id === project.userId) {
+            return true;
+          }
+          myRoles = getUserRoles(account.user, project);
+          ref = project.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            member = ref[i];
+            if (ref1 = member.userId, indexOf.call(data.ids, ref1) >= 0) {
+              if ((ref2 = member.roles) != null ? ref2.mainEditor : void 0) {
+                return false;
+              }
+              if (((ref3 = member.roles) != null ? ref3.editor : void 0) && myRoles !== 'mainEditor') {
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('setMembersRole', {
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              role: 'client'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_make_postManager',
+        priority: 206,
+        check2: function(data) {
+          var i, len, member, myRoles, project, ref, ref1, ref2, ref3;
+          project = data.sourceContext;
+          if (project == null) {
+            return false;
+          }
+          if (!userEditor(account.user, project)) {
+            return false;
+          }
+          if (data.items.length === 1) {
+            if (data.items[0].id === account.user.id || data.items[0].id === project.userId) {
+              return false;
+            }
+          }
+          if (account.user.id === project.userId) {
+            return true;
+          }
+          myRoles = getUserRoles(account.user, project);
+          ref = project.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            member = ref[i];
+            if (ref1 = member.userId, indexOf.call(data.ids, ref1) >= 0) {
+              if ((ref2 = member.roles) != null ? ref2.mainEditor : void 0) {
+                return false;
+              }
+              if (((ref3 = member.roles) != null ? ref3.editor : void 0) && myRoles !== 'mainEditor') {
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('setMembersRole', {
+              projectId: data.sourceContext.id,
+              users: data.ids,
+              role: 'postManager'
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_remove_roles',
+        priority: 205,
+        check2: function(data) {
+          var i, len, member, myRoles, project, ref, ref1, ref2, ref3;
+          project = data.sourceContext;
+          if (project == null) {
+            return false;
+          }
+          if (!userEditor(account.user, project)) {
+            return false;
+          }
+          if (data.items.length === 1) {
+            if (data.items[0].id === account.user.id || data.items[0].id === project.userId) {
+              return false;
+            }
+          }
+          if (account.user.id === project.userId) {
+            return true;
+          }
+          myRoles = getUserRoles(account.user, project);
+          ref = project.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            member = ref[i];
+            if (ref1 = member.userId, indexOf.call(data.ids, ref1) >= 0) {
+              if ((ref2 = member.roles) != null ? ref2.mainEditor : void 0) {
+                return false;
+              }
+              if (((ref3 = member.roles) != null ? ref3.editor : void 0) && myRoles !== 'mainEditor') {
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('removeRoles', {
+              projectId: data.sourceContext.id,
+              users: data.ids
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'task',
+        phrase: 'remove_user_from_task',
+        priority: 204,
+        check2: function(data) {
+          var i, id, len, notInTask, project, ref;
+          notInTask = true;
+          ref = data.ids;
+          for (i = 0, len = ref.length; i < len; i++) {
+            id = ref[i];
+            if (indexOf.call(data.target.users, id) >= 0) {
+              notInTask = false;
+              break;
+            }
+          }
+          if (notInTask) {
+            return false;
+          }
+          if (data.target.userId === account.user.id) {
+            return true;
+          }
+          if (data.target.projectId != null) {
+            project = projectService.getById(data.target.projectId);
+            if (project.type == null) {
+              return false;
+            }
+            return userEditor(account.user, project);
+          }
+        },
+        action: (function(_this) {
+          return function(data) {
+            return taskService.call('removeUsers', {
+              taskId: data.target.id,
+              users: data.ids
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'user',
+        sourceContext: 'project',
+        phrase: 'team_member_remove',
+        priority: 203,
+        check2: function(data) {
+          if (data.items.length === 1) {
+            if (data.items[0].id === account.user.id || data.items[0].id === data.sourceContext.userId) {
+              return false;
+            }
+          }
+          return userMainEditor(account.user, data.sourceContext);
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.call('removeMembers', {
+              projectId: data.sourceContext.id,
+              users: data.ids
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'taskStarted',
+        phrase: 'task_unstart',
+        category: 'T',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(taskService.call('setStatus', {
+              taskId: item.id,
+              status: 'created'
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'taskFinished',
+        phrase: 'task_unfinish',
+        category: 'T',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(taskService.call('setStatus', {
+              taskId: item.id,
+              status: 'started'
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'taskFinished',
+        phrase: 'task_accept',
+        category: 'T',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(taskService.call('setStatus', {
+              taskId: item.id,
+              status: 'accepted'
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'taskFinished',
+        phrase: 'task_reject',
+        category: 'T',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(taskService.call('setStatus', {
+              taskId: item.id,
+              status: 'rejected'
+            }));
+          }
+          return results;
+        }
+      });
+      return actionsService.registerAction({
+        sourceType: 'taskAccepted',
+        phrase: 'task_unaccept',
+        category: 'T',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(taskService.call('setStatus', {
+              taskId: item.id,
+              status: 'finished'
+            }));
+          }
+          return results;
+        }
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

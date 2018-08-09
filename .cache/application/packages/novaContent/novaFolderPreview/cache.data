@@ -1,0 +1,46 @@
+tC['/novaFolderPreview/template.jade'] = "<div ng-repeat=\"id in getIds()\" nova-item-id=\"id\" nova-item-type=\"content\" class=\"novaItem novaItemPreview noItemNames\"></div> <div ng-if=\"item.name\" class=\"name\"> <div class=\"inner\">{{item.name}}</div> </div>";
+
+buzzlike.directive('novaFolderPreview', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaFolderPreview/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      elem.parent().on('dblclick', function(e) {
+        if (scope.flowBox != null) {
+          scope.flowBox.addFlowFrame({
+            title: 'content',
+            directive: 'novaContentFrame',
+            item: {
+              id: scope.item.id,
+              type: 'folder'
+            },
+            data: {
+              folderId: scope.item.id
+            }
+          }, scope.flowFrame);
+        }
+        return scope.$apply();
+      });
+      return scope.getIds = function() {
+        var i, id, j, len, ref, res;
+        res = [];
+        if (scope.item.contentIds == null) {
+          return res;
+        }
+        ref = scope.item.contentIds;
+        for (i = j = 0, len = ref.length; j < len; i = ++j) {
+          id = ref[i];
+          if (i > 3) {
+            break;
+          }
+          res.push(id);
+        }
+        return res;
+      };
+    }
+  };
+});
+
+registerStyles('novaFolderPreview', ".novaFolderPreview {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: hidden;\n  padding: 2%;\n}\n.novaFolderPreview > .novaItem {\n  margin: 2% !important;\n  width: 46% !important;\n  height: 46% !important;\n  -webkit-box-shadow: 0 0 1px 0 rgba(0,0,0,0.4);\n  box-shadow: 0 0 1px 0 rgba(0,0,0,0.4);\n  font-size: 0.5em !important;\n  pointer-events: none;\n}\n.novaFolderPreview > .novaItem .novaInfoActivator {\n  display: none !important;\n}\n.novaFolderPreview > .name {\n  position: absolute;\n  display: table;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  width: 100%;\n  height: 33%;\n  min-height: 25px;\n  font-size: 10px;\n  background: rgba(0,0,0,0.7);\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.noItemNames .novaFolderPreview > .name {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaFolderPreview > .name .inner {\n  display: table-cell;\n  vertical-align: middle;\n  text-align: center;\n  color: #fff;\n}\n");

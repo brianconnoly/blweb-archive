@@ -1,0 +1,161 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaThemeTimelineSettingsFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div ng-click=\"addChannel()\" class=\"addChannel\"><span class=\"plus\">+</span><span translate=\"'novaThemeTimelineSettings_addChannel'\" class=\"label\"></span></div> </div> <div class=\"novaSettingsLayout novaFrameContents\"> <div ng-repeat=\"groupId in groupIds\" class=\"themeChannel\"> <div nova-item-id=\"groupId\" nova-item-type=\"group\" nova-item-preview-type=\"list\" class=\"channelPreview novaItemScope novaItem novaItemPreview\"></div> <div class=\"settingsBlock\"> <div translate=\"'novaChannelSettings_mediaplan'\" class=\"settingsTitle\"></div> <div ng-repeat=\"rule in combRules | filter:{groupId:groupId} | orderBy:rulesOrder\" class=\"ruleItem\"> <div translate=\"'novaChannelSettings_rule_delete'\" ng-click=\"deleteRule(rule)\" class=\"textButton caution\"></div> <div nova-rule-item=\"rule\" class=\"novaRuleSettings\"></div> </div> <div class=\"createRuleItem ruleItem\"> <div group-id=\"groupId\" comb-id=\"appItem.id\" class=\"novaRuleSettingsExt\"></div> </div> </div> <div class=\"settingsBlock\"> <div ng-if=\"hasRules(groupId)\" translate=\"'novaChannelSettings_delete_rules'\" ng-click=\"deleteAllRules(groupId)\" class=\"settingsButton textButton caution\"></div> </div> </div> </div> </div>";
+
+buzzlike.directive('novaThemeTimelineSettingsFrame', function(combService, groupService, novaWizard, novaDesktop, ruleService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemeTimelineSettingsFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.flowFrame.maxWidth = 320;
+      scope.groupIds = [];
+      scope.comb = combService.getById(scope.appItem.id);
+      scope.combRules = ruleService.getByCombId(scope.appItem.id);
+      scope.addedChannels = [];
+      scope.$watch('combRules', function(nVal) {
+        var i, j, len, len1, ref, ref1, results, rule, ruleId;
+        scope.groupIds.length = 0;
+        if ((nVal != null ? nVal.length : void 0) > 0) {
+          for (i = 0, len = nVal.length; i < len; i++) {
+            rule = nVal[i];
+            if (ref = rule.groupId, indexOf.call(scope.groupIds, ref) < 0) {
+              scope.groupIds.push(rule.groupId);
+            }
+          }
+          ref1 = scope.addedChannels;
+          results = [];
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            ruleId = ref1[j];
+            if (indexOf.call(scope.groupIds, ruleId) < 0) {
+              results.push(scope.groupIds.push(ruleId));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        }
+      }, true);
+      scope.addChannel = function() {
+        return novaWizard.fire('pick_channel', {
+          projectId: scope.comb.projectId,
+          cb: function(data) {
+            var i, id, len, ref, results;
+            ref = data.channelIds;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              scope.addedChannels.push(id);
+              if (indexOf.call(scope.groupIds, id) < 0) {
+                results.push(scope.groupIds.push(id));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          }
+        });
+      };
+      scope.removeChannel = function(groupId) {
+        return novaDesktop.launchApp({
+          app: 'novaOptionsListApp',
+          noSave: true,
+          data: {
+            text: 'novaThemeTimelineSettings_confirm_remove_channel',
+            description: 'novaThemeTimelineSettings_confirm_remove_channel_description',
+            onAccept: (function(_this) {
+              return function() {
+                removeElementFromArray(groupId, scope.addedChannels);
+                removeElementFromArray(groupId, scope.groupIds);
+                return ruleService.call('deleteByCombId', scope.appItem.id);
+              };
+            })(this)
+          }
+        });
+      };
+      scope.deleteGroup = function() {
+        return novaDesktop.launchApp({
+          app: 'novaOptionsListApp',
+          noSave: true,
+          data: {
+            text: 'novaChannelSettings_confirm_delete',
+            description: 'popup_community_delete_subtitle',
+            onAccept: (function(_this) {
+              return function() {
+                return groupService["delete"]({
+                  id: scope.group.id,
+                  type: scope.group.type
+                }, function() {
+                  return scope.flowBox.closeFlowFrame(scope.flowFrame);
+                });
+              };
+            })(this)
+          }
+        });
+      };
+      scope.hasRules = function(groupId) {
+        var i, len, ref, rule;
+        ref = scope.combRules;
+        for (i = 0, len = ref.length; i < len; i++) {
+          rule = ref[i];
+          if (rule.groupId === groupId) {
+            return true;
+          }
+        }
+        return false;
+      };
+      scope.rulesOrder = function(rule) {
+        var dateObj;
+        dateObj = new Date(rule.timestampStart);
+        return dateObj.getHours() * HOUR + dateObj.getMinutes() * MIN;
+      };
+      scope.createRule = function() {
+        ruleService.create(scope.newRule);
+        scope.newRule.timestampStart = 0;
+        return scope.newRule.dayMask = [true, true, true, true, true, true, true];
+      };
+      scope.deleteRule = function(rule) {
+        return ruleService["delete"]({
+          id: rule.id,
+          type: rule.type
+        });
+      };
+      scope.ruleFilter = function(rule) {
+        return rule.deleted !== true;
+      };
+      return scope.deleteAllRules = function(groupId) {
+        return novaDesktop.launchApp({
+          app: 'novaOptionsListApp',
+          noSave: true,
+          data: {
+            text: 'novaChannelSettings_confirm_delete_rules',
+            description: 'novaChannelSettings_confirm_delete_rules_description',
+            onAccept: (function(_this) {
+              return function() {
+                var i, len, ref, results, rule;
+                ref = scope.combRules;
+                results = [];
+                for (i = 0, len = ref.length; i < len; i++) {
+                  rule = ref[i];
+                  if (rule.groupId === groupId) {
+                    results.push(ruleService["delete"]({
+                      id: rule.id,
+                      type: rule.type
+                    }));
+                  } else {
+                    results.push(void 0);
+                  }
+                }
+                return results;
+              };
+            })(this)
+          }
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaThemeTimelineSettingsFrame', ".novaThemeTimelineSettingsFrame {\n  overflow-y: auto;\n}\n.novaThemeTimelineSettingsFrame .addChannel {\n  line-height: 30px;\n  cursor: pointer;\n  float: left;\n}\n.novaThemeTimelineSettingsFrame .addChannel span {\n  pointer-events: none;\n}\n.novaThemeTimelineSettingsFrame .addChannel .plus {\n  font-size: 25px;\n  float: left;\n  margin: 0 5px;\n}\n.novaThemeTimelineSettingsFrame .ruleItem {\n  overflow: hidden;\n  padding: 4px 5px;\n}\n.novaThemeTimelineSettingsFrame .ruleItem .textButton {\n  font-size: 14px;\n  line-height: 24px;\n  float: right;\n  z-index: 2;\n}\n.novaThemeTimelineSettingsFrame .themeChannel .novaRemove {\n  right: 0;\n  top: 0;\n  position: absolute;\n}\n.novaThemeTimelineSettingsFrame .themeChannel:hover .novaRemove {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

@@ -1,0 +1,15 @@
+tC['/novaAppControls/template.jade'] = "<div ng-if=\"session.noAppControls != true\" class=\"noDrag\"> <div ng-click=\"closeApp()\" class=\"control closeControl\"></div> <div ng-click=\"maximize()\" ng-if=\"session.noMaximize != true\" class=\"control maximizeControl\"></div> <div ng-click=\"minimize()\" class=\"control minimizeControl\"></div> </div>";
+
+buzzlike.directive('novaAppControls', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaAppControls/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      return elem = $(element);
+    }
+  };
+});
+
+registerStyles('novaAppControls', ".novaAppControls {\n  position: absolute;\n  top: 7px;\n  right: 11px;\n  z-index: 10;\n}\n.novaAppControls .control {\n  float: right;\n  margin: 3px;\n  width: 14px;\n  height: 14px;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background-position: center center;\n  background-repeat: no-repeat;\n}\n.novaAppControls .control:hover {\n  cursor: pointer;\n}\n.novaAppControls .control:active {\n  -webkit-transform: scale(0.8);\n  -moz-transform: scale(0.8);\n  -o-transform: scale(0.8);\n  -ms-transform: scale(0.8);\n  transform: scale(0.8);\n}\n.novaAppControls .closeControl {\n  background-image: url(\"/resources/images/nova/window/controls/close-white.svg\");\n}\n.styleBlack .novaAppControls .closeControl {\n  background-image: url(\"/resources/images/nova/window/controls/close.svg\");\n}\n.novaAppControls .minimizeControl {\n  background-image: url(\"/resources/images/nova/window/controls/min-white.svg\");\n}\n.styleBlack .novaAppControls .minimizeControl {\n  background-image: url(\"/resources/images/nova/window/controls/min.svg\");\n}\n.noMinimize .novaAppControls .minimizeControl {\n  display: none;\n}\n.novaAppControls .maximizeControl {\n  background-image: url(\"/resources/images/nova/window/controls/max-white.svg\");\n}\n.styleBlack .novaAppControls .maximizeControl {\n  background-image: url(\"/resources/images/nova/window/controls/max.svg\");\n}\n.noMaximize .novaAppControls .maximizeControl {\n  display: none;\n}\n");

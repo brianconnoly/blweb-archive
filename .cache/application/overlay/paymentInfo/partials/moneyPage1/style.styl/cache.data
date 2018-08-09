@@ -1,0 +1,31 @@
+.moneyPage1 {
+  overflow: hidden;
+}
+.moneyPage1 .mainBlock {
+  position: absolute;
+  top: 75px;
+  left: 10%;
+  right: 10%;
+  bottom: 0;
+  text-align: left;
+  overflow: auto;
+  line-height: 19px;
+}
+.moneyPage1 .mainBlock p.title {
+  padding: 9px 4px;
+}
+.moneyPage1 .mainBlock p {
+  padding: 4px;
+}
+.moneyPage1 .mainBlock b {
+  font-weight: bolder;
+}
+.moneyPage1 .mainBlock a {
+  color: #777;
+}
+.moneyPage1 .mainBlock * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

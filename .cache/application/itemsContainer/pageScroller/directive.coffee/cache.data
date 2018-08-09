@@ -1,0 +1,300 @@
+buzzlike.directive('pageScroller', function($parse, $compile) {
+  return {
+    restrict: 'C',
+    template: tC['/itemsContainer/pageScroller'],
+    link: function(scope, element, attrs) {
+      var addPage, clearPages, defaults, elem, handler, handlerHei, helper, k, keyPage, lastPage, lastTop, options, pages, pagesContainer, rebuildPages, rebuildScroller, scroll, scrollBar, scrollHeight, v;
+      elem = $(element);
+      pagesContainer = elem.children('.pagesContainer');
+      handler = elem.find('.handler');
+      scrollBar = elem.children('.scrollBar');
+      helper = scrollBar.children('.helper');
+      defaults = {
+        minHeight: 100,
+        itemVar: 'item',
+        topOffset: 10,
+        bottomOffset: 10
+      };
+      options = $parse(attrs.options)(scope);
+      for (k in defaults) {
+        v = defaults[k];
+        if (options[k] == null) {
+          options[k] = v;
+        }
+      }
+      handlerHei = 10;
+      keyPage = null;
+      pages = [];
+      lastPage = 0;
+      lastTop = 0;
+      scrollHeight = scope.session.size.height - options.heightOffset;
+      options.perPage = Math.ceil(scrollHeight / options.minHeight);
+      options.maxPages = Math.ceil(options.total / options.perPage);
+      if (options.watchObject != null) {
+        scope.$watch(options.watchObject, function(nVal) {
+          return rebuildPages();
+        }, true);
+      }
+      rebuildScroller = (function(_this) {
+        return function() {
+          scrollHeight = scope.session.size.height - options.heightOffset;
+          options.perPage = Math.ceil(scrollHeight / options.minHeight);
+          options.maxPages = Math.ceil(options.total / options.perPage);
+          if (options.maxPages > 1) {
+            elem.removeClass('hide');
+          } else {
+            elem.addClass('hide');
+          }
+          handlerHei = scrollHeight / options.maxPages;
+          return handler.css({
+            'height': handlerHei
+          });
+        };
+      })(this);
+      rebuildPages = (function(_this) {
+        return function() {
+          clearPages();
+          rebuildScroller();
+          if (lastPage > options.maxPages - 1) {
+            lastPage = options.maxPages - 1;
+          }
+          if (lastPage < 0) {
+            lastPage = 0;
+          }
+          return scroll(0);
+        };
+      })(this);
+      options.rebuildPages = rebuildPages;
+      clearPages = function() {
+        var j, len, page;
+        keyPage = null;
+        for (j = 0, len = pages.length; j < len; j++) {
+          page = pages[j];
+          page.scope.$destroy();
+          page.element.remove();
+        }
+        return pages.length = 0;
+      };
+      scroll = function(delta) {
+        var i, index, j, keyCandidate, keyCoord, l, len, m, maxY, minY, newPage, page, ref, ref1, ref2, toRemove, topCoord;
+        if (delta == null) {
+          delta = 0;
+        }
+        minY = scrollHeight + 100;
+        maxY = 0;
+        if (keyPage == null) {
+          keyPage = addPage(false, lastPage);
+          keyPage.top = lastTop;
+        }
+        index = pages.indexOf(keyPage);
+        keyPage.height = keyPage.element.height();
+        if (keyPage.page !== options.maxPages - 1 && keyPage.height < scrollHeight) {
+          keyPage.height = scrollHeight;
+        }
+        if (keyPage.bottom !== 'auto') {
+          keyPage.top = scrollHeight - keyPage.bottom - keyPage.height;
+          keyPage.bottom = 'auto';
+        }
+        keyPage.top = keyPage.top | 0;
+        keyPage.top += delta;
+        keyPage.bottom = 'auto';
+        if (keyPage.page === options.maxPages - 1 && keyPage.top + keyPage.height < scrollHeight - options.bottomOffset) {
+          keyPage.top = scrollHeight - keyPage.height - options.bottomOffset;
+        }
+        if (keyPage.page === 0 && keyPage.top > options.topOffset) {
+          keyPage.top = options.topOffset;
+        }
+        keyPage.element.css({
+          'top': keyPage.top,
+          'bottom': keyPage.bottom
+        });
+        toRemove = [];
+        keyCandidate = null;
+        keyCoord = null;
+        if (keyPage.top < scrollHeight) {
+          keyCandidate = keyPage;
+          keyCoord = scrollHeight - keyPage.top;
+        }
+        minY = scrollHeight - keyPage.top;
+        for (i = j = ref = index - 1; j >= 0; i = j += -1) {
+          page = pages[i];
+          if (index - i > 2) {
+            toRemove.push(page);
+            continue;
+          }
+          page.height = page.element.height();
+          if (page.height < scrollHeight) {
+            page.height = scrollHeight;
+          }
+          page.bottom = minY;
+          page.top = 'auto';
+          if (page.bottom + page.height > minY) {
+            minY = page.bottom + page.height;
+          }
+          topCoord = page.bottom + page.height;
+          if (topCoord > 0 && (keyCoord === null || topCoord < keyCoord)) {
+            keyCoord = topCoord;
+            keyCandidate = page;
+          }
+          page.element.css({
+            'top': page.top,
+            'bottom': page.bottom
+          });
+        }
+        maxY = keyPage.height + keyPage.top;
+        for (i = l = ref1 = index + 1, ref2 = pages.length; l < ref2; i = l += 1) {
+          page = pages[i];
+          if (i - index > 2) {
+            toRemove.push(page);
+            continue;
+          }
+          page.height = page.element.height();
+          if (page.height < scrollHeight) {
+            page.height = scrollHeight;
+          }
+          page.top = maxY;
+          page.bottom = 'auto';
+          if (page.top + page.height > maxY) {
+            maxY = page.top + page.height;
+          }
+          topCoord = scrollHeight - page.top;
+          if (topCoord > 0 && (keyCoord === null || topCoord < keyCoord)) {
+            keyCoord = topCoord;
+            keyCandidate = page;
+          }
+          page.element.css({
+            'top': page.top,
+            'bottom': page.bottom
+          });
+        }
+        lastPage = keyPage.page;
+        lastTop = keyPage.top;
+        for (m = 0, len = toRemove.length; m < len; m++) {
+          page = toRemove[m];
+          page.scope.$destroy();
+          page.element.remove();
+          removeElementFromArray(page, pages);
+        }
+        if ((keyCandidate != null) && keyCandidate !== keyPage) {
+          keyPage.element.removeClass('keyPage');
+          keyCandidate.element.addClass('keyPage');
+          keyPage = keyCandidate;
+        }
+        if (maxY < scrollHeight && pages[pages.length - 1].page < options.maxPages - 1) {
+          newPage = addPage();
+          newPage.top = maxY;
+          newPage.bottom = 'auto';
+          newPage.element.css({
+            'top': newPage.top,
+            'bottom': newPage.bottom
+          });
+          topCoord = scrollHeight - newPage.top;
+          if (topCoord > 0 && (keyCoord === null || topCoord < keyCoord)) {
+            keyPage.element.removeClass('keyPage');
+            newPage.element.addClass('keyPage');
+            keyPage = newPage;
+          }
+          scroll(0);
+        }
+        if (minY < scrollHeight && pages[0].page > 0) {
+          newPage = addPage(true);
+          newPage.bottom = minY;
+          newPage.top = 'auto';
+          newPage.element.css({
+            'top': newPage.top,
+            'bottom': newPage.bottom
+          });
+          topCoord = newPage.bottom + newPage.height;
+          if (topCoord > 0 && (keyCoord === null || topCoord < keyCoord)) {
+            keyPage.element.removeClass('keyPage');
+            newPage.element.addClass('keyPage');
+            keyPage = newPage;
+          }
+          return scroll(0);
+        }
+      };
+      addPage = function(top, pageId) {
+        var _lastPage, newPage;
+        if (pageId == null) {
+          pageId = 0;
+        }
+        newPage = {
+          element: $('<div>', {
+            "class": 'pageScroller_page'
+          }),
+          height: options.perPage * options.minHeight,
+          scope: scope.$new()
+        };
+        if (top) {
+          if (pages.length === 0) {
+            newPage.page = pageId;
+          } else {
+            _lastPage = pages[0];
+            newPage.page = _lastPage.page - 1;
+          }
+        } else {
+          if (pages.length === 0) {
+            newPage.page = pageId;
+          } else {
+            _lastPage = pages[pages.length - 1];
+            newPage.page = _lastPage.page + 1;
+          }
+        }
+        newPage.element.addClass('page_' + newPage.page);
+        options.getPage(newPage.page, function(items) {
+          var item, j, len, newElem, newScope, results;
+          results = [];
+          for (j = 0, len = items.length; j < len; j++) {
+            item = items[j];
+            newScope = newPage.scope.$new();
+            newScope[options.itemVar] = item;
+            newElem = $compile(options.template)(newScope);
+            results.push(newPage.element.append(newElem));
+          }
+          return results;
+        });
+        pagesContainer.append(newPage.element);
+        if (top) {
+          pages.unshift(newPage);
+        } else {
+          pages.push(newPage);
+        }
+        return newPage;
+      };
+      elem.on('mousewheel', function(e, delta) {
+        if (delta > scrollHeight) {
+          delta = scrollHeight;
+        }
+        if (delta < -scrollHeight) {
+          delta = -scrollHeight;
+        }
+        scroll(delta);
+        handler.css({
+          'top': keyPage.page * handlerHei
+        });
+        e.stopPropagation();
+        return e.preventDefault();
+      });
+      scrollBar.on('mousemove', function(e) {
+        var page, top;
+        top = e.pageY - elem.offset().top;
+        page = Math.ceil(top / handlerHei);
+        helper.html(page);
+        return helper.css({
+          'top': page * handlerHei - handlerHei / 2
+        });
+      });
+      return scrollBar.on('click', function(e) {
+        var page, top;
+        top = e.pageY - elem.offset().top;
+        page = Math.ceil(top / handlerHei);
+        lastPage = page - 1;
+        clearPages();
+        scroll(0);
+        return handler.css({
+          'top': keyPage.page * handlerHei
+        });
+      });
+    }
+  };
+});

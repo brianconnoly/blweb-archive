@@ -1,0 +1,13 @@
+div.tableLine.taskItem.selectableItem.droppableItem.contextMenu(context="currentTeam", ng-click="editTask($event)", ng-dblclick="selectTask(item)")
+    //- ng-repeat="item in tasks | orderBy:taskOrder:true", 
+    div.cell.title
+        div.statusIcon(ng-class="{'active':action}")
+        div.teamCover
+            div.itemPreview(type="content", id="taskTeam.cover")
+        div.taskTitle 
+            span(ng-if="!item.editMode") {{item.name}}
+            span.noName(ng-if="!item.editMode && item.name == ''", translate="'teamManagerApp_noName_task'")
+            input.taskTitleEditMode.focusSearchOnLoad.smartTaskTitle(ng-if="item.editMode", ng-keydown="keydown($event)", ng-mousedown="test($event)", ng-model="params.editTitle", translate="", translate-placeholder="teamManagerApp_enter_task_name")
+    div.cell.from {{::fromUser}}
+    div.cell.to {{toUser}}
+    div.cell.taskStatus.taskStatusAction.itemActionBlock

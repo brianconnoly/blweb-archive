@@ -1,0 +1,500 @@
+var byLastUpdate,
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.directive('columnView', function($compile, resize) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var buildField, columnWidth, elem, objects, resizeFn, resizeTimer, sorted_list, updateList, width;
+      columnWidth = 174;
+      width = Math.floor(($('.screen.catalog').width()) / columnWidth);
+      elem = $(element);
+      sorted_list = [];
+      objects = {};
+      updateList = function() {
+        var id, ref;
+        sorted_list = [];
+        ref = scope.subset.items;
+        for (id in ref) {
+          if (!hasProp.call(ref, id)) continue;
+          sorted_list.push(scope.subset.items[id]);
+        }
+        sorted_list.sort(byLastUpdate);
+        return buildField();
+      };
+      scope.$watch('subset.items', updateList, true);
+      buildField = function() {
+        var el, i, id, item, items, j, k, len, lines, newscope, obj, ref, sorted_len, start, template;
+        sorted_len = sorted_list.length;
+        if (sorted_list.length === 0) {
+          return;
+        }
+        lines = Math.floor(sorted_len / width);
+        if (lines < sorted_len / width) {
+          lines++;
+        }
+        if (lines > 3) {
+          lines = 3;
+        }
+        elem.css({
+          'height': 66 + (columnWidth * lines)
+        });
+        elem.children('.absoluteContent').addClass('toDelete');
+        for (i = j = 0, ref = width; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+          start = i * lines;
+          items = sorted_list != null ? sorted_list.slice(start, start + lines) : void 0;
+          if (items.length === 0) {
+            continue;
+          }
+          for (k = 0, len = items.length; k < len; k++) {
+            item = items[k];
+            id = item.id;
+            obj = objects[id];
+            if (obj == null) {
+              newscope = scope.$new();
+              newscope.item = item;
+              template = '<li class="contextMenu selectableItem absoluteContent item editableItem droppableItem ios-nodelay tutorialCourseTagForce tl_contentitem" type="' + attrs.itemType + '"> <div item="item" class="itemPreview ios-dblclick" ng-dblclick="itemClick(item, $event)" overlay="' + attrs.itemType + 'Page"></div> </li>';
+              el = $compile(template)(newscope);
+              obj = {
+                elem: $(el)
+              };
+              objects[item.id] = obj;
+              element.append(obj.elem);
+              obj.elem.data('id', item.id);
+            }
+            obj.elem.removeClass('toDelete');
+            obj.elem.css({
+              'top': 40 + 12 + _j * 174,
+              'left': i * 174
+            });
+          }
+        }
+        return elem.children('.toDelete').each(function() {
+          delete objects[$(this).data('id')];
+          return $(this).remove();
+        });
+      };
+      resizeTimer = 0;
+      resizeFn = function() {
+        resizeTimer = 0;
+        width = Math.floor(($('.screen.catalog').width()) / columnWidth);
+        return updateList();
+      };
+      resize.registerCb(function() {
+        if (resizeTimer) {
+          clearTimeout(resizeTimer);
+        }
+        return resizeTimer = setTimeout(resizeFn, 400);
+      });
+      buildField();
+      return true;
+    }
+  };
+}).directive('contentDeepView', function($compile, contentService, combService, multiselect, user, resize) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var addSection, anim, animDefault, area, blockWidth, clear, columnWidth, current, easeMove, elem, fetchNumber, getLeft, height, loaded, loading, move, objects, rememberScroll, resizeFn, resizeTimer, rightLimit, scopeUpdatingInterval, screen_width, scrollBy, scrolled, sections, setLeft, sorted_list, toEnd, toStart, updateList, width;
+      elem = $(element);
+      area = $('.screen.deepview');
+      scrolled = 0;
+      sections = [];
+      blockWidth = 174;
+      columnWidth = 174;
+      height = Math.floor((area.height()) / blockWidth);
+      width = Math.floor((area.width()) / blockWidth);
+      scope.leftArrowVisible = scope.rightArrowVisible = false;
+      rightLimit = area.width();
+      loaded = false;
+      fetchNumber = 300;
+      screen_width = $('.viewport3d').width();
+      sorted_list = [];
+      objects = {};
+      current = 0;
+      updateList = function() {
+        var id, ref, ref1, ref2;
+        sorted_list = [];
+        ref1 = (ref = scope.selectedCat) != null ? ref.items : void 0;
+        for (id in ref1) {
+          if (!hasProp.call(ref1, id)) continue;
+          sorted_list.push((ref2 = scope.selectedCat) != null ? ref2.items[id] : void 0);
+        }
+        sorted_list.sort(byLastUpdate);
+        return scrollBy(0);
+      };
+      scope.$watch('selectedCat', function(prev, now) {
+        if (scope.selectedCat == null) {
+          return false;
+        }
+        clear();
+        return updateList();
+      }, true);
+      clear = function() {
+        var j, k, len, len1, obj_id, ref, section;
+        elem.html("");
+        for (j = 0, len = sections.length; j < len; j++) {
+          section = sections[j];
+          ref = section.list;
+          for (k = 0, len1 = ref.length; k < len1; k++) {
+            obj_id = ref[k];
+            if (objects[obj_id] != null) {
+              objects[obj_id].scope.$destroy();
+              objects[obj_id].elem.remove();
+            }
+          }
+          section.elem.remove();
+        }
+        return sections.length = 0;
+      };
+      addSection = function(from, left, before) {
+        var el, id, item, items, j, len, list, new_elem, new_section, newscope, obj, template;
+        items = sorted_list != null ? sorted_list.slice(from, from + height) : void 0;
+        if (items.length === 0) {
+          return false;
+        }
+        new_elem = $("<ul class='section'></ul>");
+        setLeft(new_elem, left);
+        list = [];
+        for (j = 0, len = items.length; j < len; j++) {
+          item = items[j];
+          id = item.id;
+          list.push(id);
+          obj = null;
+          if (obj == null) {
+            newscope = scope.$new();
+            newscope.item = item;
+            template = '<li class="contextMenu absoluteContent item selectableItem editableItem droppableItem ios-nodelay tutorialCourseTagForce tl_contentitem" type="' + attrs.itemType + '"> <div item="item" class="itemPreview" ng-dblclick="itemClick(item, $event)"></div> </li>';
+            el = $compile(template)(newscope);
+            obj = {
+              scope: newscope,
+              elem: $(el)
+            };
+            objects[item.id] = obj;
+          }
+          if (multiselect.isFocused(obj.scope.item)) {
+            obj.elem.addClass('selected');
+          } else {
+            obj.elem.removeClass('selected');
+          }
+          obj.elem.appendTo(new_elem);
+        }
+        new_section = {
+          elem: new_elem,
+          from: from,
+          left: left,
+          list: list
+        };
+        if (before) {
+          sections.unshift(new_section);
+          elem.prepend(new_elem);
+        } else {
+          sections.push(new_section);
+          elem.append(new_elem);
+        }
+        return new_section;
+      };
+      getLeft = function(elem) {
+        return Math.floor($(elem).css("transform").split(",")[4]);
+      };
+      setLeft = function(elem, val) {
+        return $(elem).css({
+          "transform": "translateX(" + val + "px)",
+          "-webkit-transform": "translateX(" + val + "px)",
+          "-moz-transform": "translateX(" + val + "px)"
+        });
+      };
+      loading = 0;
+      scrollBy = function(value) {
+        var allItems, index, j, k, l, lastSection, left_stop, len, len1, len2, len3, m, maxFrom, maxRight, minDeltaCenter, minFrom, minLeft, new_section, obj_id, ref, ref1, ref2, ref3, ref4, results, right, section, toRemove;
+        maxRight = 0;
+        minLeft = screen_width * 1.2;
+        maxFrom = 0;
+        minFrom = getBigTimestamp();
+        minDeltaCenter = 999999999;
+        if (sections.length < width - 1) {
+          value = 0;
+        }
+        if (((ref = sections[sections.length - 1]) != null ? ref.left : void 0) - Math.floor(value) < rightLimit - blockWidth - blockWidth - 10 && value > 0) {
+          value = blockWidth + blockWidth + 10 + ((ref1 = sections[sections.length - 1]) != null ? ref1.left : void 0) - rightLimit;
+        }
+        if (((ref2 = sections[0]) != null ? ref2.left : void 0) - Math.floor(value) > 10) {
+          value = ((ref3 = sections[0]) != null ? ref3.left : void 0) - 10;
+        }
+        if (scrolled < 0 && value < 0) {
+          scrolled = value = 0;
+        }
+        scrolled += value;
+        allItems = scope.selectedCat != null ? Object.keys(scope.selectedCat.items).length : 0;
+        lastSection = sections[sections.length - 1];
+        if (scrolled > 0) {
+          scope.leftArrowVisible = true;
+        } else {
+          scope.leftArrowVisible = false;
+        }
+        if (allItems - height < (lastSection != null ? lastSection.from : void 0) && (lastSection != null ? lastSection.left : void 0) < screen_width) {
+          scope.rightArrowVisible = false;
+        } else {
+          scope.rightArrowVisible = true;
+        }
+        toRemove = [];
+        for (j = 0, len = sections.length; j < len; j++) {
+          section = sections[j];
+          section.left -= Math.floor(value);
+          if (section.left + blockWidth > screen_width * 2 || section.left < -screen_width) {
+            toRemove.push(section);
+            continue;
+          }
+          setLeft(section.elem, section.left);
+          right = section.left + blockWidth;
+          if (right > maxRight) {
+            maxRight = right;
+            maxFrom = section.from + height;
+          }
+          if (section.left < minLeft) {
+            minLeft = section.left;
+            minFrom = section.from;
+          }
+          if (Math.abs(section.left) < minDeltaCenter) {
+            minDeltaCenter = Math.abs(section.left);
+            current = section.from;
+          }
+        }
+        for (k = 0, len1 = toRemove.length; k < len1; k++) {
+          section = toRemove[k];
+          if (sections.length > 1) {
+            ref4 = section.list;
+            for (l = 0, len2 = ref4.length; l < len2; l++) {
+              obj_id = ref4[l];
+              if (objects[obj_id] != null) {
+                objects[obj_id].scope.$destroy();
+                objects[obj_id].elem.remove();
+              }
+            }
+            section.elem.remove();
+            index = sections.indexOf(section);
+            sections.splice(index, 1);
+          }
+        }
+        if (maxFrom === 0) {
+          maxFrom = current;
+          maxRight = 0;
+        }
+        if (minFrom === getBigTimestamp()) {
+          minFrom = current;
+          minLeft = 0;
+        }
+        new_section = true;
+        while (maxRight < rightLimit && new_section) {
+          new_section = addSection(maxFrom, maxRight);
+          maxRight += blockWidth;
+          maxFrom += height;
+        }
+        if (!new_section && (scope.selectedCat != null) && !loading) {
+          loading = setTimeout(function() {
+            return loading = 0;
+          }, 1000);
+          if (attrs.itemType === 'comb') {
+            combService.fetchCombsPageForCommunity(scope.selectedCat.id, fetchNumber);
+          } else {
+            contentService.fetchContentPageForType(scope.selectedCat.type, fetchNumber);
+          }
+        }
+        new_section = true;
+        if (minLeft) {
+          while (minLeft > 0 && new_section) {
+            minFrom -= height;
+            minLeft -= blockWidth;
+            new_section = addSection(minFrom, minLeft, true);
+          }
+        }
+        if (!new_section) {
+          left_stop = 0;
+          results = [];
+          for (m = 0, len3 = sections.length; m < len3; m++) {
+            section = sections[m];
+            section.left = left_stop;
+            setLeft(section.elem, left_stop);
+            results.push(left_stop += blockWidth);
+          }
+          return results;
+        }
+      };
+      anim = {};
+      animDefault = function() {
+        return updateObject(anim, {
+          inProgress: false,
+          interval: null,
+          startTime: null,
+          checkTime: null,
+          speed: 100,
+          maxSpeed: 2200,
+          acceleration: 2500,
+          minDuration: 350,
+          currentDirection: 0
+        });
+      };
+      animDefault();
+      scopeUpdatingInterval = null;
+      scope.setAction = function(e, direction) {
+        if (e.which !== 1) {
+          return false;
+        }
+        if (anim.inProgress) {
+          return false;
+        }
+        anim.inProgress = true;
+        anim.currentDirection = direction;
+        if (anim.downTimeout) {
+          clearTimeout(anim.downTimeout);
+          clearTimeout(anim.upTimeout);
+          anim.downTimeout = anim.upTimeout = 0;
+          if (direction === -1) {
+            toStart();
+          } else {
+            toEnd();
+          }
+          return false;
+        }
+        anim.startTime = Date.now();
+        return anim.downTimeout = setTimeout(function() {
+          anim.downTimeout = 0;
+          return move(direction);
+        }, 200);
+      };
+      move = function(direction) {
+        var render;
+        anim.checkTime = Date.now();
+        anim.speed = 100;
+        render = function() {
+          var ds, dt, dx;
+          if (anim.inProgress) {
+            dt = Date.now() - anim.checkTime;
+            anim.checkTime += dt;
+            if (anim.speed < anim.maxSpeed) {
+              ds = anim.acceleration * dt / 1000;
+              anim.speed += ds;
+            }
+            if (anim.speed > anim.maxSpeed) {
+              anim.acceleration = 500;
+            }
+            dx = direction * anim.speed * dt / 1000;
+            scrollBy(dx);
+            scope.$apply();
+            return requestAnimFrame(render);
+          }
+        };
+        render();
+        return false;
+      };
+      scope.stopMove = function() {
+        var dt, dx;
+        anim.inProgress = false;
+        dt = Date.now() - anim.startTime;
+        if (dt < anim.minDuration) {
+          dt = anim.minDuration - dt;
+          dx = width * blockWidth * anim.currentDirection;
+          if (anim.downTimeout) {
+            anim.upTimeout = setTimeout(function() {
+              anim.downTimeout = anim.downTimeout = 0;
+              return easeMove(dx, 500);
+            }, 200);
+          }
+        } else {
+          dt = 0;
+        }
+        return setTimeout(function() {
+          clearInterval(scopeUpdatingInterval);
+          return animDefault();
+        }, dt);
+      };
+      easeMove = function(val, duration) {
+        var render, startTime, x0;
+        startTime = Date.now();
+        x0 = 0;
+        anim.inProgress = true;
+        render = function() {
+          var dt, dx, x;
+          dt = Date.now() - startTime;
+          if (dt > duration) {
+            dt = duration;
+          }
+          x = Math.easeInOutQuad(dt, 0, val, duration);
+          dx = x - x0;
+          x0 = x;
+          scrollBy(dx);
+          if (dt >= duration) {
+            anim.inProgress = false;
+            return false;
+          }
+          return requestAnimFrame(render);
+        };
+        return render();
+      };
+      rememberScroll = 0;
+      toStart = function() {
+        rememberScroll = scrolled;
+        return easeMove(-scrolled, 400);
+      };
+      toEnd = function() {
+        if (rememberScroll) {
+          easeMove(rememberScroll, 400);
+          return rememberScroll = 0;
+        }
+      };
+      scope.uploadContent = function(e) {
+        var target;
+        target = $(e.target);
+        if (target.hasClass('left-arrow') || target.hasClass('right-arrow')) {
+          return false;
+        }
+        return $('.uploadHelper input').click();
+      };
+      resizeTimer = 0;
+      resizeFn = function() {
+        var new_height, new_width;
+        resizeTimer = 0;
+        new_height = Math.floor(($('.screen.deepview').height()) / columnWidth);
+        new_width = Math.floor(($('.screen.deepview').width()) / columnWidth);
+        screen_width = $('body').width();
+        if (new_height !== height || new_width !== width) {
+          height = new_height;
+          width = new_width;
+          clear();
+          updateList();
+          scrolled = 0;
+        }
+        return scope.$apply();
+      };
+      resize.registerCb(function() {
+        if (resizeTimer) {
+          clearTimeout(resizeTimer);
+        }
+        return resizeTimer = setTimeout(resizeFn, 400);
+      });
+      elem.on('mousewheel', function(e, d, dx, dy) {
+        e.preventDefault();
+        e.stopPropagation();
+        scrollBy(-d / 2);
+        scope.$apply();
+        return false;
+      });
+      return true;
+    }
+  };
+});
+
+byLastUpdate = function(a, b) {
+  if (a.lastUpdated < b.lastUpdated) {
+    return 1;
+  }
+  if (a.lastUpdated > b.lastUpdated) {
+    return -1;
+  }
+  if (a.id < b.id) {
+    return 1;
+  }
+  if (a.id > b.id) {
+    return -1;
+  }
+  return 0;
+};

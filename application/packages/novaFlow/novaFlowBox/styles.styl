@@ -1,0 +1,26 @@
+height 100%
+top -1
+// float: left
+position absolute
+
+border-right 1px solid #ddd
+// border-left 1px solid #ddd
+box-sizing border-box
+overflow: hidden
+
+border-top 1px solid #ddd
+transition border-radius 0.2s ease
+
+&.right
+    border-left 1px solid #ddd
+    border-right none
+
+&.last
+    border-right: 1px solid #ddd !important;
+    border-radius: 0 8px 0 0;
+
+&:last-child
+    border-right none
+
+&:first-child
+    border-left 1px solid #ddd

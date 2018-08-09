@@ -1,0 +1,25 @@
+var TableImportCtrl;
+
+TableImportCtrl = function($scope, stateManager, tableImport) {
+  stateManager.applyState({
+    noMenu: true,
+    hideRight: true,
+    escape: tableImport.close
+  });
+  $scope.$on('$destroy', stateManager.goBack);
+  $scope.state = tableImport.state;
+  $scope.uploadCommTable = function() {
+    $('#importCommunityHelper').click();
+    return true;
+  };
+  $scope.uploadFullTable = function() {
+    $('#importFullHelper').click();
+    return true;
+  };
+  $scope.download = function(url) {
+    if (url) {
+      return window.location = url;
+    }
+  };
+  return $scope.onEscape = tableImport.close;
+};

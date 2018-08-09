@@ -1,0 +1,22 @@
+tC['/novaWizardWelcomeLicense/template.jade'] = "<div class=\"license\">License text</div> <div class=\"acceptBar\"> <checkbox ng-model=\"acceptRules\" ng-change=\"rulesTrigger()\" class=\"long\"></checkbox><span translate=\"'novaWelcome_license_acceptLabel'\" class=\"acceptLabel\"></span> </div>";
+
+buzzlike.directive('novaWizardWelcomeLicense', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardWelcomeLicense/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.acceptRules = !!scope.wizard.data.license_accepted;
+      return scope.rulesTrigger = function() {
+        if (scope.acceptRules) {
+          return scope.wizard.pick({
+            id: true
+          });
+        } else {
+          return scope.wizard.flushPick();
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaWizardWelcomeLicense', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardWelcomeLicense\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

@@ -1,0 +1,59 @@
+tC['/novaZoomStatic/template.jade'] = "<div class=\"pickerWindow\"> <div class=\"pickerHandler\"></div> </div>";
+
+buzzlike.directive('novaZoomStatic', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaZoomStatic/template.jade'],
+    replace: true,
+    require: '?ngModel',
+    link: function(scope, element, attrs, ngModel) {
+      var body, elem, pickerHandler, pickerWindow, setValueFromLeft, startX;
+      elem = $(element);
+      pickerWindow = elem;
+      pickerHandler = elem.find('.pickerHandler');
+      body = $('body');
+      startX = 0;
+      ngModel.$render = function() {
+        var perc;
+        if (ngModel.$viewValue != null) {
+          scope.value = ngModel.$viewValue;
+          perc = scope.value / 10;
+          return pickerHandler.css('left', 5 + (70 * perc | 0));
+        }
+      };
+      setValueFromLeft = function(left) {
+        var perc;
+        left -= 5;
+        perc = left / 70;
+        perc *= 90;
+        perc = perc | 0;
+        perc /= 10;
+        return ngModel.$setViewValue(perc + 1);
+      };
+      return pickerHandler.on('mousedown.novaZoom', function(e) {
+        var handlerTop, pickerTop;
+        pickerTop = pickerWindow.position().left;
+        handlerTop = pickerHandler.position().left;
+        startX = e.clientX;
+        body.on('mousemove.novaZoom', function(e) {
+          var nVal;
+          nVal = handlerTop + e.clientX - startX;
+          if (nVal > 75) {
+            nVal = 75;
+          }
+          if (nVal < 5) {
+            nVal = 5;
+          }
+          pickerHandler.css('left', nVal);
+          return setValueFromLeft(nVal);
+        });
+        return body.on('mouseup.novaZoom', function() {
+          body.off('mousemove.novaZoom');
+          return body.off('mouseup.novaZoom');
+        });
+      });
+    }
+  };
+});
+
+registerStyles('novaZoomStatic', ".novaZoomStatic {\n  height: 30px;\n  width: 90px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n}\n.novaZoomStatic:after {\n  content: \"\";\n  position: absolute;\n  border-bottom: 1px solid #eee;\n  width: 70px;\n  left: 10px;\n  top: 15px;\n}\n.novaZoomStatic .pickerHandler {\n  position: absolute;\n  top: 10px;\n  width: 10px;\n  height: 10px;\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n  background: #999;\n  cursor: pointer;\n  z-index: 1;\n  -webkit-box-shadow: 0 0 0px 0 rgba(0,0,0,0.3);\n  box-shadow: 0 0 0px 0 rgba(0,0,0,0.3);\n  -webkit-transition: background 0.1s ease;\n  -moz-transition: background 0.1s ease;\n  -o-transition: background 0.1s ease;\n  -ms-transition: background 0.1s ease;\n  transition: background 0.1s ease;\n}\n.novaZoomStatic .pickerHandler:hover {\n  -webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.3);\n  box-shadow: 0 0 3px 0 rgba(0,0,0,0.3);\n  background: #545454;\n}\n.novaZoomStatic .pickerHandler:active {\n  -webkit-box-shadow: 0 0 1px 0 rgba(0,0,0,0.3);\n  box-shadow: 0 0 1px 0 rgba(0,0,0,0.3);\n  background: #666;\n}\n");

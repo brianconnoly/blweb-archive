@@ -1,0 +1,10 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    div.appControls
+
+    div.title(translate="'paymentOfferApp_title'")
+
+div.body
+    div.body_offer
+        div.offer.globalOffer
+    div.body_footer.dragHandler
+        div.confirmButton(ng-click="agree()", ng-class="{'agreed': agreed}") {{localization.translate("offer_button_charge")}}

@@ -1,0 +1,45 @@
+//-doctype html
+doctype html 5
+html(ng-app="buzzlike")
+    head
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, height=device-height" )
+        meta(name="viewport", content="initial-scale=1, user-scalable=no")
+        title buzzlike
+
+        link(rel="stylesheet", href="/resources/styles.css")
+        link(rel="icon" href="/resources/images/favicon.png" sizes="128x128")
+
+        script.
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-46081632-1', 'buzzlike.pro');
+            ga('send', 'pageview');
+
+        //- VK like widget
+        //- script(src="http://vk.com/js/api/openapi.js?98")
+        //- script.
+        //-    VK.init({apiId: 2905274, onlyWidgets: true});
+
+        //- each lib in libs
+        //-     script(src= lib.path)
+
+        //- each script in scripts
+        //-     script(src= script.path)
+
+    body
+        div#big_loading.big_loading
+            div.buzzLogo.logo
+                img.dark(src="/resources/images/login/dark.svg", width="40px", height="45px")
+                img.light(src="/resources/images/login/light.svg", width="40px", height="45px")
+                div.text buzzlike
+
+            div.progress
+                div#loadingProgress.filled
+
+            div#loadingStatus.status Загрузка скриптов
+            
+        //- div.main-wrapper(ui-view='')
+        div.bootloader

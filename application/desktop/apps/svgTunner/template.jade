@@ -1,0 +1,12 @@
+div.topBar.dragHandler
+    div.appControls
+    div.title Svg tunner
+    div.switcherPanel
+        input(ng-model="size.width")
+        input(ng-model="size.height")
+        input(ng-model="size.zoom")
+        input(ng-model="path")
+        checkbox.long(ng-model="gridOnTop")
+div.body(ng-class="{'gridOnTop':gridOnTop}")
+    div.svgTunnerGrid(ng-style="{'width':size.width * size.zoom,'height':size.height * size.zoom}")
+    img.svgPreview(ng-src="{{path}}", ng-style="{'width':size.width * size.zoom,'height':size.height * size.zoom}")

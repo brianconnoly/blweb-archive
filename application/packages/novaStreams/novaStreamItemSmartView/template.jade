@@ -1,0 +1,29 @@
+div.smartDate(ng-if="item.smartDate") {{::item.created | timestampMask:'D ofMMMM optYY, hh:mm'}}
+div(ng-switch="item.streamItemType") 
+    div.userMessage(ng-switch-default)
+        div.messageTime {{::item.created | timestampMask:'hh:mm'}}
+        div.userPicSide(ng-if="!mine")
+            div.novaItem.novaItemScope.novaItemPreview.novaItemDraggable(
+                nova-item-object="user",
+                nova-item-preview-type="simple")
+        div.messageSide
+            div.userName {{user.name}}    
+            div.message 
+                div.messageText 
+                    div.messagePart(ng-repeat="part in item.items") 
+                        div {{part.value}}
+                        div.messageAttachments.novaMultiselect(ng-if="part.entities.length > 0")
+                            div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable(
+                                ng-repeat="entity in part.entities",
+                                nova-item-id="entity.id",
+                                nova-item-type="{{::entity.type}}")
+    div.systemMessage(ng-switch-when="system")
+        div.messageTime {{::item.created | timestampMask:'hh:mm'}}
+        span.userName {{user.name}}
+        span.novaStreamItemSystemMessage(stream-item="item")
+    
+    div.systemMessage(ng-switch-when="project")
+        div.messageTime {{::item.created | timestampMask:'hh:mm'}}
+        span.userName(ng-if="me != true") {{user.name}}
+        span.userName(ng-if="me == true", translate="'streamMessage_me'")
+        span.novaStreamItemProjectMessage(stream-item="item")

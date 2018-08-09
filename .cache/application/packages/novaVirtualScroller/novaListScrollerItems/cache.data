@@ -1,0 +1,13 @@
+tC['/novaListScrollerItems/template.jade'] = "<div ng-repeat=\"item in block.items | orderBy:'scroller.sortFunc' track by item.id\" nova-item-context=\"parentItem\" nova-item-preview-type=\"list\" class=\"novaTaskItem novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemDroppable novaItemMenu\"> </div>";
+
+buzzlike.directive('novaListScrollerItems', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaListScrollerItems/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return true;
+    }
+  };
+});
+
+registerStyles('novaListScrollerItems', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaListScrollerItems\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

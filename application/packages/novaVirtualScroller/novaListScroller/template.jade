@@ -1,0 +1,9 @@
+div.novaScrollerPage(ng-repeat="page in scroller.pages")
+    div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemDroppable.novaItemMenu(
+        ng-repeat="item in page.blocks | orderBy:'scroller.sortFunc' track by item.id",
+        nova-item-preview-type="list",
+        nova-item-context="parentItem",
+        data-sort="{{scroller.sortFunc(item)}}")
+    //- div.novaScrollerPageBlock(ng-repeat="block in page.blocks")
+        //-  track by block.code
+        div.novaListScrollerItems

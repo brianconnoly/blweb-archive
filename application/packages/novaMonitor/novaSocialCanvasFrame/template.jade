@@ -1,0 +1,15 @@
+div(ng-class="{'collapsed':paletteColapsed}")
+    div.socialCanvas
+
+    div.socialPalette
+        div.paletteBar
+            div.progressBar
+            div.statusMessage
+            div.paletteButton.toggleBar(
+                ng-click="paletteColapsed=!paletteColapsed", 
+                ng-class="{'collapsed':paletteColapsed}") &darr;
+            div.paletteButton.addPaint(ng-click="addPaint()") +
+            //- div.paletteButton.refresh(ng-click="refresh()") Refresh
+            //- div.paletteButton.analyse(ng-click="analyse()") !!!
+        div.paletteList
+            div.novaSocialCanvasPaint(ng-repeat="paint in paints")

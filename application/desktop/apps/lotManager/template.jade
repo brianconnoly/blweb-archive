@@ -1,0 +1,120 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+    div.appControls
+
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+    
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+div.body.panelWide
+    div.leftPanel.itemsContainer.lazyLots.rememberScroll.zoom_mid(scroll-value="lotScrollValue", antiscroll)
+        div.panelItem(ng-repeat="item in requestLots | filter:lotFilter | orderBy:lotOrder:true ", ng-class="{'active': item == currentLot}", ng-click="selectLot(item)")
+            div.notify(ng-class="{'active':item.userUpdated[0].unread, 'counter':item.userUpdated[0].updates > 0}") 
+                span(ng-if="item.userUpdated[0].updates > 0") {{item.userUpdated[0].updates}}
+            div.previewContainer
+                div.itemPreview(item="item")
+
+    
+    div.rightContent.itemsContainer.multiselect.appSettingsLayout(ng-class="{'showSettings':showSettings && currentLot.userId == user.id, 'appSettingsLayout_showed':currentLot && currentLot.userId == user.id}")
+        div.appSettingsLayout_topBar.currentLot
+            div.params
+                div.settings.gearIcon.flushMousedown.appSettingsLayout_activator(ng-click="showSettings = !showSettings")
+                checkbox.long(ng-class="{'active':lotActive()}", ng-model="currentLot.published", ng-change="triggerPublish()")
+                span.published(ng-class="{'active':lotActive()}", ng-click="triggerPublish(true)")
+                    span(translate="'lotManagerApp_lotPublished'", ng-show="currentLot.published && currentLot.moderationStatus == 'accepted'")
+                    span(translate="'lotManagerApp_lotPublish'", ng-show="!currentLot.published")
+                    span(translate="'lotManagerApp_lotWaiting'", ng-show="currentLot.published && currentLot.moderationStatus == 'notModerated'")
+                    span(translate="'lotManagerApp_lotRejected'", ng-show="!currentLot.published && currentLot.moderationStatus == 'rejected'")
+
+            div.smallPreview(ng-if="lotCommunity")
+                img.picPreload(src="{{lotCommunity.photo}}")
+            div.title {{lotCommunity.name}}
+
+        div.appSettingsLayout_settings.lotSettings
+
+            div.buzzlot(ng-if="userMorpheus()")
+                span BL
+                checkbox.long(ng-model="currentLot.buzzLot", ng-change="saveLot()")
+
+            div.previewColumn.itemsContainer.zoom_max
+
+                div.previewContainer.droppableItem(dropable-item="currentLot")
+                    div.itemPreview(type="post", id="currentLot.postId")
+
+                div.previewButton(translate="'lotManagerApp_previewLot'", ng-click="previewLot()")
+                div.removeButton(translate="'lotManagerApp_removeLot'", ng-click="deleteLot()")
+
+            div.paramsColumn(ng-class="{'disabled':currentLot.published}")
+
+                div.list
+
+                    div.line
+                        div.title(translate="'lotPreviewApp_lot_communitySize'")
+                        div.value {{::lotCommunity.membersCount}} {{localization.declensionPhrase(lotCommunity.membersCount,'subscribers')}}
+
+                    div.line
+                        div.title(translate="'lotPreviewApp_lot_title'")
+                        div.value
+                            input.settingsInput.longInput(ng-model="currentLot.name", ng-change="saveLot()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                    div.line
+                        div.title(translate="'lotManagerApp_minSubscribers'")
+                        div.value 
+                            input.settingsInput.longInput(ng-model="currentLot.minSubscribers", ng-change="saveLot()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.line
+                        div.title(translate="'lotManagerApp_lotPrice'")
+                        div.value
+                            input.settingsInput.longInput(ng-model="currentLot.price", ng-change="saveLot()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.line
+                        div.title(translate="'lotManagerApp_lotDates'")
+                        div.value 
+                            div.datePicker(ng-model="currentLot.dateFrom", dateonly="true", ng-change="saveLot()") {{currentLot.dateFrom | timestampMask: "DD.M.YY"}}
+                            div.separator –
+                            div.datePicker(ng-model="currentLot.dateTo", dateonly="true", ng-change="saveLot()") {{currentLot.dateTo | timestampMask: "DD.M.YY"}}
+
+                    div.line
+                        div.title(translate="'lotPreviewApp_lot_timeLimit'")
+                        div.value 
+                            div.settingsInput.shortInput.timePicker(ng-model="currentLot.timeFrom", options="cleartime", ng-change="saveLot()")
+                            div.separator –
+                            div.settingsInput.shortInput.timePicker(ng-model="currentLot.timeTo", options="cleartime", ng-change="saveLot()")
+                    
+                    div.line
+                        div.title(translate="'lotManagerApp_lotGuarantee'")
+                        div.value 
+                            div.timePicker.separated(ng-model="currentLot.checkAfter", options="cleartime", ng-change="saveLot()")
+
+        div.requestsList.appSettingsLayout_body.blTable
+            div.head
+                div.cell.pic
+                div.cell.community(translate="'lotManagerApp_column_community'")
+                div.cell.subscribers(translate="'lotManagerApp_column_subscribers'")
+                div.cell.price(translate="'lotManagerApp_column_price'")
+                div.cell.time(translate="'lotManagerApp_column_time'")
+                div.cell.status(translate="'lotManagerApp_column_status'")
+
+            div.list.lazyRequests.rememberScroll(scroll-value="requestScrollValue", antiscroll)
+
+                div.tableLine.requestItem(ng-repeat="item in requests | orderBy:requestOrder:true")
+                    div.cell.pic
+                        div.picBox(ng-click="openCommPage(communityItem)")
+                            img.picPreload(src="{{communityItem.photo}}")
+                    div.cell.community(ng-dblclick="openCommPage(communityItem)") {{::communityItem.name}}
+                    div.cell.subscribers {{::communityItem.membersCount}}
+                    div.cell.price {{item.cost}}
+                    div.cell.time {{getFormatedDate(item.timestamp)}}
+                    div.cell.status.itemActionBlock
+                        div.statusBlock(ng-if="!hasActions()", translate="'lotManagerApp_requestStatus_' + item.requestStatus", ng-class="item.requestStatus")
+                        div.actions(ng-if="hasActions()", ng-switch="action")
+                            div.action(ng-switch-when="reject", translate="'lotManagerApp_requestAction_reject'", ng-click="reject()")
+                            div.action(ng-switch-when="accept", translate="'lotManagerApp_requestAction_accept'", ng-click="accept()")
+                            div.action(ng-switch-when="cancel", translate="'lotManagerApp_requestAction_cancel'", ng-click="cancel()")
+                            div.menu(ng-click="showMenu($event)")
+
+
+bread-crombs
+
+

@@ -1,0 +1,64 @@
+buzzlike.directive('resize', function(desktopService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, elem, flushResize, parent;
+      elem = $(element);
+      parent = elem.parent();
+      body = $('body');
+      flushResize = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        scope.resized(scope.session.size.width, scope.session.size.height);
+        body.off('mousemove.resizeWindow');
+        body.off('mouseup.resizeWindow');
+        scope.stateSaver.save();
+        return scope.$apply();
+      };
+      return elem.on('mousedown.resizeWindow', function(e) {
+        var bottomGuide, rightGuide;
+        e.preventDefault();
+        rightGuide = scope.session.coords.x + scope.session.size.width;
+        bottomGuide = scope.session.coords.y + scope.session.size.height;
+        body.on('mousemove.resizeWindow', function(e) {
+          var ref, ref1, ref2, ref3, ref4, ref5, ref6;
+          if (e.which === 0) {
+            flushResize(e);
+            return;
+          }
+          if (element.hasClass('bottom')) {
+            scope.setHeight(e.clientY - (((ref = scope.session.coords) != null ? ref.y : void 0) || 0));
+          } else if (element.hasClass('right')) {
+            scope.setWidth(e.clientX - (((ref1 = scope.session.coords) != null ? ref1.x : void 0) || 0));
+          } else if (element.hasClass('right')) {
+            scope.setWidth(e.clientX - (((ref2 = scope.session.coords) != null ? ref2.x : void 0) || 0));
+          } else if (element.hasClass('left')) {
+            scope.setPosition(e.clientX, scope.session.coords.y);
+            scope.setWidth(rightGuide - e.clientX);
+          } else if (element.hasClass('top')) {
+            scope.setPosition(scope.session.coords.x, e.clientY);
+            scope.setHeight(bottomGuide - e.clientY);
+          } else if (element.hasClass('topleft')) {
+            scope.setPosition(scope.session.coords.x, e.clientY);
+            scope.setHeight(bottomGuide - e.clientY);
+            scope.setPosition(e.clientX, scope.session.coords.y);
+            scope.setWidth(rightGuide - e.clientX);
+          } else if (element.hasClass('topright')) {
+            scope.setPosition(scope.session.coords.x, e.clientY);
+            scope.setHeight(bottomGuide - e.clientY);
+            scope.setWidth(e.clientX - (((ref3 = scope.session.coords) != null ? ref3.x : void 0) || 0));
+          } else if (element.hasClass('bottomleft')) {
+            scope.setHeight(e.clientY - (((ref4 = scope.session.coords) != null ? ref4.y : void 0) || 0));
+            scope.setPosition(e.clientX, scope.session.coords.y);
+            scope.setWidth(rightGuide - e.clientX);
+          } else if (element.hasClass('bottomright')) {
+            scope.setHeight(e.clientY - (((ref5 = scope.session.coords) != null ? ref5.y : void 0) || 0));
+            scope.setWidth(e.clientX - (((ref6 = scope.session.coords) != null ? ref6.x : void 0) || 0));
+          }
+          return typeof scope.resizeInProgress === "function" ? scope.resizeInProgress(scope.session.size.width, scope.session.size.height) : void 0;
+        });
+        return body.on('mouseup.resizeWindow', flushResize);
+      });
+    }
+  };
+});

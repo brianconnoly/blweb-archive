@@ -1,0 +1,27 @@
+tC['/novaThemePosts/template.jade'] = "<div ng-click=\"activateAll()\" ng-class=\"{'active':isActive()}\" class=\"title\"><span translate=\"'novaThemePosts_title'\"></span></div>";
+
+buzzlike.directive('novaThemePosts', function(taskService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemePosts/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.isActive = function(item) {
+        return scope.flow.currentCode === 'theme_posts';
+      };
+      return scope.activateAll = function() {
+        return scope.flow.addFrame({
+          title: 'themeSchedules',
+          translateTitle: 'novaThemePosts_title',
+          directive: 'novaThemePostsFrame',
+          code: 'theme_posts',
+          item: {
+            type: 'comb',
+            id: scope.appItem.id
+          }
+        });
+      };
+    }
+  };
+});

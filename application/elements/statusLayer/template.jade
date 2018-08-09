@@ -1,0 +1,42 @@
+//- div.debug
+div.sendProgress
+    div.spinner
+        div.side.right
+            div.circle
+
+        div.side.left
+            div.circle
+                
+    div.comment
+
+    div.error(ng-if="sched.status == 'error'")
+        div.code {{::sched.errorDetails.code}}
+        div.description(translate="'rpc_error_'+sched.errorDetails.code", index="text")
+
+//- Stats display
+div.schedStats
+    div.stats(ng-switch="$parent.$parent.session.statsType", ng-click="showGraph(sched)", ng-if="sched.stats.length > 0")
+        div.statsBlock.white(ng-switch-when="real")
+            div.statsLabel.likes 
+                //- (ng-if="sched.lastStats.likes > 0")
+                div.statsValue {{simpleNumber(sched.lastStats.likes)}}
+                div.statsIcon
+
+            div.statsLabel.reposts
+                //- (ng-if="sched.lastStats.reposts > 0")
+                div.statsValue {{simpleNumber(sched.lastStats.reposts)}}
+                div.statsIcon
+
+            div.statsLabel.comments
+                //- (ng-if="sched.lastStats.comments > 0")
+                div.statsValue {{simpleNumber(sched.lastStats.comments)}}
+                div.statsIcon
+
+            div.statsLabel.commentsLikes
+                //- (ng-if="sched.lastStats.commLikes > 0")
+                div.statsValue {{simpleNumber(sched.lastStats.commLikes)}}
+                div.statsIcon
+
+        div.percentBlock(ng-switch-when="percent")
+            div.cornerIndicator(ng-class="{'down':sched.delta.activity<0,'zero':(sched.delta.activity*1)==0}")
+            div.value {{makeDiff(sched.delta.activity)}}

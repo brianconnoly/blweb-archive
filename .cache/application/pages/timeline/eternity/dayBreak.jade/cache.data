@@ -1,0 +1,1 @@
+<div ng-class="{'glued':group.glued==2}" class="dayBreak"><div translate="timeInfo.weekDay" index="0" class="weekDay"></div><div class="date">{{::timeInfo.day}}</div><div translate="timeInfo.month" index="0" class="month"></div><div class="year">{{::timeInfo.year}}</div></div>

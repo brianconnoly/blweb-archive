@@ -1,0 +1,385 @@
+buzzlike.controller('contentCtrl', function($scope, desktopService, complexMenu, uploadService, operationsService, contentService, multiselect, buffer, actionsService, localization, confirmBox, notificationCenter) {
+  var process, sortTypes;
+  if ($scope.session.zoom == null) {
+    $scope.session.zoom = 'mid';
+  }
+  $scope.helpFile = 'materials';
+  $scope.stateTree.applyState({
+    'V cmd': function(repeat, defaultAction) {
+      var folder, folders, i, item, items, len;
+      items = multiselect.getFocused();
+      folders = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (item.type === 'folder') {
+          folders.push(item);
+        }
+      }
+      if (folders.length > 0) {
+        return defaultAction(folders);
+      } else if ($scope.currentStep.parent != null) {
+        folder = contentService.getById($scope.currentStep.parent);
+        return defaultAction([folder]);
+      } else {
+        return defaultAction();
+      }
+    },
+    'U cmd': function(repeat, defaultAction) {
+      var folder, folders, i, item, items, len;
+      items = multiselect.getFocused();
+      folders = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (item.type === 'folder') {
+          folders.push(item);
+        }
+      }
+      if (folders.length > 0) {
+        return defaultAction(folders);
+      } else if ($scope.currentStep.parent != null) {
+        folder = contentService.getById($scope.currentStep.parent);
+        return defaultAction([folder]);
+      } else {
+        return defaultAction();
+      }
+    },
+    'delete': function() {
+      var i, ids, item, items, len;
+      items = multiselect.getFocused();
+      ids = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        ids.push(item.id);
+      }
+      if (items.length > 0) {
+        return confirmBox.init({
+          realText: localization.translate(32) + ' ' + items.length + ' ' + localization.declensionPhrase(items.length, 'content_delete'),
+          description: 'content_delete_description'
+        }, function() {
+          var j, len1;
+          multiselect.flush();
+          if ($scope.currentStep.parent != null) {
+            contentService.removeContentIds($scope.currentStep.parent, ids);
+          }
+          ids = [];
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            ids.push(item.id);
+          }
+          buffer.removeItems(items);
+          return contentService.deleteByIds(ids, function() {
+            return notificationCenter.addMessage({
+              text: 99
+            });
+          });
+        });
+      }
+    },
+    'escape': function() {
+      return $scope.stepBack();
+    }
+  });
+  if ($scope.session.filterTypes == null) {
+    $scope.session.filterTypes = {
+      image: false,
+      text: false,
+      url: false,
+      video: false,
+      audio: false,
+      poll: false,
+      file: false
+    };
+  }
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'contentApp_myContent',
+    flow: true,
+    sortBy: 'created',
+    itemType: 'content',
+    notUsed: false,
+    filterTypes: {
+      image: false,
+      text: false,
+      url: false,
+      video: false,
+      audio: false,
+      poll: false,
+      file: false
+    },
+    query: {}
+  };
+  $scope.stepStack.push($scope.currentStep);
+  sortTypes = ['created', 'lastUpdated', 'lastUseInCombs', 'lastUseInSentPosts'];
+  $scope.showSortMenu = function(e) {
+    return complexMenu.show([
+      {
+        object: $scope.currentStep,
+        type: 'select',
+        param: 'sortBy',
+        items: [
+          {
+            phrase: 'filter_catalog_sort_type',
+            value: 'type'
+          }, {
+            phrase: 'filter_catalog_sort_created',
+            value: 'created'
+          }, {
+            phrase: 'filter_catalog_sort_lastUpdated',
+            value: 'lastUpdated'
+          }, {
+            phrase: 'filter_catalog_sort_lastUseInCombs',
+            value: 'lastUseInCombs',
+            disabled: $scope.currentStep.notUsed === true
+          }, {
+            phrase: 'filter_catalog_sort_lastUseInSentPosts',
+            value: 'lastUseInSentPosts',
+            disabled: $scope.currentStep.notUsed === true
+          }
+        ]
+      }, {
+        object: $scope.currentStep.query,
+        type: 'checkbox',
+        items: [
+          {
+            phrase: 'filter_settings_not_used',
+            param: 'notInCombs',
+            disabled: $scope.currentStep.sortBy.indexOf('lastUse') > -1
+          }
+        ]
+      }
+    ], {
+      top: $(e.target).offset().top + 27,
+      left: $(e.target).offset().left
+    });
+  };
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.goSection = function(section) {
+    var id;
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = angular.copy($scope.currentStep);
+    updateObjectFull($scope.currentStep, section);
+    $scope.currentStep.group = false;
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+      return $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+    }
+  };
+  $scope.itemClick = function(item) {
+    var id, ref;
+    if (item.type !== 'folder') {
+      return false;
+    }
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = {
+      translateTitle: (item != null ? (ref = item.name) != null ? ref.length : void 0 : void 0) > 0 ? null : 'contentApp_noNameFolder',
+      title: item.name || null,
+      flow: true,
+      sortBy: $scope.currentStep.sortBy,
+      itemType: 'content',
+      parent: item.id,
+      filterTypes: {
+        image: false,
+        text: false,
+        url: false,
+        video: false,
+        audio: false,
+        poll: false,
+        file: false
+      },
+      query: angular.copy($scope.currentStep.query)
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return true;
+  };
+  $scope.getDropable = function() {
+    if ($scope.currentStep.parent != null) {
+      return contentService.getById($scope.currentStep.parent);
+    }
+    return {
+      type: 'contentApp'
+    };
+  };
+  $scope.queryFunction = function(query, cb) {
+    return operationsService.query($scope.currentStep.itemType, query, cb);
+  };
+  $scope.upload = function() {
+    if ($scope.currentStep.parent != null) {
+      uploadService.requestUpload({
+        type: 'folder',
+        id: $scope.currentStep.parent
+      });
+    } else {
+      uploadService.requestUpload();
+    }
+    return true;
+  };
+  $scope.newPoll = function() {
+    var process;
+    process = $scope.progress.add();
+    return contentService.create({
+      type: 'poll',
+      value: ''
+    }, function(newPoll) {
+      buffer.addItem(newPoll);
+      desktopService.launchApp('pollEdit', {
+        pollId: newPoll.id
+      });
+      if ($scope.currentStep.parent != null) {
+        return contentService.addContentIds($scope.currentStep.parent, [newPoll.id], function() {
+          return $scope.progress.finish(process);
+        });
+      } else {
+        return $scope.progress.finish(process);
+      }
+    });
+  };
+  $scope.newText = function() {
+    var process;
+    process = $scope.progress.add();
+    return contentService.create({
+      type: 'text',
+      value: ''
+    }, function(newText) {
+      buffer.addItem(newText);
+      desktopService.launchApp('textEditor', {
+        textId: newText.id
+      });
+      if ($scope.currentStep.parent != null) {
+        return contentService.addContentIds($scope.currentStep.parent, [newText.id], function() {
+          return $scope.progress.finish(process);
+        });
+      } else {
+        return $scope.progress.finish(process);
+      }
+    });
+  };
+  $scope.newFolder = function() {
+    var i, ids, item, items, len, process;
+    items = multiselect.getFocused();
+    ids = [];
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      ids.push(item.id);
+    }
+    process = $scope.progress.add();
+    return contentService.create({
+      type: 'folder',
+      items: ids,
+      parent: $scope.currentStep.parent || null
+    }, function(newFolder) {
+      buffer.addItem(newFolder);
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.showMoreMenu = function(e) {
+    var action, actions, groups, i, items, itemsActions, k, len, list;
+    items = multiselect.getFocused();
+    if (items.length === 0) {
+      itemsActions = actionsService.getActions({
+        source: $scope.currentStep.parent != null ? [contentService.getById($scope.currentStep.parent)] : null
+      });
+    } else {
+      itemsActions = actionsService.getActions({
+        context: items.length > 0 && ($scope.currentStep.parent != null) ? contentService.getById($scope.currentStep.parent) : null,
+        source: items,
+        target: $scope.currentStep.parent != null ? contentService.getById($scope.currentStep.parent) : null
+      });
+    }
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (i = 0, len = itemsActions.length; i < len; i++) {
+        action = itemsActions[i];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      complexMenu.show(groups, {
+        top: $(e.target).offset().top + 27,
+        left: $(e.target).offset().left
+      });
+    }
+    return true;
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep)
+    };
+  }, function(data) {
+    var i, len, ref, step;
+    if ($scope.session.folderId != null) {
+      delete $scope.session.folderId;
+    }
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (i = 0, len = ref.length; i < len; i++) {
+      step = ref[i];
+      $scope.stepStack.push(step);
+    }
+    return $scope.currentStep = $scope.stepStack[data.current * 1];
+  });
+  $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  if ($scope.session.folderId != null) {
+    process = $scope.progress.add();
+    contentService.getById($scope.session.folderId, function(item) {
+      var ref;
+      $scope.progress.finish(process);
+      $scope.currentStep = {
+        translateTitle: (item != null ? (ref = item.name) != null ? ref.length : void 0 : void 0) > 0 ? null : 'contentApp_noNameFolder',
+        title: item.name || null,
+        parent: $scope.session.folderId,
+        itemType: 'content',
+        flow: true,
+        sortBy: 'created',
+        filterTypes: {
+          image: false,
+          text: false,
+          url: false,
+          video: false,
+          audio: false,
+          poll: false,
+          file: false
+        },
+        query: angular.copy($scope.currentStep.query)
+      };
+      return $scope.stepStack.push($scope.currentStep);
+    });
+  }
+  return true;
+});

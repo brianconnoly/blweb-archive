@@ -1,0 +1,133 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaWizardSeries/template.jade'] = "<true></true>";
+
+buzzlike.directive('novaWizardSeries', function($compile) {
+  return {
+    restrict: 'C',
+    template: null,
+    link: function(scope, element, attrs, ngModel) {
+      var currentStep, currentStepId, elem, generated, nextStep;
+      elem = $(element);
+      currentStepId = -1;
+      currentStep = null;
+      generated = [];
+      nextStep = function() {
+        var newElem, newScope, step;
+        currentStepId++;
+        currentStep = step = scope.wizard.currentStep.series[currentStepId];
+        if (currentStep == null) {
+          currentStepId--;
+          return;
+        }
+        newScope = scope.$new();
+        newScope.step = step;
+        newScope.id = currentStepId;
+        newScope.nextStep = function() {
+          var i, j, k, ref, ref1, ref2;
+          if (newScope.id < scope.wizard.currentStep.series.length - 1) {
+            if (newScope.id + 1 < generated.length) {
+              for (i = j = ref = newScope.id + 1, ref1 = generated.length; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+                generated[i].scope.$destroy();
+                generated[i].elem.remove();
+              }
+            }
+            for (i = k = 0, ref2 = newScope.id; 0 <= ref2 ? k < ref2 : k > ref2; i = 0 <= ref2 ? ++k : --k) {
+              generated[i].elem.css('margin-top', (newScope.id - i) * -100).removeClass('lastFixed');
+            }
+            generated.length = newScope.id + 1;
+            currentStepId = newScope.id;
+            return nextStep();
+          }
+        };
+        newScope.pick = function(item) {
+          var ref, ref1;
+          if (newScope.id < scope.wizard.currentStep.series.length - 1) {
+            newElem.addClass('fixed').addClass('lastFixed').css('margin-top', 0);
+            newScope.picked = true;
+          }
+          if (step.multi) {
+            if (((ref = scope.wizard.data[step.variable]) != null ? ref.length : void 0) == null) {
+              scope.wizard.data[step.variable] = [];
+            }
+            if (ref1 = item.id, indexOf.call(scope.wizard.data[step.variable], ref1) >= 0) {
+              removeElementFromArray(item.id, scope.wizard.data[step.variable]);
+              if (scope.wizard.data[step.variable].length === 0) {
+                newScope.flush();
+              }
+            } else {
+              scope.wizard.data[step.variable].push(item.id);
+            }
+          } else {
+            if (scope.wizard.data[step.variable] !== item.id) {
+              scope.wizard.data[step.variable] = item.id;
+            } else {
+              newScope.flush();
+            }
+          }
+          return newScope.nextStep();
+        };
+        newScope.flush = function() {
+          var i, j, k, ref, ref1, ref2, ref3;
+          if (step.multi) {
+            if (((ref = scope.wizard.data[step.variable]) != null ? ref.length : void 0) == null) {
+              scope.wizard.data[step.variable] = [];
+            }
+            scope.wizard.data[step.variable].length = 0;
+          } else {
+            scope.wizard.data[step.variable] = null;
+          }
+          for (i = j = 0, ref1 = newScope.id; 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
+            generated[i].elem.css('margin-top', (newScope.id - i - 1) * -100).removeClass('lastFixed');
+          }
+          newElem.addClass('lastFixed');
+          if (newScope.id + 1 < generated.length) {
+            for (i = k = ref2 = newScope.id + 1, ref3 = generated.length; ref2 <= ref3 ? k < ref3 : k > ref3; i = ref2 <= ref3 ? ++k : --k) {
+              generated[i].scope.$destroy();
+              generated[i].elem.remove();
+            }
+            newScope.picked = false;
+            newElem.removeClass('fixed');
+            if (newScope.id > 0) {
+              newElem.css('margin-top', '100px');
+            }
+          }
+          return true;
+        };
+        newScope.isPicked = function(item) {
+          var ref, ref1;
+          if (step.multi) {
+            if (((ref = scope.wizard.data[step.variable]) != null ? ref.length : void 0) != null) {
+              return ref1 = item.id, indexOf.call(scope.wizard.data[step.variable], ref1) >= 0;
+            }
+            return false;
+          } else {
+            return scope.wizard.data[step.variable] === item.id;
+          }
+        };
+        newElem = $('<div>', {
+          "class": currentStep.directive + ' novaWizardSeriesPicker'
+        });
+        if (newScope.id > 0) {
+          newElem.css('margin-top', '100px');
+        }
+        elem.append(newElem);
+        newElem = $compile(newElem)(newScope);
+        generated.push({
+          scope: newScope,
+          elem: newElem
+        });
+        if (scope.wizard.data[step.variable]) {
+          if (newScope.id < scope.wizard.currentStep.series.length - 1) {
+            newElem.addClass('fixed').addClass('lastFixed').css('margin-top', 0);
+            newScope.picked = true;
+          }
+          return nextStep();
+        }
+      };
+      return nextStep();
+    }
+  };
+});
+
+registerStyles('novaWizardSeries', ".novaWizardSeries {\n  overflow: hidden;\n}\n.novaWizardSeries .novaWizardSeriesPicker {\n  padding: 5px 0px;\n  overflow: hidden;\n}\n.novaWizardSeries .novaWizardSeriesPicker.lastFixed {\n  background-color: rgba(255,255,255,0.9);\n  -webkit-box-shadow: 126px 2px 5px -2px rgba(0,0,0,0.2);\n  box-shadow: 126px 2px 5px -2px rgba(0,0,0,0.2);\n}\n.novaWizardSeries .novaWizardSeriesPicker.fixed {\n  height: 90px;\n  width: 100%;\n  overflow: hidden;\n  position: fixed;\n  z-index: 1;\n}\n.novaWizardSeries .novaWizardSeriesPicker.fixed .pickerItem * {\n  cursor: default;\n}\n.novaWizardSeries .novaWizardSeriesPicker.fixed div.parameter .title {\n  position: relative;\n}\n.novaWizardSeries .novaWizardSeriesPicker div.parameter {\n  margin: 0;\n}\n.novaWizardSeries .novaWizardSeriesPicker div.parameter .title {\n  position: fixed;\n}\n");

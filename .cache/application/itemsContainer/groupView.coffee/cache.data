@@ -1,0 +1,144 @@
+buzzlike.directive('groupView', function(operationsService, updateService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem, itemPadding, itemWid, reactEveryUpdate, ref, refreshView, screens, updateId;
+      if (scope.group.lines == null) {
+        scope.group.lines = 3;
+      }
+      if (scope.group.screens == null) {
+        scope.group.screens = 3;
+      }
+      elem = $(element);
+      screens = elem.find('.screens');
+      scope.screens = [];
+      scope.items = [];
+      scope.size = 1;
+      itemWid = 90;
+      itemPadding = 20;
+      scope.currentScreen = null;
+      scope.currentScreenId = null;
+      refreshView = function() {
+        var process, wid;
+        switch (scope.session.zoom) {
+          case 'min':
+            itemWid = 90;
+            itemPadding = 20;
+            break;
+          case 'mid':
+            itemWid = 159;
+            itemPadding = 20;
+            break;
+          case 'max':
+            itemWid = 197;
+            itemPadding = 30;
+        }
+        wid = scope.session.size.width;
+        if (scope.widthShrinker != null) {
+          wid -= scope.widthShrinker;
+        }
+        scope.size = Math.floor((wid - itemPadding) / itemWid);
+        scope.group.query.limit = scope.group.lines * scope.size * scope.group.screens;
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        return scope.queryFunction(scope.group.query, function(items) {
+          var i, item, len, ref, screenId;
+          if (scope.screens.length > 0) {
+            scope.currentScreenId = scope.screens.indexOf(scope.currentScreen);
+          }
+          scope.screens.length = 0;
+          scope.screenWid = scope.size * itemWid;
+          screens.css({
+            'width': ((scope.size * itemWid) + itemPadding) * Math.ceil(items.length / scope.group.lines / scope.size)
+          });
+          screenId = 0;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (((ref = scope.screens[screenId]) != null ? ref.length : void 0) >= scope.group.lines * scope.size) {
+              screenId++;
+            }
+            if (scope.screens[screenId] == null) {
+              scope.screens.push([]);
+            }
+            scope.screens[screenId].push(item);
+          }
+          if (scope.screens.length > 0) {
+            scope.currentScreen = scope.screens[scope.currentScreenId || 0];
+          }
+          if (process != null) {
+            return scope.progress.finish(process);
+          }
+        });
+      };
+      scope.onResize((function(_this) {
+        return function() {
+          return refreshView();
+        };
+      })(this));
+      scope.$watch('session.zoom', function(nVal, oVal) {
+        if (oVal !== nVal) {
+          return refreshView();
+        }
+      });
+      scope.selectScreen = function(screen) {
+        var id, pos, wid;
+        scope.currentScreen = screen;
+        id = scope.screens.indexOf(screen);
+        if (id === scope.screens.length - 1) {
+          wid = scope.session.size.width;
+          if (scope.widthShrinker != null) {
+            wid -= scope.widthShrinker;
+          }
+          pos = wid - ((scope.size * itemWid) + itemPadding) * scope.screens.length;
+          screens.css('transform', 'translateX(' + pos + 'px)');
+        } else {
+          screens.css('transform', 'translateX(-' + id * scope.screenWid + 'px)');
+        }
+        return true;
+      };
+      scope.notLast = function() {
+        return scope.screens.indexOf(scope.currentScreen) < scope.screens.length - 1;
+      };
+      scope.notFirst = function() {
+        return scope.screens.indexOf(scope.currentScreen) > 0;
+      };
+      scope.goRight = function() {
+        var id;
+        id = scope.screens.indexOf(scope.currentScreen);
+        if (scope.screens[id + 1] != null) {
+          return scope.selectScreen(scope.screens[id + 1]);
+        }
+      };
+      scope.goLeft = function() {
+        var id;
+        id = scope.screens.indexOf(scope.currentScreen);
+        if (scope.screens[id - 1] != null) {
+          return scope.selectScreen(scope.screens[id - 1]);
+        }
+      };
+      reactEveryUpdate = true;
+      if (((ref = scope.group.query.sortBy) === 'created' || ref === 'lastUpdated') && (scope.group.translateTitle !== 'group_by_today' && scope.group.fetchOnUpdate !== true)) {
+        reactEveryUpdate = false;
+      }
+      updateId = updateService.registerUpdateHandler(function(data, action) {
+        if (reactEveryUpdate === false && action !== 'delete') {
+          return;
+        }
+        if (data[scope.currentStep.itemType] != null) {
+          if (scope.group.contentType != null) {
+            if (data[scope.group.contentType] != null) {
+              return refreshView();
+            }
+          } else {
+            return refreshView();
+          }
+        }
+      });
+      scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+      return true;
+    }
+  };
+});

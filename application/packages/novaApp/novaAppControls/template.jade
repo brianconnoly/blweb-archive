@@ -1,0 +1,4 @@
+div.noDrag(ng-if="session.noAppControls != true")
+    div.control.closeControl(ng-click="closeApp()")
+    div.control.maximizeControl(ng-click="maximize()", ng-if="session.noMaximize != true")
+    div.control.minimizeControl(ng-click="minimize()")

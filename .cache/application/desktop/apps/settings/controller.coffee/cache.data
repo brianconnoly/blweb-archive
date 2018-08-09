@@ -1,0 +1,478 @@
+buzzlike.controller('settingsCtrl', function(notificationCenter, timezone, $scope, $rootScope, confirmBox, account, desktopService, browserPopup, localization, localStorageService, env) {
+  var item, j, len, list, max, min, process;
+  $scope.session.expandedHeader = false;
+  $scope.stateTree.applyState({
+    'escape': $scope.stepBack
+  });
+  $scope.sections = ['personal', 'accounts', 'appearance', 'billing', 'other'];
+  $scope.state = {
+    currentSection: $scope.session.section || $scope.sections[0]
+  };
+  process = $scope.progress.add();
+  account.update(function() {
+    $scope.progress.finish(process);
+    return $scope.$apply();
+  });
+  $scope.user = account.user;
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 1;
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 0) {
+      $scope.stepStack.pop();
+      $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+      return $scope.state.currentSection = $scope.currentStep.section;
+    }
+  };
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'settingsApp_title'
+  };
+  $scope.stepStack.push($scope.currentStep);
+  $scope.currentStep = {
+    translateTitle: 'settingsApp_' + $scope.state.currentSection,
+    section: $scope.state.currentSection
+  };
+  $scope.stepStack.push($scope.currentStep);
+  $scope.selectSection = function(section) {
+    $scope.state.currentSection = section;
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.splice(1, $scope.stepStack.length - 1);
+    }
+    $scope.currentStep = {
+      translateTitle: 'settingsApp_' + $scope.state.currentSection,
+      section: $scope.state.currentSection
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return true;
+  };
+  $scope.selectSublevel = function(section) {
+    $scope.state.currentSection = section;
+    $scope.currentStep = {
+      translateTitle: 'settingsApp_' + $scope.state.currentSection,
+      section: $scope.state.currentSection
+    };
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.onJumpStep = function(step) {
+    if ($scope.stepStack.indexOf(step) === 0) {
+      $scope.currentStep = $scope.stepStack[1];
+    }
+    return $scope.state.currentSection = $scope.currentStep.section;
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep)
+    };
+  }, function(data) {
+    var j, len, ref, step;
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (j = 0, len = ref.length; j < len; j++) {
+      step = ref[j];
+      $scope.stepStack.push(step);
+    }
+    $scope.currentStep = $scope.stepStack[data.current * 1];
+    return $scope.state.currentSection = $scope.currentStep.section;
+  });
+  $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  $scope.passwords = {
+    first: "",
+    second: ""
+  };
+  $scope.setOptions = function() {
+    process = $scope.progress.add();
+    return account.set({
+      firstName: $scope.user.firstName,
+      lastName: $scope.user.lastName,
+      name: joinStrings([$scope.user.firstName, $scope.user.lastName]),
+      settings: $scope.user.settings,
+      timezone: $scope.user.timezone
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.setUserEmail = function() {
+    process = $scope.progress.add();
+    return account.set({
+      changeLogin: true,
+      newLogin: $scope.user.login
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.setUserData = function() {
+    var newUser;
+    newUser = {
+      registered: $scope.user.registered,
+      password: $scope.passwords.password,
+      login: $scope.user.currentLogin
+    };
+    if ($scope.passwords.first.length >= 6 && $scope.passwords.first === $scope.passwords.second) {
+      newUser.changePassword = true;
+      newUser.newPassword = $scope.passwords.first;
+      $scope.passwords.first = $scope.passwords.second = '';
+    }
+    if (!$scope.user.registered) {
+      if ($scope.user.login !== $scope.user.currentLogin) {
+        newUser.changeLogin = true;
+        newUser.newLogin = $scope.user.login;
+        $scope.passwords.first = $scope.passwords.second = '';
+      }
+    }
+    process = $scope.progress.add();
+    account.set(newUser, function() {
+      return $scope.progress.finish(process);
+    });
+    return $scope.passwords.password = '';
+  };
+  $scope.needCurrentPassword = function() {
+    if (!$scope.user.registered) {
+      return false;
+    }
+    if ($scope.passwords.first) {
+      return true;
+    }
+    return false;
+  };
+  $scope.showNotConfirmed = function() {
+    if (!$scope.user.registered) {
+      if ($scope.user.login !== $scope.user.currentLogin) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  };
+  $scope.resendConfirm = function() {
+    process = $scope.progress.add();
+    return rpc.call('user.resendEmail', {
+      firstName: $scope.user.firstName,
+      login: $scope.user.login
+    }, function(err) {
+      $scope.progress.finish(process);
+      if (err) {
+        return notificationCenter.addMessage(err);
+      }
+      notificationCenter.addMessage({
+        text: 'userOptions_notify_resend'
+      });
+      return $scope.showNotConfirmed = false;
+    });
+  };
+  $scope.langList = localization.getLangList();
+  $scope.lang = localization.getLang();
+  $scope.langParams = {
+    selectedLang: ''
+  };
+  if (localStorageService.get('user.lang')) {
+    $scope.langParams.selectedLang = localStorageService.get('user.lang');
+  } else {
+    localStorageService.add('user.lang', 'ru');
+    $scope.langParams.selectedLang = 'ru';
+  }
+  $scope.getSelectedLang = function() {
+    var i, j, len, ref;
+    ref = $scope.langList;
+    for (j = 0, len = ref.length; j < len; j++) {
+      i = ref[j];
+      if ($scope.langParams.selectedLang === i.value) {
+        return i.title;
+      }
+    }
+  };
+  $scope.updateLang = function(val) {
+    $scope.langParams.selectedLang = val || $scope.langParams.selectedLang;
+    localStorageService.add('user.lang', $scope.langParams.selectedLang);
+    localization.setLang($scope.langParams.selectedLang);
+    return localization.getFreshList(true);
+  };
+  $scope.setTimezone = function() {
+    $scope.setOptions();
+    return timezone.setTimezone($scope.user.timezone);
+  };
+  $scope.timezonesList = [];
+  list = timezone.getTimezoneList().timezonelist;
+  for (j = 0, len = list.length; j < len; j++) {
+    item = list[j];
+    $scope.timezonesList.push({
+      title: item.utc + ' ' + item.title,
+      value: item.value
+    });
+  }
+  $scope.detachAccount = function(account, e) {
+    e.stopPropagation();
+    return confirmBox.init(localization.translate(140), function() {
+      process = $scope.progress.add();
+      return rpc.call('social.detachAccount', {
+        id: $scope.user.id,
+        publicId: account.publicId,
+        socialNetwork: account.socialNetwork
+      }, function(data) {
+        $scope.progress.finish(process);
+        if (data > 0) {
+          return removeElementFromArray(account, $scope.user.accounts);
+        }
+      });
+    });
+  };
+  $scope.updateAccount = function(acc) {
+    var loginPage, popup, statuses, url;
+    url = env.baseurl + 'auth/snupdate/' + acc.socialNetwork + '?sid=' + localStorageService.get('sid') + '&publicId=' + acc.publicId + '&hash=' + Date.now();
+    loginPage = location.origin + '/static/login.html';
+    popup = browserPopup.open(loginPage, localization.translate('userOptions_updateAccount'));
+    popup.redirectURL = url;
+    popup.color = $rootScope.networksData[acc.socialNetwork].background;
+    statuses = {
+      'UPDATE_OK': function() {
+        var body;
+        account.update();
+        body = $(popup.document.body);
+        body.html(templateCache["/static/accountUnlocked"]);
+        body.find('#name').html(acc.name);
+        body.find("button").click(function() {
+          return popup.close();
+        });
+        return setTimeout(function() {
+          return popup.close();
+        }, 300000);
+      },
+      'WRONG_ACCOUNT': function() {
+        var body;
+        account.update();
+        body = $(popup.document.body);
+        body.html(templateCache["/static/wrongAccount"]);
+        body.find("button").click(function() {
+          return popup.close();
+        });
+        return setTimeout(function() {
+          return popup.close();
+        }, 30000);
+      },
+      'FAIL': function() {
+        var body;
+        account.update();
+        body = $(popup.document.body);
+        body.html(templateCache["/static/updateFail"]);
+        body.find("button").click(function() {
+          return popup.close();
+        });
+        return setTimeout(function() {
+          return popup.close();
+        }, 30000);
+      }
+    };
+    if (popup) {
+      return browserPopup.waitResponse(popup, statuses, function(status) {
+        if (status !== 'UPDATE_OK') {
+          acc.enabled = false;
+        }
+        return $scope.$apply();
+      });
+    } else {
+      return acc.enabled = false;
+    }
+  };
+  $scope.addAccount = function(sn) {
+    var loginPage, popup, statuses, url;
+    url = env.baseurl + 'auth/snadd/' + sn + '?sid=' + localStorageService.get('sid') + '&hash=' + Date.now();
+    loginPage = location.origin + '/static/login.html';
+    popup = browserPopup.open(loginPage, localization.translate('userOptions_addAccount'));
+    popup.redirectURL = url;
+    popup.color = $rootScope.networksData[sn].background;
+    statuses = {
+      'ADD_OK': function() {
+        account.update(function() {
+          return $scope.$apply();
+        });
+        return popup.close();
+      },
+      'MERGED': function() {
+        var body;
+        account.update(function() {
+          return $scope.$apply();
+        });
+        body = $(popup.document.body);
+        body.html(templateCache["/static/userMerged"]);
+        body.find("button").click(function() {
+          return popup.close();
+        });
+        return setTimeout(function() {
+          return popup.close();
+        }, 30000);
+      },
+      'LINKED': function() {
+        var body;
+        body = $(popup.document.body);
+        body.html(templateCache["/static/alreadyLinked"]);
+        body.find("button").click(function() {
+          return popup.close();
+        });
+        return setTimeout(function() {
+          return popup.close();
+        }, 30000);
+      },
+      'LINKED_HERE': function() {
+        var body;
+        body = $(popup.document.body);
+        body.html(templateCache["/static/alreadyLinkedHere"]);
+        body.find("button").click(function() {
+          return popup.close();
+        });
+        return setTimeout(function() {
+          return popup.close();
+        }, 30000);
+      }
+    };
+    return browserPopup.waitResponse(popup, statuses);
+  };
+  $scope.changeAccEnabled = function(acc) {
+    if (!acc.enabled) {
+      process = $scope.progress.add();
+      return rpc.call('social.disableAccount', {
+        publicId: acc.publicId,
+        socialNetwork: acc.socialNetwork
+      }, function(result) {
+        $scope.progress.finish(process);
+        if (!result) {
+          acc.enabled = true;
+        }
+        return $scope.$apply();
+      });
+    } else {
+      return $scope.updateAccount(acc);
+    }
+  };
+  $scope.solidColors = [
+    {
+      title: 'Dark grey',
+      value: '#5f5f5f'
+    }, {
+      title: 'Light grey',
+      value: '#919191'
+    }, {
+      title: 'Green',
+      value: '#59867b'
+    }, {
+      title: 'Light blue',
+      value: '#537fb7'
+    }, {
+      title: 'Dark blue',
+      value: '#446998'
+    }, {
+      title: 'Grey',
+      value: '#8E8E93'
+    }, {
+      title: 'Pink',
+      value: '#dfdaf1'
+    }
+  ];
+  $scope.desktopSettings = {
+    color: desktopService.activeDesktop.background,
+    wallpaper: null
+  };
+  $scope.setBackground = function(color) {
+    var ref;
+    $scope.desktopSettings.color = color;
+    desktopService.activeDesktop.background = color;
+    account.user.settings.wallpaperSettings = {
+      wallpaper: (ref = $scope.desktopSettings) != null ? ref.wallpaper : void 0,
+      color: color
+    };
+    return account.set({
+      settings: account.user.settings
+    });
+  };
+  $scope.setWallpaper = function(id) {
+    var ref, ref1, ref2;
+    if ((ref = $scope.desktopSettings) != null) {
+      ref.wallpaper = id;
+    }
+    desktopService.setWallpaper(id);
+    account.user.settings.wallpaperSettings = {
+      wallpaper: (ref1 = $scope.desktopSettings) != null ? ref1.wallpaper : void 0,
+      color: ((ref2 = account.user.settings.wallpaperSettings) != null ? ref2.color : void 0) || '#537fb7'
+    };
+    return account.set({
+      settings: account.user.settings
+    });
+  };
+  $scope.removeWallpaper = function(id) {
+    removeElementFromArray(id, $scope.user.wallpapers);
+    process = $scope.progress.add();
+    return account.set({
+      wallpapers: $scope.user.wallpapers
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.prolongSumm = 50;
+  $scope.chargeList = [
+    {
+      value: 50,
+      amount: 50
+    }, {
+      value: 300,
+      amount: 300
+    }, {
+      value: 900,
+      amount: 900
+    }, {
+      value: '?',
+      amount: 0
+    }
+  ];
+  $scope.prolongList = [
+    {
+      value: 1 * 30,
+      amount: 600
+    }, {
+      value: 3 * 30,
+      amount: 1500
+    }, {
+      value: 6 * 30,
+      amount: 2500
+    }, {
+      value: 12 * 30,
+      amount: 4800
+    }
+  ];
+  $scope.charge = function(item) {
+    account.Charge.checkAmount(item.amount);
+    return true;
+  };
+  $scope.prolong = function(item) {
+    account.Prolong.checkAmount(item, function() {
+      return true;
+    });
+    return true;
+  };
+  min = $scope.min = account.Charge.min;
+  max = $scope.max = account.Charge.max;
+  $scope.current = function(amount) {
+    return (min <= amount && amount <= max);
+  };
+  $scope.check = function(amount) {
+    if ($scope.current(amount)) {
+      return account.Charge.checkAmount(amount);
+    }
+  };
+  return true;
+});
+
+buzzlike.directive("enterUpdate", function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function(scope, elem, attrs, ngModelCtrl) {
+      return elem.bind("keyup", function(e) {
+        if (e.keyCode === 13) {
+          return ngModelCtrl.$commitViewValue();
+        }
+      });
+    }
+  };
+});

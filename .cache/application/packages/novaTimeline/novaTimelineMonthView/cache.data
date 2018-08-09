@@ -1,0 +1,30 @@
+tC['/novaTimelineMonthView/template.jade'] = "<div class=\"timeBox\"> <div class=\"month\">{{::block.timestamp | timestampMask:'MMMM'}}</div> <div class=\"day\">{{::block.timestamp | timestampMask:'D'}}</div> <div class=\"weekDay\">{{::block.timestamp | timestampMask:'d'}}</div> </div>";
+
+buzzlike.directive('novaTimelineMonthView', function(statsCutService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelineMonthView/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var communityId, i, len, ref, updateStats;
+      scope.stats = [];
+      updateStats = function() {
+        return true;
+      };
+      ref = scope.communityIds;
+      for (i = 0, len = ref.length; i < len; i++) {
+        communityId = ref[i];
+        statsCutService.get({
+          timestamp: scope.block.timestamp,
+          communityId: communityId
+        }, function(res) {
+          return scope.stats.push(res);
+        });
+      }
+      return scope.$watch('statsCut', function() {
+        return updateStats();
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaTimelineMonthView', ".novaTimelineMonthView {\n  height: 140px;\n  width: 100%;\n  background: rgba(255,255,255,0.9);\n  color: #000;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.novaTimelineMonthView .timelineDay {\n  height: 30px;\n  line-height: 30px;\n  font-size: 30px;\n  padding-left: 10px;\n  padding-top: 5px;\n}\n.novaTimelineMonthView .timelineMonth {\n  height: 25px;\n  line-height: 23px;\n  font-size: 16px;\n  padding-left: 10px;\n}\n");

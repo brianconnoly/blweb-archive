@@ -1,0 +1,16 @@
+.communityTitle {
+  display: inline-block;
+}
+.communityTitle .communityIcon {
+  display: block;
+  float: left;
+  width: 45px;
+  height: 45px;
+  position: relative;
+  overflow: hidden;
+  vertical-align: middle;
+  margin: -10px 9px 0 0;
+}
+.communityTitle .communityIcon img {
+  position: absolute;
+}

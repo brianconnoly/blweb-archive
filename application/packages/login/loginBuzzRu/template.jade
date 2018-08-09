@@ -1,0 +1,9 @@
+div.loginBackButton.transparentText(ng-click="backToSocial()")
+    img.corner(src="/resources/images/login/back-round-corner.svg", width="72px", height="72px")
+    img.full(src="/resources/images/login/back-round-full.svg", width="72px", height="72px")
+    div.white(translate="'login_form_back'") 
+    div.color.transparentText(translate="'login_form_back'") 
+
+div.ugcsContainer
+    div.ugcItem(ng-repeat="ugc in ugcItems", ng-click="goUgc(ugc)")
+        div.itemPreview(type="content", id="ugc.logo")

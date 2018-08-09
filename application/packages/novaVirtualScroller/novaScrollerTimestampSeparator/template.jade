@@ -1,0 +1,3 @@
+div(ng-switch="::block.separatorType")
+    div.cap(ng-switch-when="month") {{::block.timestamp | timestampMask:"MMMM optYY"}}
+    div(ng-switch-default, translate="'virtulScroller_separator_' + block.separatorType")

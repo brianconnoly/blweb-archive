@@ -1,0 +1,198 @@
+.bufferPanel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.bufferPanel .pocketSwitcher {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  background: #333;
+}
+.bufferPanel .pocketSwitcher .addBuffer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  line-height: 31px;
+  background: url("/resources/images/desktop/actions/white/buffer-add-plus.svg") center center no-repeat;
+  font-size: 40px;
+  color: #fff;
+  cursor: pointer;
+}
+.bufferPanel .pocketSwitcher .addBuffer:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+.bufferPanel .pocketSwitcher .typeSwitcher {
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  overflow: hidden;
+  float: left;
+  cursor: pointer;
+  -webkit-transition: width 0.2s ease;
+  -moz-transition: width 0.2s ease;
+  -o-transition: width 0.2s ease;
+  -ms-transition: width 0.2s ease;
+  transition: width 0.2s ease;
+}
+.bufferPanel .pocketSwitcher .typeSwitcher.active {
+  cursor: default;
+}
+.bufferPanel .pocketSwitcher .typeSwitcher.active .closePocket {
+  display: inline-block;
+  background: url("/resources/images/desktop/actions/white/buffer-close-cross.svg") center center no-repeat;
+  width: 15px;
+  height: 15px;
+  margin-top: 11px;
+  cursor: pointer;
+}
+.bufferPanel .pocketSwitcher .typeSwitcher .closePocket {
+  display: none;
+}
+.bufferPanel .pocketSwitcher .switcherStyle_0 {
+  background: #008e37;
+}
+.bufferPanel .pocketSwitcher .switcherStyle_1 {
+  background: #eaa830;
+}
+.bufferPanel .pocketSwitcher .switcherStyle_2 {
+  background: #006fa3;
+}
+.bufferPanel .pocketSwitcher .switcherStyle_3 {
+  background: #c061f2;
+}
+.bufferPanel .pocketSwitcher .switcherStyle_4 {
+  background: #a32900;
+}
+.bufferPanel .pocket {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #333;
+  overflow-y: auto;
+  padding: 2px;
+}
+.bufferPanel .pocket.bufferSize_full {
+  padding: 5px;
+}
+.bufferPanel .pocket.bufferSize_full .previewContainer {
+  width: 200px;
+  height: 140px;
+  margin: 5px;
+}
+.bufferPanel .pocket.bufferSize_full .previewContainer .itemPreview.mini {
+  width: 86px;
+  height: 56px;
+  margin: 5px;
+}
+.bufferPanel .pocket.bufferSize_full .previewContainer .itemPreview.mini.folder {
+  padding: 2px;
+}
+.bufferPanel .pocket.bufferSize_full .previewContainer .itemPreview.mini .itemPreview.mini {
+  width: 36px;
+  height: 21px;
+  margin: 2px;
+}
+.bufferPanel .pocket.bufferSize_full .previewContainer .itemPreview.mini .itemPreview.mini .extension {
+  line-height: 20px;
+}
+.bufferPanel .pocket.bufferSize_mini {
+  padding: 3px;
+}
+.bufferPanel .pocket.bufferSize_mini .previewContainer {
+  width: 100px;
+  height: 70px;
+  margin: 3px;
+}
+.bufferPanel .pocket.bufferSize_mini .previewContainer .itemPreview.mini {
+  width: 43px;
+  height: 28px;
+}
+.bufferPanel .pocket.bufferSize_mini .previewContainer .itemPreview.mini .extension {
+  line-height: 26px;
+}
+.bufferPanel .pocket.bufferSize_mini .previewContainer .itemPreview.mini .itemPreview.mini {
+  width: 17px;
+  height: 10px;
+}
+.bufferPanel .pocket.bufferSize_mini .previewContainer .itemPreview.mini .itemPreview.mini .extension {
+  line-height: 8px;
+}
+.bufferPanel .pocket .previewContainer {
+  margin: 2px;
+  overflow: hidden;
+}
+.bufferPanel .pocket .previewContainer.folder {
+  background: #b1d381;
+}
+.bufferPanel .pocket .previewContainer:hover .removeElement {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.bufferPanel .pocket .previewContainer .removeElement {
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.bufferPanel .actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 0;
+  -webkit-transition: padding 0.2s ease;
+  -moz-transition: padding 0.2s ease;
+  -o-transition: padding 0.2s ease;
+  -ms-transition: padding 0.2s ease;
+  transition: padding 0.2s ease;
+}
+.bufferPanel .actions.wide {
+  padding: 20px;
+}
+.bufferPanel .actions.wide .action {
+  border-bottom: 1px solid #eee;
+}
+.bufferPanel .actions.wide .action:last-child {
+  border-bottom: none;
+}
+.bufferPanel .actions .action {
+  height: 34px;
+  line-height: 34px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 10px;
+  white-space: nowrap;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+}
+.bufferPanel .actions .action:hover {
+  background: #555;
+  color: #fff;
+}

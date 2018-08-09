@@ -1,0 +1,123 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaThemeTimelineFrame/template.jade'] = "<div ng-class=\"{'calendar':calendarActive}\"> <div ng-if=\"calendarActive\" class=\"novaTimelineCalendar\"></div> <div class=\"novaTimelineMenu\"> <div class=\"zoomSwitcher\"> <div ng-click=\"setZoom(3)\" ng-class=\"{'active':currentZoom==3}\" ng-if=\"maxZoom &gt; 2\" translate=\"'novaTimelineFrame_zoom_month'\" class=\"switch\"></div> <div ng-click=\"setZoom(2)\" ng-class=\"{'active':currentZoom==2}\" ng-if=\"maxZoom &gt; 1\" translate=\"'novaTimelineFrame_zoom_week'\" class=\"switch\"></div> <div ng-click=\"setZoom(1)\" ng-class=\"{'active':currentZoom==1}\" ng-if=\"maxZoom &gt; 0\" translate=\"'novaTimelineFrame_zoom_day'\" class=\"switch\"></div> <div ng-click=\"setZoom(0)\" ng-class=\"{'active':currentZoom==0}\" ng-if=\"maxZoom &gt; 0\" translate=\"'novaTimelineFrame_zoom_post'\" class=\"switch\"></div> </div> <div translate=\"'novaTimelineFrame_calendar'\" ng-click=\"calendarActive = !calendarActive\" ng-class=\"{'active':calendarActive}\" class=\"calendarActivator\"></div> </div> <div class=\"scroller novaMultiselect\"> <div ng-repeat=\"page in scroller.pages\" class=\"novaScrollerPage\"> <div ng-repeat=\"block in page.blocks track by block.id\" ng-switch=\"::block.type\" class=\"novaTimelineFrameBlock pageBlock\"> <div ng-switch-when=\"dayBreak\" class=\"novaTimelineDayBreak\"></div> <div ng-switch-when=\"schedule\" class=\"novaTimelineSchedule\"></div> </div> </div> </div> </div>";
+
+buzzlike.directive('novaThemeTimelineFrameBlock', function() {
+  return {
+    restrict: 'C',
+    template: null,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      return scope.elem = elem;
+    }
+  };
+});
+
+buzzlike.directive('novaThemeTimelineFrame', function(novaTimelineScroller, account, communityService, groupService, updateService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemeTimelineFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var acc, elem, fetchCommunities, i, len, now, publicIds, query, ref, scroller_elem, updateId;
+      elem = $(element);
+      scroller_elem = $(elem.children('.scroller')[0]);
+      scope.flowFrame.maxWidth = 320;
+      now = new Date();
+      scope.cursorTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      scope.scrollerParams = {
+        cursor: scope.cursorTime
+      };
+      scope.cursorChanged = function() {
+        scope.scroller.params.startFrom = scope.scrollerParams.cursor - MIN - DAY;
+        return scope.scroller.rebuild(true);
+      };
+      scope.communityIds = [];
+      fetchCommunities = function() {
+        return communityService.query(query, function(items) {
+          var i, item, len;
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            scope.communityIds.push(item.id);
+          }
+          scope.scroller = new novaTimelineScroller({
+            query: {
+              communityIds: scope.communityIds
+            },
+            startFrom: scope.scrollerParams.cursor,
+            pageHeight: elem.height(),
+            apply: function() {
+              return scope.$applyAsync();
+            }
+          }, scope, scroller_elem);
+          return elem.on('mousewheel', function(e, delta) {
+            e.stopPropagation();
+            e.preventDefault();
+            return scope.scroller.scroll(delta);
+          });
+        });
+      };
+      if (scope.appItem.profileUserId != null) {
+        publicIds = [];
+        ref = account.user.accounts;
+        for (i = 0, len = ref.length; i < len; i++) {
+          acc = ref[i];
+          publicIds.push(acc.publicId);
+        }
+        query = {
+          socialNetworkId: {
+            $in: publicIds
+          }
+        };
+        fetchCommunities();
+      } else {
+        groupService.getById(scope.flowFrame.item.id, function(group) {
+          var feed, j, len1, ref1, ref2;
+          query = {
+            ids: []
+          };
+          ref1 = group.feeds;
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            feed = ref1[j];
+            if (ref2 = feed.communityId, indexOf.call(query.ids, ref2) < 0) {
+              query.ids.push(feed.communityId);
+            }
+          }
+          return fetchCommunities();
+        });
+      }
+      updateId = updateService.registerUpdateHandler(function(data, action, items) {
+        var affected, item, j, len1;
+        if (action === 'update' || action === 'create' || action === 'delete') {
+          if (data['schedule'] != null) {
+            affected = [];
+            for (j = 0, len1 = items.length; j < len1; j++) {
+              item = items[j];
+              if (item.type === 'schedule') {
+                affected.push(item);
+              }
+            }
+            if (affected.length > 0) {
+              return scope.scroller.updated(affected, action);
+            }
+          }
+        }
+      });
+      scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+      scope.maxZoom = 3;
+      scope.currentZoom = 3;
+      return scope.setZoom = function(zoom) {
+        scope.currentZoom = zoom;
+        scope.scroller.rebuild();
+        return setTimeout(function() {
+          return scope.scroller.scroll(0);
+        }, 100);
+      };
+    }
+  };
+});
+
+registerStyles('novaThemeTimelineFrame', ".novaThemeTimelineFrame .novaTimelineMenu {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 50px;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaThemeTimelineFrame .scroller {\n  overflow: hidden;\n  position: absolute;\n  top: 50px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaThemeTimelineFrame .novaTimelineCalendar {\n  position: absolute;\n  top: 0;\n  height: 0;\n  left: 0;\n  right: 0;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaThemeTimelineFrame.calendar .novaTimelineCalendar {\n  position: absolute;\n  top: 0;\n  height: 180px;\n  left: 0;\n  right: 0;\n}\n.novaThemeTimelineFrame.calendar .novaTimelineMenu {\n  top: 180px;\n}\n.novaThemeTimelineFrame.calendar .scroller {\n  top: 230px;\n}\n");

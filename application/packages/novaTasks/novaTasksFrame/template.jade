@@ -1,0 +1,21 @@
+div.novaFrameTopBarLayout
+    div.novaFrameTopBar
+        div.addTask(ng-click="addTask()", ng-class="{'active':addTaskActive}") +
+        div.showAccepted(ng-class="{'active':showAccepted}", ng-click="showAccepted = !showAccepted") Kryzh
+        div.novaTasksCompactSwitch(ng-class="{'active':compact}", ng-click="triggerCompact()")
+            div.subLines
+        div.novaTaskFilterInput
+            input(ng-model="taskFilterString", translate="", translate-placeholder="'novaTasks_filter_placeholder'")
+    
+    //- div.novaFrameContents.novaListScroller.novaMultiselect
+    div.novaFrameContents.novaMultiselect(ng-class="{'novaTasksCompact':compact}")
+        div.novaItem.novaItemPreview.novaItemDraggable.novaItemDroppable.novaItemSelectable.novaItemMenu(
+            ng-repeat="item in tasks | filter:taskFilter | orderBy:taskService.taskOrder:true",
+            nova-item-preview-type="list",
+            nova-item-context="project"
+            )
+    
+    div.novaItem.novaItemDroppable.novaTaskEdit(
+        nova-task-create,
+        nova-item-object="newTask", 
+        ng-if="addTaskActive")

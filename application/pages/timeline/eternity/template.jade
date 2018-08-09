@@ -1,0 +1,34 @@
+li.interval.liveInterval()
+    div.part(ng-repeat="part in interval.parts", style="left: {{part.left}}px; width: {{part.width}}px;", ng-switch="part.type")
+        div.dayBreak(ng-switch-when="dayBreak", ng-class="{'glued':group.glued==2}")
+            div.weekDay(translate="part.timeInfo.weekDay" index="0")
+            div.date {{::part.timeInfo.day}}
+            div.month(translate="part.timeInfo.month" index="0")
+            div.year {{::part.timeInfo.year}}
+        div.hourMark(ng-switch-when="hourMark", ng-class="{'glued':group.glued}") {{::part.humanTime}}
+        div.freePlace(ng-switch-when="freePlace", ng-hide="group.glued")
+            div.column
+                .smallMark
+            div.column
+                .smallMark
+            div.column
+                .smallMark
+            div.column
+                .longMark
+            div.column
+                .smallMark
+            div.column
+                .smallMark
+            div.column
+                .smallMark
+            div.column
+                .longMark
+            div.column
+                .smallMark
+            div.column
+                .smallMark
+            div.column
+                .smallMark
+        div.freePlace(ng-switch-when="regular")
+            div.column.absolute(ng-repeat="mark in part.marks", style="width:{{::mark.width}}px; left:{{::mark.left}}px;")
+                .smallMark(ng-hide="mark.hide")

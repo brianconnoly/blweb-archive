@@ -1,0 +1,63 @@
+buzzlike.directive('appLauncher', function($rootScope, $compile, dragWinow) {
+  return {
+    restrict: 'C',
+    template: tC['/desktop/appLauncher'],
+    link: function(scope, element, attrs) {
+      var appArr, appName, elem, head, noRes, ref, ref1, ref2, tail, template;
+      elem = $(element);
+      scope.element = elem;
+      if (scope.session.expandedHeader == null) {
+        scope.session.expandedHeader = true;
+      }
+      noRes = 0;
+      if ((scope.session.size.maxWidth != null) && scope.session.size.maxWidth === scope.session.size.minWidth) {
+        elem.children('.resize.left').remove();
+        elem.children('.resize.right').remove();
+        noRes++;
+      }
+      if ((scope.session.size.maxHeight != null) && scope.session.size.maxHeight === scope.session.size.minHeight) {
+        elem.children('.resize.top').remove();
+        elem.children('.resize.bottom').remove();
+        noRes++;
+      }
+      if (noRes === 2) {
+        elem.children('.resize').remove();
+      }
+      scope.$watch('session.expandedHeader', function(nVal) {
+        if (nVal === true) {
+          return template.addClass('expandedHeader');
+        } else {
+          return template.removeClass('expandedHeader');
+        }
+      });
+      appArr = scope.session.app.split('/');
+      appName = appArr.pop();
+      head = '<div item="{\'type\':\'' + appName + 'App\'}" class="contextMenu flushMultiselect appContainer ' + appName + '" ng-controller="' + appName + 'Ctrl">';
+      tail = '</div>';
+      template = $compile(head + tC['/desktop/apps/' + scope.session.app] + tail)(scope);
+      scope.element = elem;
+      if (scope.session.alwaysOnTop === true) {
+        elem.addClass('alwaysOnTop');
+      }
+      elem.append(template);
+      elem.on('mousedown.dragWindow', function(e) {
+        if (isCmd(e && e.altKey)) {
+          return dragWinow.startDrag(e, element, scope);
+        }
+      });
+      if (((ref = scope.session.coords) != null ? ref.x : void 0) != null) {
+        elem.css('transform', 'translate3d(' + scope.session.coords.x + 'px,' + scope.session.coords.y + 'px, 0)');
+      }
+      if (((ref1 = scope.session.size) != null ? ref1.width : void 0) != null) {
+        elem.css('width', scope.session.size.width);
+      }
+      if (((ref2 = scope.session.size) != null ? ref2.height : void 0) != null) {
+        elem.css('height', scope.session.size.height);
+      }
+      if (scope.session.noResize === true) {
+        elem.children('.resize').remove();
+      }
+      return true;
+    }
+  };
+});

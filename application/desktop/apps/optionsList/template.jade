@@ -1,0 +1,9 @@
+div.window.dragHandler
+    div.message(ng-bind-html="localization.translate(state.text) || state.realText")
+    div.description(ng-if="state.description") {{localization.translate(state.description)}}
+    ul.options
+        li.option(  ng-repeat="option in state.options",
+                    ng-class="{'active':$index==state.selected}",
+                    class="{{option.class}}",
+                    ng-click="callAction($index)",
+                    ng-mousemove="select($index)") {{localization.translate( option.text ) || option.realText}}

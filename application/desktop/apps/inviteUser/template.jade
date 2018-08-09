@@ -1,0 +1,28 @@
+div.dragHandler.topBar.noMaximize.noSettings.black.flushMousedown
+    process-bar
+    div.appControls
+
+    div.title(translate="'inviteUserApp_title'")
+
+div.body
+
+    div.introText(translate="'inviteUserApp_introText'")
+    div.inputContainer
+        input.inviteFocus(ng-model="searchField", ng-change="searchUsers()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+    div.searchBottomText(ng-if="!searchUser", translate="'inviteUserApp_searchBottomText'")
+    div.searchBottomText(ng-if="searchUser", translate="'inviteUserApp_rolesText'")
+    div.rolePickerText(translate="'inviteUserApp_rolePickerText'")
+    div.rolePicker(ng-if="searchUser")
+        div.userPic
+            img.picPreload(src="{{searchUser.photo}}")
+        div.userDetails
+            div.userName {{searchUser.name}}
+            combobox(list="roles", ng-model="params.userRole")
+
+    div.roleDescription(ng-if="searchUser") {{translate('inviteUserApp_roleDescription_' + params.userRole)}}
+
+    ul.options(ng-if="searchUser")
+        li.hoverActive.option(translate="'inviteUserApp_doInvite'", ng-click="doInvite()")
+        li.hoverActive.option.cancel(translate="'inviteUserApp_cancel'", ng-click="closeApp()")
+
+    div.inviteNewUser(ng-if="canAddNew", translate="'inviteUserApp_inviteNewUser'", ng-click="switchInviteNew()")

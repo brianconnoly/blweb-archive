@@ -1,0 +1,38 @@
+.appContainer.paymentOffer
+    
+    background: #fff
+    
+    .body
+        box-shadow none
+        
+        $headerHeight = 40px
+        $footerHeight = 60px
+
+        &_offer
+            size 'abs' 0 0 $footerHeight 0
+            box-sizing border-box
+            padding 0 20px
+            //height $headerHeight
+
+        &_footer
+            size 'abs' auto 0 0 0
+            height $footerHeight
+            text-align center
+
+            .confirmButton
+                $h = 40px
+
+                margin auto
+                width 200px
+                height $h
+                line-height $h
+                font-size 18px
+                color #fff
+                opacity 0.5
+                background #008000
+
+                &.agreed
+                    opacity 1
+                    cursor pointer
+
+

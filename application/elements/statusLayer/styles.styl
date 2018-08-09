@@ -1,0 +1,361 @@
+@keyframes spinLoader
+    0%
+        transform: rotate(180deg)
+        
+    100%
+        transform: rotate(540deg)
+        
+// 
+
+
+.statusLayer
+    position: absolute
+    overflow: hidden
+    top -1
+    bottom -1
+    right -1
+    left -1
+    
+    background: rgba(0,0,0,0.6)
+    // border-radius 2px
+    
+    pointer-events none
+    opacity 0
+    transition all 0.2s ease
+    
+    .zoom_min &
+        .comment
+            opacity 0
+        .error
+            .code
+                margin-top: 6px
+            .description
+                opacity 0
+                
+        .spinner
+            top 20px
+            
+        &.completed
+            .comment
+                opacity 1
+                margin-bottom: 1px;
+                font-size 12px
+    
+    .debug
+        position: absolute
+        top 0
+        left 0
+        color: #fff
+        z-index 9999
+        
+    .error
+        font-family: Myriad PRO, Helvetica Neue
+        
+        position: absolute
+        top 0
+        bottom 0
+        left 0
+        right 0
+        text-align: center
+        color: #fff
+        
+        .code
+            font-size 25px
+            margin-top: 20px
+            
+            .zoom_max &
+                margin-top: 34px
+            
+            
+        .description
+            font-size 10px
+            position: absolute
+            bottom 35px
+            left 10px
+            right 10px
+            text-transform lowercase
+            opacity 1
+
+            transition all 0.2s ease   
+            
+            .zoom_max &
+                bottom 40px         
+    
+    &.error
+        background: rgba(175,11,79,0.8)
+        
+        .comment
+            bottom 100%
+            margin-bottom: -18px
+            text-transform capitalize   
+            
+            .zoom_max &
+                margin-bottom: -23px         
+    
+    &.visible
+        opacity 1
+        
+    &.permCompleted
+        .spinner
+            display: none
+        .comment
+            bottom 50%
+            margin-bottom: 4px
+            transition none !important
+        .sendProgress
+            // bottom 100%
+            transition none !important
+        .schedStats
+            // bottom 0
+            transition none !important
+        
+    &.completed
+        // .spinner
+        //     .side
+        //         transition-duration 0.1s !important
+        //         height 100% !important
+                
+        .comment
+            bottom 50%
+            margin-bottom: 4px
+            
+    &.showStats
+        .sendProgress
+            bottom 100%
+        .schedStats
+            bottom 0
+            
+    .sendProgress
+        position: absolute
+        width 100%
+        height 100%
+        bottom 0
+        transition bottom 1s cubic-bezier(0.90,-0.80, 0.20, 2)
+        
+    .schedStats
+        position: absolute
+        width 100%
+        height 100%
+        bottom: -100%
+        transition bottom 1s cubic-bezier(0.90,-0.80, 0.20, 2)
+        
+        .stats
+            width 100%
+            height 100%
+            
+        .percentBlock
+            position: absolute
+            top 50%
+            left 0
+            right 0
+            
+            text-align: center
+            color #fff
+            line-height 25px
+            margin-top -26px
+            
+            .zoom_min &
+                margin-top -18px
+            
+            .value
+                display: inline-block
+                font-size 23px
+                
+                .zoom_min &
+                    font-size 16px
+            
+            .cornerIndicator
+                display: inline-block
+                top -1px
+                margin-right 5px
+                
+                border-left solid 8px transparent
+                border-right solid 8px transparent
+                border-bottom solid 15px #34A43D
+                
+                // transition all 0.2s ease
+                
+                .zoom_min &
+                    border-left solid 4px transparent
+                    border-right solid 4px transparent
+                    border-bottom solid 9px #34A43D
+
+                &.down
+                    border-left solid 8px transparent
+                    border-right solid 8px transparent
+                    border-top solid 15px #ff0000
+                    border-bottom none
+                    
+                    .zoom_min &
+                        border-left solid 4px transparent
+                        border-right solid 4px transparent
+                        border-top solid 9px #ff0000
+                    
+                &.zero
+                    border solid 7px #34A43D !important
+                    border-radius 7px
+                    
+                    .zoom_min &
+                        border solid 4px #34A43D !important
+                        border-radius 4px
+            
+        .statsBlock
+            width 120px
+            height: 32px
+            
+            position: absolute
+            top 50%
+            left 50%
+            margin-top -31px
+            margin-left -60px
+            
+            .zoom_min &
+                left 1px
+                width: auto
+                margin-left: 0
+                margin-top -22px
+            
+            .statsLabel
+                background: none
+                float: left
+                width 30px
+                text-align: center
+                
+                .zoom_min &
+                    width 17px
+                
+                .statsValue
+                    color: #fff
+                    float: none
+                    text-align: center
+                    
+                    .zoom_min &
+                        font-size 8px
+                
+                .statsIcon
+                    float: none
+                    display: inline-block
+                    
+                    .zoom_min &
+                        width: 10px;
+                        height: 10px;
+                        background-size: 10px 10px;
+                        
+        
+    .spinner
+        position: absolute
+        width 30px
+        height 30px
+        
+        // overflow: hidden
+        background: rgba(0,0,0,0.4)
+        border-radius 30px
+        
+        left 50%
+        margin-left: -15px
+        top 30%
+        margin-top: -15px
+        
+        opacity 1
+        transition opacity 0.2s ease
+        
+        animation spinLoader 2s cubic-bezier(0.90,-0.80, 0.20, 2) infinite
+
+        &.pending, &.halfProgress
+            .left
+                transition-duration 15s !important
+                transition-timing-function linear !important
+                height 80% !important
+                
+        &.halfFull
+            .side.left
+                transition-duration 0.1s !important
+                transition-timing-function linear !important
+                height 100% !important
+                
+        &.almostDone
+            .right
+                transition-duration 20s
+                height 90% !important
+        
+        &.ready
+            .side.left
+                transition-duration 0.1s !important
+                transition-timing-function linear !important
+                height 100% !important
+                
+            .side.right
+                transition-duration 30s
+                height 90% !important
+                
+        &.full
+            .side.left
+                transition-duration 0.1s !important
+                height 100% !important
+                
+            .side.right
+                transition-duration 0.1s !important
+                height 100% !important
+        
+        &.fullSpeed
+            .side.left
+                transition-duration 0.01s !important
+                transition none !important
+                
+            .side.right
+                transition-duration 0.01s !important
+                transition none !important
+                
+        &.hide
+            opacity 0
+
+        .side
+            height 30px
+            width 15px
+            position: absolute
+            overflow: hidden
+            
+            transition all 1s ease
+            
+            .circle
+                position: absolute
+
+                width 30px
+                height 30px
+                border 1px solid #fff
+                box-sizing border-box
+                border-radius 30px
+            
+            &.left
+                left 0
+                bottom 0
+                height 0
+                
+                .circle
+                    bottom 0
+                
+            &.right
+                right 0
+                top 0
+                height 0
+                
+                .circle
+                    right 0
+                    top 0
+                    
+    .comment
+        position: absolute
+        
+        color #fff
+        font-size 13px
+        text-align: center
+        font-family: Myriad PRO, Helvetica Neue
+        
+        bottom 35px
+        left 0
+        right 0
+        margin-bottom 0
+    
+        opacity 1
+        transition all 0.2s ease
+                    

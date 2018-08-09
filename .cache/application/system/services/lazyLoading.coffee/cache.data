@@ -1,0 +1,76 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.factory('lazyLoading', function(scheduleService, $rootScope) {
+  var callLazyLoad, stackToLoad;
+  stackToLoad = {
+    communities: [],
+    start: getBigTimestamp(),
+    end: 0,
+    handler: false,
+    cbs: []
+  };
+  callLazyLoad = function(cIds, start, end, cb) {
+    var cId, i, len;
+    for (i = 0, len = cIds.length; i < len; i++) {
+      cId = cIds[i];
+      if (stackToLoad.communities.indexOf(cId) < 0) {
+        stackToLoad.communities.push(cId);
+      }
+    }
+    stackToLoad.cbs.push({
+      cIds: cIds,
+      start: start,
+      end: end,
+      cb: cb
+    });
+    if (stackToLoad.start > start) {
+      stackToLoad.start = start;
+    }
+    if (stackToLoad.end < end) {
+      stackToLoad.end = end;
+    }
+    if (!stackToLoad.handler) {
+      return stackToLoad.handler = setTimeout(function() {
+        var cbs;
+        cbs = stackToLoad.cbs;
+        (function(cbs) {
+          return scheduleService.query({
+            communities: stackToLoad.communities,
+            filterBy: 'timestamp',
+            filterLower: stackToLoad.end,
+            filterGreater: stackToLoad.start
+          }, function(items) {
+            var cbItems, item, j, k, len1, len2, ref, ref1, results;
+            results = [];
+            for (j = 0, len1 = cbs.length; j < len1; j++) {
+              cb = cbs[j];
+              cbItems = [];
+              for (k = 0, len2 = items.length; k < len2; k++) {
+                item = items[k];
+                if ((ref = item.communityId, indexOf.call(cb.cIds, ref) >= 0) && (cb.start <= (ref1 = item.timestamp) && ref1 <= cb.end)) {
+                  cbItems.push(item);
+                }
+              }
+              if (cbItems.length > 0) {
+                results.push(cb.cb(cbItems));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          });
+        })(cbs);
+        return stackToLoad = {
+          communities: [],
+          start: getBigTimestamp(),
+          end: 0,
+          handler: false,
+          cbs: []
+        };
+      }, 500);
+    }
+  };
+  return {
+    callLazyLoad: callLazyLoad
+  };
+});

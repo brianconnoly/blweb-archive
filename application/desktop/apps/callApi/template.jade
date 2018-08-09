@@ -1,0 +1,45 @@
+div.dragHandler.topBar.black.noSettings
+    process-bar
+    div.appControls
+    div.title Api testing tool
+
+div.call.body
+    div.call_form
+        //- div
+        //-     p.form_title Controller
+        //-     combobox.form_controller(list="api", ng-model="current.controller", ng-change="setMethod()")
+
+        div(ng-show="current.controller.methods.length")
+            p.form_title Method
+            combobox.form_method(list="current.controller.methods", ng-model="current.method", ng-change="setFields()")
+
+        div.form_fields(ng-show="fields.length")
+            div.form_field
+                div.field_delete
+                span.field_key() userId
+                span.field_separator :
+                input.field_val(ng-model="request.userId", type="text")
+
+            div.form_field
+                div.field_delete
+                span.field_key() apiKey
+                span.field_separator :
+                input.field_val(ng-model="request.apiKey", type="text")
+
+            p.form_title Data
+            div.form_field(ng-repeat="field in fields")
+                div.field_delete
+                    span.field_delete(ng-show="field.editable", ng-click="deleteField(field)", title="Delete") [X]
+                span.field_key(ng-show="!field.editable", ng-bind="field.key")
+                input.field_key.editable(ng-show="field.editable", ng-model="field.key")
+                span.field_separator :
+                input.field_val(ng-model="field.value", type="{{field.type}}")
+
+        //- button.form_submit(ng-disabled="!current.method", ng-click="addField()") Add field
+        button.form_submit(ng-disabled="!current.method", ng-click="call()") Call method
+
+
+    div.call_result
+        button.result_select(ng-click="selectAll()") Select all
+        pre#result(ng-bind="result")
+        //-textarea#result(ng-bind="parseCallResult()")

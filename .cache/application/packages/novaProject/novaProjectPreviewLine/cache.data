@@ -1,0 +1,3 @@
+tC['/novaProjectPreviewLine/template.jade'] = "<div ng-if=\"!previewItem.profileUserId\" class=\"name\">{{::item.name}}</div> <div ng-if=\"previewItem.profileUserId\" class=\"name userProject\">{{::user.name}}</div>";
+
+registerStyles('novaProjectPreviewLine', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaProjectPreviewLine\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

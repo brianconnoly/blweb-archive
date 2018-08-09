@@ -1,0 +1,25 @@
+tC['/novaFlowFrameTab/template.jade'] = "<div ng-class=\"{'pinned':flowFrame.pinned, 'active':flowFrame.active &amp;&amp; flowBox.active}\" ng-click=\"activateTab()\"> <div class=\"novaFlowFrameTabBg\"></div> <div class=\"novaFlowFrameTabContent\"> <div ng-click=\"pinTab()\" class=\"tabIcon pin\"></div> <div ng-click=\"closeTab()\" class=\"tabIcon close\"></div> <div ng-click=\"closeTab()\" class=\"tabIcon closePinned\"></div> <div ng-if=\"flowFrame.item.id &amp;&amp; flowFrame.item.id != appItem.id\" class=\"novaAppItem\"></div> <div ng-if=\"!flowFrame.item.id || flowFrame.item.id == appItem.id\" class=\"frameTitle\"> <div ng-if=\"flowFrame.title &amp;&amp; !flowFrame.translateTitle\" class=\"titleText realText\">{{flowFrame.title}}</div> <div ng-if=\"flowFrame.translateTitle\" translate=\"flowFrame.translateTitle\" class=\"titleText translateText\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaFlowFrameTab', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaFlowFrameTab/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.pinTab = function() {
+        scope.flowBox.pin(scope.flowFrame);
+        return true;
+      };
+      scope.closeTab = function() {
+        return scope.flowBox.closeFlowFrame(scope.flowFrame);
+      };
+      return scope.activateTab = function() {
+        return scope.flow.activate(scope.flowFrame, scope.flowBox);
+      };
+    }
+  };
+});
+
+registerStyles('novaFlowFrameTab', ".novaFlowFrameTab {\n  float: left;\n  height: 32px;\n  line-height: 32px;\n  min-width: 80px;\n  max-width: 320px;\n}\n.novaFlowFrameTab .frameTitle {\n  margin: 7px 3px;\n}\n.novaFlowFrameTab .frameTitle .titleText {\n  font-size: 12px;\n  font-weight: bolder;\n  height: 20px;\n  line-height: 21px;\n  margin: 3px;\n  max-width: 215px;\n  width: 105px;\n  white-space: nowrap;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n}\n.novaFlowFrameTab:after,\n.novaFlowFrameTab:before {\n  content: \"\";\n  position: absolute;\n  top: 0;\n  display: block;\n  height: 32px;\n  width: 25px;\n  background-image: url(\"/resources/images/nova/window/tab/sides-inactive.svg\");\n  background-repeat: no-repeat;\n}\n.novaFlowFrameTab:before {\n  background-position: top left;\n  left: 0;\n}\n.novaFlowFrameTab:after {\n  background-position: top right;\n  right: 0;\n}\n.novaFlowFrameTab .novaFlowFrameTabBg {\n  position: absolute;\n  left: 25px;\n  right: 25px;\n  height: 31px;\n  border-top: 1px solid #e6e6e6;\n  background: #efefef;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent {\n  position: relative;\n  z-index: 1;\n  overflow: hidden;\n  padding-left: 20px;\n  padding-right: 55px;\n  height: 100%;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent .novaAppItem {\n  position: relative;\n  left: auto;\n  top: 0;\n  margin-top: 7px;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent .novaAppItem .itemTitle {\n  max-width: 215px;\n  white-space: nowrap;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent .tabIcon {\n  position: absolute;\n  top: 9px;\n  width: 14px;\n  height: 14px;\n  cursor: pointer;\n  -webkit-transition: all 0.5s ease;\n  -moz-transition: all 0.5s ease;\n  -o-transition: all 0.5s ease;\n  -ms-transition: all 0.5s ease;\n  transition: all 0.5s ease;\n  z-index: 1;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent .pin {\n  background: url(\"/resources/images/nova/window/tab/pin.svg\") center center no-repeat;\n  right: 35px;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent .close {\n  background: url(\"/resources/images/nova/window/tab/close.svg\") center center no-repeat;\n  right: 20px;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaFlowFrameTab .novaFlowFrameTabContent .closePinned {\n  background: url(\"/resources/images/nova/window/tab/close-pinned.svg\") center center no-repeat;\n  right: 20px;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaFlowFrameTab.pinned .novaFlowFrameTabContent {\n  padding-right: 35px;\n}\n.novaFlowFrameTab.pinned .novaFlowFrameTabContent .pin {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  right: 20px;\n}\n.novaFlowFrameTab.pinned .novaFlowFrameTabContent .close {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaFlowFrameTab.pinned .novaFlowFrameTabContent .closePinned {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaFlowFrameTab.active {\n  z-index: 100;\n}\n.novaFlowFrameTab.active:after,\n.novaFlowFrameTab.active:before {\n  background-image: url(\"/resources/images/nova/window/tab/sides.svg\");\n}\n.novaFlowFrameTab.active .novaFlowFrameTabBg {\n  background: #fcfcfc;\n}\n.novaFlowFrameTab.noActions .novaFlowFrameTabContent {\n  padding-right: 12px;\n}\n.novaFlowFrameTab.noActions .tabIcon {\n  display: none;\n}\n");

@@ -1,0 +1,16 @@
+buzzlike.directive('loadHtml', function() {
+  return {
+    restrict: 'A',
+    scope: {
+      loadHtml: '='
+    },
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      console.log(scope.loadHtml);
+      return $.get(scope.loadHtml, function(html) {
+        return elem.html(html);
+      });
+    }
+  };
+});

@@ -1,0 +1,213 @@
+tC['/novaMenu/template.jade'] = "<div ng-class=\"{'active':novaMenu.active}\" ng-click=\"novaMenu.hide(true)\"> <div class=\"menuSections\"> <div ng-repeat=\"section in sections\" class=\"menuSection\"> <div ng-repeat=\"item in section.items\" ng-click=\"clickItem(item, section, $event)\" ng-class=\"{'disabled':item.disabled}\" class=\"menuItem\"><span translate=\"item.phrase\"></span><span>{{item.title}}</span> <div ng-if=\"section.type == 'checkbox'\" ng-show=\"section.object[item.param]\" class=\"check\"></div> <div ng-if=\"section.type == 'select' &amp;&amp; selected(item, section)\" class=\"check\"></div> </div> </div> </div> </div>";
+
+buzzlike.service('novaMenu', function($compile, $rootScope, localization, actionsService, dynamicStyle) {
+  var novaMenu;
+  novaMenu = (function() {
+    novaMenu.prototype.buildElement = function() {
+      this.scope = $rootScope.$new();
+      this.scope.actions = [];
+      this.scope.novaMenu = this;
+      this.active = false;
+      this.elem = $('<div>', {
+        "class": 'novaMenu'
+      });
+      this.body.append(this.elem);
+      setTimeout((function(_this) {
+        return function() {
+          _this.elem = $($compile(_this.elem)(_this.scope));
+          return _this.menuElem = _this.elem;
+        };
+      })(this), 0);
+      return this.body.on('mousedown.novaMenu', (function(_this) {
+        return function(e) {
+          return _this.hide();
+        };
+      })(this));
+    };
+
+    function novaMenu() {
+      this.body = $('body');
+      this.buildElement();
+      this.style = new dynamicStyle('.novaMenu:after');
+    }
+
+    novaMenu.prototype.show = function(data) {
+      var action, actions, groups, i, j, k, keys, len, len1, len2, list, pos, ref, ref1, ref2, right, section, workareaHei, workareaWid;
+      if (((ref = data.sections) != null ? ref.length : void 0) > 0) {
+        this.scope.sections = data.sections;
+      } else {
+        actions = actionsService.getActions({
+          source: data.items || [],
+          sourceContext: data.context,
+          target: data.context,
+          actionsType: 'contextMenu',
+          scope: data.scope
+        });
+        if (actions.length > 0) {
+          groups = {};
+          list = [];
+          for (i = 0, len1 = actions.length; i < len1; i++) {
+            action = actions[i];
+            if (groups[action.category] == null) {
+              groups[action.category] = {
+                type: 'actions',
+                items: []
+              };
+            }
+            groups[action.category].items.push({
+              phrase: action.phrase,
+              action: action.action,
+              priority: action.priority
+            });
+          }
+          for (k in groups) {
+            actions = groups[k];
+            actions.items.sort(function(a, b) {
+              if (a.priority > b.priority) {
+                return -1;
+              }
+              if (a.priority < b.priority) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          for (k in groups) {
+            actions = groups[k];
+            list.push(actions);
+          }
+          this.scope.sections = list;
+        }
+      }
+      len = 0;
+      keys = ((ref1 = this.scope.sections) != null ? ref1.length : void 0) || [];
+      workareaHei = this.body.height();
+      workareaWid = this.body.width();
+      ref2 = this.scope.sections;
+      for (j = 0, len2 = ref2.length; j < len2; j++) {
+        section = ref2[j];
+        len += 10 + section.items.length * (18 + 6);
+      }
+      if (keys > 1) {
+        len += (keys - 1) * 1;
+      }
+      pos = {
+        x: data.position.x,
+        y: data.position.y
+      };
+      if (len > workareaHei) {
+        pos.y = 0;
+        pos.height = workareaHei - 10;
+        len = workareaHei;
+      }
+      if (data.menuStyle === 'center') {
+        pos.x -= 105;
+        pos.y += 5;
+        if (pos.x < 10) {
+          pos.x = 10;
+        }
+        if (pos.y > workareaHei - 300) {
+          pos.y -= len + 10;
+          this.menuElem.addClass('cornerDown');
+        } else {
+          if (data.position.hei != null) {
+            pos.y += data.position.hei;
+          }
+          this.menuElem.removeClass('cornerDown');
+        }
+        this.style.update("left: " + (data.position.x - pos.x - 10) + "px; right: auto;");
+        this.menuElem.removeClass('noLeftCorner');
+        if (data.position.x - pos.x - 10 === 0) {
+          this.menuElem.addClass('noLeftCorner');
+        }
+        this.menuElem.addClass('corner');
+      } else {
+        if (pos.y + len > workareaHei) {
+          pos.y = workareaHei - len;
+        }
+        this.menuElem.removeClass('corner');
+      }
+      right = 'auto';
+      if (pos.x + 200 > workareaWid) {
+        right = '100%';
+        pos.x = workareaWid - 20;
+        this.style.update("right: " + (pos.x - data.position.x - 10) + "px; left: auto;");
+      }
+      this.menuElem.css({
+        'transform': "translate3d(" + pos.x + "px, " + pos.y + "px, 0)",
+        'right': right
+      });
+      this.active = true;
+      if (data.noApply !== true) {
+        return this.scope.$apply();
+      }
+    };
+
+    novaMenu.prototype.hide = function(noApply) {
+      if (noApply == null) {
+        noApply = false;
+      }
+      if (!this.active) {
+        return;
+      }
+      this.active = false;
+      this.elem.removeClass('active');
+      this.scope.actions.length = 0;
+      if (!noApply) {
+        this.scope.$apply();
+      }
+      return true;
+    };
+
+    return novaMenu;
+
+  })();
+  return new novaMenu;
+});
+
+buzzlike.directive('novaMenu', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaMenu/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      elem.on('mousedown', function(e) {
+        e.stopPropagation();
+        return e.preventDefault();
+      });
+      scope.clickItem = function(item, section, e) {
+        switch (section.type) {
+          case 'checkbox':
+            section.object[item.param] = !section.object[item.param];
+            if (typeof section.selectFunction === "function") {
+              section.selectFunction(item);
+            }
+            break;
+          case 'select':
+            if ((section.object != null) && (section.param != null)) {
+              section.object[section.param] = item.value;
+            }
+            if (typeof section.selectFunction === "function") {
+              section.selectFunction(item);
+            }
+            break;
+          case 'actions':
+            item.action(e);
+        }
+        return scope.novaMenu.hide(true);
+      };
+      scope.selected = function(item, section) {
+        var ref;
+        if (section.value != null) {
+          return section.value === item.value;
+        }
+        return ((ref = section.object) != null ? ref[section.param] : void 0) === item.value;
+      };
+      return true;
+    }
+  };
+});
+
+registerStyles('novaMenu', ".novaMenu {\n  position: absolute;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n  pointer-events: none;\n  padding: 5px 0;\n  background: #fefefe;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  -webkit-filter: drop-shadow(0 0 10px rgba(77,77,77,0.9));\n  -moz-filter: drop-shadow(0 0 10px rgba(77,77,77,0.9));\n  -o-filter: drop-shadow(0 0 10px rgba(77,77,77,0.9));\n  -ms-filter: drop-shadow(0 0 10px rgba(77,77,77,0.9));\n  filter: drop-shadow(0 0 10px rgba(77,77,77,0.9));\n  min-width: 210px;\n  z-index: 10000;\n}\n.novaMenu.corner:after {\n  content: \"\";\n  border-left: 10px solid transparent;\n  position: absolute;\n  top: -10px;\n  border-right: 10px solid transparent;\n  border-bottom: 10px solid #fefefe;\n}\n.novaMenu.cornerDown:after {\n  top: auto;\n  bottom: -10px;\n  border-top: 10px solid #fefefe;\n  border-bottom: none;\n}\n.novaMenu.noLeftCorner {\n  -webkit-border-radius: 5px 5px 5px 0;\n  border-radius: 5px 5px 5px 0;\n}\n.novaMenu.active {\n  pointer-events: auto;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaMenu .menuSections {\n  overflow-y: auto;\n}\n.novaMenu .menuSection {\n  margin-bottom: 5px;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #ccc;\n}\n.novaMenu .menuSection:last-child {\n  margin-bottom: 0;\n  padding-bottom: 0;\n  border-bottom: none;\n}\n.novaMenu .menuSection .menuItem {\n  padding: 3px 22px;\n  height: 18px;\n  line-height: 18px;\n  font-size: 14px;\n  cursor: pointer;\n  overflow: hidden;\n}\n.novaMenu .menuSection .menuItem span {\n  cursor: pointer;\n}\n.novaMenu .menuSection .menuItem .check {\n  cursor: pointer;\n  position: absolute;\n  left: 2px;\n  top: 3px;\n  width: 12px;\n  height: 9px;\n  margin-top: 4px;\n  margin-left: 3px;\n  background: url(\"/resources/images/desktop/check-black.svg\");\n}\n.novaMenu .menuSection .menuItem.disabled {\n  color: #ccc;\n  cursor: default;\n}\n.novaMenu .menuSection .menuItem.disabled span {\n  cursor: default;\n}\n.novaMenu .menuSection .menuItem.disabled:hover {\n  color: #ccc;\n  background: none;\n}\n.novaMenu .menuSection .menuItem:hover {\n  color: #fff;\n  background: #3496f2;\n}\n.novaMenu .menuSection .menuItem:hover .check {\n  background: url(\"/resources/images/desktop/check.svg\");\n}\n");

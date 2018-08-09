@@ -1,0 +1,12 @@
+buzzlike.directive('combTeamView', function(teamService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var process;
+      process = scope.progress.add();
+      return scope.team = teamService.getById(scope.comb.teamId, function() {
+        return scope.progress.finish(process);
+      });
+    }
+  };
+});

@@ -1,0 +1,86 @@
+buzzlike.directive('contextMenu', function(contextMenu, multiselect, smartDate, $parse, stateManager, operationsService) {
+  return {
+    restrict: 'AC',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return elem.on('contextmenu.contextMenu', function(e) {
+        var context, item, itemScope, postEar, ref, sideCircle, target, time;
+        if ((ref = $(e.target).prop("tagName")) === 'INPUT' || ref === 'TEXTAREA') {
+          return;
+        }
+        if (e.which === 3) {
+          if (attrs.context != null) {
+            scope.context = $parse(attrs.context)(scope);
+          } else {
+            scope.context = stateManager.getContext();
+          }
+          target = null;
+          if (attrs.target != null) {
+            target = $parse(attrs.target)(scope);
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          contextMenu.position({
+            x: e.clientX,
+            y: e.clientY
+          });
+          postEar = false;
+          sideCircle = $(e.target).parents('.addPostArea')[0];
+          if (sideCircle != null) {
+            time = $(sideCircle).data('time');
+            itemScope = angular.element($(sideCircle).parents('.feedInterval')[0]).scope();
+            contextMenu.show([
+              {
+                type: 'timeline',
+                timestamp: time,
+                communityId: itemScope.cId,
+                groupId: itemScope.groupId
+              }
+            ], {
+              target: target || scope.context,
+              context: context || scope.context,
+              sourceContext: scope.context
+            });
+          } else if (attrs.item != null) {
+            item = $parse(attrs.item)(scope);
+            contextMenu.show([item], {
+              target: target || scope.context,
+              context: scope.context,
+              sourceContext: scope.context
+            });
+          } else {
+            if (!elem.hasClass('selected')) {
+              multiselect.flush();
+            }
+            if ((scope.id != null) || (attrs.id != null)) {
+              multiselect.state.lastFocused = element;
+              operationsService.get(attrs.type, scope.id || $parse(attrs.id)(scope), function(item) {
+                return multiselect.addToFocus({
+                  id: item.id,
+                  type: item.type
+                });
+              });
+            } else if (scope.item != null) {
+              multiselect.state.lastFocused = element;
+              multiselect.addToFocus(scope.item);
+            }
+            elem.addClass('selected');
+            context = null;
+            if (elem.parents('#rightPanel').length > 0) {
+              context = {
+                type: 'rightPanel'
+              };
+            }
+            contextMenu.show(multiselect.getFocused(), {
+              target: target || stateManager.getContext() || scope.context,
+              context: context || scope.context,
+              sourceContext: scope.context
+            });
+          }
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});

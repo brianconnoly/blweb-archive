@@ -1,0 +1,24 @@
+tC['/novaTextPreviewDetailed/template.jade'] = "<div class=\"value\">{{item.value || 'empty text'}}</div>";
+
+buzzlike.directive('novaTextPreviewDetailed', function(novaDesktop) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTextPreviewDetailed/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      return elem.parent().on('dblclick', function(e) {
+        novaDesktop.launchApp({
+          app: 'novaTextEditApp',
+          item: {
+            type: 'text',
+            id: scope.item.id
+          }
+        });
+        return scope.$apply();
+      });
+    }
+  };
+});
+
+registerStyles('novaTextPreviewDetailed', ".novaTextPreviewDetailed {\n  overflow-y: auto;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n");

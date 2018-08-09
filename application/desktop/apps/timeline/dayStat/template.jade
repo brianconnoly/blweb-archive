@@ -1,0 +1,15 @@
+div.weekDay(translate="dateInfo.weekDay", index="0")
+div.monthYear
+    span(translate="dateInfo.month", index="2")
+    span  {{::dateInfo.year}}
+div.monthDay {{::dateInfo.day}}
+div.stats(ng-if="hasStats", ng-click="launchGraph($event)")
+    div.value
+        span.marker(ng-class="{'down':down}")
+        span.percent {{value}}%
+    div.period(translate="'statPeriod_'+period")
+
+div.flushMousedown.arrow.arrowRight(ng-click="right($event)", ng-if="canScroll")
+    div.corner
+div.flushMousedown.arrow.arrowLeft( ng-click="left($event)" , ng-if="canScroll")
+    div.corner

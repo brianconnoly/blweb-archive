@@ -1,0 +1,135 @@
+.appContainer.requestMaster {
+  background: #fff;
+}
+.appContainer.requestMaster .body {
+  overflow: hidden;
+  background: #fff;
+  width: 510px;
+  margin: 0 auto;
+  padding: 30px 40px 30px 40px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.requestMaster .body b {
+  font-weight: 300;
+}
+.appContainer.requestMaster .body .loader {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: #fff;
+}
+.appContainer.requestMaster .body .header {
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+.appContainer.requestMaster .body .infoContainer {
+  overflow: hidden;
+  margin-bottom: 25px;
+}
+.appContainer.requestMaster .body .infoContainer .infoItem {
+  float: left;
+  width: 50%;
+}
+.appContainer.requestMaster .body .infoContainer .infoItem .image {
+  width: 75px;
+  height: 75px;
+  float: left;
+}
+.appContainer.requestMaster .body .infoContainer .infoItem .image img {
+  width: 100%;
+}
+.appContainer.requestMaster .body .infoContainer .infoItem .info {
+  overflow: hidden;
+  margin-left: 90px;
+  margin-right: 10px;
+}
+.appContainer.requestMaster .body .infoContainer .infoItem .info .infoLine {
+  white-space: nowrap /* Запрещаем перенос строк */;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  font-size: 16px;
+  line-height: 19px;
+}
+.appContainer.requestMaster .body .checkText {
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.appContainer.requestMaster .body .prefixText {
+  font-size: 12px;
+}
+.appContainer.requestMaster .body .settings {
+  overflow: hidden;
+  text-align: center;
+  margin: 30px 10px 30px 10px;
+  font-size: 25px;
+  text-align: center;
+}
+.appContainer.requestMaster .body .settings .datePicker {
+  margin: 0 auto;
+  margin: 10px 5px 10px 5px;
+  float: left;
+  color: #e6e6e6;
+  background: #333;
+  width: 120px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  padding: 5px 10px 5px 10px;
+  font-size: 21px;
+  line-height: 25px;
+}
+.appContainer.requestMaster .body .settings .timePicker {
+  margin: 0 auto;
+  margin: 10px 5px 10px 5px;
+  float: left;
+  color: #e6e6e6;
+  background: #333;
+  width: 100px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  padding: 5px 10px 5px 10px;
+  font-size: 21px;
+}
+.appContainer.requestMaster .body .settings .costPicker {
+  margin: 0 auto;
+  margin: 10px 5px 10px 5px;
+  float: left;
+  color: #e6e6e6;
+  background: #333;
+  width: 150px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  padding: 5px 10px 5px 10px;
+  font-size: 21px;
+}
+.appContainer.requestMaster .body .settings .costPicker input {
+  width: 100px;
+  text-align: center;
+  color: #e6e6e6;
+  font-size: 21px;
+}
+.appContainer.requestMaster .body .conclusionText {
+  overflow: hidden;
+  font-size: 12px;
+  margin-bottom: 40px;
+}
+.appContainer.requestMaster .body .bottomButtons {
+  float: right;
+}
+.appContainer.requestMaster .body .bottomButtons .makeRequest {
+  float: right;
+  cursor: pointer;
+}
+.appContainer.requestMaster .body .bottomButtons .cancelRequest {
+  float: right;
+}
+.appContainer.requestMaster .body .warning {
+  width: 400px;
+  font-size: 12px;
+  margin: 10px;
+  color: #f00;
+}

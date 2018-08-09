@@ -1,0 +1,314 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaPostCreate/template.jade'] = "<div class=\"novaScreen\"> <div ng-class=\"{'withCalendar':calendarActive}\" class=\"novaPostEditor\"> <div ng-if=\"fullView\" class=\"postDestination\"> <div class=\"destinationParameters\"> <div ng-model=\"postParams.projectId\" item-type=\"project\" phrase=\"pickProject\" class=\"novaScreenPicker picker projectPicker\"></div> <div ng-model=\"postParams.channelId\" item-type=\"group\" phrase=\"pickChannel\" ng-if=\"postParams.projectId\" class=\"novaScreenPicker picker channelPicker\"></div> </div> <div nova-item-id=\"postParams.projectId\" nova-item-watch=\"true\" nova-item-type=\"project\" nova-item-preview-type=\"square\" class=\"projectPreview novaItemScope novaItem novaItemPreview\"></div> </div> <div class=\"calendarContainer\"> <div ng-if=\"calendarActive\" class=\"novaTimelineCalendar\"></div> </div> <div class=\"novaTimelineMenu\"> <div ng-model=\"pickedCommunities\" item-type=\"communityIds\" phrase=\"pickCommunities\" ng-if=\"postParams.channelId\" custom-value=\"getCommunities\" class=\"novaScreenPicker picker communitiesPicker\"></div> <div translate=\"'novaTimelineFrame_calendar'\" ng-click=\"calendarActive = !calendarActive\" ng-class=\"{'active':calendarActive}\" class=\"calendarActivator\"></div> </div> <div class=\"postTimeBar\"> <div class=\"currentDate\"><span ng-model=\"postParams.timestamp\" class=\"timePicker\"> </span><span ng-click=\"calendarActive = true\" class=\"date\">{{postParams.timestamp | timestampMask:'DD MMM YY'}}</span></div> </div> <div class=\"timeGraph\"> <div class=\"novaPostCreateDayView\"></div> </div> <div class=\"themePickerBar\"> <div ng-model=\"postParams.combId\" item-type=\"comb\" phrase=\"pickComb\" custom-value=\"combPickerName\" class=\"novaScreenPicker picker themePicker\"></div> <div ng-model=\"postParams.newThemeName\" placeholder-text=\"'novaPostCreate_newThemeName'\" ng-if=\"!postParams.combId\" class=\"newThemeName novaEditableDiv\"></div> <div ng-if=\"postParams.combId\" class=\"pickedTheme\"> <div ng-click=\"flushComb()\" class=\"remove\">+</div> <div nova-item-id=\"postParams.combId\" nova-item-type=\"comb\" nova-item-preview-type=\"line\" class=\"novaItemScope novaItem novaItemPreview\"></div> </div> </div> <div class=\"postControls\"> <div ng-model=\"postParams.postId\" item-type=\"post\" phrase=\"pickCommunities\" custom-value=\"getPostButton\" class=\"novaScreenPicker picker postPicker\"></div> <div ng-click=\"postParams.postId = null\" translate=\"'novaPostCreate_new_post'\" ng-class=\"{'active':postParams.postId == null}\" class=\"postSwitch\"></div> </div> <div ng-if=\"!postParams.postId\" nova-item-object=\"postParams.newPost\" class=\"postHelper novaItemScope novaItem novaItemDroppable\"> <div ng-if=\"postParams.newPost.contentIds.text.length &lt; 1\" ng-model=\"postParams.newPostText\" placeholder-text=\"'novaPostCreate_new_post_text'\" pasted-items=\"handlePastedItems\" class=\"newPostText novaEditableDiv\"></div> <div ng-repeat=\"id in postParams.newPost.contentIds.text\" nova-item-id=\"id\" nova-item-type=\"text\" class=\"novaItem\"> <div ng-model=\"item.value\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }\" ng-change=\"saveText(item)\" pasted-items=\"handlePastedItems\" class=\"newPostText novaEditableDiv\"></div> </div> <div class=\"novaPostContent\"></div> </div> <div ng-if=\"postParams.postId\" class=\"postPreview\"> <div nova-item-id=\"postParams.postId\" nova-item-type=\"post\" nova-item-preview-type=\"timeline\" class=\"novaItemScope novaItem novaItemPreview\"></div> </div> <div class=\"addMenu\"> <div ng-click=\"addItems($event)\" class=\"addItems\">+</div> <div ng-click=\"addItems($event)\" translate=\"'novaPostCreate_addItems'\" class=\"addItemsDoubler\"></div> <div ng-click=\"addItemsUpload()\" class=\"addItemsShortcut addItemsUpload\">U</div> <div ng-click=\"addItemsStorage()\" class=\"addItemsShortcut addItemsStorage\">S</div> </div> <div class=\"spacer\"></div> </div> <div class=\"actions\"> <div ng-click=\"doCancel()\" translate=\"'novaPostCreate_cancel'\" class=\"action\"></div> <div ng-click=\"doCreate()\" translate=\"'novaPostCreate_create'\" ng-class=\"{'inactive':createBlocked()}\" class=\"action blue\"></div> </div> </div>";
+
+buzzlike.directive('novaPostCreate', function(groupService, localization, account, scheduleService, postService, combService, $filter, contentService, novaWizard, novaMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostCreate/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var addItems, createPost, elem, now, ref, ref1, ref2, ref3;
+      elem = $(element);
+      addItems = $(elem.find('.addItems')[0]);
+      now = new Date();
+      scope.cursorTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      scope.scrollerParams = {
+        cursor: scope.cursorTime
+      };
+      scope.cursorChanged = function() {
+        var newTime, oldTime;
+        oldTime = new Date(scope.postParams.timestamp);
+        newTime = new Date(scope.scrollerParams.cursor);
+        return scope.postParams.timestamp = new Date(newTime.getFullYear(), newTime.getMonth(), newTime.getDate(), oldTime.getHours(), oldTime.getMinutes()).getTime();
+      };
+      scope.postParams = {
+        timestamp: ((ref = scope.session.data) != null ? ref.timestamp : void 0) || new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 15).getTime(),
+        projectId: ((ref1 = scope.session.data) != null ? ref1.projectId : void 0) || account.user.id,
+        channelId: ((ref2 = scope.session.data) != null ? ref2.channelId : void 0) || null,
+        combId: ((ref3 = scope.session.data) != null ? ref3.combId : void 0) || null,
+        pickedCommunities: [],
+        newPostText: "",
+        newThemeName: "",
+        newPost: {
+          type: 'post',
+          virtual: true,
+          id: 'createNewPost' + getRandomInt(0, 1000) + Date.now(),
+          contentIds: {
+            image: [],
+            audio: [],
+            video: [],
+            url: [],
+            poll: [],
+            text: []
+          }
+        }
+      };
+      if (scope.fullView) {
+        scope.stateSaver.register('postParams', {
+          save: function() {
+            return scope.postParams;
+          },
+          load: function(data) {
+            var k, saved, v;
+            for (k in data) {
+              v = data[k];
+              scope.postParams[k] = v;
+            }
+            saved = new Date(scope.postParams.timestamp);
+            return scope.scrollerParams.cursor = new Date(saved.getFullYear(), saved.getMonth(), saved.getDate()).getTime();
+          }
+        });
+        scope.$watch('postParams', function(nVal) {
+          return scope.stateSaver.save('postParams');
+        }, true);
+      }
+      scope.$watch('postParams.projectId', function(nVal) {
+        if (nVal != null) {
+          return groupService.getByProjectId(nVal, function(items) {
+            var ref4;
+            return scope.postParams.channelId = (ref4 = items[0]) != null ? ref4.id : void 0;
+          });
+        }
+      });
+      scope.block = {
+        dayBreakType: 'day',
+        timestamp: scope.scrollerParams.cursor
+      };
+      scope.communityIds = [];
+      scope.$watch('postParams.channelId', function(nVal) {
+        if (nVal != null) {
+          return groupService.getById(nVal, function(group) {
+            var feed, fixPicked, i, id, j, l, len, len1, len2, picked, ref4, ref5, ref6, results;
+            scope.communityIds.length = 0;
+            ref4 = group.feeds;
+            for (i = 0, len = ref4.length; i < len; i++) {
+              feed = ref4[i];
+              scope.communityIds.push(feed.communityId);
+            }
+            fixPicked = false;
+            ref5 = scope.postParams.pickedCommunities;
+            for (j = 0, len1 = ref5.length; j < len1; j++) {
+              picked = ref5[j];
+              if (indexOf.call(scope.communityIds, picked) < 0) {
+                fixPicked = true;
+                break;
+              }
+            }
+            if (fixPicked || scope.postParams.pickedCommunities.length === 0) {
+              scope.postParams.pickedCommunities.length = 0;
+              ref6 = scope.communityIds;
+              results = [];
+              for (l = 0, len2 = ref6.length; l < len2; l++) {
+                id = ref6[l];
+                results.push(scope.postParams.pickedCommunities.push(id));
+              }
+              return results;
+            }
+          });
+        }
+      });
+      scope.getCommunities = function() {
+        if (scope.postParams.pickedCommunities.length === 0) {
+          return localization.translate('novaPostCreate_noCommunities');
+        }
+        if (scope.postParams.pickedCommunities.length === scope.communityIds.length) {
+          return localization.translate('novaPostCreate_allCommunities');
+        }
+        return scope.postParams.pickedCommunities.length + ' ' + localization.translate('novaPostCreate_of') + ' ' + scope.communityIds.length;
+      };
+      scope.combPickerName = function() {
+        return localization.translate('novaScreenPicker_placeholder_pickComb');
+      };
+      scope.flushComb = function() {
+        return scope.postParams.combId = null;
+      };
+      scope.getPostButton = function() {
+        if (scope.postParams.postId) {
+          return localization.translate('novaPostCreate_pick_post');
+        }
+        return localization.translate('novaPostCreate_from_storage');
+      };
+      scope.handlePastedItems = function(items) {
+        var i, ids, item, j, len, len1, ref4, results;
+        if (scope.postParams.postId == null) {
+          results = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (ref4 = item.id, indexOf.call(scope.postParams.newPost.contentIds[item.type], ref4) < 0) {
+              results.push(scope.postParams.newPost.contentIds[item.type].push(item.id));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        } else {
+          ids = [];
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            ids.push(item.id);
+          }
+          return postService.addContentIds(scope.postParams.postId, ids);
+        }
+      };
+      scope.addItems = function(e) {
+        var offset, sections;
+        sections = [
+          {
+            type: 'actions',
+            items: [
+              {
+                phrase: 'novaPostCreate_add_upload_content',
+                action: function() {
+                  return novaWizard.fire('upload', {
+                    projectId: scope.postParams.projectId,
+                    cb: scope.handlePastedItems
+                  });
+                }
+              }, {
+                phrase: 'novaPostCreate_add_from_storage',
+                action: function() {
+                  return novaWizard.fire('contentBrowser', {
+                    projectId: scope.postParams.projectId,
+                    cb: scope.handlePastedItems
+                  });
+                }
+              }, {
+                phrase: 'novaPostCreate_add_import',
+                action: function() {
+                  return novaWizard.fire('importContent', {
+                    projectId: scope.postParams.projectId,
+                    cb: scope.handlePastedItems
+                  });
+                }
+              }, {
+                phrase: 'novaPostCreate_add_text',
+                action: function() {
+                  return contentService.create({
+                    type: 'text',
+                    projectId: scope.postParams.projectId
+                  }, function(textItem) {
+                    return scope.handlePastedItems([textItem]);
+                  });
+                }
+              }
+            ]
+          }
+        ];
+        offset = addItems.offset();
+        novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(addItems.width() / 2),
+            y: offset.top,
+            hei: addItems.height()
+          },
+          sections: sections,
+          menuStyle: 'center',
+          noApply: true
+        });
+        e.stopPropagation();
+        e.preventDefault();
+        return true;
+      };
+      scope.addItemsUpload = function() {
+        return novaWizard.fire('upload', {
+          projectId: scope.postParams.projectId,
+          cb: scope.handlePastedItems
+        });
+      };
+      scope.addItemsStorage = function() {
+        return novaWizard.fire('contentBrowser', {
+          projectId: scope.postParams.projectId,
+          cb: scope.handlePastedItems
+        });
+      };
+      scope.createBlocked = function() {
+        return scope.postParams.pickedCommunities.length < 1 || scope.postParams.timestamp < Date.now();
+      };
+      scope.doCancel = function() {
+        if (scope.flow != null) {
+          return typeof scope.closePostCreate === "function" ? scope.closePostCreate() : void 0;
+        } else {
+          return scope.closeApp();
+        }
+      };
+      scope.saveText = function(textItem) {
+        return contentService.save(textItem);
+      };
+      createPost = function(combId, cb) {
+        scope.postParams.newPost.combId = combId;
+        scope.postParams.newPost.projectId = scope.postParams.projectId;
+        delete scope.postParams.newPost.id;
+        return postService.create(scope.postParams.newPost, function(postItem) {
+          var communityId, i, len, ref4, ref5, results;
+          if (((ref4 = scope.postParams.newPostText) != null ? ref4.length : void 0) > 0) {
+            contentService.create({
+              type: 'text',
+              value: scope.postParams.newPostText,
+              projectId: scope.postParams.projectId
+            }, function(item) {
+              postService.addContentIds(postItem, [item.id]);
+              return combService.addContentIds(combId, [item.id]);
+            });
+          }
+          ref5 = scope.postParams.pickedCommunities;
+          results = [];
+          for (i = 0, len = ref5.length; i < len; i++) {
+            communityId = ref5[i];
+            results.push(scheduleService.create({
+              scheduleType: 'post',
+              timestamp: scope.postParams.timestamp,
+              communityId: communityId,
+              projectId: scope.postParams.projectId,
+              postId: postItem.id
+            }));
+          }
+          return results;
+        });
+      };
+      return scope.doCreate = function() {
+        var communityId, i, id, ids, j, k, len, len1, ref4, ref5, v;
+        if (scope.createBlocked()) {
+          return;
+        }
+        if (scope.postParams.postId != null) {
+          ref4 = scope.postParams.pickedCommunities;
+          for (i = 0, len = ref4.length; i < len; i++) {
+            communityId = ref4[i];
+            scheduleService.create({
+              scheduleType: 'post',
+              timestamp: scope.postParams.timestamp,
+              communityId: communityId,
+              projectId: scope.postParams.projectId,
+              postId: scope.postParams.postId
+            });
+          }
+        } else {
+          if (scope.postParams.combId != null) {
+            createPost(scope.postParams.combId);
+          } else {
+            ids = [];
+            ref5 = scope.postParams.newPost.contentIds;
+            for (k in ref5) {
+              v = ref5[k];
+              for (j = 0, len1 = v.length; j < len1; j++) {
+                id = v[j];
+                ids.push(id);
+              }
+            }
+            combService.create({
+              type: 'comb',
+              name: scope.postParams.newThemeName || $filter('timestampMask')(Date.now(), 'hh:mm DD MMM YY'),
+              projectId: scope.postParams.projectId,
+              items: ids
+            }, function(newComb) {
+              return createPost(newComb.id);
+            });
+          }
+        }
+        return scope.doCancel();
+      };
+    }
+  };
+});
+
+registerStyles('novaPostCreate', ".novaPostCreate {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaPostCreate .novaPostEditor {\n  overflow-y: auto;\n  height: 100%;\n}\n.novaPostCreate .postDestination {\n  overflow: hidden;\n}\n.novaPostCreate .postDestination .destinationParameters {\n  float: right;\n  margin: 20px;\n  text-align: right;\n}\n.novaPostCreate .postDestination .destinationParameters .picker {\n  line-height: 20px;\n}\n.novaPostCreate .postDestination .projectPreview {\n  float: left;\n  width: 50px;\n  height: 50px;\n  margin: 20px;\n  margin-bottom: 5px;\n  background: #d4d4d4;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.4);\n  box-shadow: 0 0 2px rgba(0,0,0,0.4);\n  overflow: hidden;\n}\n.novaPostCreate .postDestination .projectPreview .name {\n  display: none;\n}\n.novaPostCreate .novaTimelineCalendar {\n  height: 180px;\n}\n.novaPostCreate .novaTimelineMenu .novaScreenPicker {\n  float: right;\n  margin-right: 20px;\n  line-height: 50px;\n}\n.novaPostCreate .calendarContainer {\n  height: 0;\n  overflow: hidden;\n  -webkit-transition: height 0.2s ease;\n  -moz-transition: height 0.2s ease;\n  -o-transition: height 0.2s ease;\n  -ms-transition: height 0.2s ease;\n  transition: height 0.2s ease;\n}\n.novaPostCreate .withCalendar .calendarContainer {\n  height: 180px;\n}\n.novaPostCreate .postTimeBar {\n  font-size: 14px;\n  padding: 0 13px;\n}\n.novaPostCreate .postTimeBar .hourRate {\n  float: right;\n}\n.novaPostCreate .postTimeBar .currentDate .timePicker {\n  margin-right: 5px;\n}\n.novaPostCreate .postTimeBar .currentDate .timePicker input {\n  font-size: 14px;\n  width: 18px;\n  text-align: center;\n  line-height: 15px;\n  height: 15px;\n  padding: 0;\n}\n.novaPostCreate .postTimeBar .currentDate .timePicker .date {\n  cursor: pointer;\n}\n.novaPostCreate .themePickerBar {\n  padding: 0 13px;\n  padding-top: 2px;\n  font-size: 14px;\n  overflow: hidden;\n  height: 16px;\n}\n.novaPostCreate .themePickerBar .themePicker {\n  float: right;\n  z-index: 2;\n}\n.novaPostCreate .themePickerBar .newThemeName {\n  font-size: 14px;\n}\n.novaPostCreate .themePickerBar .newThemeName:after {\n  color: rgba(0,0,0,0.5);\n}\n.novaPostCreate .themePickerBar .pickedTheme .remove {\n  float: left;\n  -webkit-transform: rotate(45deg);\n  -moz-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  transform: rotate(45deg);\n  font-size: 16px;\n  line-height: 15px;\n  text-align: center;\n  cursor: pointer;\n  margin-right: 5px;\n}\n.novaPostCreate .themePickerBar .pickedTheme .novaItem {\n  float: left;\n}\n.novaPostCreate .postControls {\n  font-size: 14px;\n  padding: 10px 13px;\n}\n.novaPostCreate .postControls .postPicker {\n  float: right;\n  z-index: 2;\n}\n.novaPostCreate .postControls .postSwitch {\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n  cursor: pointer;\n}\n.novaPostCreate .postControls .postSwitch.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  cursor: default;\n}\n.novaPostCreate .postHelper {\n  font-size: 14px;\n}\n.novaPostCreate .postHelper .novaPostContent {\n  height: 240px;\n  width: 100%;\n}\n.novaPostCreate .postHelper .newPostText {\n  padding: 0 13px;\n  min-height: 40px;\n  padding-bottom: 10px;\n}\n.novaPostCreate .postHelper .newPostText:after {\n  padding: 6px 17px;\n  width: 260px;\n  font-size: 12px;\n  line-height: 16px;\n  color: #ababab;\n  position: absolute;\n}\n.novaPostCreate .addMenu {\n  overflow: hidden;\n  padding: 10px 13px;\n  font-size: 14px;\n}\n.novaPostCreate .addMenu div {\n  float: right;\n}\n.novaPostCreate .addMenu .addItems {\n  height: 27px;\n  width: 27px;\n  line-height: 27px;\n  text-align: center;\n  font-size: 25px;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n  cursor: pointer;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaPostCreate .addMenu .addItems:active {\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n}\n.novaPostCreate .addMenu .addItems:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaPostCreate .addMenu .addItemsDoubler {\n  margin: 0 5px;\n  margin-right: 0;\n  cursor: pointer;\n  line-height: 27px;\n  height: 27px;\n}\n.novaPostCreate .addMenu .addItemsShortcut {\n  height: 15px;\n  line-height: 15px;\n  padding: 0 5px;\n  border: 1px solid #554545;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  margin: 5px;\n  cursor: pointer;\n}\n.novaPostCreate .spacer {\n  width: 100%;\n  height: 40px;\n}\n.novaPostCreate .actions {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  height: 40px;\n  z-index: 2;\n}\n.novaPostCreate .actions .action {\n  width: 50%;\n  height: 40px;\n  float: left;\n  text-align: center;\n  line-height: 40px;\n  font-size: 14px;\n  background: #f2f2f2;\n  color: #4d4d4d;\n  cursor: pointer;\n}\n.novaPostCreate .actions .action:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaPostCreate .actions .action.blue {\n  background: #3fa9f5;\n  color: #fff;\n}\n.novaPostCreate .actions .action.inactive {\n  background: #d6d6d6 !important;\n  cursor: default !important;\n}\n");

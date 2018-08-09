@@ -1,0 +1,9 @@
+div.activator.noDrag(ng-click="triggerPanel()")
+    div.bar
+div.addIcon(ng-click="fireWizardPicker($event)") +
+
+div.fixedUnits.compact
+    div.novaAppLeftPanelUnit(ng-repeat="unit in headUnits")
+div.panelUnits
+    div.novaAppLeftPanelUnit(ng-repeat="unit in units")
+//- div.panelContents(ng-transclude="")

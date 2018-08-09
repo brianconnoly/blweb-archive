@@ -1,0 +1,385 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('buffer', function(actionsService, stateManager, operationsService, account, localStorageService) {
+  var bufferService;
+  bufferService = (function() {
+    function bufferService() {
+      var contentPanelable;
+      this.body = $('body');
+      this.showed = false;
+      this.width = 220;
+      this.size = 'mini';
+      this.buffer = [
+        {
+          color: 'rgba(139,179,83,0.5)',
+          items: [],
+          type: 'rightPanel'
+        }
+      ];
+      this.byType = {};
+      this.currentPocket = null;
+      this.actions = [];
+      this.lowerActions = [];
+      this.activeTypes = [];
+      contentPanelable = 'content/comb/post/schedule/task/team/user';
+      true;
+    }
+
+    bufferService.prototype.recountTypes = function() {
+      var buffer, j, len, ref, ref1, ref2, was;
+      return true;
+      was = this.activeTypes.length;
+      this.activeTypes.length = 0;
+      ref = this.buffer;
+      for (j = 0, len = ref.length; j < len; j++) {
+        buffer = ref[j];
+        if (buffer.items.length > 0) {
+          this.activeTypes.push(buffer);
+        }
+      }
+      if (((ref1 = this.currentPocket) != null ? (ref2 = ref1.items) != null ? ref2.length : void 0 : void 0) === 0) {
+        this.currentPocket = null;
+        if (this.activeTypes.length > 0) {
+          this.currentPocket = this.activeTypes[0];
+        }
+      }
+      if (was !== this.activeTypes.length) {
+        this.recountHead();
+      }
+      this.prepareActions();
+      return true;
+    };
+
+    bufferService.prototype.setPocket = function(pocket) {
+      if (this.currentPocket === pocket) {
+        return;
+      }
+      this.currentPocket = pocket;
+      this.recountHead();
+      this.recountSize();
+      this.prepareActions();
+      return true;
+    };
+
+    bufferService.prototype.addPocket = function() {
+      this.currentPocket = {
+        items: [],
+        type: 'rightPanel'
+      };
+      this.buffer.push(this.currentPocket);
+      this.recountHead();
+      this.saveState();
+      return this.currentPocket;
+    };
+
+    bufferService.prototype.closePocket = function(pocket) {
+      var index;
+      if (this.buffer.length === 1) {
+        if (this.buffer[0].items.length === 0) {
+          this.showed = false;
+        } else {
+          this.buffer[0].items.length = 0;
+        }
+      } else {
+        index = this.buffer.indexOf(pocket);
+        removeElementFromArray(pocket, this.buffer);
+        if (index > this.buffer.length - 1) {
+          index = this.buffer.length - 1;
+        }
+        this.currentPocket = this.buffer[index];
+      }
+      this.recountHead();
+      this.recountSize();
+      this.prepareActions();
+      return this.saveState();
+    };
+
+    bufferService.prototype.addItem = function(item) {
+      return this.addItems([item]);
+    };
+
+    bufferService.prototype.addItems = function(items, buffer) {
+      var item, j, len, ref, ref1, ref2;
+      if (buffer == null) {
+        if (!this.showed && this.buffer.length < 5 && !(this.buffer.length === 1 && ((ref = this.buffer[0]) != null ? (ref1 = ref.items) != null ? ref1.length : void 0 : void 0) === 0)) {
+          this.currentPocket = {
+            color: 'rgba(139,179,83,0.5)',
+            items: [],
+            type: 'rightPanel'
+          };
+          this.buffer.push(this.currentPocket);
+          this.recountHead();
+        }
+        if (this.buffer.length === 0) {
+          this.currentPocket = {
+            color: 'rgba(139,179,83,0.5)',
+            items: [],
+            type: 'rightPanel'
+          };
+          this.buffer.push(this.currentPocket);
+          this.recountHead();
+        }
+        if (this.currentPocket == null) {
+          this.currentPocket = this.buffer[this.buffer.length - 1];
+        }
+      } else {
+        this.currentPocket = buffer;
+      }
+      this.showed = true;
+      for (j = 0, len = items.length; j < len; j++) {
+        item = items[j];
+        if (item.type === 'schedule') {
+          item = operationsService.get('post', item.postId);
+        }
+        if (indexOf.call(this.currentPocket.items, item) < 0) {
+          this.currentPocket.items.push(item);
+        }
+      }
+      this.recountSize();
+      this.saveState();
+      if (((ref2 = this.currentPocket) != null ? ref2.items : void 0) != null) {
+        this.prepareActions(this.currentPocket.items);
+      }
+      this.recountTypes();
+      return true;
+    };
+
+    bufferService.prototype.removeItem = function(item, current) {
+      if (current == null) {
+        current = false;
+      }
+      return this.removeItems([item], current);
+    };
+
+    bufferService.prototype.removeItems = function(items, current) {
+      var buffer, item, j, k, len, len1, ref;
+      for (j = 0, len = items.length; j < len; j++) {
+        item = items[j];
+        if (current) {
+          removeElementFromArray(item, this.currentPocket.items);
+        } else {
+          ref = this.buffer;
+          for (k = 0, len1 = ref.length; k < len1; k++) {
+            buffer = ref[k];
+            removeElementFromArray(item, buffer.items);
+          }
+        }
+      }
+      this.recountSize();
+      this.saveState();
+      this.recountTypes();
+      return true;
+    };
+
+    bufferService.prototype.clearCurrentPocket = function() {
+      var ref, ref1, ref2, ref3;
+      if (!((ref = this.currentPocket) != null ? (ref1 = ref.items) != null ? ref1.length : void 0 : void 0) > 0) {
+        if (this.activeTypes.length === 0) {
+          this.showed = false;
+        }
+      }
+      if ((ref2 = this.currentPocket) != null) {
+        if ((ref3 = ref2.items) != null) {
+          ref3.length = 0;
+        }
+      }
+      this.saveState();
+      this.recountTypes();
+      return true;
+    };
+
+    bufferService.prototype.prepareActions = function() {
+      var item, j, len, list, maxActions, ref;
+      return true;
+      this.actions.length = 0;
+      this.lowerActions.length = 0;
+      if (((ref = this.currentPocket) != null ? ref.items : void 0) == null) {
+        return;
+      }
+      list = actionsService.getActions({
+        source: this.currentPocket.items,
+        target: stateManager.getContext(),
+        actionsType: 'rightPanel'
+      });
+      maxActions = ($('body').height() * 0.2) / 34 | 0;
+      if (maxActions < 5) {
+        maxActions = 5;
+      }
+      list.sort(function(a, b) {
+        if (a.priority > b.priority) {
+          return -1;
+        }
+        if (a.priority < b.priority) {
+          return 1;
+        }
+        return 0;
+      });
+      for (j = 0, len = list.length; j < len; j++) {
+        item = list[j];
+        if (list.length > maxActions + 1 && this.actions.length >= maxActions) {
+          this.lowerActions.unshift(item);
+        } else {
+          this.actions.unshift(item);
+        }
+      }
+      this.actions.push({
+        phrase: 'rightpanel_action_clearpanel',
+        leaveItems: true,
+        action: (function(_this) {
+          return function(e) {
+            return _this.clearCurrentPocket();
+          };
+        })(this)
+      });
+      return true;
+    };
+
+    bufferService.prototype.saveState = function() {
+      var arr, buffer, data, item, j, k, len, len1, ref, ref1, ref2, str, toSave;
+      if ((account != null ? (ref = account.user) != null ? ref.id : void 0 : void 0) == null) {
+        return;
+      }
+      toSave = [];
+      ref1 = this.buffer;
+      for (j = 0, len = ref1.length; j < len; j++) {
+        buffer = ref1[j];
+        arr = [];
+        toSave.push(arr);
+        ref2 = buffer.items;
+        for (k = 0, len1 = ref2.length; k < len1; k++) {
+          item = ref2[k];
+          arr.push({
+            id: item.id,
+            type: item.type
+          });
+        }
+      }
+      data = {
+        items: toSave,
+        current: this.buffer.indexOf(this.currentPocket),
+        showed: this.showed,
+        width: this.width
+      };
+      str = JSON.stringify(data);
+      return localStorageService.add('buffer_' + account.user.id, str);
+    };
+
+    bufferService.prototype.readState = function() {
+      var buf, data, item, itemData, items, j, k, len, len1, ref, ref1, str;
+      if ((account != null ? (ref = account.user) != null ? ref.id : void 0 : void 0) == null) {
+        return;
+      }
+      str = localStorageService.get('buffer_' + account.user.id);
+      if ((str != null ? str.length : void 0) > 0) {
+        data = JSON.parse(str);
+        this.showed = data.showed;
+        this.width = data.width;
+        this.buffer.length = 0;
+        ref1 = data.items;
+        for (j = 0, len = ref1.length; j < len; j++) {
+          buf = ref1[j];
+          items = [];
+          for (k = 0, len1 = buf.length; k < len1; k++) {
+            itemData = buf[k];
+            item = operationsService.get(itemData.type, itemData.id);
+            if (indexOf.call(items, item) < 0) {
+              items.push(item);
+            }
+          }
+          this.buffer.push({
+            items: items,
+            type: 'rightPanel'
+          });
+        }
+        this.currentPocket = this.buffer[data.current];
+        this.recountSize();
+        this.recountHead();
+      }
+      return true;
+    };
+
+    bufferService.prototype.recountHead = function() {
+      var activeType, activeWidth, i, j, k, len, len1, maxWid, ref, ref1, results, results1, wid;
+      maxWid = this.width;
+      if (this.buffer.length < 5) {
+        maxWid -= 40;
+      }
+      activeWidth = 65;
+      switch (this.width) {
+        case 112:
+          activeWidth = 30;
+          break;
+        case 220:
+          activeWidth = 80;
+          break;
+        case 324:
+          activeWidth = 124;
+          break;
+        case 430:
+          activeWidth = 150;
+      }
+      if (activeWidth * this.buffer.length > maxWid) {
+        wid = (maxWid - activeWidth) / (this.buffer.length - 1) | 0;
+        ref = this.buffer;
+        results = [];
+        for (i = j = 0, len = ref.length; j < len; i = ++j) {
+          activeType = ref[i];
+          if (activeType === this.currentPocket) {
+            activeType.width = activeWidth;
+            results.push(activeType.text = '#000');
+          } else {
+            activeType.width = wid;
+            results.push(activeType.text = 'transparent');
+          }
+        }
+        return results;
+      } else {
+        wid = maxWid / this.buffer.length | 0;
+        ref1 = this.buffer;
+        results1 = [];
+        for (i = k = 0, len1 = ref1.length; k < len1; i = ++k) {
+          activeType = ref1[i];
+          if (i === this.buffer.length - 1) {
+            activeType.width = maxWid - (wid * i);
+            results1.push(activeType.text = '#000');
+          } else {
+            activeType.width = wid;
+            results1.push(activeType.text = '#000');
+          }
+        }
+        return results1;
+      }
+    };
+
+    bufferService.prototype.recountSize = function() {
+      var hei, max, ref, ref1, ref2;
+      if ((ref = this.width) === 112 || ref === 324) {
+        return this.size = 'mini';
+      } else {
+        hei = this.body.height();
+        max = Math.ceil(hei / 140) * (this.width === 430 ? 2 : 1);
+        if (((ref1 = this.currentPocket) != null ? (ref2 = ref1.items) != null ? ref2.length : void 0 : void 0) > max) {
+          return this.size = 'mini';
+        } else {
+          return this.size = 'full';
+        }
+      }
+    };
+
+    bufferService.prototype.setWidth = function(width) {
+      this.width = width;
+      this.recountSize();
+      this.recountHead();
+      return this.saveState();
+    };
+
+    bufferService.prototype.toggleShow = function() {
+      this.showed = !this.showed;
+      return this.saveState();
+    };
+
+    return bufferService;
+
+  })();
+  return new bufferService();
+});

@@ -1,0 +1,292 @@
+.appContainer.lotPreview {
+  background: #fff;
+  margin: 0;
+  width: 100%;
+  position: relative;
+}
+.appContainer.lotPreview .ownerLink {
+  cursor: pointer;
+}
+.appContainer.lotPreview .body {
+  top: 0;
+  margin-top: 30px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+}
+.appContainer.lotPreview .body .leftPart {
+  width: 215px;
+  float: left;
+  margin-top: 20px;
+}
+.appContainer.lotPreview .body .leftPart .bigPreview {
+  padding: 0;
+  margin-left: 48px;
+  overflow: hidden;
+}
+.appContainer.lotPreview .body .leftPart .bigPreview .previewContainer {
+  margin: 0;
+}
+.appContainer.lotPreview .body .leftPart .bigPreview .previewContainer .itemPreview.post {
+  border: none !important;
+  margin: 1px;
+}
+.appContainer.lotPreview .body .leftPart .doRepostButton {
+  margin-left: 48px;
+  margin-top: 15px;
+  margin-bottom: 50px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #494949;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  font-size: 11px;
+  color: #494949;
+  cursor: pointer;
+}
+.appContainer.lotPreview .body .leftPart .doRepostButton span {
+  cursor: pointer;
+}
+.appContainer.lotPreview .body .rightPart {
+  float: left;
+  color: #494949;
+  width: 290px;
+  margin-top: 20px;
+  margin-left: 40px;
+}
+.appContainer.lotPreview .body .rightPart .blockTitle {
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: bolder;
+  margin-bottom: 15px;
+}
+.appContainer.lotPreview .body .rightPart .list {
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+.appContainer.lotPreview .body .rightPart .list .line {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 19px;
+}
+.appContainer.lotPreview .body .rightPart .list .line .title {
+  color: #999;
+  width: 120px;
+  float: left;
+}
+.appContainer.lotPreview .body .rightPart .list .line .value {
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.appContainer.lotPreview .body .rightPart .smallText {
+  font-size: 11px;
+  line-height: 12px;
+  margin-bottom: 40px;
+}
+.appContainer.lotPreview .appWindow {
+  position: absolute;
+  top: 80px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+}
+.appContainer.lotPreview .info-block {
+  position: fixed;
+  top: 30px;
+  height: $H;
+  left: 8px;
+  right: 20px;
+  color: #fff;
+  background: rgba(0,0,0,0.8);
+}
+.appContainer.lotPreview .info-block .lotTitle {
+  font-size: 14px;
+  font-weight: bolder;
+  margin: 10px 0px 8px;
+}
+.appContainer.lotPreview .info-block .counters {
+  width: 100%;
+}
+.appContainer.lotPreview .info-block .counters .right {
+  float: right;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+.appContainer.lotPreview .info-block .counters .left {
+  float: left;
+  margin-left: 10px;
+}
+.appContainer.lotPreview .info-block .counters .param {
+  overflow: hidden;
+  display: block;
+  margin-bottom: 5px;
+}
+.appContainer.lotPreview .info-block .counters .param .title {
+  float: left;
+  margin-right: 10px;
+}
+.appContainer.lotPreview .info-block .counters .param .value {
+  float: left;
+}
+.appContainer.lotPreview .repost-block {
+  position: fixed;
+  top: 130px;
+  left: 8px;
+  right: 20px;
+  height: $H;
+  z-index: 1;
+  color: #fff;
+  background: rgba(0,0,0,0.8);
+}
+.appContainer.lotPreview .repost-block .R {
+  position: absolute;
+  top: 0;
+  left: -50px;
+  right: auto;
+  bottom: auto;
+  line-height: 78px;
+  font-size: 36px;
+  font-weight: bolder;
+}
+.appContainer.lotPreview .repost-block .icon {
+  float: left;
+  width: $H;
+  height: $H;
+  -webkit-background-size: 100%;
+  -moz-background-size: 100%;
+  background-size: 100%;
+  overflow: hidden;
+  cursor: pointer;
+}
+.appContainer.lotPreview .repost-block .icon .sn {
+  height: 100%;
+  width: 100%;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  line-height: $H;
+  font-size: 30px;
+  cursor: pointer;
+  -webkit-transition: all ease 0.2s;
+  -moz-transition: all ease 0.2s;
+  -o-transition: all ease 0.2s;
+  -ms-transition: all ease 0.2s;
+  transition: all ease 0.2s;
+  -webkit-transform: translateX(-72px);
+  -moz-transform: translateX(-72px);
+  -o-transform: translateX(-72px);
+  -ms-transform: translateX(-72px);
+  transform: translateX(-72px);
+}
+.appContainer.lotPreview .repost-block .icon:hover .sn {
+  -webkit-transform: translateX(0);
+  -moz-transform: translateX(0);
+  -o-transform: translateX(0);
+  -ms-transform: translateX(0);
+  transform: translateX(0);
+  opacity: 0.8;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+  filter: alpha(opacity=80);
+}
+.appContainer.lotPreview .repost-block div.info {
+  position: absolute;
+  top: 0;
+  left: $H;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding-left: 10px;
+  font-weight: bolder;
+  white-space: nowrap;
+}
+.appContainer.lotPreview .repost-block div.info .time {
+  line-height: 50px;
+  font-size: 32px;
+}
+.appContainer.lotPreview .repost-block div.info .name {
+  line-height: 17px;
+  font-size: 24px;
+}
+.appContainer.lotPreview .repost-block .makeFavourite {
+  position: absolute;
+  top: 12px;
+  left: auto;
+  right: 10px;
+  bottom: auto;
+  cursor: pointer;
+}
+.appContainer.lotPreview .repost-block .makeFavourite.active {
+  color: #fccb2b;
+}
+.appContainer.lotPreview .repost-block .makeFavourite.active:hover {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.lotPreview .repost-block .makeFavourite:hover {
+  color: #f9df9d;
+  opacity: 0.7;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+  filter: alpha(opacity=70);
+}
+.appContainer.lotPreview .window {
+  position: absolute;
+  top: 130px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+}
+.appContainer.lotPreview .window .fullText {
+  display: block;
+  padding: 10px 20px 20px;
+  margin: 8px 20px 8px 8px;
+  overflow: hidden;
+  background: #eee;
+}
+.appContainer.lotPreview .window .fullText.short {
+  max-height: 294px;
+}
+.appContainer.lotPreview .window .fullText p {
+  margin-top: 10px;
+  line-height: 1.6em;
+}
+.appContainer.lotPreview .window .bigPreview {
+  display: none;
+  height: auto;
+  margin: 8px 20px 0 8px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.appContainer.lotPreview .window .bigPreview .item {
+  margin: 0 auto;
+  max-width: 100%;
+}
+.appContainer.lotPreview .window ul.items li.item {
+  margin: 8px;
+}
+.appContainer.lotPreview .window.repost {
+  top: 130px;
+  padding-top: 100px;
+}
+.appContainer.lotPreview .window.bigPreview .bigPreview {
+  display: block;
+}
+.appContainer.lotPreview .window.noText .fullText {
+  display: none;
+}
+.appContainer.lotPreview .window.noImage .images {
+  display: none;
+}
+.appContainer.lotPreview .window .contentPreview.audio {
+  background: #b1d381;
+}

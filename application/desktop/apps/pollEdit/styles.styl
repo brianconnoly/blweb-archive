@@ -1,0 +1,335 @@
+.appContainer.pollEdit
+    
+    background: #fff
+    
+    div.bl-checkbox
+        width 25px
+        height 13px
+        background: #494949
+        border 1px solid #494949
+
+        &.checked
+            .tumbler
+                background: #fff
+                right 0 !important
+                
+            .button
+                background: #494949
+        
+        .tumbler
+            background: #494949
+            right 12px
+            top 0
+            bottom 0
+            left 0
+            
+        .button
+            top 1px
+            right 1px
+            
+            width 11px
+            height 11px
+    
+    .remove
+        background: url(/resources/images/desktop/removeCross.svg) center center no-repeat
+        position: absolute
+        right 5px
+        top 5px
+        
+        width 16px
+        height 16px
+        
+        opacity 0
+        transition all 0.2s ease
+        cursor pointer
+    
+    .topBar
+        input.title
+            set-placeholder-style color #ccc
+
+    .body
+        box-shadow none
+        
+        .editableDiv
+            white-space pre-line
+            
+            &:focus
+                outline none
+                
+        .pollValue
+            min-height 50px
+            padding 15px
+            opacity 1
+            
+            &.placeholder
+                opacity 0.5
+                
+        .schedules
+            overflow hidden
+            padding 10px 5px 5px 10px
+            
+            .schedule
+                width 60px
+                height 60px
+                border 1px solid #dadada
+                border-radius 3px
+                
+                float: left
+                
+                margin: 5px 9px 10px 5px
+                cursor: pointer
+                
+                *
+                    cursor: pointer
+
+                &.total
+                    line-height: 26px
+                    text-align: center
+                    color: #dadada
+                    
+                    .caption
+                        margin-top 3px
+
+                    &.active
+                        color: #454545
+                
+                &.active
+                    cursor: default
+                    box-shadow 0 0 0 3px #fcee21
+                    *
+                        cursor: default
+                    .total
+                        background: rgba(255,255,255,0)
+                    .overlay
+                        opacity 1
+                
+                .total
+                    position: absolute
+                    top 0
+                    right 0
+                    
+                    line-height 20px
+                    font-size 14px
+                    font-weight: bolder
+                    
+                    padding: 0 5px
+
+                    background: rgba(255,255,255,0.7)
+                    color: #000
+                    
+                    transition background 0.2s ease
+                    
+                .overlay
+                    position: absolute
+                    top 0
+                    left 0
+                    right 0
+                    bottom 0
+                    
+                    background: rgba(255,255,255,0.7)
+                    opacity 0
+                    
+                    transition opacity 0.2s ease
+                    
+                    .timeDate
+                        position: absolute
+                        bottom 3px
+                        right 3px
+                        text-align: right
+                        font-size 13px
+                        
+                        .time
+                            font-weight: bolder                    
+                    
+                
+        .answers
+            padding: 0 15px
+            
+            margin-bottom: 10px
+            
+            &.results
+                .answer .value
+                    padding-right: 40px
+            
+            .answer
+                overflow: hidden
+                
+                &.new
+                    .dot, .value
+                        opacity 0.5
+                        
+                &:hover
+                    .remove
+                        opacity 1
+                
+                .dot
+                    position: absolute
+                    
+                    top 11px
+                    left 3px
+                    
+                    width 8px
+                    height 8px
+                    
+                    border-radius 5px
+
+                    background: #454545
+                    
+                    transition opacity 0.2s ease
+                    
+                    cursor: pointer
+                    z-index 10
+                    
+                    // margin 10px 10px 0 2px
+                        
+                .hidden
+                    opacity 0.3
+
+                .value
+                    text-indent: 20px
+                    
+                    min-width 30px
+                    line-height 20px
+                    margin-top 5px
+                    
+                    transition opacity 0.2s ease
+                    
+                    &:focus
+                        opacity 1
+                        
+                .remove
+                    position: absolute
+                    top 5px
+                    right 5px
+                    
+                .totalPercent
+                    position: absolute
+                    top 5px
+                    right 5px
+                    
+                .totalBar
+                    height 4px
+                    
+                    margin-top 5px
+                    margin-bottom 7px
+                    
+                    transition all 0.2s ease
+                    
+                .button
+                    margin-top 5px
+                    cursor: pointer
+                    
+        .pollGraph
+            background: #fff
+            overflow: hidden
+            
+            .helper
+                position: absolute
+                
+                background: #efefef
+                box-shadow 0px 0px 2px 0px #454545
+                
+                pointer-events none
+                opacity 0
+                
+                transition all 0.2s ease
+                
+                padding: 4px
+                border-radius 5px
+                
+                text-align: right
+                
+                &.visible
+                    opacity 1
+                
+                .points
+                    font-weight: bolder  
+                    font-size 13px
+                    line-height: 16px
+                    margin 0 0 3px 0
+                    
+                .time
+                    font-size 10px                    
+                    
+                .icon
+                    width 16px
+                    height 16px
+                    display: inline-block
+                    vertical-align: middle
+                    
+                    top -2px
+                    
+                    margin-right 2px
+                    
+                    &.likes
+                        background: url(/resources/images/desktop/stats/likes.svg) center center no-repeat
+
+                    &.reposts
+                        background: url(/resources/images/desktop/stats/reposts.svg) center center no-repeat
+
+                    &.comments
+                        background: url(/resources/images/desktop/stats/comments.svg) center center no-repeat
+                            
+                    &.commLikes
+                        background: url(/resources/images/desktop/stats/commentsLikes.svg) center center no-repeat  
+
+            .values
+                position: absolute
+                top 0
+                left 0
+                
+                .value
+                    position: absolute
+                    
+                    width 4px
+                    height 4px
+                    
+                    margin-top: -5px
+                    margin-left: -5px
+
+                    border-radius 5px
+                    border 3px solid
+                    
+                    background: #fff
+                    
+                    // box-shadow 0px 0px 2px 0px rgba(0,0,0,1)
+
+                    transition all 0.2s ease
+                    cursor: pointer
+                    
+                    &:hover
+                        // width 8px
+                        // height 8px
+                        
+                        // border-radius 5px
+                        
+                        // margin-top: -5px
+                        // margin-left: -5px
+                            
+                        transform scale(1.6)
+            
+            canvas
+                
+                width 400px
+                height 230px
+    
+
+    .anonymous
+        position: absolute
+        bottom 0
+        left 0
+        right 0
+        height 40px
+        background: rgba(255,255,255,0.9)
+        border-top 1px solid rgba(230,230,230,0.9)
+        
+        line-height: 40px
+        
+        padding-left: 15px
+        
+        .bl-checkbox
+            margin-right 10px
+            
+        span
+            line-height: 40px
+                    

@@ -1,0 +1,6 @@
+div.switcher.zoomSwitcher
+    div.switch
+        div.button.min(ng-class="{'active':session.zoom == 'min'}", ng-click="session.zoom = 'min'")
+        dib.button.mid(ng-class="{'active':session.zoom == 'mid'}", ng-click="session.zoom = 'mid'")
+        div.button.max(ng-class="{'active':session.zoom == 'max'}", ng-click="session.zoom = 'max'")
+    div.settingsText(translate="'generalApp_zoom'")

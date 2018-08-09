@@ -1,0 +1,403 @@
+.postEditor {
+  margin: 10px;
+  border: 1px solid #f2f2f2;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  float: left;
+  width: 308px;
+}
+.postEditor .sendNowButton {
+  top: 58px;
+}
+.postEditor .emptyPost {
+  width: 100%;
+  text-align: center;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 15px 50px;
+  color: #ccc;
+  font-size: 12px;
+}
+.postEditor.warn {
+  border-color: #c1272d;
+}
+.postEditor .actionIcon {
+  float: left;
+  width: 16px;
+  height: 16px;
+  margin: 7px;
+  cursor: pointer;
+}
+.postEditor .actionIcon.upload {
+  background: url("/resources/images/desktop/actions/black/header-button-upload.svg") center center no-repeat;
+}
+.postEditor .actionIcon.deletePost {
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+}
+.postEditor .actionIcon.moreActions {
+  background: url("/resources/images/desktop/actions/black/header-button-settings.svg") center center no-repeat;
+}
+.postEditor .actionIcon.newText {
+  background: url("/resources/images/desktop/actions/black/header-button-newText.svg") center center no-repeat;
+}
+.postEditor .actionIcon.uploadHere {
+  background: url("/resources/images/desktop/actions/black/header-button-upload.svg") center center no-repeat;
+}
+.postEditor .actionIcon.moveUp {
+  background: url("/resources/images/desktop/actions/black/header-button-move-up.svg") center center no-repeat;
+}
+.postEditor .actionIcon.moveDown {
+  background: url("/resources/images/desktop/actions/black/header-button-move-down.svg") center center no-repeat;
+}
+.postEditor .postSettings {
+  height: 30px;
+  border-bottom: 1px solid #f2f2f2;
+}
+.postEditor .postSettings .needWorkMark {
+  position: relative;
+  float: right;
+  margin-left: 0;
+  bottom: 0;
+  margin-right: 4px;
+  -webkit-border-radius: 9px;
+  border-radius: 9px;
+  width: 17px;
+  height: 17px;
+  margin-top: 6px;
+}
+.postEditor .postSettings .postActions {
+  float: right;
+}
+.postEditor .postSettings .postActions .actionIcon {
+  float: right;
+  margin-left: 0;
+}
+.postEditor .postSettings .postNetwork {
+  float: left;
+  height: 30px;
+  width: 56px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-right: 20px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 30px;
+  background: url("/resources/images/desktop/white/selector.svg") 37px center no-repeat;
+  background-color: #f2f2f2;
+  color: #fff;
+  cursor: pointer;
+}
+.postEditor .postSettings .postShortcuts {
+  float: left;
+}
+.postEditor .postSettings .postShortcuts .actionIcon {
+  margin-right: 0;
+}
+.postEditor .postContent .contentComment {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20%;
+  -webkit-transition: height 0.2s ease;
+  -moz-transition: height 0.2s ease;
+  -o-transition: height 0.2s ease;
+  -ms-transition: height 0.2s ease;
+  transition: height 0.2s ease;
+  min-height: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 13px;
+  background: rgba(255,255,255,0.9);
+  color: #494949;
+}
+.postEditor .postContent .contentComment:hover {
+  height: 60%;
+}
+.postEditor .postContent .removeFromPost {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 16px;
+  height: 16px;
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+.postEditor .postContent .previewContainer.hidden,
+.postEditor .postContent .previewContainer.sorting-hidden {
+  display: none;
+}
+.postEditor .postContent .previewContainer.placeholder {
+  background: #f2f2f2;
+}
+.postEditor .postContent .previewContainer:hover .removeFromPost {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.postEditor .postContent .typeContainer {
+  overflow: hidden;
+  padding: 0px 2px;
+}
+.postEditor .postContent .typeContainer .previewContainer {
+  margin: 3px;
+}
+.postEditor .postContent .typeContainer:first-child {
+  margin-top: 10px;
+}
+.postEditor .postContent .typeContainer:first-child.fullSized {
+  margin-top: 0;
+}
+.postEditor .postContent .typeContainer:last-child {
+  margin-bottom: 10px;
+}
+.postEditor .postContent .typeContainer:last-child.fullSized {
+  margin-bottom: 0;
+}
+.postEditor .postContent .typeContainer.fullSized {
+  padding: 0;
+  margin: 10px 0;
+}
+.postEditor .postContent .typeContainer.fullSized .previewContainer {
+  margin: 0;
+  width: 100%;
+  height: 210px;
+}
+.postEditor .postContent .typeContainer.fullSized .selected {
+  outline-offset: -4px;
+}
+.postEditor .postContent .typeContainer.text:first-child {
+  margin-top: 0;
+}
+.postEditor .postContent .typeContainer.text .previewContainer {
+  width: 298px;
+  height: auto;
+  float: none;
+}
+.postEditor .postContent .typeContainer.text .previewContainer .itemPreview {
+  position: relative;
+  display: block;
+  border: none;
+  padding: 0;
+}
+.postEditor .postContent .typeContainer.text .previewContainer .itemPreview .text-preview {
+  position: relative;
+  height: auto;
+  font-size: 11px;
+  line-height: 12px;
+  padding: 4px 2px;
+}
+.postEditor .postContent .typeContainer.text .previewContainer .itemPreview .name {
+  display: none !important;
+}
+.postEditor .postSchedules .postSchedule {
+  overflow: hidden;
+  border-top: 1px solid #f2f2f2;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.postEditor .postSchedules .postSchedule:first-child {
+  background: #f2f2f2;
+}
+.postEditor .postSchedules .postSchedule .postActions {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.postEditor .postSchedules .postSchedule .postActions .actionIcon {
+  margin-left: 0;
+  float: right;
+}
+.postEditor .postSchedules .postSchedule .communityIcon {
+  overflow: hidden;
+  float: left;
+  width: 60px;
+  height: 60px;
+  margin: 12px;
+}
+.postEditor .postSchedules .postSchedule .scheduleDetails {
+  float: left;
+  width: 175px;
+}
+.postEditor .postSchedules .postSchedule .scheduleDetails .title {
+  margin-top: 12px;
+  font-size: 16px;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.postEditor .postSchedules .postSchedule .scheduleDetails .datePicker {
+  font-size: 12px;
+  line-height: 10px;
+  float: left;
+  margin: 12px 0 0 15px;
+}
+.postEditor .postSchedules .postSchedule .scheduleDetails .timePicker {
+  float: left;
+}
+.postEditor .postSchedules .postSchedule .scheduleDetails .timePicker input {
+  color: #494949;
+  background: none;
+  font-size: 42px;
+  height: 42px;
+  width: 45px;
+  line-height: 42px;
+  padding: 0;
+}
+.postEditor .postSchedules .postSchedule .scheduleDetails .timePicker span {
+  color: #494949;
+  font-size: 42px;
+  margin: 0 1px 0 3px;
+}
+.postEditor .postSchedules .postSchedule .statsBlock {
+  margin-top: 85px;
+  overflow: hidden;
+  text-align: center;
+  background: rgba(255,255,255,0.7);
+  cursor: pointer;
+}
+.postEditor .postSchedules .postSchedule .statsBlock .statsLabel {
+  background: none;
+  display: inline-block;
+  margin: 0 5px;
+  cursor: pointer;
+}
+.postEditor .postSchedules .postSchedule .statsBlock .statsLabel.inactive {
+  opacity: 0.6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: alpha(opacity=60);
+}
+.postEditor .postSchedules .postSchedule .statsBlock .statsLabel .statsIcon {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+}
+.postEditor .postSchedules .postSchedule .statsBlock .statsLabel .statsValue {
+  font-size: 14px;
+  line-height: 25px;
+  font-weight: bolder;
+  padding: 0 6px 0 2px;
+  cursor: pointer;
+}
+.postEditor .postSchedules .postSchedule .statsGraph {
+  background: #fff;
+  overflow: hidden;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper {
+  position: absolute;
+  background: #efefef;
+  -webkit-box-shadow: 0px 0px 2px 0px #454545;
+  box-shadow: 0px 0px 2px 0px #454545;
+  pointer-events: none;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 4px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: right;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper.visible {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .points {
+  font-weight: bolder;
+  font-size: 13px;
+  line-height: 16px;
+  margin: 0 0 3px 0;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .time {
+  font-size: 10px;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  top: -2px;
+  margin-right: 2px;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .icon.likes {
+  background: url("/resources/images/desktop/stats/likes.svg") center center no-repeat;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .icon.reposts {
+  background: url("/resources/images/desktop/stats/reposts.svg") center center no-repeat;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .icon.comments {
+  background: url("/resources/images/desktop/stats/comments.svg") center center no-repeat;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .helper .icon.commLikes {
+  background: url("/resources/images/desktop/stats/commentsLikes.svg") center center no-repeat;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .values {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .values .value {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin-top: -5px;
+  margin-left: -5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 3px solid;
+  background: #fff;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .values .value:hover {
+  -webkit-transform: scale(1.6);
+  -moz-transform: scale(1.6);
+  -o-transform: scale(1.6);
+  -ms-transform: scale(1.6);
+  transform: scale(1.6);
+}
+.postEditor .postSchedules .postSchedule .statsGraph canvas {
+  width: 308px;
+  height: 160px;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .hideButton {
+  font-size: 12px;
+  cursor: pointer;
+  padding-bottom: 15px;
+  float: right;
+  margin-right: 28px;
+  margin-top: 10px;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .graphSwitcher {
+  font-size: 12px;
+  cursor: pointer;
+  padding-bottom: 15px;
+  float: left;
+  margin-left: 28px;
+  margin-top: 10px;
+}
+.postEditor .postSchedules .postSchedule .statsGraph .graphSwitcher .value {
+  cursor: pointer;
+}

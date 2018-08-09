@@ -1,0 +1,93 @@
+buzzlike.directive('dayStat', function(statsCutService, desktopService) {
+  return {
+    restrict: 'C',
+    template: tC['/desktop/apps/timeline/dayStat'],
+    link: function(scope, element, attrs) {
+      var currentStat, currentType, statTypes, stats, updateStats, updateView;
+      if (scope.$parent.interval.from < Date.now()) {
+        element.addClass('completed');
+      }
+      scope.hasStats = false;
+      scope.canScroll = false;
+      scope.period = "";
+      scope.value = 0;
+      scope.down = false;
+      statTypes = [];
+      stats = [];
+      currentType = 0;
+      currentStat = null;
+      updateStats = function() {
+        var k, ref, v;
+        statTypes.length = 0;
+        stats.length = 0;
+        scope.hasStats = false;
+        ref = scope.statsCut;
+        for (k in ref) {
+          v = ref[k];
+          statTypes.push(k);
+          stats.push(v);
+          scope.hasStats = true;
+        }
+        if (statTypes.length > 1) {
+          scope.canScroll = true;
+        }
+        if (scope.hasStats) {
+          return updateView();
+        }
+      };
+      updateView = function() {
+        var newA, oldA, ref;
+        currentStat = scope.statsCut[statTypes[currentType]];
+        scope.period = statTypes[currentType];
+        newA = ((ref = currentStat.stats) != null ? ref.activity : void 0) || 0;
+        oldA = currentStat.delta.activity || 0;
+        if (newA === oldA) {
+          scope.value = 0;
+          scope.down = false;
+        } else if (oldA > newA) {
+          scope.value = (oldA - newA) / oldA;
+          scope.down = true;
+        } else {
+          scope.value = (newA - oldA) / newA;
+          scope.down = false;
+        }
+        scope.value *= 100;
+        return scope.value = Math.abs(scope.value | 0);
+      };
+      scope.left = function(e) {
+        currentType--;
+        if (currentType < 0) {
+          currentType = statTypes.length - 1;
+        }
+        updateView();
+        return e.stopPropagation();
+      };
+      scope.right = function(e) {
+        currentType++;
+        if (currentType > statTypes.length - 1) {
+          currentType = 0;
+        }
+        updateView();
+        return e.stopPropagation();
+      };
+      statsCutService.get({
+        timestamp: scope.$parent.interval.from,
+        communityId: scope.$parent.cId
+      }, function(res) {
+        scope.statsCut = res;
+        if (scope.statsCut != null) {
+          updateStats();
+        }
+        return scope.$watch('statsCut', function() {
+          return updateStats();
+        }, true);
+      });
+      scope.launchGraph = function(e) {
+        return desktopService.launchApp('graph', {
+          item: currentStat
+        });
+      };
+      return true;
+    }
+  };
+});

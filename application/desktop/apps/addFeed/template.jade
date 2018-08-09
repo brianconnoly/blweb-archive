@@ -1,0 +1,49 @@
+div.dragHandler.topBar 
+    process-bar
+    div.appControls
+    div.title(translate="'addFeedApp_title'")
+    
+    div.switcherPanel
+        div.switcher
+            div.iconButton
+                img(src="/resources/images/desktop/white/sortby.svg", ng-click="showSortMenu($event)")
+            div.settingsText(translate="'generalApp_sortType'")
+
+    div.actionsPanel
+        div.action(ng-class="{'disabled':multiselectState.focusedHash.length == 0}")
+            div.icon
+                img.flushMousedown(src="/resources/images/desktop/white/header-button-addTimeline.svg", ng-click="doAdd()")
+            div.flushMousedown.settingsText(translate="'addFeedApp_create_group'", ng-click="doAdd()")
+
+        div.action
+            div.icon
+                img(src="/resources/images/desktop/actions/white/header-button-refresh.svg", ng-click="update()")
+            div.settingsText(translate="'addFeedApp_reload_list'", ng-click="update()")
+
+        div.action
+            div.icon.input
+                input(ng-model="searchcomm", placeholder="{{translate('addFeedApp_search_placeholder')}}")
+            div.settingsText(translate="'addFeedApp_search_action'")
+
+div.body.zoom_mid(ng-class="{'mailRu':isMailRu}")
+    div.leftPanel.itemsContainer(antiscroll)
+        div.panelItem(ng-repeat="acc in user.accounts", ng-class="{'active': $index == currentAccNumber}", ng-click="selectAccount($index)")
+            div.previewContainer.account
+                img.picPreload(src="{{acc.photo}}")
+                div.name {{acc.name}}
+                div.socialWrapperAccountSocial(ng-style="{background: networksData[acc.socialNetwork].background}") {{acc.socialNetwork.toUpperCase()}}
+
+    div.mailRuCommunityAdder
+        div.text.introPhrase(translate="'addFeedApp_mailRu_intro'")
+        div.text.stepOne(translate="'addFeedApp_mailRu_stepOne'")
+        div.searchInput
+            div.inputContainer
+                input(ng-model="searchMailRuComm", translate="", translate-placeholder="'addFeedApp_mailRu_pasteLink'", ng-keydown="mailRyKeyDown($event)")
+            div.button(translate="'addFeedApp_mailRu_addCommunityAction'", ng-click="addMailRuComm(searchMailRuComm)")
+        div.text.stepTwo(translate="'addFeedApp_mailRu_stepTwo'")
+
+    div.rightContent.itemsContainer.multiselect(antiscroll)
+        div.previewContainer.selectableItem.contextMenu(ng-repeat="id in currentAccount().writableCommunities | filter:commFilter | orderBy:commSort", type="community", ng-dblclick="doAdd()")
+            div.itemPreview(id="id", type="community")
+
+bread-crombs

@@ -1,0 +1,11 @@
+div.novaAppLeftPanelOverview        
+    div.overviewBar
+        div.overviewCover.border03
+            img.picPreload(src="{{user.photo}}")
+        
+        div.overviewText
+            div.mainTitle {{user.firstName}}
+            div.activity {{user.lastName}}
+        
+    div.projectStream.novaStreamIndicator(nova-stream-item="appItem")
+        div.novaStreamIndicatorLastMessage

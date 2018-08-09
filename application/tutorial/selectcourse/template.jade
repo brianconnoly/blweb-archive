@@ -1,0 +1,10 @@
+div.courseList
+    div.courseTitle Помощь Buzzlike
+    div.courseClose(ng-click="hideCourseList()") Закрыть
+    div.courseBlock(antiscroll)
+        div.courseItem(ng-repeat="course in courseList", ng-class="{'courseCur': course.show, 'courseLocked': course.locked}")
+            div.courseRow(ng-click="toggleCourse(course)")
+                div.status(ng-class="{'notpassed':course.canceled, 'passed':course.passed}")
+                div.name {{course.name}}
+            div.courseText(ng-bind-html="course.text", ng-show="course.show")
+            span.openCourse(ng-show="course.show",ng-click="openCourse(course)") Пройти курс

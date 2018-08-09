@@ -1,0 +1,90 @@
+tC['/novaProjectTasks/template.jade'] = "<div translate=\"moduleName\" ng-click=\"activateAll()\" class=\"title\"></div> <div ng-repeat=\"subItem in subItems\" ng-click=\"activateSubItem(subItem)\" ng-class=\"{'active':isActive(subItem)}\" class=\"subItem\"> <div translate=\"subItem.phrase\" class=\"subTitle\"></div> </div>";
+
+buzzlike.directive('novaProjectTasks', function(taskService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectTasks/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.moduleName = 'novaProjectTasks_title';
+      scope.subItems = [
+        {
+          phrase: 'novaProjectTasks_mine',
+          mode: 'mine'
+        }, {
+          phrase: 'novaProjectTasks_current',
+          mode: 'current'
+        }, {
+          phrase: 'novaProjectTasks_backlog',
+          mode: 'backlog'
+        }, {
+          phrase: 'novaProjectTasks_icebox',
+          mode: 'icebox'
+        }
+      ];
+      scope.isActive = function(item) {
+        var ref;
+        return ((ref = scope.flow) != null ? ref.currentCode : void 0) === 'tasks_' + item.mode;
+      };
+      scope.activateSubItem = function(item) {
+        var data;
+        data = {
+          projectId: scope.session.item.id,
+          mode: item.mode
+        };
+        if (scope.session.item.type !== 'project') {
+          data.projectId = scope.appItem.projectId;
+          data.entityId = scope.session.item.id;
+        }
+        scope.flow.addFrame({
+          title: 'tasks_' + item.mode,
+          translateTitle: 'novaTasksFrame_tasks_' + item.mode,
+          directive: 'novaTasksFrame',
+          data: data,
+          code: 'tasks_' + item.mode
+        });
+        return true;
+      };
+      return scope.activateAll = function() {
+        var frame, frames, i, len, results;
+        frames = [
+          {
+            translateTitle: 'novaTasksFrame_tasks_mine',
+            directive: 'novaTasksFrame',
+            data: {
+              projectId: scope.appItem.projectId || scope.session.item.id,
+              entityId: scope.session.item.type !== 'project' ? scope.session.item.id : void 0,
+              mode: 'mine'
+            },
+            code: 'tasks_mine'
+          }, {
+            translateTitle: 'novaTasksFrame_tasks_backlog',
+            directive: 'novaTasksFrame',
+            data: {
+              projectId: scope.appItem.projectId || scope.session.item.id,
+              entityId: scope.session.item.type !== 'project' ? scope.session.item.id : void 0,
+              mode: 'backlog'
+            },
+            code: 'tasks_backlog'
+          }, {
+            translateTitle: 'novaTasksFrame_tasks_current',
+            directive: 'novaTasksFrame',
+            data: {
+              projectId: scope.appItem.projectId || scope.session.item.id,
+              entityId: scope.session.item.type !== 'project' ? scope.session.item.id : void 0,
+              mode: 'current'
+            },
+            code: 'tasks_current'
+          }
+        ];
+        results = [];
+        for (i = 0, len = frames.length; i < len; i++) {
+          frame = frames[i];
+          results.push(scope.flow.addFrame(frame, true, true));
+        }
+        return results;
+      };
+    }
+  };
+});

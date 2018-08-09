@@ -1,0 +1,169 @@
+buzzlike.directive('filterWidget', function(resize, localization) {
+  return {
+    restrict: 'C',
+    template: tC['/filterCatalog/filterWidget'],
+    link: function(scope, element, attrs) {
+      var currentPageId, elem, itemH, itemW, maxItems, maxPageSize, maxTotal, pageItems, params, refresh, screen, updateWidget, widgetLines;
+      scope.localization = localization;
+      scope.contentList = {};
+      scope.params = params = scope.$parent.params;
+      itemW = function() {
+        if (params.smallIcons) {
+          return 116;
+        } else {
+          return 174;
+        }
+      };
+      itemH = function() {
+        if (params.smallIcons) {
+          return 116;
+        } else {
+          return 174;
+        }
+      };
+      widgetLines = function() {
+        if (params.smallIcons) {
+          return Math.ceil(scope.widget.lines * 1.2);
+        } else {
+          return scope.widget.lines;
+        }
+      };
+      elem = $(element);
+      elem.find('.content').height(widgetLines() * itemH() + 50);
+      scope.widgetHeight = widgetLines() * itemH();
+      screen = {
+        wid: 0,
+        hei: 0
+      };
+      scope.pages = [];
+      scope.currentPage = 0;
+      currentPageId = 0;
+      scope.currentLots = [];
+      pageItems = null;
+      maxPageSize = 0;
+      maxTotal = 0;
+      maxItems = 0;
+      scope.noRight = true;
+      scope.noLeft = true;
+      scope.goPage = function(page) {
+        var index;
+        scope.currentPage = page;
+        scope.noRight = false;
+        scope.noLeft = false;
+        index = scope.pages.indexOf(scope.currentPage);
+        if (index === scope.pages.length - 1) {
+          scope.noRight = true;
+        }
+        if (index === 0) {
+          scope.noLeft = true;
+        }
+        currentPageId = scope.pages.indexOf(scope.currentPage);
+        return true;
+      };
+      scope.goRight = function() {
+        currentPageId++;
+        if (currentPageId < scope.pages.length) {
+          scope.currentPage = scope.pages[currentPageId];
+        }
+        if (currentPageId === scope.pages.length - 1) {
+          scope.noRight = true;
+        }
+        scope.noLeft = false;
+        return false;
+      };
+      scope.goLeft = function() {
+        currentPageId--;
+        if (currentPageId >= 0) {
+          scope.currentPage = scope.pages[currentPageId];
+        }
+        if (currentPageId === 0) {
+          scope.noLeft = true;
+        }
+        scope.noRight = false;
+        return false;
+      };
+      updateWidget = function(items, total) {
+        var cnt, contentHeight, item, itemsLen, k, lines, page;
+        page = 0;
+        cnt = 0;
+        maxItems = items;
+        maxTotal = total;
+        itemsLen = items.length;
+        if (itemsLen < pageItems) {
+          lines = Math.ceil(itemsLen / screen.wid);
+        } else {
+          lines = widgetLines();
+        }
+        scope.pages.length = 0;
+        for (k in items) {
+          item = items[k];
+          if (cnt >= pageItems) {
+            if (++page >= scope.widget.screens) {
+              break;
+            }
+            cnt = 0;
+          }
+          if (scope.pages[page] == null) {
+            scope.pages[page] = [];
+          }
+          if (item) {
+            scope.pages[page].push(item);
+          }
+          cnt++;
+        }
+        scope.widgetHeight = lines * itemH();
+        contentHeight = scope.widgetHeight;
+        if (scope.pages.length > 1) {
+          contentHeight += 50;
+        }
+        elem.find('.content').height(contentHeight);
+        if (scope.pages[currentPageId] == null) {
+          currentPageId = 0;
+        }
+        scope.noLeft = false;
+        scope.noRight = false;
+        if (currentPageId === 0) {
+          scope.noLeft = true;
+        }
+        if (currentPageId === scope.pages.length - 1) {
+          scope.noRight = true;
+        }
+        return scope.currentPage = scope.pages[currentPageId];
+      };
+      scope.refresh = refresh = function(action) {
+        var allowQuery;
+        if (scope.widget == null) {
+          return;
+        }
+        allowQuery = true;
+        if (action === 'resize') {
+          allowQuery = false;
+          pageItems = screen.wid * widgetLines();
+          if (pageItems > maxPageSize) {
+            maxPageSize = pageItems;
+            allowQuery = true;
+          }
+        }
+        if (allowQuery) {
+          scope.widget.query.limit = pageItems * scope.widget.screens;
+          return scope.query(scope.widget.query, updateWidget);
+        } else {
+          return updateWidget(maxItems, maxTotal);
+        }
+      };
+      scope.$parent.$parent.$parent.$parent.onResize(function(wid, hei) {
+        var nu_hei, nu_wid;
+        scope.widgetWidth = wid - leftPanelWidth;
+        nu_wid = (scope.widgetWidth - 80) / itemW() | 0;
+        nu_hei = (hei - 150) / itemH() | 0;
+        if (screen.wid !== nu_wid || screen.hei !== nu_hei) {
+          scope.contentWidth = nu_wid * itemW();
+          screen.wid = nu_wid;
+          screen.hei = nu_hei;
+          return refresh('resize');
+        }
+      });
+      return true;
+    }
+  };
+});

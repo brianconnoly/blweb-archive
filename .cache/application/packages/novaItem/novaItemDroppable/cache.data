@@ -1,0 +1,26 @@
+buzzlike.directive('novaItemDroppable', function(actionsService, $parse) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var domElem, elem;
+      domElem = element[0];
+      elem = $(element);
+      return domElem.novaDrop = {
+        getActions: function(items, context, e) {
+          var currentActions;
+          currentActions = actionsService.getActions({
+            source: items,
+            sourceContext: context,
+            target: scope.item,
+            context: $parse(attrs.novaItemContext)(scope),
+            targetOnly: true,
+            actionsType: 'dragndrop'
+          });
+          return currentActions;
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaItemDroppable', ".novaItemDroppable .dropHoverHelper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  z-index: 10;\n  background: rgba(242,224,52,0.15);\n  pointer-events: none;\n}\n");

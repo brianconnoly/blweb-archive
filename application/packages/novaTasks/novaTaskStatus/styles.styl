@@ -1,0 +1,60 @@
+.novaButton
+    margin 4px
+    float right
+
+    &.start
+        background #69C74F
+
+    &.accept
+        background #46B029
+
+    &.reject
+        background #BD4F4F
+
+    &.restart
+        background #BD4F4F //B2B025
+
+.taskStatus
+    line-height: 30px;
+    padding: 0 10px;
+    font-size: 14px;
+    color: #454545;
+
+.novaLoader
+    display block
+    float right
+
+&.inProgress
+    .analogStatus
+        left -100%
+        opacity 0
+    .status
+        display none
+    .novaLoader
+        display block
+
+.analogStatus
+    padding: 0 10px;
+    font-size: 14px;
+    color: #454545;
+    //
+    // right 0
+    // opacity 1
+    // transition all 0.2s ease
+    .statusBlock
+        position relative
+        right 0
+        opacity 1
+        transition all 0.2s ease
+
+        &.right
+            position absolute
+            width 250px
+            right -100%
+            opacity 0
+
+        &.left
+            position absolute
+            width 250px
+            right 100%
+            opacity 0

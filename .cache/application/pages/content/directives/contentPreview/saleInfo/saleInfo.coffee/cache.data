@@ -1,0 +1,61 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive("saleInfo", function(lotSettings, operationsService, lotService, buffer, $state) {
+  return {
+    template: tC['/pages/content/directives/contentPreview/saleInfo'],
+    link: function(scope, element, attrs) {
+      var id, lot;
+      id = attrs.saleInfo;
+      lot = operationsService.get('lot', id);
+      scope.openEditor = function() {
+        lotSettings.editLotById(id);
+        return true;
+      };
+      scope.take = function() {
+        return operationsService.requestOperation({
+          action: "buy",
+          entities: [
+            {
+              id: id,
+              type: "lot",
+              lotType: "content"
+            }
+          ],
+          cb: function(itemId) {
+            var item;
+            item = operationsService.get(lot.entityType, itemId);
+            return buffer.addItems([item]);
+          }
+        });
+      };
+      scope.lotStatus = function() {
+        var errors, ref;
+        lot = operationsService.get('lot', id);
+        if (!lot) {
+          return false;
+        }
+        errors = ['badTags', 'badContent'];
+        if (ref = lot.moderationStatus, indexOf.call(errors, ref) >= 0) {
+          return 'rejected';
+        }
+        if (lot.moderationStatus === 'moderated') {
+          return 'accepted';
+        }
+        if (!lot.published) {
+          return "notPublished";
+        }
+        return "moderating";
+      };
+      scope.button = function() {
+        if (lotService.myLots[id] != null) {
+          return "options";
+        }
+        if ($state.current.name !== 'market') {
+          return false;
+        }
+        return "buy";
+      };
+      return true;
+    }
+  };
+});

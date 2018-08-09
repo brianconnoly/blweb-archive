@@ -1,0 +1,1 @@
+<div ng-click="open(list)" ng-class="{'opened': state.opened}" class="combobox"><div ng-class="selected.class" ng-style="selected.style" class="value"><span ng-if="selected.phrase" translate="selected.phrase"></span><span ng-if="selected.title">{{selected.title}}</span></div></div>

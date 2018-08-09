@@ -1,0 +1,153 @@
+buzzlike.directive("editableItem", function($parse, desktopService, account, lotService, smartDate, communityService, multiselect, $rootScope, operationsService, contentService, combService, postService) {
+  return {
+    restrict: "C",
+    link: function(scope, element, attrs) {
+      var editAction, elem;
+      elem = $(element);
+      scope.editAction = editAction = function(displayElem, e) {
+        var comb, community, feedInterval, groupId, id, intervalScope, item, lineId, offsets, post, type, w;
+        if (scope.id != null) {
+          type = attrs.type || 'content';
+          item = operationsService.get(type, scope.id);
+        } else if (attrs.id != null) {
+          id = $parse(attrs.id)(scope);
+          type = attrs.type || 'content';
+          item = operationsService.get(type, id);
+        } else if (scope.item != null) {
+          item = scope.item;
+        }
+        switch (item.type) {
+          case 'importContent':
+            switch (item.contentType) {
+              case 'image':
+              case 'video':
+                return desktopService.launchApp('mediaPreview', {
+                  contentType: 'importContent',
+                  contentId: item.id,
+                  center: true
+                });
+            }
+            break;
+          case 'url':
+            return window.open(item.value, '_blank');
+          case 'image':
+          case 'video':
+          case 'file':
+            return desktopService.launchApp('mediaPreview', {
+              contentId: item.id,
+              center: true
+            });
+          case 'poll':
+            return desktopService.launchApp('pollEdit', {
+              pollId: item.id,
+              center: true
+            });
+          case 'text':
+            offsets = {};
+            w = displayElem.width();
+            if (w > 300) {
+              offsets.width = w;
+            } else {
+              offsets.width = 0;
+            }
+            updateObject(offsets, displayElem.offset());
+            desktopService.launchApp('textEditor', {
+              textId: item.id,
+              coords: {
+                x: offsets.left,
+                y: offsets.top
+              }
+            });
+            break;
+          case 'importAlbum':
+            if ((typeof scope.itemClick === "function" ? scope.itemClick(item) : void 0) === true) {
+
+            }
+            break;
+          case 'folder':
+            if ((typeof scope.itemClick === "function" ? scope.itemClick(item) : void 0) === true) {
+              return;
+            }
+            multiselect.flush();
+            multiselect.state.context = null;
+            return desktopService.launchApp('content', {
+              folderId: item.id
+            });
+          case 'team':
+            return desktopService.launchApp('teamManager', {
+              teamId: item.id
+            });
+          case 'task':
+            return desktopService.launchApp('teamManager', {
+              teamId: item.taskId,
+              taskId: item.id
+            });
+          case 'comb':
+            return desktopService.launchApp('combEdit', {
+              combId: item.id
+            });
+          case 'post':
+            if (item.onSale === true) {
+              return lotService.query({
+                postId: item.id
+              }, function(items) {
+                var lot;
+                lot = items[0];
+                return desktopService.launchApp('lotManager', {
+                  lotId: lot.id
+                });
+              });
+            } else {
+              return combService.fetchById(item.combId, function(comb) {
+                return desktopService.launchApp('combEdit', {
+                  combId: comb.id,
+                  postId: item.id
+                });
+              });
+            }
+            break;
+          case 'schedule':
+            post = postService.getById(item.postId);
+            if (item.lotId != null) {
+              return desktopService.launchApp('lotManager', {
+                lotId: item.lotId
+              });
+            } else {
+              comb = combService.getById(post.combId);
+              return desktopService.launchApp('combEdit', {
+                combId: comb.id,
+                postId: post.id
+              });
+            }
+            break;
+          case 'lot':
+            return desktopService.launchApp('lotPreview', {
+              lotId: item.id
+            });
+          case 'placeholder':
+            groupId = scope.$parent.$parent.group.id;
+            lineId = scope.$parent.cId;
+            feedInterval = $(element).parents('.feedInterval');
+            intervalScope = angular.element(feedInterval[0]).scope();
+            community = communityService.getById(lineId);
+            multiselect.flush();
+            return desktopService.launchApp('postPicker', {
+              communityId: lineId,
+              timestamp: scope.item.timestamp,
+              socialNetwork: community.socialNetwork,
+              placeholder: false
+            }, e);
+        }
+      };
+      return elem.on("dblclick.editableItem", function(e) {
+        var target;
+        target = $(e.target);
+        if ((target.parents('.itemPreview').length > 0 || target.hasClass('itemPreview')) && !$(e.target).hasClass('contentComment')) {
+          e.stopPropagation();
+          editAction($(this), e);
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});

@@ -1,0 +1,43 @@
+tC['/novaSocialCanvasPaint/template.jade'] = "<div class=\"paintHeader\"> <div ng-click=\"showMenu($event)\" class=\"menuActivator\">...</div> <checkbox ng-model=\"paint.active\" class=\"long power\"></checkbox> <div translate=\"'novaSocialPaintPicker_paint_'+paint.type\" class=\"title\"></div> </div> <div class=\"paintBody\"> <div ng-repeat=\"item in paint.items\" class=\"item\">{{item.value}}</div> </div>";
+
+buzzlike.directive('novaSocialCanvasPaint', function(novaMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/novaSocialCanvasPaint/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.showMenu = function(e) {
+        var addItems, offset, sections;
+        addItems = $(e.target);
+        sections = [
+          {
+            type: 'actions',
+            items: [
+              {
+                phrase: 'delete',
+                action: function() {
+                  return removeElementFromArray(scope.paint, scope.paints);
+                }
+              }
+            ]
+          }
+        ];
+        offset = addItems.offset();
+        novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(addItems.width() / 2),
+            y: offset.top,
+            hei: addItems.height()
+          },
+          sections: sections,
+          menuStyle: 'center',
+          noApply: true
+        });
+        e.stopPropagation();
+        e.preventDefault();
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaSocialCanvasPaint', ".novaSocialCanvasPaint {\n  width: 200px;\n  height: 220px;\n  float: left;\n  margin: 5px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  border: 1px solid #f2f2f2;\n  overflow: hidden;\n}\n.novaSocialCanvasPaint .paintHeader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 20px;\n  background: #f2f2f2;\n  -webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.6);\n  box-shadow: 0 0 3px 0 rgba(0,0,0,0.6);\n}\n.novaSocialCanvasPaint .paintHeader .title {\n  float: left;\n  line-height: 20px;\n  font-size: 14px;\n  padding: 0 5px;\n}\n.novaSocialCanvasPaint .paintHeader .power {\n  float: right;\n  height: 14px;\n  width: 28px;\n  margin: 2px;\n}\n.novaSocialCanvasPaint .paintHeader .power .tumbler {\n  right: 13px;\n}\n.novaSocialCanvasPaint .paintHeader .power .button {\n  height: 14px;\n  width: 14px;\n}\n.novaSocialCanvasPaint .paintHeader .menuActivator {\n  float: right;\n  width: 16px;\n  height: 16px;\n  background: #a8a8a8;\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n  color: #fff;\n  font-weight: bold;\n  line-height: 9px;\n  text-align: center;\n  margin: 2px;\n}\n.novaSocialCanvasPaint .paintBody {\n  position: absolute;\n  top: 20px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow-y: auto;\n}\n.novaSocialCanvasPaint .paintBody .item {\n  padding: 5px 10px;\n  font-size: 12px;\n}\n");

@@ -1,0 +1,13 @@
+div.cover.novaItemScope.novaItem.novaItemPreview(
+    nova-item-id="previewItem.appearance.cover",
+    nova-item-type="image",
+    ng-if="!previewItem.profileUserId")
+div.cover.novaItemScope.novaItem.novaItemPreview(
+    nova-item-id="previewItem.profileUserId",
+    nova-item-type="user",
+    nova-item-preview-type="simple",
+    ng-if="previewItem.profileUserId")
+div.name(
+    ng-style="{'background':previewItem.appearance.background,'color':previewItem.appearance.color}"
+    ng-if="!previewItem.profileUserId") {{::item.name}}
+div.name.userProject(ng-if="previewItem.profileUserId") {{::user.name}}

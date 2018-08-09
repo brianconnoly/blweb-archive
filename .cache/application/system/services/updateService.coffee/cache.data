@@ -1,0 +1,69 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('updateService', function() {
+  var delayedUpdate, destroyUpdateHandler, handlers, id, registerUpdateHandler, triggerUpdate, unRegisterUpdateHandler, updateHandler;
+  updateHandler = null;
+  id = 0;
+  handlers = {};
+  registerUpdateHandler = function(handler) {
+    id++;
+    handlers[id] = handler;
+    updateHandler = handler;
+    return id;
+  };
+  unRegisterUpdateHandler = function(id) {
+    return delete handlers[id];
+  };
+  destroyUpdateHandler = function(id) {
+    return updateHandler = null;
+  };
+  delayedUpdate = {
+    items: [],
+    handler: null
+  };
+  triggerUpdate = function(items, action) {
+    var i, item, len;
+    if (action == null) {
+      action = 'update';
+    }
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      delayedUpdate.items.push(item);
+    }
+    if (!delayedUpdate.handler) {
+      return delayedUpdate.handler = setTimeout(function() {
+        var _items, handler, j, k, len1, ref, ref1, result;
+        result = {};
+        _items = [];
+        ref = delayedUpdate.items;
+        for (j = 0, len1 = ref.length; j < len1; j++) {
+          item = ref[j];
+          if ((item != null ? item.type : void 0) == null) {
+            continue;
+          }
+          if ((ref1 = item.type) === 'text' || ref1 === 'image' || ref1 === 'audio' || ref1 === 'video' || ref1 === 'url' || ref1 === 'folder' || ref1 === 'poll' || ref1 === 'file' || ref1 === 'content') {
+            result['content'] = true;
+          }
+          result[item.type] = true;
+          if (indexOf.call(_items, item) < 0) {
+            _items.push(item);
+          }
+        }
+        for (k in handlers) {
+          handler = handlers[k];
+          if (typeof handler === "function") {
+            handler(result, action, _items);
+          }
+        }
+        delayedUpdate.items.length = 0;
+        return delayedUpdate.handler = null;
+      }, 600);
+    }
+  };
+  return {
+    registerUpdateHandler: registerUpdateHandler,
+    unRegisterUpdateHandler: unRegisterUpdateHandler,
+    destroyUpdateHandler: destroyUpdateHandler,
+    triggerUpdate: triggerUpdate
+  };
+});

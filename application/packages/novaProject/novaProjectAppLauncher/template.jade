@@ -1,0 +1,10 @@
+div.novaItem.novaItemPreview(
+    nova-item-type="content", 
+    nova-item-id="project.appearance.cover",
+    ng-if="!project.profileUserId && project.appearance.cover",
+    nova-item-preview-type="simple")
+div.novaItem.novaItemPreview(
+    nova-item-type="user",
+    nova-item-id="user.id",
+    nova-item-preview-type="simple",
+    ng-if="project.profileUserId")

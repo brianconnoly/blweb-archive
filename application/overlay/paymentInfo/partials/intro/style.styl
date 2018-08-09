@@ -1,0 +1,61 @@
+.introPage
+    
+    .centerTitle
+        margin-bottom: 130px !important
+
+    .paySwitcher
+        position relative
+        vertical-align top
+        padding-bottom 25px
+
+        .sep
+            width 2%
+            display inline-block
+            vertical-align top
+            height 100%
+        .post
+        .money
+            width 30%
+            min-width 310px
+            display inline-block
+            vertical-align top
+            &:hover
+                cursor pointer
+
+        .imageWrapper
+            display inline-block
+            height 154px
+            margin-bottom 40px
+
+        .post
+            .postImage
+                display inline-block
+                width 144px
+                height 144px
+                sprite "/resources/images/icons/paymentinfo/introPage/pay-post_icon-2.png" 0px 0px 100% 100%
+                cursor pointer
+
+        .money
+            .moneyImage
+                display inline-block
+                width 154px
+                height 154px
+                sprite "/resources/images/icons/paymentinfo/introPage/pay-money_icon-2.png" 0px 0px 100% 100%
+                cursor pointer
+
+            &.disabled
+                opacity 0.3
+                cursor default
+                & *
+                    cursor default
+
+        .text
+            h4
+                font-size 24px
+                padding-bottom 15px
+
+            span
+                display block
+                font-size 18px
+                line-height 1.2em
+

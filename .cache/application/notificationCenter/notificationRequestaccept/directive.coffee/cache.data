@@ -1,0 +1,18 @@
+buzzlike.directive('notificationRequestaccept', function(postService, localization) {
+  return {
+    template: tC['/notificationCenter/notificationRequestaccept'],
+    link: function(scope, element, attrs) {
+      var ref, ref1;
+      if (((ref = scope.notification) != null ? (ref1 = ref.itemList) != null ? ref1[2] : void 0 : void 0) != null) {
+        scope.postId = scope.notification.itemList[2].id;
+      }
+      return scope.getSumm = function() {
+        if (scope.notification.buzzLot) {
+          return scope.notification.cost + ' ' + localization.declensionPhrase(scope.notification.cost, 'costDays');
+        } else {
+          return scope.notification.cost + ' ' + localization.declensionPhrase(scope.notification.cost, 'roubles');
+        }
+      };
+    }
+  };
+});

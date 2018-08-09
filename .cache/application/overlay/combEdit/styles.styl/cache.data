@@ -1,0 +1,14 @@
+Error: Error: stylus:118:46
+   114| 
+   115|     .container
+   116|         height 100%
+   117|         overflow hidden
+   118|         padding $barHeight ($rightPanelWidth/2) 0 ($rightPanelWidth/2)
+-----------------------------------------------------^
+   119|         box-sizing border-box
+   120|         transition all ease 0.3s
+   121| 
+
+cannot perform $rightPanelWidth / 2
+    at ".container" (stylus:114:42)
+    at "#combEdit" (stylus:105:22)

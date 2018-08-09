@@ -1,0 +1,162 @@
+tC['/novaDragHelper/template.jade'] = "<div class=\"actionsContainer\"> <div ng-repeat=\"action in actions\" translate=\"action.phrase\" ng-click=\"fireAction(action, $event)\" class=\"action\"></div> </div> <div class=\"dragItemsContainer itemsCount_{{dragItems.length}}\"> <div ng-repeat=\"item in dragItems\" class=\"dragItem novaItem novaItemPreview\"></div> <div class=\"helperText\">{{helperText}}</div> </div>";
+
+buzzlike.service('novaDragHelper', function($compile, $rootScope, localization) {
+  var dragHelper;
+  dragHelper = (function() {
+    var currentHighlighter;
+
+    currentHighlighter = null;
+
+    dragHelper.prototype.showHighLighter = function(elem) {
+      var jElem;
+      if (currentHighlighter === elem) {
+        return;
+      }
+      currentHighlighter = elem;
+      jElem = $(elem);
+      this.highlighter.addClass('visible');
+      return this.highlighter.css({
+        transform: "translate3d(" + (jElem.offset().left - 2) + "px, " + (jElem.offset().top - 2) + "px, 0)",
+        width: jElem.width() + 2,
+        height: jElem.height() + 2
+      });
+    };
+
+    dragHelper.prototype.flushHighlighter = function() {
+      this.highlighter.removeClass('visible');
+      return currentHighlighter = null;
+    };
+
+    dragHelper.prototype.buildElement = function() {
+      this.scope = $rootScope.$new();
+      this.scope.dragItems = [];
+      this.scope.actions = [];
+      this.scope.novaDragHelper = this;
+      this.active = false;
+      this.elem = $('<div>', {
+        "class": 'novaDragHelper'
+      });
+      this.body.append(this.elem);
+      return this.elem = $($compile(this.elem)(this.scope));
+    };
+
+    dragHelper.prototype.bindElement = function(elem1, scope1) {
+      this.elem = elem1;
+      this.scope = scope1;
+      this.scope.dragItems = [];
+      this.scope.actions = [];
+      this.scope.novaDragHelper = this;
+      return this.active = false;
+    };
+
+    function dragHelper() {
+      this.highlighter = $('<div>', {
+        "class": 'novaDropHighlighter'
+      });
+      this.highSolo = true;
+      true;
+    }
+
+    dragHelper.prototype.setActions = function(actions) {
+      var action, i, len;
+      this.scope.actions.length = 0;
+      for (i = 0, len = actions.length; i < len; i++) {
+        action = actions[i];
+        this.scope.actions.push(action);
+      }
+      return this.scope.$apply();
+    };
+
+    dragHelper.prototype.show = function(items) {
+      var i, item, k, len, types, v;
+      if (this.highSolo) {
+        $('.nova').append(this.highlighter);
+        this.highSolo = false;
+      }
+      this.active = true;
+      this.scope.dragItems.length = 0;
+      this.scope.actions.length = 0;
+      this.scope.helperText = "";
+      types = {};
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        this.scope.dragItems.push(item);
+        if (!types[item.type]) {
+          types[item.type] = 0;
+        }
+        types[item.type]++;
+      }
+      for (k in types) {
+        v = types[k];
+        if (this.scope.helperText !== "") {
+          this.scope.helperText += ', ';
+        }
+        this.scope.helperText += v + ' ' + localization.declensionPhrase(v, 'itemType_' + k + '_dec');
+      }
+      if (this.scope.dragItems.length > 5) {
+        this.scope.dragItems.length = 5;
+      }
+      this.elem.addClass('visible');
+      return this.scope.$apply();
+    };
+
+    dragHelper.prototype.activate = function(e) {
+      if (this.scope.actions.length === 0) {
+        this.hide();
+      } else if (this.scope.actions.length === 1) {
+        if (this.preAction != null) {
+          this.preAction(this.scope.actions[0].action, e);
+        } else {
+          this.scope.actions[0].action(e);
+        }
+        this.hide();
+      } else {
+        this.elem.addClass('active');
+      }
+      return this.scope.$apply();
+    };
+
+    dragHelper.prototype.hide = function(noApply) {
+      if (noApply == null) {
+        noApply = false;
+      }
+      this.active = false;
+      this.elem.removeClass('visible').removeClass('active');
+      this.scope.dragItems.length = 0;
+      this.scope.actions.length = 0;
+      this.scope.helperText = "";
+      this.preAction = null;
+      this.highlighter.removeClass('visible');
+      if (!noApply) {
+        this.scope.$apply();
+      }
+      return true;
+    };
+
+    return dragHelper;
+
+  })();
+  return new dragHelper;
+});
+
+buzzlike.directive('novaDragHelper', function(novaDragHelper) {
+  return {
+    restrict: 'C',
+    template: tC['/novaDragHelper/template.jade'],
+    scope: true,
+    link: function(scope, element, attrs, ngModel) {
+      novaDragHelper.bindElement($(element), scope);
+      return scope.fireAction = function(action, e) {
+        if (novaDragHelper.preAction != null) {
+          novaDragHelper.preAction(action.action, e);
+        } else {
+          action.action(e);
+        }
+        scope.novaDragHelper.hide(true);
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaDragHelper', ".novaDragHelper {\n  position: absolute;\n  pointer-events: none;\n  z-index: 2000;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaDragHelper.lefty .actionsContainer {\n  right: 0;\n}\n.novaDragHelper.visible {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaDragHelper.active {\n  pointer-events: auto;\n}\n.novaDragHelper .dragItem {\n  float: left;\n  width: 40px;\n  height: 30px;\n  overflow: hidden;\n}\n.novaDragHelper .actionsContainer {\n  position: absolute;\n  bottom: 100%;\n  margin-bottom: 10px;\n  padding: 5px 0;\n  background: #ebebeb;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  -webkit-box-shadow: 0 0 10px 0 rgba(77,77,77,0.9);\n  box-shadow: 0 0 10px 0 rgba(77,77,77,0.9);\n}\n.novaDragHelper .actionsContainer .action {\n  padding: 0 18px;\n  white-space: nowrap;\n  line-height: 20px;\n  height: 20px;\n  font-size: 14px;\n}\n.novaDragHelper .actionsContainer .action:hover {\n  background: #3496f2;\n  color: #fff;\n  cursor: pointer;\n}\n.novaDragHelper .dragItemsContainer {\n  width: 200px;\n  overflow: hidden;\n  background: #ebebeb;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  -webkit-box-shadow: 0 0 10px 0 rgba(77,77,77,0.9);\n  box-shadow: 0 0 10px 0 rgba(77,77,77,0.9);\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaDragHelper .dragItemsContainer .helperText {\n  background: rgba(235,235,235,0.95);\n  padding: 6px 10px;\n  font-size: 12px;\n  line-height: 14px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_0 {\n  display: none;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_1 .dragItem {\n  width: 200px;\n  height: 75px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_1 .helperText {\n  margin-top: 70px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_2 .dragItem {\n  width: 100px;\n  height: 75px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_2 .helperText {\n  margin-top: 70px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_3 .dragItem {\n  width: 65px;\n  height: 47px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_3 .dragItem:first-child {\n  width: 70px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_3 .helperText {\n  margin-top: 40px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_4 .dragItem {\n  width: 50px;\n  height: 37px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_4 .helperText {\n  margin-top: 30px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_5 .dragItem {\n  width: 40px;\n  height: 30px;\n}\n.novaDragHelper .dragItemsContainer.itemsCount_5 .helperText {\n  margin-top: 30px;\n}\n");

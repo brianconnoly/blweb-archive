@@ -1,0 +1,112 @@
+buzzlike.directive("feedItem", function($compile, communityService, $rootScope, postService, combService, inspectorService, multiselect, account, scheduleService, desktopService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem, groupId, lastFocusedCnt, lineId, mp_icon, pHolder, postId, ref, ref1, ref2, refreshSched;
+      elem = $(element);
+      postId = null;
+      lastFocusedCnt = 0;
+      groupId = scope.$parent.$parent.group.id;
+      lineId = scope.$parent.cId;
+      if (scope.sched != null) {
+        postId = scope.sched.postId;
+        scope.item = scope.sched;
+        scope.postId = postId;
+      }
+      scope.user = account.user;
+      if (elem) {
+        elem.css('left', ((ref = scope.item.left) != null ? ref[groupId] : void 0) + 'px').css('width', scope.item.width + 'px').css('z-index', scope.item.zindex);
+      }
+      scope.recalc = function() {
+        var ref1;
+        $(element).css('left', ((ref1 = scope.item.left) != null ? ref1[groupId] : void 0) + 'px').css('width', scope.item.width + 'px').css('z-index', scope.item.zindex);
+        $(element).find('.tl_timeleft').html(scope.sched.humanStartTime);
+        return $(element).find('.tl_timeright').html(scope.sched.humanEndTime);
+      };
+      pHolder = null;
+      if (((ref1 = scope.sched.pholders) != null ? ref1[groupId] : void 0) != null) {
+        pHolder = scope.sched.pholders[groupId];
+      }
+      if (scope.item.rule != null) {
+        pHolder = scope.item;
+      }
+      if (pHolder != null) {
+        elem.addClass('ruleItem').addClass('placeholder');
+        elem.append('<div class="placeholder_highlighter"></div>');
+        if (scope.user.id === pHolder.rule.userId) {
+          mp_icon = $('<div class="ruleIcon ios-nodelay flushMousedown ruleIcon_' + pHolder.rule.ruleType + '"></div>');
+          elem.append(mp_icon);
+          mp_icon.on('click.mp', function(e) {
+            scope.showInspector(e);
+            return scope.$apply();
+          });
+        }
+        elem.addClass('rule_' + pHolder.rule.id);
+        elem.addClass('placeholder_' + pHolder.rule.id + '_' + pHolder.id);
+        if (scope.sched.postId == null) {
+          elem.append('<div class="timeInfo pHolderTime">' + scope.sched.humanStartTime + '</div>');
+        }
+        if (pHolder.rule.ad && scope.sched.scheduleType !== 'request') {
+          elem.append('<div class="ruleAdIcon"></div>');
+        }
+        if (((ref2 = inspectorService.status.currentRule) != null ? ref2.id : void 0) === pHolder.rule.id) {
+          elem.addClass('placeholder_highlighted');
+        }
+      }
+      if (scope.sched.scheduleType === 'ugc') {
+        elem.addClass('ratingApp');
+        elem.append($('<img>', {
+          "class": 'ratingAppSchedule',
+          src: '/resources/images/ratingApp.svg'
+        }));
+      }
+      if (scope.sched.scheduleType === 'repost') {
+        element.append('<div class="repost-label">repost</div>');
+      }
+      refreshSched = function() {
+        return scope.post = postService.getById(postId);
+      };
+      if (scope.sched != null) {
+        postId = scope.sched.postId;
+        if ((postId != null) && postId !== 'empty') {
+          refreshSched();
+        }
+        scope.sendNow = function(e) {
+          return scheduleService.sendNow(scope.sched.id);
+        };
+      }
+      if (multiselect.isFocused(scope.sched)) {
+        element.addClass('selected');
+      }
+      scope.showInspector = function(e) {
+        inspectorService.initInspector(pHolder, e);
+        return true;
+      };
+      return scope.showGraph = function() {
+        return desktopService.launchApp('graph', {
+          item: scope.sched
+        });
+      };
+    }
+  };
+});
+
+buzzlike.filter('feedFilter', function(smartDate) {
+  return function(items, search) {
+    var element, k, result;
+    if (!search) {
+      return items;
+    }
+    if (!search || '' === search) {
+      return items;
+    }
+    result = [];
+    for (k in items) {
+      element = items[k];
+      if ((element.communityId === search.communityId) && (smartDate.getShiftTime(element.timestamp) >= search.startTime) && (smartDate.getShiftTime(element.timestamp) < search.endTime) && element.collapsed !== true) {
+        result.push(element);
+      }
+    }
+    return result;
+  };
+});

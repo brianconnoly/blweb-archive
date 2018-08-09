@@ -1,0 +1,118 @@
+.globalOffer,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.globalOffer .centerTitle,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .centerTitle {
+  text-align: center;
+  font-size: 40px;
+}
+.globalOffer .mainBlock,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+}
+.globalOffer .mainBlock .text,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text {
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 50px;
+  text-align: left;
+  line-height: 19px;
+}
+.globalOffer .mainBlock .text b,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text b {
+  font-weight: bolder;
+}
+.globalOffer .mainBlock .text h2,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text h2 {
+  font-size: 22px;
+  line-height: normal;
+  text-align: center;
+  padding: 0 10px;
+}
+.globalOffer .mainBlock .text h3,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text h3 {
+  font-size: 20px;
+  line-height: normal;
+  text-align: center;
+  padding: 0 7px;
+}
+.globalOffer .mainBlock .text h4,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text h4 {
+  font-size: 18px;
+  line-height: normal;
+  padding: 0 4px;
+}
+.globalOffer .mainBlock .text .p,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text .p {
+  padding: 4px 0 0 9px;
+}
+.globalOffer .mainBlock .text a,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text a {
+  color: #777;
+}
+.globalOffer .mainBlock .text *,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .text * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+.globalOffer .mainBlock .agree,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .agree {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  text-align: left;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-top: 12px;
+}
+.globalOffer .mainBlock .agree .title,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .agree .title {
+  line-height: 26px;
+  float: left;
+}
+.globalOffer .mainBlock .agree .bl-checkbox,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .agree .bl-checkbox {
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border: 1px solid #a9a9a9;
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  float: left;
+}
+.globalOffer .mainBlock .agree .bl-checkbox .tumbler,
+.paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .agree .bl-checkbox .tumbler {
+  background-image: url("/resources/images/icons/paymentinfo/offer/checkbox_check.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 24px 24px;
+  -moz-background-size: 24px 24px;
+  background-size: 24px 24px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .globalOffer .mainBlock .agree .bl-checkbox .tumbler,
+  .paymentInfo .piWindowWrapper .scrollLayer .page.offer .mainBlock .agree .bl-checkbox .tumbler {
+    background-image: url("/resources/images/icons/paymentinfo/offer/checkbox_check@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 24px 24px;
+    -moz-background-size: 24px 24px;
+    background-size: 24px 24px;
+  }
+}

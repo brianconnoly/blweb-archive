@@ -1,0 +1,1 @@
+<feed-group order="{{group.orderNumber}}" ng-repeat="group in makeArray(list) | filter:groupFilter | orderBy:groupOrder"></feed-group>

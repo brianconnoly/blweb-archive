@@ -1,0 +1,43 @@
+padding 7px 0
+
+.messageTime
+    position absolute
+    right: 0;
+    top: 10px;
+    font-size: 9px
+
+.userPic
+    width 26px
+    height 26px
+    border-radius 20px
+    overflow hidden
+    transform translate3d(0,0,0)
+
+    float left
+    margin-right 12px
+
+    .backFace
+        display none
+
+.userName, .shortName
+    font-size 11px
+    line-height 13px
+    font-weight 400
+
+.shortName
+    display none
+
+.compact &
+    .userName
+        display none
+    .shortName
+        display block
+
+.message
+    font-size 11px
+    line-height 13px
+    font-weight 300
+
+    text-overflow: ellipsis
+    overflow: hidden
+    white-space nowrap

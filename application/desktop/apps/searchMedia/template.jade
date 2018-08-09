@@ -1,0 +1,54 @@
+div.dragHandler.topBar 
+    process-bar
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+    div.actionsPanel
+        div.action
+            div.icon
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-upload.svg", ng-click="doAdd()")
+            div.settingsText.flushMousedown(translate="'searchMediaApp_doAdd'", ng-click="doAdd()")
+
+        div.action
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-settings.svg", ng-click="showMoreMenu($event)")
+            div.settingsText.flushMousedown(translate="'contentApp_more'", ng-click="showMoreMenu($event)")
+
+    div.switcherPanel
+        zoom-switch
+
+        div.switcher(ng-class="{'disabled':currentStep.custom}", ng-if="currentStep.type != 'main' && currentStep.custom != true")
+            div.switch.twoSide
+                div.button(ng-if="currentStep.availableType.image", ng-class="{'active':currentStep.searchType.image == true}", ng-click="currentStep.searchType.image = !currentStep.searchType.image")
+                    img.activate(src="/resources/images/desktop/types/white/filter-image.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-image-active.svg")
+                div.button(ng-if="currentStep.availableType.video", ng-class="{'active':currentStep.searchType.video == true}", ng-click="currentStep.searchType.video = !currentStep.searchType.video")
+                    img.activate(src="/resources/images/desktop/types/white/filter-video.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-video-active.svg")
+                div.button(ng-if="currentStep.availableType.audio", ng-class="{'active':currentStep.searchType.audio == true}", ng-click="currentStep.searchType.audio = !currentStep.searchType.audio")
+                    img.activate(src="/resources/images/desktop/types/white/filter-audio.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-audio-active.svg")
+                div.button(ng-if="currentStep.availableType.url", ng-class="{'active':currentStep.searchType.url == true}", ng-click="currentStep.searchType.url = !currentStep.searchType.url")
+                    img.activate(src="/resources/images/desktop/types/white/filter-url.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-url-active.svg")
+            div.settingsText(translate="'searchMediaApp_searchTypes'")
+
+        div.switcher(ng-if="showSources()")
+            div.switch.bgSwitch
+                div.button(ng-class="{'active':currentStep.videoType.yt == true}", ng-click="currentStep.videoType.yt = true") YT
+                div.button(ng-class="{'active':currentStep.videoType.vk == true}", ng-click="currentStep.videoType.vk = true") VK
+            div.settingsText(translate="'searchMediaApp_searchSources'")
+
+div.body(class="zoom_{{session.zoom}}", antiscroll)
+    div.searchPanel(ng-if="currentStep.noSearch!=true")
+        div.searchBox(ng-class="{'long':data.searchField.length > 0}")
+            div.inputContainer
+                input.focusSearchOnLoad(ng-keydown="keyDown($event)", ng-model="data.searchField", placeholder="{{translate('searchMediaApp_inputPlaceholder')}}")
+            div.button(ng-click="submitSearch()", translate="'searchMediaApp_doSearch'")
+        div.helper(ng-class="{'active':data.searchField.length > 0}", translate="'searchMediaApp_inputPlaceholder'")
+    items-container
+
+bread-crombs

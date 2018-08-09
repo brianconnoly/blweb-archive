@@ -1,0 +1,39 @@
+buzzlike.directive('menuWindow', function(contextMenu, multiselect, smartDate) {
+  return {
+    restrict: 'C',
+    replace: true,
+    template: tC['/contextMenu/menuWindow'],
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      scope.contextStatus = contextMenu.status;
+      scope.$watch('contextStatus.position', function(nVal) {
+        var x, y;
+        x = scope.contextStatus.position.x;
+        y = scope.contextStatus.position.y;
+        if (y > window.innerHeight - elem.height()) {
+          y = window.innerHeight - elem.height();
+        }
+        if (x > window.innerWidth - elem.width()) {
+          x = window.innerWidth - elem.width();
+        }
+        elem.css('top', y + 'px');
+        return elem.css('left', x + 'px');
+      }, true);
+      scope.clearBuffer = function(e) {
+        multiselect.clearBuffer();
+        e.stopPropagation();
+        return e.preventDefault();
+      };
+      scope.fireAction = function(action, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        contextMenu.hide();
+        action(e);
+        multiselect.flush();
+        return true;
+      };
+      return true;
+    }
+  };
+});

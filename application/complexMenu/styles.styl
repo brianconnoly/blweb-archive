@@ -1,0 +1,80 @@
+.complexMenu
+    position: absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    
+.menuFrame
+    position: absolute
+    overflow-y: auto
+    
+    min-width 210px
+    
+    padding-top: 5px
+    padding-bottom: 5px
+    
+    background: #fff
+    border-radius 5px
+    
+    box-shadow 0 0 5px 0 rgba(0,0,0,0.5)
+    
+    z-index 10000
+    
+    .menuSection
+        margin-bottom: 5px
+        padding-bottom: 5px
+        
+        border-bottom 1px solid #ccc
+        
+        &:last-child
+            margin-bottom: 0
+            padding-bottom: 0
+            
+            border-bottom none
+
+        .menuItem
+            padding: 3px 22px
+            height 18px
+            
+            line-height 18px
+            font-size 14px
+            
+            cursor: pointer
+            overflow: hidden
+            
+            span
+                cursor: pointer
+            
+            .check
+                cursor: pointer
+                position: absolute
+                left 2px
+                top 3px
+                
+                width 12px
+                height 9px
+                
+                margin-top: 4px
+                margin-left: 3px
+                
+                background: url(/resources/images/desktop/check-black.svg)
+            
+            &.disabled
+                color #ccc
+                cursor: default
+                
+                span
+                    cursor: default
+                
+                &:hover
+                    color #ccc
+                    background: none
+            
+            &:hover
+                color #fff
+                background: rgba(57,181,74,0.97) //#639B34
+                
+                .check
+                    background: url(/resources/images/desktop/check.svg)
+                    

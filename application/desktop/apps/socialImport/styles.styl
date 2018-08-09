@@ -1,0 +1,327 @@
+.socialWrapperAccountSocial
+    width 32px
+    height 32px
+
+    position: absolute
+    top 0
+    left 0
+
+    font-size 20px
+    line-height 32px
+    text-align: center
+    color #fff
+    
+.appContainer.socialImport
+    
+    background: #75A843
+    
+    .scroll-bottom, .scroll-right
+        background: rgba(117,168,67,0.8) !important
+    
+    .paginator
+        .page
+            border-color: #75A843
+            &.active
+                background: #75A843
+    
+    // .panelItem.active
+    //     background: #75A843
+        
+    .itemPreview.community, .itemPreview.importAlbum, .itemPreview.importContent
+        img.cover
+            width 100%
+            
+    .zoom_min &, &.zoom_min
+        .itemPreview
+            &.importAlbum, &.importContent
+                width 70px
+                height 54px
+                
+    .zoom_mid &, &.zoom_mid
+        .itemPreview
+            &.importAlbum, &.importContent
+                width 139px
+                height 103px
+                
+    .zoom_max &, &.zoom_max
+        .itemPreview
+            &.importAlbum, &.importContent
+                width 167px
+                height 131px
+            
+    
+    .previewContainer
+        .name
+            position: absolute
+            bottom 0
+            left 0
+            right 0
+            text-align: center
+            // font-size 16px
+            // line-height 18px
+            
+            background: rgba(51,51,51,0.9)
+            color #fff
+            
+            max-height none
+            
+        .size
+            position: absolute
+            top 0
+            left 0
+            right 0
+            background: rgba(51,51,51,0.9)
+            color #fff
+            
+            // font-size 12px
+            // line-height: 15px
+            
+            text-align: center
+            padding: 2px
+            
+    .rightContent
+        .previewContainer
+            .name, .size
+                background: rgba(117,168,67,0.9)
+                
+            .importContent
+                .name
+                    background: rgba(51,51,51,0.9)
+            
+    .leftPanel
+        .previewContainer
+            width 140px
+            height 106px
+            
+        .panelItem.big
+            .size
+                display: none
+                
+        .panelItem.small
+            .size
+                font-size 9px
+                line-height 11px
+            
+    
+    div.empty 
+        position: relative;
+        width: 100%;
+        height: 400px;
+        display: none;
+
+    div.empty.active
+        display: block; 
+
+    div.empty div.message
+        position: absolute;
+        text-align: center;
+        width: 100%;
+        top: 40%;
+        font-size: 35px;
+        color: #fff;
+
+    .communitiesList
+        top 0px
+        
+        .spacer
+            width 100%
+            height 50px
+
+        .socialBrowser
+            position: absolute
+            top 0
+            bottom 0
+            left 0
+            right 0
+
+            .accountPicker
+                position relative
+                display block
+                height 50px
+                overflow: hidden
+
+                @media (min-width: 1100px)
+                    height 70px
+
+                &.expanded
+                    height: auto
+
+                    .head
+                        background rgba(255, 255, 255, 0.3)
+                        display none
+
+                    ul.communities
+                        display: block
+
+                div.head
+                    margin 0 auto 
+
+                    display: block
+                    overflow: hidden
+
+                    width 270px
+                    height 40px
+                    cursor pointer
+
+                    transition all 0.2s ease
+
+                    @media (min-width: 1100px)
+                        margin-bottom: 10px
+                        height 60px
+
+                        span.type
+                            height 60px
+                            width 60px
+                            line-height 60px
+                            font-size: 22px
+
+                        span.name
+                            height 60px
+                            line-height 60px
+                            font-size 20px
+
+                    div.separate
+                        position absolute
+                        display none
+                        left 0
+                        bottom 0
+                        width 100%
+                        height 1px
+                        background #485157
+
+                    .type
+                        position relative
+                        height 40px
+                        width 40px
+
+                        margin-right 10px
+
+                        display: block
+                        float: left
+
+                        text-align: center
+                        line-height 40px
+                        font-size: 18px
+                        text-transform uppercase
+
+                        background: rgba(255,255,255,0.2)
+                        z-index 10
+
+                    .name
+                        height 40px
+                        line-height 40px
+
+                        display: block
+                        float: left
+                        font-size 18px
+
+                        color #fff
+
+                ul.communities
+                    display: none
+
+                    li.communityContent
+                        margin: 0 auto
+                        margin-top 1px
+                        position relative
+                        width 270px
+                        overflow hidden
+                        display: block
+                        color: #fff
+
+                        transition margin 0.2s ease
+
+                        @media (min-width: 1100px)
+                            margin-top: 10px
+
+                            &.tl_selectaccount
+                                height 60px
+
+                                .type
+                                    margin-left: 0
+                                    height 60px
+                                    width 60px
+
+                                    .communityImageMin
+                                        height 60px
+                                        width 60px
+                                .name
+                                    height 60px
+                                    line-height: 60px
+                                    font-size 20px
+
+                            div.socialWrapperAccountSocial
+                                width 60px
+                                height 60px
+                                font-size 20px
+                                line-height: 60px
+
+                        @media (min-width: 1400px)
+                            margin-top: 20px
+
+                        .communityImageMin
+                            width 40px
+                            transform scale(1, 1)
+
+                        .socialWrapperAccountSocial
+                            position absolute
+                            width 40px
+                            height 40px
+                            z-index 30
+                            left 0
+                            top 0
+                            font-size 18px
+                            text-align center
+                            line-height 40px
+                            color #fff
+                            text-transform uppercase
+                            background: rgba(70, 107, 145, 0.60)
+
+                        &.active
+                            .name
+                                background: rgba(255,255,255,0.8) !important
+                                color: #000
+
+                        *:hover
+                            cursor pointer
+                        &:hover
+                            .name
+                                background: rgba(255,255,255,0.2)
+
+                        span.type
+                            position relative
+                            height 40px
+                            width 40px
+
+                            display: block
+                            float: left
+
+                            text-align: center
+                            line-height 40px
+                            font-size: 18px
+                            text-transform uppercase
+
+                            background: rgba(255,255,255,0.1)
+                            z-index 10
+
+                            @media (min-width: 1100px)
+                                margin-left: 20px
+
+                        span.name
+                            padding 0 10px
+
+                            height 40px
+                            line-height 40px
+
+                            display: block
+                            float: left
+                            font-size 16px
+                            width 190px
+                            white-space nowrap
+                            overflow hidden
+
+                            .text
+                                display: block
+                                width 190px
+                                overflow: hidden
+                                

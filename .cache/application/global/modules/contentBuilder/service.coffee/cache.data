@@ -1,0 +1,403 @@
+buzzlike.factory('contentBuilder', function($compile, $rootScope, stateManager) {
+  var Interface, addFreeControls, addObject, calculateImageSizeToWindow, canvas, container, createCircle, createLine, createRect, createTriangle, drawFreeControls, elem, fillColor, getObjectById, hide, init, maxHeight, maxWidth, objects, originalImage, removeSelected, renewActiveBorders, scale, scope, selected, setEvents, setInterfaceFunctions, show, strokeColor, updateSelected;
+  elem = null;
+  container = null;
+  scope = null;
+  originalImage = new Image();
+  canvas = null;
+  objects = null;
+  scale = 1;
+  maxWidth = 1200;
+  maxHeight = maxWidth * 9 / 16;
+  Interface = {};
+  selected = [];
+  fillColor = '#ffffff';
+  strokeColor = '#ffffff';
+  init = function(img) {
+    show();
+    window.canvas = canvas = new fabric.Canvas('canvas');
+    fabric.Object.prototype.cornerSize = 9;
+    fabric.Object.prototype.cornerColor = '#ffffff';
+    fabric.Object.prototype.borderColor = '#3facef';
+    fabric.Object.prototype.transparentCorners = false;
+    objects = canvas._objects;
+    setEvents();
+    originalImage = new Image();
+    originalImage.src = img.src;
+    container = elem.find('.canvas-container');
+    objects.original = new fabric.Image(originalImage);
+    if (!originalImage.onload) {
+      return originalImage.onload = function() {
+        calculateImageSizeToWindow(this);
+        canvas.add(objects.original);
+        return canvas.calcOffset();
+      };
+    }
+  };
+  calculateImageSizeToWindow = function(img, width, height) {
+    var H, W, h, kh, kw, w;
+    w = img.width;
+    h = img.height;
+    scale = 1;
+    if (w > maxWidth) {
+      W = maxWidth;
+    }
+    if (h > maxHeight) {
+      H = maxHeight;
+    }
+    kw = W / w;
+    kh = H / h;
+    if (scale > kh) {
+      scale = kh;
+    }
+    if (scale > kw) {
+      scale = kw;
+    }
+    w = img.width *= scale;
+    h = img.height *= scale;
+    scale = 1;
+    W = width || window.innerWidth;
+    H = height || window.innerHeight - 42;
+    if (W > maxWidth) {
+      W = maxWidth;
+    }
+    if (H > maxHeight) {
+      H = maxHeight;
+    }
+    kw = W / w;
+    kh = H / h;
+    if (scale > kh) {
+      scale = kh;
+    }
+    if (scale > kw) {
+      scale = kw;
+    }
+    canvas.setWidth(w * scale);
+    canvas.setHeight(h * scale);
+    objects.original.scaleToWidth(canvas.width);
+    objects.original.visible = false;
+    return container.css({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -canvas.height / 2 + 'px',
+      marginLeft: -canvas.width / 2 + 'px',
+      background: "url(" + img.src + ") no-repeat",
+      backgroundSize: canvas.width + "px " + canvas.height + "px"
+    });
+  };
+  show = function() {
+    var state;
+    if (!elem) {
+      state = {
+        noMenu: true,
+        "delete": removeSelected
+      };
+      scope = $rootScope.$new();
+      elem = $compile('<div class="shader contentBuilder"></div>')(scope);
+      $('.nwflw_view').append(elem);
+      elem = $(elem);
+      return stateManager.applyState(state);
+    }
+  };
+  hide = function() {
+    scope.$destroy();
+    elem.remove();
+    elem = scope = canvas = null;
+    return stateManager.goBack();
+  };
+  addObject = function(name) {
+    return function() {
+      var obj;
+      switch (name) {
+        case 'Circle':
+          obj = createCircle.apply(this, arguments);
+          break;
+        case 'Triangle':
+          obj = createTriangle.apply(this, arguments);
+          break;
+        case 'Rect':
+          obj = createRect.apply(this, arguments);
+          break;
+        case 'Line':
+          obj = createLine.apply(this, arguments);
+          break;
+        default:
+          obj = null;
+      }
+      if (!obj) {
+        return false;
+      }
+      obj.id = objects.length;
+      canvas.add(obj);
+      return canvas.setActiveObject(obj);
+    };
+  };
+  createCircle = function(prop) {
+    var obj;
+    prop = prop || {
+      top: 0,
+      left: 0,
+      radius: 50,
+      fill: fillColor,
+      type: "Circle",
+      perPixelTargetFind: true
+    };
+    return obj = new fabric.Circle(prop);
+  };
+  createTriangle = function(prop) {
+    var obj;
+    prop = prop || {
+      top: 0,
+      left: 0,
+      width: 100,
+      height: 100,
+      fill: fillColor,
+      type: "Triangle",
+      perPixelTargetFind: true
+    };
+    return obj = new fabric.Triangle(prop);
+  };
+  createRect = function(prop) {
+    var obj;
+    prop = prop || {
+      top: 0,
+      left: 0,
+      width: 80,
+      height: 80,
+      fill: fillColor,
+      type: "Rect",
+      perPixelTargetFind: true
+    };
+    return obj = new fabric.Rect(prop);
+  };
+  createLine = function(coords, prop) {
+    var obj;
+    coords = coords || [100, 0, 0, 100];
+    prop = prop || {
+      stroke: strokeColor,
+      strokeWidth: 3,
+      type: "Line",
+      originX: 'center',
+      originY: 'center',
+      hasControls: false,
+      hasRotatingPoint: false,
+      perPixelTargetFind: true
+    };
+    return obj = new fabric.Line(coords, prop);
+  };
+  addFreeControls = function(obj) {
+    var control, controls, i, j, len, ltPoint;
+    controls = [];
+    if (obj.type === 'Line') {
+      controls.push({
+        x: obj.x1,
+        y: obj.y1,
+        properties: ['x1', 'y1']
+      });
+      controls.push({
+        x: obj.x2,
+        y: obj.y2,
+        properties: ['x2', 'y2']
+      });
+      ltPoint = obj.getPointByOrigin('left', 'top');
+      for (j = 0, len = controls.length; j < len; j++) {
+        i = controls[j];
+        control = new fabric.Circle({
+          type: 'FreeControl',
+          properties: i.properties,
+          left: i.x + ltPoint.x,
+          top: i.y + ltPoint.y,
+          radius: 5,
+          stroke: '#000000',
+          fill: '#ffffff',
+          hasBorders: false,
+          hasControls: false,
+          originX: 'center',
+          originY: 'center'
+        });
+        canvas.add(control);
+        controls[_i] = control;
+      }
+      obj.freeControls = controls;
+    }
+    obj.set("angle", 0);
+    canvas.calcOffset();
+    return controls;
+  };
+  drawFreeControls = function(obj) {
+    var i, j, k, left, len, len1, ltPoint, newCoords, ref, ref1, top, x, y;
+    if (obj.type === 'Line') {
+      if (obj.active) {
+        ltPoint = obj.getPointByOrigin('left', 'top');
+        ref = obj.freeControls;
+        for (j = 0, len = ref.length; j < len; j++) {
+          i = ref[j];
+          left = ltPoint.x + obj[i.properties[0]];
+          top = ltPoint.y + obj[i.properties[1]];
+          if (i.left !== left || i.top !== top) {
+            i.set({
+              left: left,
+              top: top
+            });
+          }
+        }
+      } else {
+        newCoords = {};
+        ltPoint = {};
+        ref1 = obj.freeControls;
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          i = ref1[k];
+          x = i.left;
+          y = i.top;
+          newCoords[i.properties[0]] = x;
+          newCoords[i.properties[1]] = y;
+          blog('coords set', i.properties, newCoords, obj, left, top);
+          if (x < ltPoint.x || !ltPoint.x) {
+            ltPoint.x = x;
+          }
+          if (y < ltPoint.y || !ltPoint.y) {
+            ltPoint.y = y;
+          }
+        }
+        for (i in newCoords) {
+          if (i.indexOf('x') + 1) {
+            newCoords[i] -= ltPoint.x;
+          }
+          if (i.indexOf('y') + 1) {
+            newCoords[i] -= ltPoint.y;
+          }
+        }
+        obj.set(newCoords);
+        obj.setPositionByOrigin(new fabric.Point(ltPoint.x, ltPoint.y), 'left', 'top');
+      }
+    }
+    canvas.calcOffset();
+    canvas.renderAll();
+    return true;
+  };
+  renewActiveBorders = function(obj) {
+    var group;
+    group = new fabric.Group([obj], {});
+    canvas.setActiveGroup(group);
+    canvas.deactivateAll();
+    group = null;
+    return canvas.setActiveObject(obj);
+  };
+  setEvents = function() {
+    return canvas.on("object:selected", function(props) {
+      var controls, i, j, k, l, len, len1, len2, object, properties, propertyList, ref, ref1, toRemove;
+      if (((ref = canvas._activeObject) != null ? (ref1 = ref.type) != null ? ref1.indexOf('Free') : void 0 : void 0) + 1) {
+        blog('free control selected');
+        return true;
+      }
+      Interface.slideMenu('.properties', 'left');
+      selected = props.target._objects || [props.target];
+      properties = {};
+      propertyList = selected[0].stateProperties;
+      for (j = 0, len = propertyList.length; j < len; j++) {
+        i = propertyList[j];
+        properties[i] = selected[0].get(i);
+      }
+      Interface.updateObjectProperties(properties);
+      toRemove = [];
+      for (k = 0, len1 = objects.length; k < len1; k++) {
+        i = objects[k];
+        if (i.freeControls) {
+          i.freeControls = null;
+        }
+        if (i.type.indexOf('Free') + 1) {
+          toRemove.push(i);
+        }
+      }
+      for (l = 0, len2 = toRemove.length; l < len2; l++) {
+        i = toRemove[l];
+        i.remove();
+      }
+      object = selected[0];
+      if (selected.length === 1 && !object.freeControls) {
+        return controls = addFreeControls(object);
+      }
+    }).on("selection:cleared", function() {
+      var i, j, k, len, len1, toRemove;
+      blog('select');
+      Interface.slideMenu('.menu', 'right');
+      selected.length = 0;
+      toRemove = [];
+      for (j = 0, len = objects.length; j < len; j++) {
+        i = objects[j];
+        if (i.freeControls) {
+          i.freeControls = null;
+        }
+        if (i.type.indexOf('Free') + 1) {
+          toRemove.push(i);
+        }
+      }
+      for (k = 0, len1 = toRemove.length; k < len1; k++) {
+        i = toRemove[k];
+        i.remove();
+      }
+      return true;
+    }).on("object:moving", function(props) {
+      var object;
+      object = selected[0];
+      if (selected.length === 1 && object.freeControls) {
+        drawFreeControls(object);
+      }
+      return true;
+    }).on("after:render", function(props) {
+      return true;
+    }).on("mouse:up", function() {
+      var object;
+      object = selected[0];
+      if (selected.length === 1 && object.freeControls) {
+        return renewActiveBorders(object);
+      }
+    });
+  };
+  updateSelected = function(props) {
+    var i, j, len, p;
+    for (j = 0, len = selected.length; j < len; j++) {
+      i = selected[j];
+      for (p in props) {
+        i[p] = props[p];
+      }
+    }
+    return canvas.renderAll();
+  };
+  setInterfaceFunctions = function(funcs) {
+    var f, results;
+    results = [];
+    for (f in funcs) {
+      results.push(Interface[f] = funcs[f]);
+    }
+    return results;
+  };
+  removeSelected = function() {
+    var i, j, len;
+    for (j = 0, len = selected.length; j < len; j++) {
+      i = selected[j];
+      i.remove();
+    }
+    return canvas.discardActiveGroup().renderAll();
+  };
+  getObjectById = function(id) {
+    var i, j, len;
+    for (j = 0, len = objects.length; j < len; j++) {
+      i = objects[j];
+      if (i.id === id) {
+        return i;
+      }
+    }
+    return true;
+  };
+  return {
+    init: init,
+    show: show,
+    hide: hide,
+    addObject: addObject,
+    updateSelected: updateSelected,
+    removeSelected: removeSelected,
+    setInterfaceFunctions: setInterfaceFunctions
+  };
+});

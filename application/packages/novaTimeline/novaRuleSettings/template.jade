@@ -1,0 +1,16 @@
+div.timePlaceholder(ng-if="rule.timestampStart == 0", ng-click="setTime()")
+    span - - 
+    span : 
+    span - -
+div.timePicker(
+    ng-if="rule.timestampStart > 0", 
+    ng-model="rule.timestampStart",
+    ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }",
+    ng-change="saveRule()")
+div.daysTrigger
+    div.day(
+        ng-repeat="day in daysArray track by $index", 
+        translate="147+day", 
+        index="1", 
+        ng-class="{'active':rule.dayMask[day]}", 
+        ng-click="triggerDay(day)")

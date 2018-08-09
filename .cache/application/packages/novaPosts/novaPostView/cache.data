@@ -1,0 +1,20 @@
+tC['/novaPostView/template.jade'] = "<div class=\"postText\"> <div ng-repeat=\"textId in item.contentIds.text\" nova-item-id=\"textId\" nova-item-type=\"text\" nova-item-preview-type=\"editor\" class=\"textItem novaItem novaItemDraggable novaItemDroppable novaItemSelectable novaItemPreview\"></div> <div ng-click=\"addText()\" ng-if=\"!(item.contentIds.text.length &gt; 0)\" translate=\"'novaPostView_addText'\" class=\"addText\"></div> </div> <div class=\"novaPostContent\"></div>";
+
+buzzlike.directive('novaPostView', function(contentService, postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostView/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.addText = function() {
+        console.log(scope);
+        return contentService.create({
+          type: 'text'
+        }, function(textItem) {
+          return postService.addContentIds(scope.item, [textItem.id]);
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaPostView', ".novaPostView .textItem {\n  font-size: 12px;\n  line-height: 14px;\n  padding: 10px;\n}\n.novaPostView .novaPostContent {\n  width: 100%;\n}\n.novaPostView .novaPostContent .bigPicture {\n  position: relative;\n  width: 100%;\n  height: 240px;\n}\n.novaPostView .novaPostContent .pictureSelector {\n  position: relative;\n  background: none;\n}\n.novaPostView .novaPostContent .pictureSelector .selector {\n  background: #666;\n}\n");

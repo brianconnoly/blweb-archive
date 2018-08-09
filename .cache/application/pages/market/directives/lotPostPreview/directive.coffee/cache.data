@@ -1,0 +1,42 @@
+buzzlike.directive('lotPostPreview', function(favouriteService, postService, $filter) {
+  return {
+    restrict: 'C',
+    template: tC['/pages/market/directives/lotPostPreview'],
+    link: function(scope, element, attrs) {
+      var elem, postId;
+      elem = $(element);
+      postId = scope.item.postId;
+      scope.post = postService.getById(postId);
+      scope.previewItem = scope.post;
+      scope.triggerFavourite = function() {
+        favouriteService.triggerLotId(scope.item.id);
+        return true;
+      };
+      scope.isFavourite = function() {
+        return favouriteService.byLotId[scope.item.id] != null;
+      };
+      scope.writeValues = function() {
+        var values;
+        values = [];
+        values.push({
+          time: $filter("timestampMask", "time date")(scope.item.dateFrom)
+        });
+        values.push({
+          time: $filter("timestampMask", "time date")(scope.item.dateTo)
+        });
+        return elem.find(".bind.value").each(function(i, elem) {
+          var key, ref, results, val;
+          ref = values[i];
+          results = [];
+          for (key in ref) {
+            val = ref[key];
+            results.push($(elem).find("." + key).html(val));
+          }
+          return results;
+        });
+      };
+      scope.writeValues();
+      return true;
+    }
+  };
+});

@@ -1,0 +1,329 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.controller('socialImportCtrl', function(complexMenu, groupService, account, actionsService, importAlbumService, importContentService, contentService, $scope, communityService, buffer, localization, multiselect) {
+  var acc, feeds, i, j, len, len1, onEscape, ref, ref1;
+  $scope.widthShrinker = 182;
+  if ($scope.session.zoom == null) {
+    $scope.session.zoom = 'mid';
+  }
+  $scope.multiselectState = multiselect.state;
+  $scope.user = account.user;
+  onEscape = $scope.onEscape = function() {
+    $scope.closeApp();
+    return true;
+  };
+  $scope.stateTree.applyState({
+    'enter': function() {
+      return $scope["import"]();
+    },
+    'escape': function() {
+      if ($scope.stepStack.length > 1) {
+        $scope.stepBack();
+      } else {
+        $scope.closeApp();
+      }
+      return true;
+    }
+  });
+  $scope.currentStep = null;
+  $scope.stepStack = [];
+  $scope.goSection = function(section) {
+    var id;
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = angular.copy(section);
+    $scope.currentStep.group = false;
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.itemClick = function(item) {
+    var id, ref;
+    if (item.type !== 'importAlbum') {
+      return false;
+    }
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = {
+      translateTitle: (item != null ? (ref = item.title) != null ? ref.length : void 0 : void 0) > 0 ? null : 'socialImportApp_noNameAlbum',
+      title: item.title || null,
+      albumId: item.id,
+      query: {
+        albumId: item.id,
+        albumType: item.albumType,
+        sn: item.socialNetwork,
+        snOwnerId: item.snOwnerId,
+        id: item.albumId,
+        communityId: item.communityId
+      }
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return true;
+  };
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+      return $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+    }
+  };
+  $scope.currentAccount = null;
+  $scope.currentCommunity = null;
+  $scope.pickCommunity = function(item, acc) {
+    $scope.currentCommunity = item;
+    if (acc != null) {
+      $scope.currentAccount = acc;
+    }
+    $scope.stepStack.length = 0;
+    $scope.currentStep = {
+      group: true,
+      communityId: item.id,
+      title: item.name,
+      sn: item.socialNetwork
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return true;
+  };
+  if (account.user.settings.importOnlyFromMyComm) {
+    $scope.mediaplans = [];
+    groupService.get(function(list) {
+      var community, feed, group, i, len, results;
+      results = [];
+      for (i = 0, len = list.length; i < len; i++) {
+        group = list[i];
+        results.push((function() {
+          var j, len1, ref, results1;
+          ref = group.feeds;
+          results1 = [];
+          for (j = 0, len1 = ref.length; j < len1; j++) {
+            feed = ref[j];
+            community = communityService.getById(feed.communityId);
+            if (indexOf.call($scope.mediaplans, community) < 0) {
+              results1.push($scope.mediaplans.push(community));
+            } else {
+              results1.push(void 0);
+            }
+          }
+          return results1;
+        })());
+      }
+      return results;
+    });
+    ref = account.user.accounts;
+    for (i = 0, len = ref.length; i < len; i++) {
+      acc = ref[i];
+      communityService.getByPublicId({
+        snType: acc.socialNetwork,
+        snId: acc.publicId
+      }, function(community) {
+        if (indexOf.call($scope.mediaplans, community) < 0) {
+          return $scope.mediaplans.push(community);
+        }
+      });
+    }
+  } else {
+    feeds = [];
+    ref1 = account.user.accounts;
+    for (j = 0, len1 = ref1.length; j < len1; j++) {
+      acc = ref1[j];
+      feeds = feeds.concat(acc.writableCommunities);
+    }
+    communityService.getByIds(feeds, function(list) {
+      return $scope.mediaplans = list;
+    });
+  }
+  $scope.orderCommunity = function(community) {
+    if (community.communityType === 'profile') {
+      return -90000000;
+    } else {
+      return -community.membersCount;
+    }
+  };
+  $scope.formatName = function(type) {
+    return type[0].toUpperCase() + type.substr(1) + 's';
+  };
+  $scope.queryFunction = function(query, cb) {
+    if (query.albumId != null) {
+      return importContentService.query(query, cb);
+    } else {
+      return importAlbumService.query(query, cb);
+    }
+  };
+  $scope.getGroups = function(cb) {
+    var l, len2, ref2, result, type, types;
+    result = [];
+    types = ['image', 'video', 'audio'];
+    for (l = 0, len2 = types.length; l < len2; l++) {
+      type = types[l];
+      if (((ref2 = $scope.currentStep.sn) === 'ok' || ref2 === 'fb') && (type === 'video' || type === 'audio')) {
+        continue;
+      }
+      if ($scope.currentStep.sn === 'yt' && (type === 'image' || type === 'audio')) {
+        continue;
+      }
+      result.push({
+        translateTitle: 'socialImportApp_' + type + 's',
+        screens: 3,
+        lines: 3,
+        query: {
+          type: type,
+          communityId: $scope.currentStep.communityId,
+          sn: $scope.currentStep.sn
+        }
+      });
+    }
+    if (typeof cb === "function") {
+      cb(result);
+    }
+    return result;
+  };
+  $scope["import"] = function() {
+    var album, albums, content, item, items, l, len2, len3, len4, m, n, results;
+    items = multiselect.getFocused();
+    albums = [];
+    content = [];
+    for (l = 0, len2 = items.length; l < len2; l++) {
+      item = items[l];
+      if (item.type === 'importAlbum') {
+        albums.push(item);
+      } else if (item.type === 'importContent') {
+        content.push(item);
+      }
+    }
+    if (albums.length > 0) {
+      for (m = 0, len3 = albums.length; m < len3; m++) {
+        album = albums[m];
+        importAlbumService["import"](album, function(folder) {
+          return buffer.addItem(folder);
+        });
+      }
+    }
+    if (content.length > 0) {
+      results = [];
+      for (n = 0, len4 = content.length; n < len4; n++) {
+        item = content[n];
+        results.push(importContentService["import"](item, function(contentItem) {
+          return buffer.addItem(contentItem);
+        }));
+      }
+      return results;
+    }
+  };
+  $scope.update = function() {
+    $scope.currentStep.ts = Date.now();
+    return true;
+  };
+  $scope.showMoreMenu = function(e) {
+    var action, actions, groups, items, itemsActions, k, l, len2, list;
+    items = multiselect.getFocused();
+    if (items.length === 0) {
+      return;
+    }
+    itemsActions = actionsService.getActions({
+      source: items
+    });
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (l = 0, len2 = itemsActions.length; l < len2; l++) {
+        action = itemsActions[l];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      complexMenu.show(groups, {
+        top: $(e.target).offset().top + 27,
+        left: $(e.target).offset().left
+      });
+    }
+    return true;
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    var ref2;
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep),
+      communityId: (ref2 = $scope.currentCommunity) != null ? ref2.id : void 0,
+      accountId: $scope.user.accounts.indexOf($scope.currentAccount)
+    };
+  }, function(data) {
+    var l, len2, ref2, step;
+    $scope.stepStack.length = 0;
+    ref2 = data.stack;
+    for (l = 0, len2 = ref2.length; l < len2; l++) {
+      step = ref2[l];
+      $scope.stepStack.push(step);
+    }
+    $scope.currentStep = $scope.stepStack[data.current * 1];
+    if (data.communityId != null) {
+      $scope.currentCommunity = communityService.getById(data.communityId);
+    }
+    return $scope.currentAccount = $scope.user.accounts[data.accountId];
+  });
+  return $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+});
+
+buzzlike.filter('grabContent_FIX', function() {
+  return function(items, scope) {
+    var arr;
+    arr = makeArray(items);
+    return arr.filter(function(element, index, array) {
+      var ref, ref1, ref2;
+      if (((ref = scope.currentAccount) != null ? ref.publicId : void 0) === scope.account.publicId) {
+        return ref1 = element.id, indexOf.call(scope.account.writableCommunities, ref1) >= 0;
+      } else {
+        return element.communityType === 'profile' && (ref2 = element.id, indexOf.call(scope.account.writableCommunities, ref2) >= 0);
+      }
+    });
+  };
+});
+
+buzzlike.directive('selectFirst', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      if (scope.currentCommunity === null && scope.$first && scope.$parent.$first) {
+        return scope.pickCommunity(scope.item, scope.account);
+      }
+    }
+  };
+});
+
+buzzlike.directive('focusSearchOnLoad', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      return setTimeout(function() {
+        return $(element).focus();
+      }, 1);
+    }
+  };
+});

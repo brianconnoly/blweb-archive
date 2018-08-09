@@ -1,0 +1,336 @@
+.appContainer.ruleInspector {
+  background: #f2f2f2;
+}
+.appContainer.ruleInspector .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.ruleInspector .body .remove {
+  position: absolute;
+  bottom: 0px;
+  right: 30px;
+}
+.appContainer.ruleInspector .body .focusDay {
+  margin-top: 15px;
+}
+.appContainer.ruleInspector .body .focusDay .capture {
+  cursor: pointer;
+  text-decoration: underline;
+  width: 150px;
+}
+.appContainer.ruleInspector .body .selectedCounter .value {
+  line-height: 25px;
+  font-weight: bolder;
+}
+.appContainer.ruleInspector .body .blockTitle {
+  font-weight: bolder;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  width: 130px;
+  text-align: right;
+  font-size: 16px;
+  line-height: 17px;
+}
+.appContainer.ruleInspector .body .desctiprionBlock {
+  font-size: 11px;
+  line-height: 13px;
+  height: 70px;
+}
+.appContainer.ruleInspector .body .desctiprionBlock .text {
+  margin-top: 10px;
+  margin-left: 130px;
+  width: 230px;
+}
+.appContainer.ruleInspector .body .settingsBlock {
+  height: 35px;
+  margin-top: 5px;
+}
+.appContainer.ruleInspector .body .bl-checkbox {
+  margin-top: 5px;
+  width: 25px;
+  height: 13px;
+  background: #ccc;
+}
+.appContainer.ruleInspector .body .bl-checkbox .tumbler {
+  right: 11px;
+}
+.appContainer.ruleInspector .body .bl-checkbox .button {
+  top: 2px;
+  right: 2px;
+  width: 11px;
+  height: 11px;
+}
+.appContainer.ruleInspector .daySelector {
+  margin-top: -1px;
+}
+.appContainer.ruleInspector .daySelector .day {
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  float: left;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  color: #ccc;
+  font-size: 12px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.appContainer.ruleInspector .daySelector .day.active {
+  background: #494949;
+  border-color: #494949;
+}
+.appContainer.ruleInspector .line {
+  position: relative;
+  clear: both;
+  height: 25px;
+  margin: 5px 0;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appContainer.ruleInspector .line.hidden {
+  opacity: 0.3;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+  filter: alpha(opacity=30);
+  pointer-events: none;
+}
+.appContainer.ruleInspector .line .capture {
+  position: relative;
+  top: 4px;
+  font-size: 16px;
+  line-height: 17px;
+  height: 17px;
+  color: #000;
+  float: left;
+  min-width: 40px;
+  padding-right: 10px;
+  width: 120px;
+  text-align: right;
+}
+.appContainer.ruleInspector .line .wideCapture {
+  width: 120px;
+}
+.appContainer.ruleInspector .line .selectDay {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.appContainer.ruleInspector .line .value {
+  float: left;
+  color: #000;
+}
+.appContainer.ruleInspector .line .value .time {
+  margin-right: 5px;
+}
+.appContainer.ruleInspector .line .value .time .sep {
+  font-size: 26px;
+  color: #fff;
+  float: left;
+  width: 10px;
+}
+.appContainer.ruleInspector .line .value .time input {
+  position: relative;
+  background: none;
+  border: 0;
+  font-size: 25px;
+  color: #fff;
+  width: 30px;
+  height: 29px;
+  float: left;
+  margin: 0;
+  padding: 0 0 2px 0;
+}
+.appContainer.ruleInspector .line .value .timePicker,
+.appContainer.ruleInspector .line .value .date {
+  position: relative;
+  float: left;
+  padding: 0px 5px;
+  color: #494949;
+  background: none;
+  border: 1px #ccc solid;
+  font-size: 16px;
+  line-height: 23px;
+}
+.appContainer.ruleInspector .line .value .timePicker input,
+.appContainer.ruleInspector .line .value .date input {
+  width: 23px;
+  height: auto;
+  padding: 0;
+  font-size: 16px;
+  line-height: 23px;
+  color: #494949;
+}
+.appContainer.ruleInspector .line .value .timePicker span,
+.appContainer.ruleInspector .line .value .date span {
+  width: 4px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 23px;
+  color: #494949;
+}
+.appContainer.ruleInspector .line .value .timePicker {
+  padding: 0px 3px;
+}
+.appContainer.ruleInspector .line .value .date {
+  margin-right: 7px;
+}
+.appContainer.ruleInspector .line .value .repeatIcon {
+  position: relative;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  margin-top: -1px;
+  cursor: pointer;
+}
+.appContainer.ruleInspector .line .value .repeatIcon * {
+  cursor: pointer;
+}
+.appContainer.ruleInspector .line .value .repeatIcon div {
+  top: 0;
+  width: 25px;
+  height: 25px;
+}
+.appContainer.ruleInspector .line .value .repeatIcon.cur {
+  padding: 1px;
+  border: 0;
+  background: #494949;
+  cursor: default;
+}
+.appContainer.ruleInspector .line .value .repeatIcon.cur * {
+  cursor: default;
+}
+.appContainer.ruleInspector .line .value .single div {
+  background: url("/resources/images/desktop/mediaplanInspector/white/single.svg");
+}
+.appContainer.ruleInspector .line .value .daily div {
+  background: url("/resources/images/desktop/mediaplanInspector/white/repeat.svg");
+}
+.appContainer.ruleInspector .line .value .chain div {
+  background: url("/resources/images/desktop/mediaplanInspector/white/series.svg");
+}
+.appContainer.ruleInspector .remove {
+  color: #ff6969;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+.appContainer.ruleInspector .remove:hover {
+  cursor: pointer;
+}
+.appContainer.ruleInspector .selected {
+  height: 20px;
+}
+.appContainer.ruleInspector .repeat {
+  margin-top: 15px;
+}
+.appContainer.ruleInspector .repeat .wideCapture {
+  margin-top: 2px;
+}
+.appContainer.ruleInspector .interval {
+  margin-bottom: 15px;
+}
+.appContainer.ruleInspector .interval .slider {
+  position: relative;
+  margin-top: 20px;
+  width: 100%;
+  height: 2px;
+  background: #415764;
+  clear: both;
+}
+.appContainer.ruleInspector .interval .slider .ui-slider-range {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  background: #a0abb2;
+}
+.appContainer.ruleInspector .interval .slider .ui-slider-handle {
+  position: absolute;
+  top: -6px;
+  margin-left: -6px;
+  height: 14px;
+  width: 14px;
+  background: #ccc;
+  cursor: pointer;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  outline: none;
+}
+.appContainer.ruleInspector .interval .slider .decorStart,
+.appContainer.ruleInspector .interval .slider .decorEnd {
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: #ccc;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  z-index: 10;
+}
+.appContainer.ruleInspector .interval .slider .decorStart {
+  left: -2px;
+}
+.appContainer.ruleInspector .interval .slider .decorEnd {
+  right: -4px;
+}
+.appContainer.ruleInspector .interval .sliderLegend {
+  position: relative;
+  margin-top: 9px;
+}
+.appContainer.ruleInspector .interval .sliderLegend .start,
+.appContainer.ruleInspector .interval .sliderLegend .end {
+  font-size: 14px;
+  color: #b8c0c5;
+}
+.appContainer.ruleInspector .interval .sliderLegend .start {
+  float: left;
+}
+.appContainer.ruleInspector .interval .sliderLegend .end {
+  float: right;
+}
+.time-picker {
+  position: absolute;
+  z-index: 11111;
+  top: -10px;
+  bottom: -10px;
+  width: 30px;
+  background: #fff;
+  opacity: 0.9;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+  filter: alpha(opacity=90);
+  background-image: url("/resources/images/icons/inspector-handler.png");
+  background-position: 0px 69px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 90px 30px;
+  -moz-background-size: 90px 30px;
+  background-size: 90px 30px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .time-picker {
+    background-image: url("/resources/images/icons/inspector-handler@2x.png");
+    background-position: 0px 69px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 90px 30px;
+    -moz-background-size: 90px 30px;
+    background-size: 90px 30px;
+  }
+}
+.time-picker.right {
+  background-position-x: -60px;
+}
+.time-picker:hover {
+  cursor: ew-resize;
+}
+.time-picker.active {
+  pointer-events: none;
+}

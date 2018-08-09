@@ -1,0 +1,11 @@
+buzzlike.directive('notificationRequestreject', function(postService) {
+  return {
+    template: tC['/notificationCenter/notificationRequestreject'],
+    link: function(scope, element, attrs) {
+      var ref, ref1;
+      if (((ref = scope.notification) != null ? (ref1 = ref.itemList) != null ? ref1[2] : void 0 : void 0) != null) {
+        return scope.postId = scope.notification.itemList[2].id;
+      }
+    }
+  };
+});

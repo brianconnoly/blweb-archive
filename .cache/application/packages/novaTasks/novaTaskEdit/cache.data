@@ -1,0 +1,70 @@
+tC['/novaTaskEdit/template.jade'] = "<div ng-if=\"!createMode\" class=\"taskActions novaItemMenuActivator\">...</div> <div ng-if=\"!createMode\" class=\"novaTaskStatus\"></div> <div ng-model=\"item.name\" placeholder-text=\"'novaTaskEdit_enterTitle'\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }\" ng-change=\"updateTask()\" auto-focus=\"auto-focus\" on-enter=\"jumpDescription\" class=\"taskTitle novaEditableDiv\"></div> <div ng-model=\"item.description\" placeholder-text=\"'novaTaskEdit_enterDescription'\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }\" ng-change=\"updateTask()\" on-cmd-enter=\"addSubTask\" class=\"taskDescription novaEditableDiv\"></div> <div ng-if=\"!createMode\" nova-stream-item=\"item\" class=\"taskStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> <div ng-if=\"createMode\" class=\"childTasks\"> <div ng-repeat=\"childTask in childTasks track by $index\" class=\"childTask\"> <div class=\"childTaskMark\"></div> <div ng-model=\"childTask.name\" placeholder-text=\"'novaTaskEdit_enterSubtaskName'\" auto-focus=\"auto-focus\" on-enter=\"addSubTask\" class=\"childTaskName novaEditableDiv\"></div> </div> <div ng-click=\"addSubTask()\" class=\"childTask addSubTask\"> <div class=\"childTaskMark\">+</div> <div translate=\"'novaTaskEdit_addSubtask'\" class=\"childTaskName\"></div> </div> </div> <div ng-if=\"!createMode &amp;&amp; item.parent == null\" class=\"taskMode\"> <div nova-switch-options=\"taskModes\" nova-switch-view=\"simple\" ng-model=\"item.mode\" ng-change=\"updateMode()\" translate=\"'novaSwitch_option_title_' + item.mode\" class=\"novaSwitch\"></div> </div> <div class=\"taskUsers novaMultiselect\"> <div translate=\"'novaTaskEdit_executor' + (item.users.length &gt; 1 ? 's' : '')\" ng-if=\"item.users.length &gt; 0\" class=\"subHeader\"></div> <div ng-repeat=\"userId in item.users\" nova-item-type=\"user\" nova-item-id=\"userId\" nova-item-context=\"taskItem\" ng-class=\"{'executor':taskItem.executor == userId}\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemMenu\"></div> <div translate=\"'novaTaskEdit_initiator'\" ng-if=\"!createMode\" class=\"subHeader\"></div> <div ng-if=\"taskItem.userId &amp;&amp; !createMode\" nova-item-id=\"taskItem.userId\" nova-item-type=\"user\" nova-item-context=\"taskItem\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemMenu\"></div> </div> <div class=\"taskEntities novaMultiselect\"> <div ng-repeat=\"entity in item.entities track by entity.id\" ng-if=\"entity.id != appItem.id\" nova-item-type=\"{{entity.type}}\" nova-item-id=\"entity.id\" nova-item-context=\"taskItem\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemMenu\"></div> </div> <div ng-if=\"createMode\" translate=\"'novaTaskEdit_doCreate'\" ng-click=\"doCreateTask()\" ng-class=\"{'active':canCreate()}\" class=\"doCreate\"></div>";
+
+buzzlike.directive('novaTaskEdit', function($parse, taskService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTaskEdit/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem, unreg;
+      elem = $(element);
+      scope.childTasks = [];
+      scope.createMode = attrs.novaTaskCreate != null;
+      unreg = scope.$watch('item.type', function(nVal) {
+        if (nVal == null) {
+          return;
+        }
+        unreg();
+        return scope.taskItem = scope.item;
+      });
+      scope.taskModes = ['current', 'backlog', 'icebox'];
+      scope.updateTask = function() {
+        if (!scope.createMode && scope.item.blank !== true) {
+          return taskService.save(scope.item);
+        }
+      };
+      scope.updateMode = function() {
+        return taskService.call('setMode', {
+          taskId: scope.item.id,
+          mode: scope.item.mode
+        });
+      };
+      scope.addSubTask = function() {
+        return scope.childTasks.push({
+          name: ""
+        });
+      };
+      scope.canCreate = function() {
+        return scope.item.name.length > 0;
+      };
+      scope.doCreateTask = function() {
+        scope.$parent.addTaskActive = false;
+        taskService.create(scope.item, function(createdTask) {
+          var child, i, len, ref, results;
+          ref = scope.childTasks;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            child = ref[i];
+            if (child.name.length > 0) {
+              results.push(taskService.create({
+                name: child.name,
+                parent: createdTask.id,
+                projectId: createdTask.projectId
+              }));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        });
+        scope.item.name = "";
+        scope.item.description = "";
+        return scope.item.entities.length = 0;
+      };
+      return scope.jumpDescription = function() {
+        return elem.find('.taskDescription').focus();
+      };
+    }
+  };
+});
+
+registerStyles('novaTaskEdit', ".novaTaskEdit {\n  width: 100%;\n  padding-bottom: 5px;\n  background: #fff;\n}\n.novaTaskEdit .taskActions {\n  float: right;\n  margin-right: 10px;\n  z-index: 1;\n  padding-bottom: 10px;\n}\n.novaTaskEdit .novaTaskStatus {\n  margin-right: 5px;\n  float: right;\n}\n.novaTaskEdit .addTask {\n  cursor: pointer;\n  float: right;\n  width: 30px;\n  height: 30px;\n  text-align: center;\n  line-height: 30px;\n  font-size: 25px;\n  -webkit-transform: rotateZ(0deg);\n  -moz-transform: rotateZ(0deg);\n  -o-transform: rotateZ(0deg);\n  -ms-transform: rotateZ(0deg);\n  transform: rotateZ(0deg);\n  -webkit-transition: -webkit-transform 0.2s ease;\n  -moz-transition: -moz-transform 0.2s ease;\n  -o-transition: -o-transform 0.2s ease;\n  -ms-transition: -ms-transform 0.2s ease;\n  transition: transform 0.2s ease;\n  z-index: 2;\n}\n.novaTaskEdit .addTask.active {\n  -webkit-transform: rotateZ(45deg);\n  -moz-transform: rotateZ(45deg);\n  -o-transform: rotateZ(45deg);\n  -ms-transform: rotateZ(45deg);\n  transform: rotateZ(45deg);\n}\n.novaTaskEdit .taskTitle,\n.novaTaskEdit .taskDescription {\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 3px 10px;\n  font-size: 14px;\n  line-height: 17px;\n  outline: none;\n}\n.novaTaskEdit .taskTitle.placeholder,\n.novaTaskEdit .taskDescription.placeholder {\n  color: #999;\n}\n.novaTaskEdit .taskTitle {\n  font-weight: bolder;\n  font-size: 16px;\n  margin-top: 4px;\n  line-height: 20px;\n}\n.novaTaskEdit .taskStream {\n  margin-top: 5px;\n  padding: 0 15px;\n  overflow: hidden;\n}\n.novaTaskEdit .taskMode {\n  overflow: hidden;\n  padding: 10px 10px 0 10px;\n  margin-top: -5px;\n}\n.novaTaskEdit .taskMode .novaSwitch {\n  cursor: pointer;\n  font-size: 12px;\n  color: #ccc;\n  float: left;\n  -webkit-transition: color 0.2s ease;\n  -moz-transition: color 0.2s ease;\n  -o-transition: color 0.2s ease;\n  -ms-transition: color 0.2s ease;\n  transition: color 0.2s ease;\n}\n.novaTaskEdit .taskMode .novaSwitch:hover {\n  color: #999;\n}\n.novaTaskEdit .taskEntities {\n  margin-top: -10px;\n  padding: 10px 10px;\n  overflow: hidden;\n}\n.novaTaskEdit .taskEntities .novaItem {\n  float: left;\n  margin: 5px;\n  width: 89px;\n  height: 67px;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-box-shadow: 0 0 2px 0 rgba(0,0,0,0.2);\n  box-shadow: 0 0 2px 0 rgba(0,0,0,0.2);\n}\n.novaTaskEdit .childTasks {\n  padding: 7px 15px;\n  margin-top: -2px;\n  overflow: hidden;\n}\n.novaTaskEdit .childTasks .childTask {\n  overflow: hidden;\n  min-height: 30px;\n  display: table;\n}\n.novaTaskEdit .childTasks .childTask.addSubTask {\n  min-height: 16px;\n  cursor: pointer;\n}\n.novaTaskEdit .childTasks .childTask.addSubTask div {\n  cursor: pointer;\n}\n.novaTaskEdit .childTasks .childTask.addSubTask .childTaskMark {\n  border: none;\n  width: 16px;\n  height: 16px;\n  text-align: center;\n  line-height: 16px;\n  font-size: 14px;\n}\n.novaTaskEdit .childTasks .childTask .childTaskMark {\n  width: 28px;\n  height: 28px;\n  -webkit-border-radius: 15px;\n  border-radius: 15px;\n  border: 1px solid #454545;\n  float: left;\n  margin: 2px;\n  margin-right: 6px;\n}\n.novaTaskEdit .childTasks .childTask .childTaskName {\n  line-height: 20px;\n  font-size: 14px;\n  line-height: 15px;\n  min-width: 200px;\n  display: table-cell;\n  vertical-align: middle;\n  outline: none;\n  overflow: hidden;\n}\n.novaTaskEdit .childTasks .childTask .childTaskName.placeholder {\n  color: #999;\n}\n.novaTaskEdit .taskUsers {\n  padding: 9px;\n  overflow: hidden;\n}\n.novaTaskEdit .taskUsers .subHeader {\n  overflow: hidden;\n  font-size: 12px;\n  color: #ccc;\n  clear: both;\n  margin-left: 2px;\n}\n.novaTaskEdit .taskUsers .backFace {\n  display: none;\n}\n.novaTaskEdit .taskUsers .novaItem {\n  float: left;\n  margin: 5px;\n  -webkit-border-radius: 40px;\n  border-radius: 40px;\n}\n.novaTaskEdit .taskUsers .novaItem .novaUserPreview {\n  display: table;\n  width: 140px;\n}\n.novaTaskEdit .taskUsers .novaItem.executor .overlay {\n  border: 1px solid #3496f2;\n}\n.novaTaskEdit .taskUsers .novaItem .avatarWrapper {\n  margin: 5px;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n  width: 30px;\n  height: 30px;\n}\n.novaTaskEdit .taskUsers .novaItem .userName {\n  width: 100%;\n  display: table-cell;\n  vertical-align: middle;\n  text-align: left;\n}\n.novaTaskEdit .doCreate {\n  width: 100%;\n  height: 40px;\n  line-height: 40px;\n  text-align: center;\n  font-size: 16px;\n  color: #fff;\n  cursor: pointer;\n  background: #666;\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaTaskEdit .doCreate.active {\n  background: #3496f2;\n  opacity: 0.9;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)\";\n  filter: alpha(opacity=90);\n}\n.novaTaskEdit .doCreate.active:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

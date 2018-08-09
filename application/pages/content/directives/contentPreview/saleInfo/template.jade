@@ -1,0 +1,5 @@
+div.info(title="{{localization.translate('saleInfo_audience')}}")
+    div.users {{lot.audienceCount}}
+    div.options(ng-if="button()=='options'", ng-click="openEditor()", ng-class="lotStatus()")
+    div.buy(ng-if="button()=='buy'", ng-click="take()")
+        div.icon

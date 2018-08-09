@@ -1,0 +1,8 @@
+.wrapper
+    div.cur
+        div.main
+        div.utc
+    div.list(ng-click="hideInfinity(1)")
+        div.item(ng-repeat="option in options", utc="{{option.value}}")
+            span.utc {{option.utc}}
+            span.title {{option.title}}

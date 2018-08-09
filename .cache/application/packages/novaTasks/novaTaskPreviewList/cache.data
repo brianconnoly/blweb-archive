@@ -1,0 +1,163 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaTaskPreviewList/template.jade'] = "<div ng-dblclick=\"openTask(item, $event)\" ng-class=\"taskStyle\"> <div class=\"taskActions novaItemMenuActivator\">...</div> <div class=\"novaTaskStatus\"></div> <div class=\"taskName\">{{item.name}}</div> <div class=\"taskDescription\">{{item.description}}</div> <div nova-stream-item=\"item\" class=\"taskStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> <div ng-if=\"hasItems()\" class=\"taskItems novaMultiselect\"> <div ng-if=\"entity.id != appItem.id\" ng-repeat=\"entity in item.entities track by entity.id\" nova-item-id=\"entity.id\" nova-item-type=\"{{entity.type}}\" nova-item-context=\"taskItem\" class=\"taskItem novaItem novaItemPreview novaItemDraggable novaItemDroppable novaItemSelectable novaItemMenu\"></div> </div> <div ng-if=\"childTasks.length &gt; 0\" class=\"childTasksList\"> <div class=\"childTasks novaMultiselect\"> <div ng-repeat=\"item in childTasks | filter:subtasksFilter\" ng-dblclick=\"openTask(childTaskItem, $event)\" class=\"childTask novaItem novaItemSelectable novaItemMenu novaItemDraggable\"> <div ng-class=\"childStatus\" class=\"childTaskMark novaTaskPreviewListChild\"> <div ng-click=\"markClick(item)\" class=\"executorMark\"> <div class=\"overlay\"></div> <div ng-if=\"childTaskItem.executor\" nova-item-type=\"user\" nova-item-id=\"childTaskItem.executor\" nova-item-preview-type=\"simple\" nova-item-watch=\"nova-item-watch\" class=\"novaItemScope novaItem novaItemPreview\"></div> </div> <div nova-item-object=\"item\" class=\"taskOptions novaItemMenuActivator\">...</div> </div> <div class=\"childTaskName\">{{item.name}}</div> </div> </div> <div class=\"progressDetails\"><span translate=\"'novaTaskPreviewList_completed'\" class=\"caption\"></span><span>{{completed}}/{{childTasks.length}}</span></div> <div class=\"taskProgress\"> <div ng-style=\"{'width':progress+'%'}\" class=\"value\"></div> <div ng-style=\"{'width':started+'%','left':progress+'%'}\" class=\"started\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaTaskPreviewListChild', function(account, taskService) {
+  return {
+    restrict: 'C',
+    template: null,
+    link: function(scope, element, attrs, ngModel) {
+      var getStatus, inProgress;
+      scope.childStatus = 'default';
+      getStatus = function() {
+        var ref;
+        if (scope.item.status === 'rejected') {
+          scope.childStatus = 'rejected';
+          return;
+        }
+        if (scope.item.status === 'finished') {
+          scope.childStatus = 'finished';
+          return;
+        }
+        if (ref = account.user.id, indexOf.call(scope.item.users, ref) >= 0) {
+          scope.childStatus = 'mine';
+          if (scope.item.status === 'started') {
+            scope.childStatus = 'started';
+          }
+          return;
+        }
+        if (scope.item.status === 'created') {
+          scope.childStatus = 'created';
+          return;
+        }
+        return scope.childStatus = 'default';
+      };
+      scope.childTaskItem = scope.item;
+      scope.$watch('item', function(nVal) {
+        if (nVal.type != null) {
+          return getStatus();
+        }
+      }, true);
+      inProgress = false;
+      return scope.markClick = function(task) {
+        var toSet;
+        if (inProgress) {
+          return;
+        }
+        toSet = null;
+        switch (task.status) {
+          case 'created':
+            toSet = 'started';
+            break;
+          case 'started':
+            toSet = 'finished';
+            break;
+          case 'finished':
+            toSet = 'accepted';
+            break;
+          case 'rejected':
+            toSet = 'started';
+        }
+        if (toSet != null) {
+          inProgress = true;
+          return taskService.call('setStatus', {
+            taskId: task.id,
+            status: toSet
+          }, function() {
+            return inProgress = false;
+          });
+        }
+      };
+    }
+  };
+});
+
+buzzlike.directive('novaTaskPreviewList', function(taskService, account) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTaskPreviewList/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem, getStyle, lastPos;
+      elem = $(element);
+      scope.taskItem = scope.item;
+      scope.childTasks = taskService.getStorageByParent(scope.item.id);
+      scope.subtasksFilter = function(item) {
+        return item.status !== 'accepted';
+      };
+      scope.completed = 0;
+      scope.progress = 0;
+      scope.started = 0;
+      scope.$watch('childTasks', function(nVal) {
+        var i, item, len;
+        scope.completed = 0;
+        scope.started = 0;
+        if ((nVal != null ? nVal.length : void 0) > 0) {
+          for (i = 0, len = nVal.length; i < len; i++) {
+            item = nVal[i];
+            if (item.status === 'accepted') {
+              scope.completed++;
+            } else if (item.status !== 'created') {
+              scope.started++;
+            }
+          }
+          scope.progress = (scope.completed / nVal.length) * 100 | 0;
+          if (scope.completed + scope.started === nVal.length) {
+            return scope.started = 100 - scope.progress;
+          } else {
+            return scope.started = (scope.started / nVal.length) * 100 | 0;
+          }
+        }
+      }, true);
+      scope.openTask = function(task, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return scope.flowFrame.flowBox.addFlowFrame({
+          title: 'task',
+          directive: 'novaTaskFrame',
+          item: task
+        }, scope.flowFrame);
+      };
+      scope.taskStyle = 'default';
+      getStyle = function() {
+        var ref, ref1, ref2;
+        if (scope.item.status === 'accepted') {
+          scope.taskStyle = 'accepted';
+          return;
+        }
+        if (scope.item.status === 'rejected') {
+          scope.taskStyle = 'rejected';
+          return;
+        }
+        if ((((ref = scope.item) != null ? (ref1 = ref.users) != null ? ref1.length : void 0 : void 0) != null) && (ref2 = account.user.id, indexOf.call(scope.item.users, ref2) >= 0)) {
+          scope.taskStyle = 'mine';
+          return;
+        }
+        return scope.taskStyle = 'default';
+      };
+      lastPos = 0;
+      scope.$watch('item', function() {
+        var oldPos, ref;
+        getStyle();
+        if (scope.multiselect.isSelected(scope.item)) {
+          if ((scope.session.size.height - 100 > (ref = elem.parent().position().top) && ref > 0)) {
+            return lastPos = elem.parent().position().top;
+          } else {
+            oldPos = elem.parent().parent()[0].scrollTop + elem.parent().position().top;
+            return setTimeout(function() {
+              return elem.parent().parent().animate({
+                'scrollTop': elem.parent().parent()[0].scrollTop + elem.parent().position().top - lastPos
+              });
+            }, 0);
+          }
+        }
+      }, true);
+      return scope.hasItems = function() {
+        var ref, ref1, ref2, ref3, ref4;
+        return ((ref = scope.item) != null ? (ref1 = ref.entities) != null ? ref1.length : void 0 : void 0) > 0 && ((ref2 = scope.item) != null ? (ref3 = ref2.entities) != null ? (ref4 = ref3[0]) != null ? ref4.id : void 0 : void 0 : void 0) !== scope.appItem.id;
+      };
+    }
+  };
+});
+
+registerStyles('novaTaskPreviewList', ".novaTaskPreviewList {\n  min-height: 30px;\n  border-bottom: 1px solid #ccc;\n  background: rgba(225,221,71,0.05);\n}\n.novaTaskPreviewList.mine {\n  background: rgba(255,255,255,0.05);\n}\n.novaTaskPreviewList.rejected {\n  background: rgba(171,37,37,0.07);\n}\n.novaTaskPreviewList.accepted {\n  background: rgba(0,0,0,0.05);\n}\n.novaTaskPreviewList .taskActions {\n  float: right;\n  margin-right: 10px;\n  z-index: 1;\n}\n.novaTaskPreviewList .novaTaskStatus {\n  float: right;\n  margin-right: 5px;\n}\n.novaTaskPreviewList .taskName {\n  font-size: 14px;\n  line-height: 17px;\n  padding: 7px 15px;\n  font-weight: bolder;\n}\n.novaTaskPreviewList .taskDescription {\n  font-size: 14px;\n  line-height: 17px;\n  padding: 7px 15px;\n  margin-top: -12px;\n}\n.novaTasksCompact .novaTaskPreviewList .childTasks,\n.novaTasksCompact .novaTaskPreviewList .progressDetails {\n  display: none;\n}\n.novaTasksCompact .novaTaskPreviewList .taskProgress {\n  margin: 0;\n  padding: 0;\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.novaTasksCompact .novaTaskPreviewList .taskStream {\n  margin-bottom: 0;\n}\n.novaTasksCompact .novaTaskPreviewList .taskItems {\n  display: none;\n}\n.novaTaskPreviewList .childTasks {\n  padding: 7px 15px;\n  margin-top: -5px;\n}\n.novaTaskPreviewList .childTasks .childTask {\n  overflow: hidden;\n  min-height: 30px;\n  display: table;\n  margin: 4px 0;\n  -webkit-border-radius: 17px;\n  border-radius: 17px;\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark {\n  cursor: pointer;\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark * {\n  cursor: pointer;\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.started .overlay {\n  background: rgba(52,150,242,0.8);\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.started .overlay:after {\n  content: \"F\";\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.mine .overlay,\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.created .overlay {\n  background: rgba(105,199,79,0.8);\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.mine .overlay:after,\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.created .overlay:after {\n  content: \"S\";\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.created .overlay {\n  border: 1px solid #69c74f;\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.rejected .overlay {\n  background: rgba(189,79,79,0.8);\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.rejected .overlay:after {\n  content: \"R\";\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.finished .overlay {\n  background: rgba(70,176,41,0.8);\n}\n.novaTaskPreviewList .childTasks .childTask:hover .childTaskMark.finished .overlay:after {\n  content: \"A\";\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark {\n  float: left;\n  width: 60px;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark.started .overlay {\n  border: 1px solid #3496f2;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark.mine .overlay {\n  border: 1px solid #69c74f;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark.rejected .overlay {\n  border: 1px solid #bd4f4f;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark.finished .overlay {\n  border: 1px solid #46b029;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .overlay {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  -webkit-border-radius: 15px;\n  border-radius: 15px;\n  -webkit-transition: background 0.2s ease;\n  -moz-transition: background 0.2s ease;\n  -o-transition: background 0.2s ease;\n  -ms-transition: background 0.2s ease;\n  transition: background 0.2s ease;\n  pointer-events: none;\n  z-index: 1;\n  text-align: center;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .overlay:after {\n  line-height: 28px;\n  font-size: 20px;\n  color: #fff;\n  z-index: 2;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .executorMark {\n  width: 30px;\n  height: 30px;\n  background: #fff;\n  -webkit-border-radius: 15px;\n  border-radius: 15px;\n  -webkit-box-shadow: 0 0px 2px 0 rgba(0,0,0,0.5);\n  box-shadow: 0 0px 2px 0 rgba(0,0,0,0.5);\n  float: left;\n  margin: 2px;\n  margin-right: 6px;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .executorMark .novaUserPreviewSimple {\n  height: 26px;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .executorMark .backFace {\n  display: none;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .executorMark .novaItem {\n  margin: 2px;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskMark .taskOptions {\n  float: left;\n}\n.novaTaskPreviewList .childTasks .childTask .childTaskName {\n  line-height: 20px;\n  font-size: 14px;\n  line-height: 17px;\n  min-width: 200px;\n  display: table-cell;\n  vertical-align: middle;\n}\n.novaTaskPreviewList .progressDetails {\n  padding: 7px 15px;\n  font-size: 14px;\n  margin-top: -5px;\n}\n.novaTaskPreviewList .progressDetails .caption {\n  font-weight: bolder;\n  margin-right: 5px;\n}\n.novaTaskPreviewList .taskProgress {\n  margin: 0 15px;\n  margin-bottom: 25px;\n  height: 2px;\n  background: rgba(0,0,0,0.1);\n}\n.novaTaskPreviewList .taskProgress .value {\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  background: #69c74f;\n  -webkit-transition: width 0.2s ease;\n  -moz-transition: width 0.2s ease;\n  -o-transition: width 0.2s ease;\n  -ms-transition: width 0.2s ease;\n  transition: width 0.2s ease;\n}\n.novaTaskPreviewList .taskProgress .started {\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  background: #fcee21;\n  -webkit-transition: width 0.2s ease;\n  -moz-transition: width 0.2s ease;\n  -o-transition: width 0.2s ease;\n  -ms-transition: width 0.2s ease;\n  transition: width 0.2s ease;\n}\n.novaTaskPreviewList .taskStream {\n  overflow: hidden;\n  padding: 0 15px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.novaTaskPreviewList .taskItems {\n  overflow: hidden;\n  padding: 10px 10px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.novaTaskPreviewList .taskItems .taskItem {\n  width: 89px;\n  height: 67px;\n  float: left;\n  position: relative;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  -webkit-box-shadow: 0 0 2px 0 rgba(0,0,0,0.2);\n  box-shadow: 0 0 2px 0 rgba(0,0,0,0.2);\n  margin: 4px 5px;\n}\n");

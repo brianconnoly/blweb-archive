@@ -1,0 +1,190 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('groupService', function(itemService, rpc, actionsService, desktopService, account, novaWizard) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'group';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      actionsService.registerAction({
+        phrase: 'add_feed',
+        contextType: 'timelineApp',
+        action: function() {
+          return desktopService.launchApp('addFeed', {
+            closeOnAdd: true
+          });
+        }
+      });
+      novaWizard.register('channel', {
+        standalone: true,
+        type: 'sequence',
+        steps: [
+          {
+            id: 'project',
+            directive: 'novaWizardProjectPicker',
+            provide: 'projectId',
+            previewType: 'project'
+          }, {
+            id: 'community',
+            series: [
+              {
+                id: 'account',
+                directive: 'novaWizardAccountPicker',
+                variable: 'accountPublicId',
+                multi: false
+              }, {
+                id: 'community',
+                directive: 'novaWizardCommunityPicker',
+                variable: 'communityIds',
+                multi: true
+              }
+            ],
+            provide: 'communityIds',
+            previewType: 'community',
+            multi: true
+          }, {
+            id: 'final',
+            directive: 'novaWizardGroupCreate',
+            customNext: 'novaWizardAction_create'
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            var communityId, feeds, i, len, ref;
+            feeds = [];
+            ref = data.communityIds;
+            for (i = 0, len = ref.length; i < len; i++) {
+              communityId = ref[i];
+              feeds.push({
+                communityId: communityId
+              });
+            }
+            return _this.create({
+              projectId: data.projectId,
+              name: data.name,
+              feeds: feeds
+            });
+          };
+        })(this)
+      });
+      novaWizard.register('pick_channel', {
+        standalone: true,
+        type: 'sequence',
+        steps: [
+          {
+            id: 'project',
+            directive: 'novaWizardProjectPicker',
+            provide: 'projectId',
+            previewType: 'project'
+          }, {
+            id: 'channel',
+            series: [
+              {
+                id: 'channel',
+                directive: 'novaWizardChannelPicker',
+                variable: 'channelIds',
+                multi: true
+              }
+            ],
+            provide: 'channelIds',
+            previewType: 'group',
+            customNext: 'novaWizardAction_add',
+            multi: true
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            return typeof data.cb === "function" ? data.cb(data) : void 0;
+          };
+        })(this)
+      });
+      novaWizard.register('channel_add_communities', {
+        type: 'sequence',
+        steps: [
+          {
+            id: 'community',
+            series: [
+              {
+                id: 'account',
+                directive: 'novaWizardAccountPicker',
+                variable: 'accountPublicId',
+                multi: false
+              }, {
+                id: 'community',
+                directive: 'novaWizardCommunityPicker',
+                variable: 'communityIds',
+                multi: true
+              }
+            ],
+            provide: 'communityIds',
+            previewType: 'community',
+            customNext: 'novaWizardAction_add',
+            multi: true
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            return _this.getById(data.channelId, function(group) {
+              var communityId, exists, feed, i, j, len, len1, ref, ref1;
+              ref = data.communityIds;
+              for (i = 0, len = ref.length; i < len; i++) {
+                communityId = ref[i];
+                exists = false;
+                ref1 = group.feeds;
+                for (j = 0, len1 = ref1.length; j < len1; j++) {
+                  feed = ref1[j];
+                  if (feed.communityId === communityId) {
+                    exists = true;
+                    break;
+                  }
+                }
+                if (!exists) {
+                  group.feeds.push({
+                    communityId: communityId
+                  });
+                }
+              }
+              return _this.save({
+                id: group.id,
+                feeds: group.feeds
+              });
+            });
+          };
+        })(this)
+      });
+    }
+
+    classEntity.prototype.get = function(cb) {
+      return rpc.call(this.itemType + '.get', (function(_this) {
+        return function(result) {
+          if (typeof cb === "function") {
+            cb(_this.handleItems(result));
+          }
+          return true;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.insertFeed = function(data, cb) {
+      return rpc.call(this.itemType + '.insertFeed', data, (function(_this) {
+        return function(result) {
+          return typeof cb === "function" ? cb(_this.handleItem(result)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.setOrder = function(data, cb) {
+      return rpc.call(this.itemType + '.setOrder', data, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

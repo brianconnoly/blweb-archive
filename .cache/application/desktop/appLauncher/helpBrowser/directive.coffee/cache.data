@@ -1,0 +1,39 @@
+buzzlike.directive('helpBrowser', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/desktop/appLauncher/helpBrowser'],
+    link: function(scope, element, attrs) {
+      var loadHelp;
+      scope.compact = false;
+      scope.showed = false;
+      scope.loaded = false;
+      scope.showHelp = function() {
+        scope.showed = !scope.showed;
+        if (scope.showed === true) {
+          loadHelp(scope.helpFile);
+          return scope.stateTree.applyState({
+            'escape': function() {
+              scope.showed = false;
+              return scope.stateTree.goBack();
+            }
+          });
+        } else {
+          return scope.stateTree.goBack();
+        }
+      };
+      loadHelp = function(name) {
+        var bigName;
+        bigName = name;
+        return scope.helpSrc = '/resources/images/desktop/about/' + name + '/help.svg';
+      };
+      return scope.onResize(function(wid, hei) {
+        if (wid > 940) {
+          return scope.compact = false;
+        } else {
+          return scope.compact = true;
+        }
+      });
+    }
+  };
+});

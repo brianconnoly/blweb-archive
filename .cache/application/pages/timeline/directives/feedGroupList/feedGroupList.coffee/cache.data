@@ -1,0 +1,17 @@
+buzzlike.directive('feedGroupList', function($compile, communityService, groupService) {
+  return {
+    restrict: 'C',
+    template: tC['/pages/timeline/directives/feedGroupList'],
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      scope.list = groupService.storage;
+      scope.groupFilter = function(item) {
+        return true;
+      };
+      return scope.groupOrder = function(item) {
+        return item.orderNumber;
+      };
+    }
+  };
+});

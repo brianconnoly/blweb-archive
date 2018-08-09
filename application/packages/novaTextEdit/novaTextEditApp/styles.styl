@@ -1,0 +1,76 @@
+position absolute
+top 0
+left 0
+right 0
+bottom 0
+background #EDEDED
+overflow-y auto !important
+
+.textItem
+    position absolute
+    top 35px
+    left 35px
+
+    width 28px
+    height 28px
+    border 1px solid #C1C1C1
+    border-radius 5px
+    z-index 2
+
+    &:hover
+        border 1px solid #ACACAC
+        background #DEDEDE
+
+.textTitle, .textContents
+    &.placeholder
+        color #ccc
+
+&.simple
+    .textHeader
+        padding-top 15px
+        color #333
+        padding-bottom 15px
+
+        &.placeholder
+            color #ccc
+
+.textHeader
+    position absolute
+    top 0
+    left 0
+    right 0
+    height 16px
+    padding 45px 100px 0 100px
+    width auto
+    text-align center
+    font-size 18px
+    font-weight 400
+    background rgba(237, 237, 237, 0.94);
+    z-index 1
+
+    transition all 0.2s ease
+
+.textBody
+    position absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    overflow-y auto
+    padding 80px 100px 80px 100px
+    // margin 0 100px
+
+    .textContents
+        font-size 14px
+        line-height 22px
+        text-align justify
+        min-height 100%
+
+.bottomHider
+    position absolute
+    bottom 0
+    height 30px
+    left 0
+    right 0
+    z-index 1
+    background rgba(237, 237, 237, 0.94);

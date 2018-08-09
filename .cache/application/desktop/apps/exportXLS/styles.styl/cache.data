@@ -1,0 +1,79 @@
+.appContainer.exportXLS {
+  background: #f2f2f2;
+}
+.appContainer.exportXLS .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.exportXLS .body .exportSettings {
+  margin-top: 23px;
+  margin-left: 30px;
+  font-size: 11px;
+  line-height: 13px;
+  overflow: hidden;
+}
+.appContainer.exportXLS .body .exportSettings .community {
+  width: 167px;
+  height: 131px;
+  float: left;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams {
+  float: left;
+  margin-left: 20px;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams .datePicker {
+  height: 25px;
+  font-size: 21px;
+  line-height: 22px;
+  float: left;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams .timePicker {
+  float: left;
+  margin-right: 20px;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams .caption {
+  margin-bottom: 1px;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams .value {
+  margin-bottom: 5px;
+  border: 1px solid #ddd;
+  background: #fff;
+  overflow: hidden;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams .value:focus {
+  border-color: #bbb;
+}
+.appContainer.exportXLS .body .exportSettings .exportParams input,
+.appContainer.exportXLS .body .exportSettings .exportParams span {
+  color: #3a363b;
+}
+.appContainer.exportXLS .body .presets {
+  line-height: 16px;
+  font-size: 12px;
+  margin: 10px 0 10px 30px;
+}
+.appContainer.exportXLS .body .presets .preset {
+  margin-right: 10px;
+  color: #b3b3b3;
+}
+.appContainer.exportXLS .body .presets .preset.active {
+  color: #000;
+}
+.appContainer.exportXLS .body .presets .preset.active .link {
+  text-decoration: underline;
+  cursor: default;
+}
+.appContainer.exportXLS .body .presets .link {
+  cursor: pointer;
+}
+.appContainer.exportXLS .body .options {
+  position: absolute;
+  right: 35px;
+  bottom: 18px;
+  font-size: 11px;
+  line-height: 13px;
+  padding-top: 4px;
+}
+.appContainer.exportXLS .body .options .option {
+  padding: 6px 20px;
+}

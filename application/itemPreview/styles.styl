@@ -1,0 +1,259 @@
+.itemPreview
+    position: absolute
+    overflow: hidden
+
+    top 0
+    left 0
+    right 0
+    bottom 0
+
+    background: rgba(255,255,255,0.2)
+    border none
+    transition all 0.2s ease
+
+    &.mini
+        .name
+            padding: 3px 0px 4px 5px;
+            font-size: 11px;
+            line-height: 12px;
+
+    &.empty
+        background none
+        border 1px dotted #ddd
+
+    &>.name
+        position absolute
+        left 0
+        right 0
+
+        overflow hidden
+        padding 9px 3px 10px 5px
+        line-height 16px
+        font-size 13px
+        color #eee
+        background rgba(0, 0, 0, 0.8)
+        // z-index 5 //999
+        word-wrap break-word
+
+        &.top
+            top 0
+        &.bottom
+            bottom 0
+
+        &.nowrap
+            word-wrap normal
+            white-space nowrap
+
+    // ---- old ----
+
+    .counterStack
+        position: absolute
+        bottom 0
+        right 0
+        background: rgba(77,197,74,0.9);
+        color #fff
+
+        height 15px
+        width 15px
+        text-align: center
+
+        line-height: 15px
+        font-size 10px
+        font-weight: bolder
+
+        z-index 10
+
+    div.text-preview
+        background: rgba(255, 255, 255, 1)
+        padding 10px
+        position: absolute
+
+        top 0
+        left 0
+        right 0
+        bottom 0
+
+        word-wrap break-word
+        overflow hidden
+        color black
+
+    .locked
+        size 'full'
+        // z-index 10
+        opacity 0.6
+        sprite "/resources/images/icons/locks/lock-M.png" center center 55px 81px
+
+    &.mini
+        float: left
+        display: block
+
+        width 44% //55px
+        height 44% //55px
+        margin 4% 0 0 4%
+
+        overflow: hidden
+        position: relative
+
+        .locked
+            sprite "/resources/images/icons/locks/lock-S.png" center center 23px 34px
+
+        &.text
+            div.text-preview
+                font-size 10px
+                padding 2px 5px 5px 5px
+            .locked
+                bottom 0
+
+
+    &.transparent
+        background: rgba(255,255,255,0.15)
+    
+    .shield
+        position: absolute
+        top 0
+        right 0
+        left 0
+        bottom: 0
+
+        opacity: 1
+
+        //z-index 10 // 500
+
+        transition all 0.2s ease
+
+    &:hover
+       // .repost-label
+       //     opacity 0
+       .shield
+           opacity 0
+    
+    // Image
+    img
+        display: block
+        width 100%
+
+    &.single
+        margin 5%
+        width 90%
+        height 87% // 90%
+
+        .text-preview
+            font-size 14px
+
+    &.text
+
+        .text-footer
+            height 26px
+
+            .counter
+                font-size 10px
+                top 7px
+                left 10px
+
+    // Video
+    &.video, &.importContent
+        // .name
+        //     background: rgba(51,51,51,0.9)
+        .views
+            position: absolute
+            padding 3%
+            top 0
+            left 0
+            right 0
+            background: rgba(0,0,0,0.8)
+            color #fff
+            font-size 12px
+            text-align: right
+            z-index 20
+
+        .duration
+            position absolute
+            left 5px
+            top 2px
+            padding 3px 0
+            font-size 12px
+            text-align right
+            // z-index: 1
+            color white
+
+            span
+                font-size 12px
+                padding-right 3px
+
+        /*.title
+            position absolute
+            padding 4px 0 4px 7px
+            margin 0 auto
+            white-space nowrap
+            left 0
+            right 0
+            background rgba(0,0,0,0.8)
+            z-index 111
+            color white
+
+            &.top
+                top 0
+            &.bottom
+                bottom 0
+            &.center
+                text-align center
+
+            span
+                display block
+                font-size 13px
+                color #fff
+                //margin 0 10px
+                overflow hidden
+        */
+
+    //community
+    &.community
+        .name
+            size 'abs' auto 0 0 0
+            color #fff
+            font-size 15px
+            overflow hidden
+            padding 4px
+            //white-space nowrap
+            background rgba(0, 0, 0, 0.3)
+
+
+    div.importInProgress   // import pending clocks
+        position absolute
+        top 50%
+        left 50%
+        margin -40px 0 0 -40px
+        width 80px
+        height 80px
+        sprite "/resources/images/icons/timelineStatus/pending.png"
+
+
+    // --- end old ---
+
+.small_view
+    .itemPreview
+        &>.name
+            line-height 14px
+            font-size 12px
+            padding-top 5px
+            padding-bottom 6px
+
+
+
+
+//li
+.item.size75, .size75 .item
+    margin: 5px
+    width 75px
+    height 75px
+
+    .track-name
+        top 20px
+        font-size 10px
+
+    .text-preview
+        font-size 12px
+
+    .locked
+        sprite "/resources/images/icons/locks/lock-S.png" center center 23px 34px
+        bottom 0

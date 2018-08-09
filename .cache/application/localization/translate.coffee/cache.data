@@ -1,0 +1,63 @@
+buzzlike.directive('translate', function(localization, $parse) {
+  return {
+    restrict: 'A',
+    scope: {
+      translate: '=?',
+      vars: '=?'
+    },
+    link: function(scope, element, attrs) {
+      var refresh;
+      refresh = function() {
+        var code, ref, ref1, result;
+        code = '';
+        if (scope.translate != null) {
+          code += scope.translate;
+        }
+        if ((code != null ? code.length : void 0) > 0) {
+          result = localization.translate(code, scope.vars);
+          if (!DEV_MODE && result === code) {
+            result = '...';
+          } else {
+            if (attrs.index != null) {
+              result = result[attrs.index];
+            }
+          }
+          if (attrs.translateCapitalize === 'true') {
+            result = result.capitalizeFirstLetter();
+          }
+          element.empty();
+          element.html(result);
+        }
+        if (((ref = attrs.translateTitle) != null ? ref.length : void 0) > 0) {
+          code = $parse(attrs.translateTitle)(scope);
+          result = localization.translate(code, scope.vars);
+          if (!DEV_MODE && result === code) {
+            result = '...';
+          }
+          element.attr('title', result);
+        }
+        if (((ref1 = attrs.translatePlaceholder) != null ? ref1.length : void 0) > 0) {
+          code = $parse(attrs.translatePlaceholder)(scope);
+          result = localization.translate(code, scope.vars);
+          if (!DEV_MODE && result === code) {
+            result = '...';
+          }
+          return element.attr('placeholder', result);
+        }
+      };
+      scope.state = localization.state;
+      scope.$watch('state', function(nVal) {
+        return refresh();
+      }, true);
+      scope.$watch('translate', function() {
+        return refresh();
+      });
+      scope.$watch('vars', function() {
+        return refresh();
+      }, true);
+      refresh();
+      scope.refresh = refresh;
+      return true;
+    }
+  };
+});

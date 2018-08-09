@@ -1,0 +1,124 @@
+.appSettingsLayout.appSettingsLayout_showed .appSettingsLayout_topBar {
+  top: 0px !important;
+}
+.appSettingsLayout.appSettingsLayout_showed .appSettingsLayout_body {
+  top: 40 !important;
+}
+.appSettingsLayout.appSettingsLayout_showed .appSettingsLayout_settings {
+  top: -200px !important;
+}
+.appSettingsLayout.showSettings .appSettingsLayout_settings {
+  top: 40px !important;
+}
+.appSettingsLayout.showSettings .appSettingsLayout_body {
+  top: 280px !important;
+}
+.appSettingsLayout.showSettings .appSettingsLayout_activator {
+  -webkit-transform: rotateZ(-180deg) !important;
+  -moz-transform: rotateZ(-180deg) !important;
+  -o-transform: rotateZ(-180deg) !important;
+  -ms-transform: rotateZ(-180deg) !important;
+  transform: rotateZ(-180deg) !important;
+}
+.appSettingsLayout .appSettingsLayout_topBar {
+  position: absolute;
+  overflow: hidden;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  z-index: 10;
+  line-height: 40px;
+  background: #e6e6e6;
+  -webkit-transition: top 0.5s ease;
+  -moz-transition: top 0.5s ease;
+  -o-transition: top 0.5s ease;
+  -ms-transition: top 0.5s ease;
+  transition: top 0.5s ease;
+  z-index: 100;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.appSettingsLayout .appSettingsLayout_topBar .title {
+  font-size: 16px;
+  margin-left: 20px;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.appSettingsLayout .appSettingsLayout_topBar .title input {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.appSettingsLayout .appSettingsLayout_topBar .params {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+}
+.appSettingsLayout .appSettingsLayout_topBar .params .settings {
+  width: 15px;
+  height: 15px;
+  margin: 12px;
+  margin-right: 12px;
+  float: right;
+  cursor: pointer;
+}
+.appSettingsLayout .appSettingsLayout_topBar .params .gearIcon {
+  -webkit-transform: rotateZ(0);
+  -moz-transform: rotateZ(0);
+  -o-transform: rotateZ(0);
+  -ms-transform: rotateZ(0);
+  transform: rotateZ(0);
+  -webkit-transition: -webkit-transform 0.5s ease;
+  -moz-transition: -moz-transform 0.5s ease;
+  -o-transition: -o-transform 0.5s ease;
+  -ms-transition: -ms-transform 0.5s ease;
+  transition: transform 0.5s ease;
+  background: url("/resources/images/desktop/actions/black/header-button-settings.svg") center center no-repeat;
+}
+.appSettingsLayout .appSettingsLayout_settings {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 240px;
+  background: #f2f2f2;
+  top: -240px;
+  -webkit-transition: top 0.5s ease;
+  -moz-transition: top 0.5s ease;
+  -o-transition: top 0.5s ease;
+  -ms-transition: top 0.5s ease;
+  transition: top 0.5s ease;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.appSettingsLayout .appSettingsLayout_body {
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  top: 0px;
+  -webkit-transition: top 0.5s ease;
+  -moz-transition: top 0.5s ease;
+  -o-transition: top 0.5s ease;
+  -ms-transition: top 0.5s ease;
+  transition: top 0.5s ease;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}

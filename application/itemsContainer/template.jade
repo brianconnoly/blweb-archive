@@ -1,0 +1,33 @@
+div.multiselect.stepView
+    div.folderView.itemsContainer(ng-if="!currentStep.flow && !currentStep.group && currentStep.type == 'folder'")
+        div.previewContainer.selectableItem.contextMenu.droppableItem.editableItem(id="{{id}}", type="content", context="folder", ng-repeat="id in folder.contentIds | filter:itemFilter | orderBy:itemSort:true")
+            div.itemPreview(id="id", type="content")
+
+    div.singleView.itemsContainer(ng-if="!currentStep.flow && !currentStep.group && currentStep.type != 'folder'")
+        div.previewContainer.selectableItem.contextMenu.droppableItem.editableItem(ng-repeat="item in items")
+            div.itemPreview(item="item", overlay="blView")
+
+    div.groupedView(ng-if="currentStep.group")
+        div.groupView(ng-repeat="group in groups", ng-show="screens.length > 0")
+            div.title.communityTitle(ng-if="group.communityId", community-id="group.communityId", ng-click="goSection(group)")
+            div.title(ng-if="!group.communityId")
+                div.groupIcon(ng-if="group.groupPic")
+                    div.itemPreview(id="group.groupPic", type="content")
+                div.text(ng-if="group.translateTitle", translate="group.translateTitle", ng-click="goSection(group)")
+                div.text(ng-if="!group.translateTitle", ng-click="goSection(group)") {{group.title}}
+            div.activeBar.goRight(ng-if="notLast()", ng-click="goRight()")
+            div.activeBar.goLeft(ng-if="notFirst()", ng-click="goLeft()")
+            div.screens
+                div.itemsContainer.screen(ng-repeat="screen in screens", ng-style="{'width':screenWid}")
+                    div.previewContainer.selectableItem.contextMenu.droppableItem.editableItem(ng-repeat="item in screen")
+                        div.itemPreview(item="item", overlay="blView")
+
+            div.paginator.paginatorCircle(ng-if="screens.length > 1")
+                div.page(ng-repeat="screen in screens", ng-class="{'active':screen == currentScreen}", ng-click="selectScreen(screen)")
+
+    div.flowView(ng-if="currentStep.flow")
+        div.periodBlock(ng-repeat="period in periods", ng-if="period.items.length > 0", after-render="checkToLoad()")
+            div.periodHead(translate="period.title")
+            div.itemsContainer
+                div.previewContainer.selectableItem.contextMenu.droppableItem.editableItem(context="getContext()", ng-repeat="item in period.items | filter:itemsFilter | orderBy:currentStep.sortBy:true")
+                    div.itemPreview(item="item", overlay="blView")

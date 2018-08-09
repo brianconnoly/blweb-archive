@@ -1,0 +1,17 @@
+buzzlike.directive("shader", function(stateManager, $rootScope) {
+  return {
+    restrict: "C",
+    link: function(scope, elem, attrs) {
+      elem = $(elem);
+      return elem.on("click", function(e) {
+        if (!attrs['noclose']) {
+          if (e.target === this || $(e.target).hasClass("closer") || $(".bl-droplist .list-position").hasClass("visible")) {
+            return $rootScope.$apply(function() {
+              return stateManager.faderClick();
+            });
+          }
+        }
+      });
+    }
+  };
+});

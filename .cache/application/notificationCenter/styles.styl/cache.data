@@ -1,0 +1,256 @@
+.systemMessages .message {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -o-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+  -webkit-transition: -webkit-transform 0.2s ease;
+  -moz-transition: -moz-transform 0.2s ease;
+  -o-transition: -o-transform 0.2s ease;
+  -ms-transition: -ms-transform 0.2s ease;
+  transition: transform 0.2s ease;
+}
+.systemMessages .message:active {
+  -webkit-transform: scale(0.9);
+  -moz-transform: scale(0.9);
+  -o-transform: scale(0.9);
+  -ms-transform: scale(0.9);
+  transform: scale(0.9);
+}
+.notificationItem {
+  height: 80px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0);
+  -webkit-transition: background 0.2s ease;
+  -moz-transition: background 0.2s ease;
+  -o-transition: background 0.2s ease;
+  -ms-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+.notificationFader .notificationItem:hover {
+  background: #fff;
+}
+.notificationItem.big .notificationPreview {
+  right: 0;
+}
+.systemMessages .notificationItem .notificationPreview {
+  right: 0px;
+}
+.notificationItem .markRead {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  line-height: 20px;
+  height: 20px;
+  margin-top: -10px;
+  cursor: pointer;
+}
+.notificationItem {
+  overflow: hidden;
+}
+.notificationItem .date {
+  position: absolute;
+  right: 89px;
+  top: 9px;
+  line-height: 10px;
+  font-size: 10px;
+  color: #999;
+}
+.notificationItem .text {
+  float: left;
+  width: 190px;
+  margin-top: 21px;
+  font-size: 12px;
+}
+.notificationItem .text .header {
+  font-size: 16px;
+  line-height: 16px;
+  margin-bottom: 1px;
+}
+.notificationItem .text .description {
+  font-size: 12px;
+  line-height: 14px;
+}
+.notificationItem .preview {
+  float: left;
+  height: 80px;
+  width: 80px;
+  margin-right: 5px;
+}
+.notificationItem .preview img {
+  margin: 10px;
+}
+.notificationButtons {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  bottom: 10px;
+  width: 60px;
+  border-left: 1px solid #9d9c9c;
+  z-index: 10;
+}
+.notificationButtons .notificationButton {
+  display: table;
+  padding-left: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 12px;
+  height: 50%;
+  width: 53px;
+  top: -1px;
+  border-bottom: 1px solid #9d9c9c;
+}
+.notificationButtons .notificationButton:last-child {
+  border-bottom: none;
+}
+.notificationButtons .notificationButton.single {
+  height: 100%;
+}
+.notificationButtons .notificationButton .buttonText {
+  display: table-cell;
+  vertical-align: middle;
+  cursor: pointer;
+  text-transform: lowercase;
+}
+.notificationPreview {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0px;
+}
+.notificationPreview > * {
+  position: initial;
+}
+.notificationPreview > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.big .notificationPreview .previews {
+  width: 100px;
+  height: 100px;
+  margin-right: 15px;
+}
+.big .notificationPreview .previews.previewsCount2 > .itemPreview {
+  margin-right: -50px;
+}
+.big .notificationPreview .previews.previewsCount3 > .itemPreview {
+  margin-right: -67px;
+}
+.big .notificationPreview .previews > .itemPreview {
+  width: 100px;
+  height: 100px;
+  margin-right: -75px;
+}
+.big .notificationPreview .action {
+  right: 5px;
+}
+.notificationPreview .previews {
+  float: left;
+  height: 80px;
+  width: 80px;
+  overflow: hidden;
+  margin-right: 10px;
+}
+.notificationPreview .previews.previewsCount2 > .itemPreview {
+  margin-right: -40px;
+}
+.notificationPreview .previews.previewsCount3 > .itemPreview {
+  margin-right: -54px;
+}
+.notificationPreview .previews > .itemPreview {
+  display: block;
+  width: 80px;
+  height: 80px;
+  float: left;
+  margin-right: -60px;
+  position: relative;
+}
+.notificationPreview .action {
+  position: absolute;
+  right: 0px;
+  bottom: 5px;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.notificationFader {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(0,0,0,0.2) !important;
+  z-index: 999999;
+}
+.notificationFader .panel {
+  position: absolute;
+  right: 20px;
+  bottom: 60px;
+  width: 360px;
+  max-height: 560px;
+  overflow-y: auto;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: #f5f5f5;
+  padding: 15px 20px;
+}
+.notificationFader .panel .nothingToShow {
+  height: 60px;
+  width: 100%;
+  line-height: 60px;
+  text-align: center;
+  font-size: 22px;
+  color: #888;
+}
+.notificationFader .panel .notificationsContainer {
+  max-height: 560px;
+  overflow-y: auto;
+}
+.notificationFader .panel .notificationPreview {
+  border-bottom: 1px solid #ececec;
+}
+.notificationFader .panel .options {
+  padding-top: 20px;
+  padding-bottom: 5px;
+  overflow: hidden;
+}
+.notificationFader .showAll {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 50px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-right: 0;
+  background: #ddd;
+  line-height: 50px;
+  text-align: center;
+  font-size: 24px;
+  cursor: pointer;
+}
+.notificationFader .showAll span {
+  cursor: pointer;
+}
+.notificationFader .showAll.hasUnread {
+  padding-right: 80px;
+}
+.notificationFader .showAll.hasUnread .hideAll {
+  display: block;
+}
+.notificationFader .showAll .hideAll {
+  display: none;
+  cursor: pointer;
+  position: absolute;
+  line-height: 50px;
+  right: 20px;
+  top: 0;
+  font-size: 12px;
+}

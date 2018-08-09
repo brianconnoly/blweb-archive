@@ -1,0 +1,122 @@
+.appContainer.inviteUser {
+  background: #fd0;
+}
+.appContainer.inviteUser .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  font-size: 12px;
+  text-align: center;
+  color: #333;
+}
+.appContainer.inviteUser .body .inviteNewUser {
+  position: absolute;
+  text-align: center;
+  font-size: 11px;
+  left: 0;
+  right: 0;
+  top: 112px;
+  cursor: pointer;
+  font-weight: bolder;
+}
+.appContainer.inviteUser .body .introText {
+  margin-top: 20px;
+  width: 100%;
+}
+.appContainer.inviteUser .body .inputContainer {
+  width: 225px;
+  height: 23px;
+  border: 1px solid #333;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  margin: 13px auto;
+}
+.appContainer.inviteUser .body .inputContainer input {
+  width: 100%;
+  height: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 8px;
+  line-height: 23px;
+  font-size: 14px;
+}
+.appContainer.inviteUser .body .searchBottomText {
+  font-size: 10px;
+  line-height: 12px;
+  width: 290px;
+  height: 50px;
+  margin: 0 auto;
+}
+.appContainer.inviteUser .body .rolePickerText {
+  margin: 0 auto;
+  width: 290px;
+  font-size: 12px;
+  text-align: left;
+}
+.appContainer.inviteUser .body .rolePicker {
+  margin: 0 auto;
+  width: 290px;
+  overflow: hidden;
+}
+.appContainer.inviteUser .body .rolePicker .userPic {
+  float: left;
+  width: 50px;
+  height: 50px;
+  float: left;
+  margin: 10px;
+  overflow: hidden;
+}
+.appContainer.inviteUser .body .rolePicker .userDetails {
+  margin-left: 3px;
+  margin-top: 13px;
+  margin-bottom: 20px;
+  float: left;
+}
+.appContainer.inviteUser .body .rolePicker .userDetails .userName {
+  text-align: left;
+}
+.appContainer.inviteUser .body .rolePicker .userDetails .combobox {
+  width: 215px;
+  height: 25px;
+  font-size: 12px;
+  text-align: left;
+  border: 1px solid #ccc;
+  background-position: right -5px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.appContainer.inviteUser .body .rolePicker .userDetails .combobox .value {
+  font-size: 12px;
+  line-height: 25px;
+  cursor: pointer;
+  padding-left: 6px;
+  margin-right: 20px;
+}
+.appContainer.inviteUser .body .roleDescription {
+  margin-top: 15px;
+  margin: 0 auto;
+  width: 290px;
+  height: 70px;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+.appContainer.inviteUser .body .options {
+  margin-right: 30px;
+}
+.appContainer.inviteUser .body .option {
+  font-size: 11px;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 15px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+.appContainer.inviteUser .body .option.cancel {
+  background: none;
+  border: none;
+}
+.appContainer.inviteUser .body .option.cancel:hover {
+  color: #333;
+}

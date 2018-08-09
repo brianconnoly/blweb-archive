@@ -1,0 +1,26 @@
+div.dragHandler.topBar.noSettings.black
+    process-bar
+    div.appControls
+
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+    
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+    div.centerButtons
+        div.tabSwitch(translate="'marketApp_tabSwitch_repost'", ng-click="setMode('repost')", ng-class="{'active':currentStep.mode=='repost'}")
+        div.tabSwitch(translate="'marketApp_tabSwitch_post'", ng-click="setMode('post')", ng-class="{'active':currentStep.mode=='post'}")
+
+div.body.droppableItem(no-effects, dropable-item="{'type':'marketApp'}", class="zoom_{{session.zoom}}", antiscroll, ng-style="{'background':sectionBackground()}")
+    div.bigSlider(ng-if="currentStep.type == 'main' && currentStep.mode == 'repost'")
+        div.arrow.right(ng-click="slideRight()")
+        div.arrow.left(ng-click="slideLeft()")
+
+        div.paginatorCircle(ng-if="slides.length > 1")
+            div.page(ng-repeat="slide in slides", ng-class="{'active':$index == currentSlide}", ng-click="selectSlide($index)")
+    
+    div.sectionPicrute(ng-if="currentStep.src", ng-style="{'background':sectionPicture()}")
+
+    items-container
+
+bread-crombs

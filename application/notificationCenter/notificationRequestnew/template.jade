@@ -1,0 +1,10 @@
+div.previews
+    div.itemPreview(type="lot", id="notification.itemList[3].id")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header {{translate('notification_request_new')}}
+    div.description {{translate('notification_request_new_description')}} {{getSumm()}}
+
+div.notificationButtons

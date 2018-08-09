@@ -1,0 +1,13 @@
+buzzlike.directive('colorDirective', function(localStorageService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var color;
+      color = localStorageService.get('timeline_color');
+      if (color != null) {
+        $(element).css('background', color);
+        return element.parent().addClass('customColor');
+      }
+    }
+  };
+});

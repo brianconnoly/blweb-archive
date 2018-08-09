@@ -1,0 +1,30 @@
+position: absolute
+top 0
+left 0
+right 0
+bottom 0
+pointer-events none
+overflow: hidden
+transform translate3d(0,0,0)
+
+img
+    position: absolute
+    top 0
+    left 0
+    transition opacity 0.2s ease
+
+.real
+    opacity 0
+
+.blurred
+    opacity 0
+    width 100%
+    vendor filter, blur(40px)
+
+&.showBlurred
+    .blurred
+        opacity 1
+
+&.showReal
+    .real
+        opacity 1

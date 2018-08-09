@@ -1,0 +1,42 @@
+.zoomSwitcher .min {
+  width: 24px;
+  height: 21px;
+  background: url("/resources/images/desktop/filters/white/zoom-size-min.svg");
+}
+.zoomSwitcher .min.active {
+  background: url("/resources/images/desktop/filters/white/zoom-size-min-active.svg");
+}
+.black .zoomSwitcher .min {
+  background: url("/resources/images/desktop/filters/black/zoom-size-min.svg");
+}
+.black .zoomSwitcher .min.active {
+  background: url("/resources/images/desktop/filters/black/zoom-size-min-active.svg");
+}
+.zoomSwitcher .mid {
+  width: 23px;
+  height: 21px;
+  background: url("/resources/images/desktop/filters/white/zoom-size-mid.svg");
+}
+.zoomSwitcher .mid.active {
+  background: url("/resources/images/desktop/filters/white/zoom-size-mid-active.svg");
+}
+.black .zoomSwitcher .mid {
+  background: url("/resources/images/desktop/filters/black/zoom-size-mid.svg");
+}
+.black .zoomSwitcher .mid.active {
+  background: url("/resources/images/desktop/filters/black/zoom-size-mid-active.svg");
+}
+.zoomSwitcher .max {
+  width: 23px;
+  height: 21px;
+  background: url("/resources/images/desktop/filters/white/zoom-size-max.svg");
+}
+.zoomSwitcher .max.active {
+  background: url("/resources/images/desktop/filters/white/zoom-size-max-active.svg");
+}
+.black .zoomSwitcher .max {
+  background: url("/resources/images/desktop/filters/black/zoom-size-max.svg");
+}
+.black .zoomSwitcher .max.active {
+  background: url("/resources/images/desktop/filters/black/zoom-size-max-active.svg");
+}

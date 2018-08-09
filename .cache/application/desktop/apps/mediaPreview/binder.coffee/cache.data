@@ -1,0 +1,195 @@
+buzzlike.directive('lightboxPreview', function($rootScope) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var currentPreview, elem, imgHei, imgWid, loadImage, rebuildPreview, resizeImage, resizeWindow;
+      elem = $(element);
+      scope.imageUrl = "";
+      scope.picture = elem.find('.picture');
+      scope.video = elem.find('.video');
+      scope.win = elem.find('.window');
+      imgWid = 1;
+      imgHei = 1;
+      resizeImage = function() {
+        var areaHei, ratio, screenRatio;
+        ratio = imgWid / imgHei;
+        areaHei = scope.session.size.height - 30;
+        if (scope.state.item.type === 'file') {
+          areaHei -= 30;
+        }
+        screenRatio = scope.session.size.width / areaHei;
+        if (ratio > screenRatio) {
+          return scope.picture.css({
+            width: scope.session.size.width,
+            top: (areaHei - scope.session.size.width / ratio) / 2,
+            left: 'auto',
+            height: 'auto'
+          });
+        } else {
+          return scope.picture.css({
+            height: areaHei,
+            left: (scope.session.size.width - ratio * areaHei) / 2,
+            width: ratio * areaHei,
+            top: 'auto'
+          });
+        }
+      };
+      scope.onResizeProgress(function(wid, hei) {
+        return resizeImage();
+      });
+      loadImage = function(url, cb) {
+        var img, process;
+        scope.showType = 'image';
+        img = new Image();
+        process = scope.progress.add();
+        img.onload = function() {
+          imgWid = img.width;
+          imgHei = img.height;
+          if (typeof cb === "function") {
+            cb();
+          }
+          resizeImage();
+          scope.imageUrl = img.src;
+          scope.progress.finish(process);
+          scope.win.removeClass('loading');
+          return scope.$apply();
+        };
+        return img.src = $rootScope.proxyPrefix + url;
+      };
+      rebuildPreview = function() {
+        var id, ref, src, videoObj;
+        if (scope.state.item.type === 'image' || scope.state.item.contentType === 'image') {
+          return loadImage(scope.state.item.original, function() {
+            return resizeWindow();
+          });
+        } else if (scope.state.item.type === 'file') {
+          return loadImage((ref = scope.state.item.preview) != null ? ref.big : void 0, function() {
+            return resizeWindow();
+          });
+        } else if (scope.state.item.type === 'video' || scope.state.item.contentType === 'video') {
+          scope.showType = 'video';
+          switch (scope.state.item.sourceType) {
+            case 'vkVideo':
+            case 'vkontakte':
+              src = scope.state.item.embeddedPlayer.replace('http://', '//');
+              videoObj = $('<iframe>');
+              videoObj.attr('src', src);
+              videoObj.attr('width', '100%');
+              videoObj.attr('height', '100%');
+              scope.video.empty();
+              scope.video.append(videoObj);
+              break;
+            case 'youtubeVideo':
+            case 'youtube':
+              id = scope.state.item.embeddedPlayer.split('?v=')[1];
+              if (id != null) {
+                src = '//www.youtube.com/embed/' + id + '?feature=oembed';
+              } else {
+                src = scope.state.item.embeddedPlayer;
+              }
+              videoObj = $('<iframe>');
+              videoObj.attr('src', src);
+              videoObj.attr('width', '100%');
+              videoObj.attr('height', '100%');
+              scope.video.empty();
+              scope.video.append(videoObj);
+          }
+          return scope.win.removeClass('loading');
+        }
+      };
+      resizeWindow = function() {
+        var areaHei, maxHei, newHei, ratio, screenRatio;
+        maxHei = $('body').height() - 40;
+        ratio = imgWid / imgHei;
+        areaHei = scope.session.size.height - 30;
+        if (scope.state.item.type === 'file') {
+          areaHei -= 30;
+        }
+        screenRatio = scope.session.size.width / areaHei;
+        if (ratio < screenRatio) {
+          newHei = scope.session.size.width / ratio;
+          newHei += 30;
+          if (scope.state.item.type === 'file') {
+            areaHei += 30;
+          }
+          if (newHei > maxHei) {
+            newHei = maxHei;
+          }
+          return scope.setHeight(newHei);
+        }
+      };
+      scope.download = function(e) {
+        if (!$(e.target).hasClass('downloadButton')) {
+          return false;
+        }
+        if (scope.state.item.type === 'file') {
+          e.stopPropagation();
+          e.preventDefault();
+          return window.location = scope.state.item.source;
+        }
+      };
+      scope.$watch('state.item', function(nVal) {
+        if ((nVal != null ? nVal.id : void 0) != null) {
+          return rebuildPreview();
+        }
+      }, true);
+      currentPreview = 0;
+      scope.canGoLeft = function() {
+        return scope.state.item.type === 'file' && currentPreview > 0;
+      };
+      scope.canGoRight = function() {
+        var ref;
+        return scope.state.item.type === 'file' && currentPreview < (((ref = scope.state.item.preview.other) != null ? ref.length : void 0) || 0);
+      };
+      scope.goRight = function() {
+        var ref, ref1;
+        currentPreview++;
+        if (currentPreview > ((ref = scope.state.item.preview.other) != null ? ref.length : void 0)) {
+          currentPreview = (ref1 = scope.state.item.preview.other) != null ? ref1.length : void 0;
+        }
+        scope.win.addClass('loading');
+        loadImage(scope.state.item.preview.other[currentPreview - 1]);
+        return true;
+      };
+      scope.goLeft = function() {
+        currentPreview--;
+        if (currentPreview < 0) {
+          currentPreview = 0;
+        }
+        scope.win.addClass('loading');
+        if (currentPreview > 0) {
+          loadImage(scope.state.item.preview.other[currentPreview - 1]);
+        } else {
+          loadImage(scope.state.item.preview.big);
+        }
+        return true;
+      };
+      return scope.selectUrl = function(e) {
+        var range;
+        if (document.selection) {
+          range = document.body.createTextRange();
+          range.moveToElementText(e.target);
+          return range.select();
+        } else if (window.getSelection) {
+          range = document.createRange();
+          range.selectNode(e.target);
+          window.getSelection().removeAllRanges();
+          return window.getSelection().addRange(range);
+        }
+      };
+    }
+  };
+});
+
+buzzlike.directive('allowContext', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      $(element).on('contextmenu', function(e) {
+        scope.selectUrl(e);
+        return e.stopPropagation();
+      });
+      return true;
+    }
+  };
+});

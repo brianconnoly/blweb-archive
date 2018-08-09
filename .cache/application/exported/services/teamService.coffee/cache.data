@@ -1,0 +1,99 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('teamService', function(itemService, rpc, contextMenu, account, confirmBox, localization, actionsService, desktopService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'team';
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      actionsService.registerParser('team', function(item) {
+        var i, len, ref, ref1, types, user;
+        types = [];
+        if (item.userId === account.user.id) {
+          types.push('teamMy');
+          types.push('teamAdmin');
+        } else {
+          ref = item.members;
+          for (i = 0, len = ref.length; i < len; i++) {
+            user = ref[i];
+            if (user.userId === account.user.id) {
+              if (((ref1 = user.roles) != null ? ref1.mainEditor : void 0) === true) {
+                types.push('teamAdmin');
+              }
+              break;
+            }
+          }
+        }
+        return types;
+      });
+      actionsService.registerAction({
+        targetType: 'team',
+        sourceType: 'image',
+        sourceNumber: 1,
+        phrase: 'set_cover',
+        action: (function(_this) {
+          return function(data) {
+            return _this.save({
+              id: data.target.id,
+              cover: data.ids[0]
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'teamAdmin',
+        sourceNumber: 1,
+        phrase: 'team_invite',
+        action: (function(_this) {
+          return function(data) {
+            return desktopService.launchApp('inviteUser', {
+              api: {
+                pickUser: function(user, role) {
+                  return _this.call('invite', {
+                    teamId: data.item.id,
+                    userId: user.id,
+                    role: role
+                  });
+                }
+              }
+            });
+          };
+        })(this)
+      });
+      return actionsService.registerAction({
+        sourceType: 'teamMy',
+        phrase: 'delete',
+        priority: -15,
+        action: (function(_this) {
+          return function(data) {
+            var cnt;
+            cnt = data.ids.length;
+            return confirmBox.init({
+              realText: localization.translate('teamManager_confirm_team_delete') + ' ' + cnt + ' ' + localization.declensionPhrase(cnt, 'teamManager_confirm_team_delete_declension') + '?',
+              description: 'teamManager_confirm_team_delete_description'
+            }, function() {
+              _this.deleteByIds(data.ids);
+              return true;
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

@@ -1,0 +1,444 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('combService', function(projectService, novaBuffer, novaWizard, $filter, taskService, desktopService, actionsService, multiselect, rpc, itemService, postService, contentService, scheduleService, buffer, contextMenu) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'comb';
+
+    classEntity.prototype.isCombPost = function(comb) {
+      var i, j, len, post, postId, ref, ref1, type;
+      if (((ref = comb.postIds) != null ? ref.length : void 0) !== 1) {
+        return false;
+      }
+      postId = comb.postIds[0];
+      post = postService.getById(postId);
+      for (type in comb.contentIds) {
+        ref1 = comb.contentIds[type];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          i = ref1[j];
+          if (post.contentIds != null) {
+            if (!(indexOf.call(post.contentIds[type], i) >= 0)) {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    classEntity.prototype.swarm = function(data, cb) {
+      return rpc.call('comb.swarm', data, function(comb) {
+        return typeof cb === "function" ? cb(comb) : void 0;
+      });
+    };
+
+    classEntity.prototype.addToEveryPost = function(data, cb) {
+      return rpc.call('comb.addToEveryPost', data, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      actionsService.registerAction({
+        sourceType: 'comb',
+        targetType: 'project',
+        phrase: 'move_to_project',
+        priority: 511,
+        check2: (function(_this) {
+          return function(data) {
+            var item, j, len, ref;
+            ref = data.items;
+            for (j = 0, len = ref.length; j < len; j++) {
+              item = ref[j];
+              if (item.projectId !== data.target.id) {
+                return true;
+              }
+            }
+            return false;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var item, j, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              item = ref[j];
+              if (item.projectId !== data.target.id) {
+                results.push(_this.call('moveToProject', {
+                  itemId: item.id,
+                  projectId: data.target.id
+                }));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        phrase: 'new_comb',
+        targetType: 'combsApp',
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({
+              items: data.ids
+            }, function(comb) {
+              return buffer.addItem(comb);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        phrase: 'new_post',
+        targetType: 'combsApp',
+        action: (function(_this) {
+          return function(data) {
+            return postService.create({
+              items: data.ids
+            }, function(post) {
+              return buffer.addItem(post);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        sourceNumber: 'many',
+        phrase: 'new_post_swarm',
+        targetType: 'combsApp',
+        action: (function(_this) {
+          return function(data) {
+            return _this.swarm({
+              items: data.ids
+            }, function(comb) {
+              return buffer.addItems([comb]);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        sourceNumber: 1,
+        phrase: 'unbind_comb_team',
+        check2: function(data) {
+          return data.item.teamId != null;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return _this.call('unbindTeam', data.item.id);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        targetType: 'team/task',
+        phrase: 'create_comb_posts_ext_tasks',
+        category: 'T',
+        action: function(data) {
+          var comb, j, len, ref, results, taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          ref = data.items;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            comb = ref[j];
+            results.push(rpc.call('smartActions.combPostsTask', {
+              combId: comb.id,
+              teamId: teamId,
+              parent: taskId
+            }, function(res) {
+              return true;
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        targetType: 'team/task',
+        phrase: 'create_comb_task_content',
+        category: 'T',
+        action: function(data) {
+          var comb, j, len, ref, results, taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          ref = data.items;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            comb = ref[j];
+            results.push(taskService.create({
+              name: 'Собрать материалы в теме ' + quoteIfExists(comb.name),
+              status: 'created',
+              parent: taskId,
+              teamId: teamId,
+              entities: [
+                {
+                  type: 'comb',
+                  id: comb.id
+                }
+              ]
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        targetType: 'team/task',
+        phrase: 'create_comb_posts_fill_ext_tasks',
+        category: 'T',
+        action: function(data) {
+          var comb, j, len, ref, results, taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          ref = data.items;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            comb = ref[j];
+            results.push(rpc.call('smartActions.combPostsTask', {
+              taskName: 'Наполнить посты темы',
+              combId: comb.id,
+              teamId: teamId,
+              parent: taskId
+            }, function(res) {
+              return true;
+            }));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'team/task',
+        phrase: 'create_content_gather_similar_in_comb',
+        category: 'T',
+        check2: function(data) {
+          if (data.target.id == null) {
+            return false;
+          }
+          return true;
+        },
+        action: function(data) {
+          var taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          return rpc.call('smartActions.combSimilarTask', {
+            items: data.ids,
+            teamId: teamId,
+            parent: taskId
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        sourceNumber: 'many',
+        targetType: 'team/task',
+        phrase: 'create_posts_ext_tasks',
+        category: 'T',
+        action: function(data) {
+          var taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          return rpc.call('smartActions.postsMultiTask', {
+            postIds: data.ids,
+            teamId: teamId,
+            parent: taskId
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'postSchedule',
+        sourceNumber: 'many',
+        targetType: 'team/task',
+        phrase: 'create_posts_ext_tasks',
+        category: 'T',
+        action: function(data) {
+          var j, len, postIds, ref, sched, taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          postIds = [];
+          ref = data.items;
+          for (j = 0, len = ref.length; j < len; j++) {
+            sched = ref[j];
+            postIds.push(sched.postId);
+          }
+          return rpc.call('smartActions.postsMultiTask', {
+            postIds: postIds,
+            teamId: teamId,
+            parent: taskId
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'post',
+        sourceNumber: 1,
+        targetType: 'team/task',
+        phrase: 'create_posts_ext_tasks',
+        category: 'T',
+        action: function(data) {
+          var taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          return scheduleService.getOriginalByPostId(data.item.id, function(sched) {
+            var taskName;
+            if (sched != null) {
+              taskName = "Подготовить пост на " + $filter('timestampMask')(sched.timestamp, "hh:mm DD.MM.YYYY");
+            } else {
+              taskName = "Подготовить пост";
+            }
+            return taskService.create({
+              name: taskName,
+              parent: taskId,
+              teamId: teamId,
+              status: 'created',
+              entities: [
+                {
+                  type: 'post',
+                  id: data.item.id
+                }
+              ]
+            });
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'postSchedule',
+        sourceNumber: 1,
+        targetType: 'team/task',
+        phrase: 'create_posts_ext_tasks',
+        category: 'T',
+        action: function(data) {
+          var taskId, taskName, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          taskName = "Подготовить пост на " + $filter('timestampMask')(data.item.timestamp, "hh:mm DD.MM.YYYY");
+          return taskService.create({
+            name: taskName,
+            parent: taskId,
+            teamId: teamId,
+            status: 'created',
+            entities: [
+              {
+                type: 'post',
+                id: data.item.postId
+              }
+            ]
+          });
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        sourceContext: 'project',
+        phrase: 'pin_comb',
+        check2: function(data) {
+          var id, j, len, ref, ref1, ref2;
+          if (((ref = data.sourceContext.modules) != null ? (ref1 = ref.combs) != null ? ref1.pinned : void 0 : void 0) == null) {
+            return true;
+          }
+          ref2 = data.ids;
+          for (j = 0, len = ref2.length; j < len; j++) {
+            id = ref2[j];
+            if (indexOf.call(data.sourceContext.modules.combs.pinned, id) < 0) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.pushModuleData(data.sourceContext.id, 'combs', 'pinned', data.ids);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'comb',
+        sourceContext: 'project',
+        phrase: 'unpin_comb',
+        check2: function(data) {
+          var id, j, len, ref, ref1, ref2;
+          console.log(data);
+          if (((ref = data.sourceContext.modules) != null ? (ref1 = ref.combs) != null ? ref1.pinned : void 0 : void 0) == null) {
+            return false;
+          }
+          ref2 = data.ids;
+          for (j = 0, len = ref2.length; j < len; j++) {
+            id = ref2[j];
+            if (indexOf.call(data.sourceContext.modules.combs.pinned, id) >= 0) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            return projectService.pullModuleData(data.sourceContext.id, 'combs', 'pinned', data.ids);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'team/task',
+        phrase: 'create_comb_content_posts_task',
+        category: 'T',
+        check2: function(data) {
+          if (data.target.id == null) {
+            return false;
+          }
+          return true;
+        },
+        action: function(data) {
+          var taskId, teamId;
+          teamId = data.target.type === 'team' ? data.target.id : data.target.teamId;
+          taskId = data.target.type === 'task' ? data.target.id : void 0;
+          return rpc.call('smartActions.combContentTask', {
+            items: data.ids,
+            teamId: teamId,
+            parent: taskId
+          });
+        }
+      });
+      return novaWizard.register('theme', {
+        type: 'sequence',
+        steps: [
+          {
+            id: 'project',
+            directive: 'novaWizardProjectPicker',
+            provide: 'projectId',
+            previewType: 'project'
+          }, {
+            id: 'final',
+            directive: 'novaWizardThemeCreate',
+            customNext: 'novaWizardAction_create'
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            return _this.create({
+              name: data.name,
+              projectId: data.projectId
+            }, function(comb) {
+              return novaBuffer.addItems([comb]);
+            });
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

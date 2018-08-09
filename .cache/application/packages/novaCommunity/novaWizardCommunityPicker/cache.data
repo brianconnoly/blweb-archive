@@ -1,0 +1,71 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaWizardCommunityPicker/template.jade'] = "<div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardCommunityPicker_communities'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"flush()\" ng-if=\"picked\" class=\"edit\"></div> <div translate=\"'novaWizardAction_pickAll'\" ng-click=\"pickAll()\" ng-if=\"channelCommunities\" class=\"pickAll edit\"></div> </div> <div ng-if=\"!picked\" class=\"value pickItems\"> <div ng-repeat=\"item in items\" ng-click=\"pick(item)\" ng-class=\"{'active':isPicked(item)}\" class=\"pickerItem novaItem\"> <div nova-item-preview-type=\"square\" class=\"novaItemPreview\"></div> </div> </div> <div ng-if=\"picked\" class=\"value\"> <div nova-item-id=\"wizard.data[step.variable]\" nova-item-type=\"community\" nova-item-preview-type=\"square\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaWizardCommunityPicker', function(communityService, account, groupService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardCommunityPicker/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var acc, i, len, ref;
+      scope.items = [];
+      if (scope.wizard.data.accountPublicId != null) {
+        ref = account.user.accounts;
+        for (i = 0, len = ref.length; i < len; i++) {
+          acc = ref[i];
+          if (acc.publicId === scope.wizard.data.accountPublicId) {
+            communityService.getByIdsOptimized(acc.writableCommunities, function(items) {
+              var item, j, len1, results;
+              results = [];
+              for (j = 0, len1 = items.length; j < len1; j++) {
+                item = items[j];
+                results.push(scope.items.push(item));
+              }
+              return results;
+            });
+          }
+        }
+      } else if (scope.wizard.data.channelId != null) {
+        scope.channelCommunities = true;
+        groupService.getById(scope.wizard.data.channelId, function(group) {
+          var feed, ids, j, len1, ref1;
+          ids = [];
+          ref1 = group.feeds;
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            feed = ref1[j];
+            ids.push(feed.communityId);
+          }
+          return communityService.getByIdsOptimized(ids, function(items) {
+            var item, k, len2, results;
+            results = [];
+            for (k = 0, len2 = items.length; k < len2; k++) {
+              item = items[k];
+              results.push(scope.items.push(item));
+            }
+            return results;
+          });
+        });
+      }
+      return scope.pickAll = function() {
+        var item, j, len1, picked, ref1, ref2, ref3;
+        picked = false;
+        ref1 = scope.items;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          item = ref1[j];
+          if (((ref2 = scope.wizard.data[scope.step.variable]) != null ? ref2.length : void 0) != null) {
+            if (ref3 = item.id, indexOf.call(scope.wizard.data[scope.step.variable], ref3) >= 0) {
+              continue;
+            }
+          }
+          picked = true;
+          scope.pick(item);
+        }
+        if (picked === false) {
+          return scope.flush();
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaWizardCommunityPicker', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardCommunityPicker\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

@@ -1,0 +1,56 @@
+tC['/novaProfileApp/template.jade'] = "<div class=\"novaAppLeftPanel\"> <div class=\"novaProfileOverview\"></div> <div ng-repeat=\"module in modules\" class=\"novaModuleActivator\"> <div translate=\"'moduleTitle_' + module.title\" ng-click=\"runModule(module)\" ng-class=\"{'active':module == activeModule}\" class=\"title\"></div> </div> </div> <div class=\"workarea novaFlow\"></div>";
+
+buzzlike.directive('novaProfileApp', function(account) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProfileApp/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.session.noItem = true;
+      scope.session.size = {
+        width: 600,
+        height: 500
+      };
+      scope.modules = [
+        {
+          title: 'channel',
+          directive: 'novaTimelineFrame',
+          data: {
+            groupId: 'account'
+          }
+        }, {
+          title: 'content',
+          directive: 'novaContentFrame',
+          data: {
+            userId: account.user.id
+          }
+        }, {
+          title: 'comb',
+          directive: 'novaThemesFrame',
+          data: {
+            userId: account.user.id
+          }
+        }, {
+          title: 'task',
+          directive: 'novaTasksFrame',
+          data: {
+            userId: account.user.id
+          }
+        }
+      ];
+      scope.activeModule = null;
+      return scope.init = function() {
+        scope.runModule = function(module) {
+          scope.activeModule = module;
+          return scope.flow.addFrame(module);
+        };
+        if (scope.flow.flowBoxes.length < 1) {
+          return scope.runModule(scope.modules[3]);
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaProfileApp', ".novaProfileApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n");

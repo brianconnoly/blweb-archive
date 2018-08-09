@@ -1,0 +1,74 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+    div.appControls
+    div.title(translate="'lotPreviewApp_title'")
+
+div.body.dragHandler
+
+    div.column.leftPart.zoom_max
+
+        div.itemsContainer.bigPreview
+            div.previewContainer
+                div.itemPreview.editableItem(type="content", id="bigItem")
+
+        div.itemsContainer.bigPreview(ng-if="contentIds.length > 0")
+            div.previewContainer
+                div.itemPreview.post
+                    div.itemPreview.mini.editableItem(ng-repeat="id in contentIds", type="content", id="id")
+
+        div.doRepostButton(ng-click="takeToRight()")
+            span(translate="'lotPreviewApp_doRepostButton'", ng-if="lot.lotType == 'repost'")
+            span  {{getLotPrice('lotPreviewApp_buy_for')}}
+
+    div.column.rightPart(ng-if="lot.lotType == 'repost'")
+
+        div.blockTitle(translate="'lotPreviewApp_repostParamsTitle'")
+
+        div.list
+            div.line
+                div.title(translate="'lotPreviewApp_lot_title'")
+                div.value(title="{{community.name}}") {{community.name}}
+            div.line
+                div.title(translate="'lotPreviewApp_lot_communitySize'")
+                div.value {{community.membersCount}} {{localization.declensionPhrase(community.membersCount,'subscribers')}}
+            div.line(ng-if="lot.minSubscribers > 0")
+                div.title(translate="'lotPreviewApp_lot_subscribers'")
+                div.value {{translate('requestmanager_from')}} {{lot.minSubscribers}} {{localization.declensionPhrase(lot.minSubscribers,'subscribers_from')}}
+            div.line
+                div.title(translate="'lotPreviewApp_lot_timeLimit'")
+                div.value {{lot.timeFrom | timestampMask: "hh:mm"}} — {{lot.timeTo | timestampMask: "hh:mm"}}
+            div.line
+                div.title(translate="'lotPreviewApp_lot_dateLimit'")
+                div.value {{lot.dateFrom | timestampMask: "DD MMM"}} — {{lot.dateTo | timestampMask: "DD MMM"}}
+            div.line(ng-if="lot.checkAfter > 0")
+                div.title(translate="'lotPreviewApp_lot_garant'")
+                div.value {{getCheckAfter(lot.checkAfter)}}
+            div.line
+                div.title(translate="'lotPreviewApp_lot_lotOwner'")
+                div.value {{owner.name}}
+
+        div.blockTitle(translate="'lotPreviewApp_repostRulesTitle'")
+
+        div.smallText(translate="'lotPreviewApp_repostRules'")
+    
+    div.column.rightPart(ng-if="lot.lotType == 'post'")
+
+        div.blockTitle(translate="'lotPreviewApp_postParamsTitle'")
+
+        div.list
+            div.line
+                div.title(translate="'lotPreviewApp_lot_postOwner'")
+                div.value.ownerLink(ng-click="goOwnerPage()") {{owner.firstName}} {{owner.lastName}}
+            div.line
+                div.title(translate="'lotPreviewApp_lot_price'")
+                div.value {{lot.price}} {{localization.declensionPhrase(lot.price, 'roubles')}}
+            div.line
+                div.title(translate="'lotPreviewApp_lot_bought'")
+                div.value {{getLotCustomers()}}
+
+        div.blockTitle(translate="'lotPreviewApp_postRulesTitle'")
+
+        div.smallText(translate="'lotPreviewApp_postRules'")
+
+
+

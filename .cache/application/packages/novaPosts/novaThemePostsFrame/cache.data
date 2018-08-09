@@ -1,0 +1,56 @@
+tC['/novaThemePostsFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div ng-if=\"createPostActive\" class=\"novaPostCreateSimple\"></div> <div class=\"novaFrameTopBar\"> <div ng-click=\"createPost()\" translate=\"'novaThemePostsFrame_createPost'\" class=\"createPost\"></div> <div ng-click=\"goComb()\" ng-if=\"appItem.type != 'comb'\" translate=\"'novaThemePostsFrame_goComb'\" class=\"textLink goComb\"></div> <div ng-click=\"showProposed()\" translate=\"'novaThemePostsFrame_showProposed'\" ng-if=\"ugcs.length &gt; 0\" class=\"textLink showProposed\"></div> </div> <div class=\"novaFrameContents\"> <div ng-repeat=\"item in items | filter:postFilter\" ng-dblclick=\"openPostEdit(item)\" class=\"novaCollectorProposedPost novaItem novaItemDroppable novaItemDraggable\"></div> </div> </div>";
+
+buzzlike.directive('novaThemePostsFrame', function(ugcService, novaDesktop, postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemePostsFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.flowFrame.maxWidth = 320;
+      scope.items = postService.getByCombId(scope.flowFrame.item.id);
+      scope.ugcs = ugcService.getByCombId(scope.flowFrame.item.id);
+      scope.postFilter = function(item) {
+        return !item.scheduled;
+      };
+      scope.goComb = function() {
+        return novaDesktop.launchApp({
+          app: 'novaThemesApp',
+          item: {
+            id: scope.flowFrame.item.id,
+            type: 'comb'
+          }
+        });
+      };
+      scope.showProposed = function() {
+        var frame, i, lastFrame, len, ref, results, ugc;
+        lastFrame = scope.flowFrame;
+        ref = scope.ugcs;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          ugc = ref[i];
+          frame = scope.flowFrame.flowBox.addFlowFrame({
+            title: 'ugc',
+            directive: 'novaCollectorPostsFrame',
+            item: {
+              id: ugc.id,
+              type: 'ugc'
+            }
+          }, lastFrame);
+          results.push(lastFrame = frame);
+        }
+        return results;
+      };
+      scope.createPostActive = false;
+      scope.createPost = function() {
+        return scope.createPostActive = !scope.createPostActive;
+      };
+      return scope.closePostCreate = function() {
+        return scope.createPostActive = false;
+      };
+    }
+  };
+});
+
+registerStyles('novaThemePostsFrame', ".novaThemePostsFrame {\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.novaThemePostsFrame .novaPostCreateSimple {\n  position: absolute;\n  top: 50px;\n  left: 0;\n  right: 0;\n  height: auto;\n  z-index: 2;\n  -webkit-box-shadow: 0 4px 4px -2px rgba(0,0,0,0.4);\n  box-shadow: 0 4px 4px -2px rgba(0,0,0,0.4);\n}\n.novaThemePostsFrame .novaFrameTopBar {\n  height: 70px;\n}\n.novaThemePostsFrame .novaFrameTopBar .showProposed {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n}\n.novaThemePostsFrame .novaFrameTopBar .createPost {\n  border: 1px solid #ccc;\n  line-height: 22px;\n  color: #808080;\n  float: left;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  margin: 13px;\n  font-size: 11px;\n  padding: 0 9px;\n  cursor: pointer;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaThemePostsFrame .novaFrameTopBar .createPost.active {\n  background: #ccc;\n  color: #fff;\n}\n.novaThemePostsFrame .novaFrameContents {\n  overflow-y: auto !important;\n  top: 70px;\n}\n");

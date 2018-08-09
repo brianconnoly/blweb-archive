@@ -1,0 +1,23 @@
+div.wizardBody.noDrag
+
+div.wizardHead
+    div.title(translate="'novaWizardApp_title_'+wizard.id")
+    div.description(translate="'novaWizardApp_wizard_'+wizard.id+'_step_'+wizard.currentStep.id")
+
+div.wizardBottom
+    div.goBar.goNext(ng-click="wizard.goNext()", ng-class="{'active':wizard.canGoNext()}", translate="wizard.getNext()")
+    div.goBar.goPrev(ng-click="wizard.goPrev()", ng-class="{'active':wizard.canGoPrev()}", translate="wizard.getPrev()")
+    div.picked(ng-if="wizard.currentStep.previewType && wizard.currentStep.multi", ng-class="{'compact':wizard.data[wizard.currentStep.provide].length > 2}")
+        div.pickedItem.novaItem(
+            ng-repeat="id in wizard.data[wizard.currentStep.provide].slice().reverse()",
+            nova-item-id="id",
+            nova-item-type="{{::wizard.currentStep.previewType}}")
+            div.removeItem(ng-click="wizard.removePicked(item)")
+            div.novaItemPreview(nova-item-preview-type="square")
+    div.picked(ng-if="wizard.currentStep.previewType && !wizard.currentStep.multi && wizard.data[wizard.currentStep.provide]")
+        div.pickedItem.novaItemScope.novaItem(
+            nova-item-id="wizard.data[wizard.currentStep.provide]",
+            nova-item-type="{{::wizard.currentStep.previewType}}",
+            nova-item-watch)
+            div.removeItem(ng-click="wizard.removePicked(item)")
+            div.novaItemPreview(nova-item-preview-type="square")

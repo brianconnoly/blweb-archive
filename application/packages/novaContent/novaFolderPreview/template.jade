@@ -1,0 +1,6 @@
+div.novaItem.novaItemPreview.noItemNames(
+    ng-repeat="id in getIds()",
+    nova-item-id="id",
+    nova-item-type="content")
+div.name(ng-if="item.name") 
+    div.inner {{item.name}}

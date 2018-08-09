@@ -1,0 +1,83 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+    div.appControls
+
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+    
+    div.title(translate="'create_market_request'")
+
+div.body.dragHandler
+
+    div.loader(ng-hide="loaded")
+
+    div.infoContainer
+        div.infoItem
+            div.image
+                img(ng-src="{{proxyImage(fromCommunity.photo)}}")
+
+            div.info
+                div.infoLine {{fromCommunity.name}}
+                
+                div.infoLine 
+                    span Аудитория: 
+                    span {{lot.minSubscribers}}
+                
+                div.infoLine
+                    span.dateFrom {{dateFrom | timestampMask: "DD MMM"}}
+                    span  — 
+                    span.dateTo {{dateTo | timestampMask: "DD MMM"}}
+                
+                div.infoLine
+                    span.timeFrom {{timeFrom | timestampMask: "hh:mm"}}
+                    span  — 
+                    span.timeTo {{timeTo | timestampMask: "hh:mm"}}
+
+        div.infoItem
+            div.image
+                img(ng-src="{{proxyImage(toCommunity.photo)}}")
+            
+            div.info
+                div.infoLine {{toCommunity.name}}
+                
+                div.infoLine 
+                    span Аудитория: 
+                    span {{toCommunity.membersCount}}
+                
+                div.infoLine {{request.timestamp | timestampMask: "DD MMM YY"}}
+                
+                div.infoLine {{request.timestamp | timestampMask: "hh:mm"}}
+
+    div.checkText(ng-bind-html="localization.translate('makeRequest_checkText', conclusionVars)")
+
+    div.prefixText {{localization.translate('makeRequest_prefixText')}}
+
+    div.settings
+        div.datePicker(ng-model="request.timestamp", dateonly="true") {{date | timestampMask: "DD.MM.YY"}}
+        
+        div.timePicker(ng-model="request.timestamp") {{request.timestamp | timestampMask: "hh:mm"}}
+
+        div.costPicker(ng-if="lot.buzzLot != true")
+            input(ng-model="request.cost")
+
+        div.costPicker(ng-if="lot.buzzLot == true")
+            span {{humanizeDays(lot.price)}}
+
+        //- div.datePicker(ng-model="request.timestamp", dateonly="true", options="rightSide") {{date | timestampMask: "DD ofMMMM YYYY"}}
+        
+        //- div.timePicker(ng-model="request.timestamp")
+        
+        //- div.costPicker(ng-if="lot.buzzLot == true")
+        //-     input
+        //-     span Продление: {{humanizeDays(lot.price)}}
+
+    div.conclusionText(ng-bind-html="localization.translate('makeRequest_conclusionText', conclusionVars)")
+
+    div.bottomButtons.options
+        div.makeRequest.option.hoverActive(ng-click="createRequest()", ng-show="checkTime() && checkAudience()") 
+            span(ng-hide="editRequest()") {{localization.translate('do_create_market_request')}}
+            span(ng-show="editRequest()") {{localization.translate('do_create_market_request_make_offer')}}
+       
+        div.cancelRequest.option.cancel.hoverActive(ng-click="onEscape()") Отмена
+    div.warning(ng-hide="checkTime()") {{localization.translate('make_request_time_dont_match')}}
+    
+    div.warning(ng-hide="checkAudience()") {{localization.translate('make_request_audience_dont_match')}}

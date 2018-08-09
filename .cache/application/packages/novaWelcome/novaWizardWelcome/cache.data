@@ -1,0 +1,13 @@
+tC['/novaWizardWelcome/template.jade'] = "<div translate=\"'novaWelcome_welcome'\" class=\"bigText\"></div>";
+
+buzzlike.directive('novaWizardWelcome', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardWelcome/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return true;
+    }
+  };
+});
+
+registerStyles('novaWizardWelcome', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardWelcome\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

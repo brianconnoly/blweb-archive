@@ -1,0 +1,131 @@
+angular.module('buzzlike.environment', ['LocalStorageModule']).factory('env', function($location, properties) {
+  var baseurl, fetchServerUrl;
+  fetchServerUrl = function() {
+    var alphaUrl, baseurl, loc;
+    loc = $location.host();
+    baseurl = location.protocol;
+    if (loc === 'www.buzzlike.pro') {
+      baseurl += '//api.buzzlike.pro/';
+      return baseurl;
+    }
+    if (loc === 'alpha.buzzlike.pro') {
+      console.log('BuzzLike ALPHA environment is set');
+      if (baseurl === 'http:') {
+        alphaUrl = localStorage.alphaUrl || '//api-alpha.buzzlike.pro:3000/';
+      } else {
+        alphaUrl = localStorage.alphaUrl || '//api-alpha.buzzlike.pro/';
+      }
+      baseurl += alphaUrl;
+      return baseurl;
+    }
+    if (loc === 'front.int.bl') {
+      console.log('BuzzLike local environment is set');
+      baseurl += '//back.buzzlike.pro:5000/';
+      return baseurl;
+    }
+    if (loc === 'prod.dev.bl') {
+      console.log('BuzzLike local to PROD environment');
+      baseurl = 'https://api.buzzlike.pro/';
+      return baseurl;
+    }
+    if (loc === 'beta.buzzlike.pro') {
+      console.log('BuzzLike BETA environment');
+      baseurl += '//api.buzzlike.pro/';
+      return baseurl;
+    }
+    if (loc === 'stage.buzzlike.pro') {
+      console.log('BuzzLike STAGE environment');
+      baseurl += '//api.buzzlike.pro/';
+      return baseurl;
+    }
+    return baseurl;
+  };
+  baseurl = fetchServerUrl();
+  if (baseurl !== null) {
+    return {
+      baseurl: baseurl,
+      version: baseurl + '/system/version',
+      authStatus: baseurl + '/auth/status',
+      authLogin: baseurl + '/auth/login',
+      authLogout: baseurl + '/auth/logout',
+      authConnect: baseurl + '/auth/connectWeb',
+      addAccount: baseurl + '/auth/addAccount',
+      register: baseurl + '/register',
+      verify: baseurl + '/register/verify',
+      update: baseurl + '/register/update',
+      resend: baseurl + '/register/resend',
+      checkLoginAvailable: baseurl + '/register/check/login',
+      forgotPass: baseurl + '/register/recover/password',
+      auth: {
+        base: baseurl + '/auth',
+        acc: baseurl + '/settings/accounts',
+        login: baseurl + '/auth/snauth/login',
+        add: baseurl + '/auth/snauth/add',
+        update: baseurl + '/auth/snauth/update'
+      },
+      upload: {
+        base: 'upload.buzzlike.pro/upload'
+      },
+      imageids: {
+        base: baseurl + '/upload/images'
+      },
+      imageUpload: {
+        base: 'http://body.int.buzzlike.pro:5003/upload'
+      },
+      groups: {
+        base: baseurl + '/community/groups'
+      },
+      feeds: {
+        base: baseurl + '/community/list',
+        all: baseurl + '/community/list'
+      },
+      commbyid: {
+        base: baseurl + '/community/'
+      },
+      schedule: {
+        base: baseurl + '/schedule',
+        get: baseurl + '/schedule/get',
+        post: baseurl + '/schedule/post',
+        comb: baseurl + '/schedule/comb'
+      },
+      comb: {
+        base: baseurl + '/combs'
+      },
+      post: {
+        base: baseurl + '/posts'
+      },
+      text: {
+        base: baseurl + '/text'
+      },
+      settings: {
+        base: baseurl + '/settings',
+        migrationStatus: baseurl + '/settings/migrate/status',
+        migrationGo: baseurl + '/settings/migrate/go'
+      },
+      payments: {
+        account: baseurl + '/payments/account'
+      }
+    };
+  }
+  console.log('Undefined environment');
+  return null;
+}).factory('res', function(env, $http, $rootScope, contentService, postService, communityService) {
+  return {
+    getAccounts: function(cb) {
+      if (env === null) {
+        cb([]);
+        return false;
+      }
+      return $http({
+        method: 'GET',
+        url: env.auth.acc,
+        withCredentials: true
+      }).success(function(data) {
+        if (data.err === null) {
+          $rootScope.accounts = data.data;
+        }
+        return typeof cb === "function" ? cb(data) : void 0;
+      });
+    }
+  };
+});

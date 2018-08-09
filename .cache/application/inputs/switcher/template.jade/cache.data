@@ -1,0 +1,1 @@
+<div ng-click="next()" ng-transclude="ng-transclude" class="switcher"></div>

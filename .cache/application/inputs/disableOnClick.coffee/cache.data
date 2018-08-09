@@ -1,0 +1,30 @@
+buzzlike.directive('disableOnClick', function() {
+  return {
+    restrict: 'A',
+    scope: {
+      status: '='
+    },
+    link: function(scope, element, attrs, ctrl) {
+      var delay, elem, ref;
+      elem = $(element);
+      if ((ref = scope.status) !== 'enabled' && ref !== 'disabled') {
+        scope.status = 'enabled';
+      }
+      delay = +attrs.delay;
+      elem.on('click', function() {
+        if (scope.status === 'enabled') {
+          scope.status = 'disabled';
+          if (delay) {
+            setTimeout(function() {
+              scope.status = 'enabled';
+              return scope.$apply();
+            }, delay);
+          }
+        }
+        scope.$apply();
+        return true;
+      });
+      return true;
+    }
+  };
+});

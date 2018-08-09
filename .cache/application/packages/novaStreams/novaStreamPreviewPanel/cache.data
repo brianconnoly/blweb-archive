@@ -1,0 +1,36 @@
+tC['/novaStreamPreviewPanel/template.jade'] = "<div ng-if=\"updates &gt; 0\" class=\"updatesIndicator\">{{updates}}</div> <div ng-if=\"userPhoto\" class=\"streamCover\"><img src=\"{{userPhoto}}\" class=\"picPreload\"/></div> <div class=\"streamTitle\"> <div class=\"titleText\">{{title}}</div> </div>";
+
+buzzlike.directive('novaStreamPreviewPanel', function(userService, account) {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamPreviewPanel/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var i, len, member, ref, userIds;
+      userIds = [];
+      ref = scope.item.members;
+      for (i = 0, len = ref.length; i < len; i++) {
+        member = ref[i];
+        if (member.userId !== account.user.id) {
+          userIds.push(member.userId);
+        }
+      }
+      scope.title = "";
+      scope.userPhoto = null;
+      return userService.getByIds(userIds, function(users) {
+        var j, len1, ref1, results, user;
+        scope.userPhoto = (ref1 = users[0]) != null ? ref1.photo : void 0;
+        results = [];
+        for (j = 0, len1 = users.length; j < len1; j++) {
+          user = users[j];
+          if (scope.title !== "") {
+            scope.title += ', ';
+          }
+          results.push(scope.title += user.name);
+        }
+        return results;
+      });
+    }
+  };
+});
+
+registerStyles('novaStreamPreviewPanel', ".novaStreamPreviewPanel {\n  overflow: hidden;\n  margin: 5px;\n}\n.novaStreamPreviewPanel .streamCover {\n  width: 50px;\n  height: 50px;\n  padding: 2px;\n  -webkit-box-shadow: 0 2px 3px -2px rgba(0,0,0,0.3);\n  box-shadow: 0 2px 3px -2px rgba(0,0,0,0.3);\n  -webkit-border-radius: 50px;\n  border-radius: 50px;\n  background: #fff;\n  float: left;\n}\n.novaStreamPreviewPanel .streamCover img {\n  width: 50px;\n  height: 50px;\n  -webkit-border-radius: 50px;\n  border-radius: 50px;\n}\n.novaStreamPreviewPanel .streamTitle {\n  display: table;\n  height: 54px;\n  margin-left: 10px;\n  float: left;\n  max-width: 130px;\n}\n.novaStreamPreviewPanel .streamTitle .titleText {\n  display: table-cell;\n  vertical-align: middle;\n}\n.novaStreamPreviewPanel .updatesIndicator {\n  float: right;\n}\n");

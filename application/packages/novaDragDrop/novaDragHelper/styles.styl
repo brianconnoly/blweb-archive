@@ -1,0 +1,105 @@
+position absolute
+pointer-events none
+z-index 2000
+opacity 0
+transition opacity 0.2s ease
+
+&.lefty
+    .actionsContainer
+        right: 0;
+
+&.visible
+    opacity 1
+
+&.active
+    pointer-events auto
+
+.dragItem
+    float left
+    width 40px
+    height 30px
+    overflow hidden
+
+.actionsContainer
+    position: absolute;
+    bottom: 100%;
+    margin-bottom: 10px;
+    padding: 5px 0;
+
+    background: #EBEBEB;
+    border-radius 5px
+    box-shadow 0 0 10px 0 rgba(77,77,77,0.9)
+
+    .action
+        padding: 0 18px;
+
+        white-space: nowrap;
+
+        line-height: 20px;
+        height: 20px;
+        font-size: 14px;
+
+        &:hover
+            background: #3496F2;
+            color: #fff;
+            cursor: pointer;
+
+.dragItemsContainer
+    width: 200px
+    overflow: hidden;
+
+    background: #EBEBEB;
+    border-radius 5px
+    box-shadow 0 0 10px 0 rgba(77,77,77,0.9)
+    transform translate3d(0,0,0)
+
+    .helperText
+        background: rgba(235,235,235,0.95) //#EBEBEB;
+        padding: 6px 10px;
+        font-size: 12px;
+        line-height: 14px;
+
+    &.itemsCount_0
+        display: none;
+
+    &.itemsCount_1
+        .dragItem
+            width: 200px;
+            height: 75px;
+
+        .helperText
+            margin-top: 70px;
+
+    &.itemsCount_2
+        .dragItem
+            width: 100px;
+            height: 75px;
+
+        .helperText
+            margin-top: 70px;
+
+    &.itemsCount_3
+        .dragItem
+            width: 65px;
+            height: 47px;
+        .dragItem:first-child
+            width: 70px;
+
+        .helperText
+            margin-top: 40px;
+
+    &.itemsCount_4
+        .dragItem
+            width: 50px;
+            height: 37px;
+
+        .helperText
+            margin-top: 30px;
+
+    &.itemsCount_5
+        .dragItem
+            width: 40px;
+            height: 30px;
+
+        .helperText
+            margin-top: 30px;

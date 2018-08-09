@@ -1,0 +1,41 @@
+ul.sections
+    li.section.title Фильтр лотов
+    li.section
+        div.sectionTitle.menuButton(ng-class="{'active': params.filterDate}")
+            div.label По дате
+            checkbox.long(ng-model="params.filterDate")
+
+        ul.sectionChildrenList(ng-show="params.filterDate")
+            li.sectionChildren
+                div.picker.datePicker(ng-model="params.filterDateMin") {{params.filterDateMin | timestampMask: "DD MMM YYYY"}} 
+                span С
+            li.sectionChildren
+                div.picker.datePicker(ng-model="params.filterDateMax") {{params.filterDateMax | timestampMask: "DD MMM YYYY"}}
+                span По
+
+
+    li.section
+        div.sectionTitle.menuButton(ng-class="{'active': params.filterTime}")
+            div.label По времени
+            checkbox.long(ng-model="params.filterTime")
+
+        ul.sectionChildrenList(ng-show="params.filterTime")
+            li.sectionChildren
+                div.picker.timePicker(ng-model="params.filterTimeMin")
+                span С
+            li.sectionChildren
+                div.picker.timePicker(ng-model="params.filterTimeMax")
+                span По
+
+    li.section
+        div.sectionTitle.menuButton(ng-class="{'active': params.filterPeople}")
+            div.label По аудитории
+            checkbox.long(ng-model="params.filterPeople")
+
+        ul.sectionChildrenList(ng-show="params.filterPeople")
+            li.sectionChildren
+                input.picker(ng-model="params.filterPeopleMin")
+                span От
+            li.sectionChildren
+                input.picker(ng-model="params.filterPeopleMax")
+                span До

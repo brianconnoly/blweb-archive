@@ -1,0 +1,6 @@
+div.avatarWrapper
+    div.userPic
+        img.picPreload(src="{{::item.photo}}")
+    div.overlay
+div.userName(ng-if="item.name") {{::item.name}}
+div.userName(ng-if="!item.name") {{::getUserIdent(item)}}

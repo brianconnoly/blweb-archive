@@ -1,0 +1,5 @@
+div.novaTaskItem.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemDroppable.novaItemMenu(
+    ng-repeat="item in block.items | orderBy:'scroller.sortFunc' track by item.id",
+    nova-item-context="parentItem", 
+    nova-item-preview-type="list")
+    //- filter:'scroller.filterFunc' 

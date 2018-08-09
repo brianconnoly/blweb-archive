@@ -1,0 +1,392 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaBuffer/template.jade'] = "<div ng-class=\"{'showed':novaBuffer.showed}\"> <div class=\"tabBar\"> <div ng-repeat=\"pocket in novaBuffer.pockets\" ng-style=\"{'background':pocket.color,'width':pocket.width}\" ng-click=\"novaBuffer.activatePocket(pocket)\" ng-mouseover=\"novaBuffer.mousePocket(pocket)\" ng-class=\"{'active':novaBuffer.currentPocket == pocket}\" class=\"novaBufferTab\"> <div ng-click=\"novaBuffer.closePocket(pocket)\" class=\"closePocket\">X</div> </div> <div ng-click=\"novaBuffer.addPocket()\" ng-class=\"{'hidden':novaBuffer.pockets.length &gt; 4}\" nova-item-object=\"{type:'newBuffer'}\" class=\"addPocket novaItem novaItemDroppable\">+</div> </div> <div nova-item-object=\"novaBuffer.currentPocket\" nova-item-watch=\"nova-item-watch\" ng-if=\"novaBuffer.showed\" class=\"tabContents novaItem novaItemDroppable novaMultiselect\"> <div ng-repeat=\"item in novaBuffer.currentPocket.items\" class=\"bufferItem\"> <div nova-item-context=\"novaBuffer.currentPocket\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemMenu\"></div> <div ng-click=\"novaBuffer.removeItem(item, $event)\" class=\"removeElement flushMousedown\"></div> </div> </div> <div class=\"novaBufferResize\"></div> </div>";
+
+buzzlike.service('novaBuffer', function(actionsService, socketAuth, localStorageService, dynamicStyle, operationsService, novaDragHelper) {
+  var novaBuffer, typesAllowed;
+  typesAllowed = 'content/comb/post/schedule/task/team/user';
+  novaBuffer = (function() {
+    var minMargin;
+
+    novaBuffer.prototype.initActions = function() {
+      actionsService.registerAction({
+        sourceType: typesAllowed,
+        targetType: 'buffer',
+        phrase: 'take_to_right',
+        category: 'E',
+        leaveItems: true,
+        check2: function(data) {
+          var ref;
+          if (((ref = data.sourceContext) != null ? ref.type : void 0) === 'buffer') {
+            return data.sourceContext !== data.target;
+          } else {
+            return true;
+          }
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, ref1;
+            if (((ref = data.sourceContext) != null ? ref.type : void 0) === 'buffer') {
+              ref1 = data.items;
+              for (i = 0, len = ref1.length; i < len; i++) {
+                item = ref1[i];
+                removeElementFromArray(item, data.sourceContext.items);
+              }
+            }
+            _this.addItems(data.items);
+            return true;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: typesAllowed,
+        targetType: 'newBuffer',
+        phrase: 'take_to_new_pocket',
+        restrict: 'rightPanel',
+        category: 'E',
+        leaveItems: true,
+        check2: (function(_this) {
+          return function(data) {
+            return _this.pockets.length < 5;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, ref1;
+            if (((ref = data.sourceContext) != null ? ref.type : void 0) === 'buffer') {
+              ref1 = data.items;
+              for (i = 0, len = ref1.length; i < len; i++) {
+                item = ref1[i];
+                removeElementFromArray(item, data.sourceContext.items);
+              }
+            }
+            _this.addItems(data.items, _this.addPocket());
+            return true;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        category: "E",
+        sourceType: typesAllowed,
+        phrase: "take_to_right",
+        priority: "24",
+        restrict: "rightPanel",
+        check2: function(data) {
+          var ref;
+          return ((ref = data.sourceContext) != null ? ref.type : void 0) !== 'buffer';
+        },
+        action: (function(_this) {
+          return function(data) {
+            return _this.addItems(data.items);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: typesAllowed,
+        phrase: 'take_to_new_pocket',
+        restrict: 'rightPanel',
+        category: 'E',
+        leaveItems: true,
+        check2: (function(_this) {
+          return function(data) {
+            return _this.pockets.length < 5;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, ref1;
+            if (((ref = data.sourceContext) != null ? ref.type : void 0) === 'buffer') {
+              ref1 = data.items;
+              for (i = 0, len = ref1.length; i < len; i++) {
+                item = ref1[i];
+                removeElementFromArray(item, data.sourceContext.items);
+              }
+            }
+            _this.addItems(data.items, _this.addPocket());
+            return true;
+          };
+        })(this)
+      });
+      return actionsService.registerAction({
+        sourceType: typesAllowed,
+        phrase: 'remove_from_right',
+        only: 'contextMenu',
+        sourceContext: 'buffer',
+        category: 'E',
+        action: (function(_this) {
+          return function(data) {
+            _this.removeItems(data.items);
+            return true;
+          };
+        })(this)
+      });
+    };
+
+    novaBuffer.prototype.initPockets = function() {
+      this.pockets = [];
+      this.currentPocket = {
+        items: [],
+        type: 'buffer'
+      };
+      this.pockets.push(this.currentPocket);
+      return socketAuth.onAuth((function(_this) {
+        return function() {
+          var i, item, j, len, len1, newPocket, obj, pocket, ref, ref1, saved;
+          _this.pockets.length = 0;
+          saved = localStorageService.get('bufferState_' + socketAuth.session.user_id);
+          obj = JSON.parse(saved);
+          if ((obj != null ? obj.pockets : void 0) != null) {
+            ref = obj.pockets;
+            for (i = 0, len = ref.length; i < len; i++) {
+              pocket = ref[i];
+              newPocket = _this.addPocket(false);
+              ref1 = pocket.items;
+              for (j = 0, len1 = ref1.length; j < len1; j++) {
+                item = ref1[j];
+                newPocket.items.push(operationsService.get(item.type, item.id));
+              }
+            }
+            _this.currentPocket = _this.pockets[obj.active];
+          } else {
+            _this.currentPocket = {
+              items: [],
+              type: 'buffer'
+            };
+            _this.pockets.push(_this.currentPocket);
+          }
+          if ((obj != null ? obj.width : void 0) != null) {
+            _this.setWidth(obj.width, false);
+          }
+          if (obj != null ? obj.showed : void 0) {
+            _this.trigger(false);
+          }
+          return true;
+        };
+      })(this));
+    };
+
+    novaBuffer.prototype.saveState = function() {
+      var i, item, items, j, len, len1, pocket, ref, ref1, toSave;
+      toSave = {
+        active: 0,
+        width: this.width,
+        showed: this.showed,
+        pockets: []
+      };
+      ref = this.pockets;
+      for (i = 0, len = ref.length; i < len; i++) {
+        pocket = ref[i];
+        items = [];
+        ref1 = pocket.items;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          item = ref1[j];
+          if (item.type == null) {
+            console.log('NO TYPE WARNING!', this);
+            return;
+          }
+          items.push({
+            type: item.type,
+            id: item.id
+          });
+        }
+        toSave.pockets.push({
+          items: items
+        });
+      }
+      toSave.active = this.pockets.indexOf(this.currentPocket);
+      return localStorageService.add('bufferState_' + socketAuth.session.user_id, JSON.stringify(toSave));
+    };
+
+    function novaBuffer() {
+      this.showed = false;
+      this.width = 100;
+      this.style = new dynamicStyle('.novaBuffer .tabContents .novaItem');
+      this.styleFrame = new dynamicStyle('.novaBuffer .tabContents');
+      this.initPockets();
+      this.initActions();
+      true;
+    }
+
+    novaBuffer.prototype.addPocket = function(noSave) {
+      var pocket;
+      if (noSave == null) {
+        noSave = false;
+      }
+      pocket = {
+        items: [],
+        type: 'buffer'
+      };
+      this.pockets.push(pocket);
+      this.activatePocket(pocket);
+      if (!noSave) {
+        this.saveState();
+      }
+      this.updateHeadSize();
+      return pocket;
+    };
+
+    novaBuffer.prototype.closePocket = function(pocket) {
+      removeElementFromArray(pocket, this.pockets);
+      if (this.pockets.length === 0) {
+        this.addPocket();
+        this.trigger();
+      }
+      if (this.currentPocket === pocket) {
+        this.currentPocket = this.pockets[0];
+      }
+      this.updateHeadSize();
+      return this.saveState();
+    };
+
+    novaBuffer.prototype.activatePocket = function(pocket) {
+      this.currentPocket = pocket;
+      this.updateHeadSize();
+      return this.saveState();
+    };
+
+    novaBuffer.prototype.mousePocket = function(pocket) {
+      if (novaDragHelper.active) {
+        return this.activatePocket(pocket);
+      }
+    };
+
+    novaBuffer.prototype.addItems = function(items, pocket) {
+      var i, item, len;
+      if (pocket == null) {
+        pocket = this.currentPocket;
+      }
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call(pocket.items, item) < 0) {
+          pocket.items.push(item);
+        }
+      }
+      return this.saveState();
+    };
+
+    novaBuffer.prototype.removeItem = function(item) {
+      removeElementFromArray(item, this.currentPocket.items);
+      return this.saveState();
+    };
+
+    novaBuffer.prototype.removeItems = function(items) {
+      var i, item, len;
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        removeElementFromArray(item, this.currentPocket.items);
+      }
+      return this.saveState();
+    };
+
+    novaBuffer.prototype.setElement = function(element1, scope1) {
+      this.element = element1;
+      this.scope = scope1;
+      this.element.css('width', this.width);
+      if (this.showed) {
+        return this.element.css('right', 0);
+      } else {
+        return this.element.css('right', -this.width);
+      }
+    };
+
+    novaBuffer.prototype.setWidth = function(width, noSave) {
+      var ref;
+      this.width = width;
+      if (noSave == null) {
+        noSave = false;
+      }
+      if ((ref = this.element) != null) {
+        ref.css('width', this.width);
+      }
+      this.updateItemSize();
+      this.updateHeadSize();
+      if (!noSave) {
+        return this.saveState();
+      }
+    };
+
+    novaBuffer.prototype.trigger = function(noSave) {
+      var ref, ref1;
+      if (noSave == null) {
+        noSave = false;
+      }
+      this.showed = !this.showed;
+      if (this.showed) {
+        if ((ref = this.element) != null) {
+          ref.css('right', 0);
+        }
+      } else {
+        if ((ref1 = this.element) != null) {
+          ref1.css('right', -this.width);
+        }
+      }
+      if (!noSave) {
+        this.saveState();
+      }
+      return true;
+    };
+
+    novaBuffer.prototype.updateHeadSize = function() {
+      var activeWid, i, len, pocket, pockets, ref, tabWid, wid;
+      pockets = this.pockets.length;
+      wid = this.width;
+      if (pockets < 5) {
+        wid -= 30;
+      }
+      tabWid = wid / pockets;
+      activeWid = tabWid;
+      if (tabWid < 50) {
+        tabWid = (wid - 50) / (pockets - 1) | 0;
+        activeWid = wid - tabWid * (pockets - 1);
+      }
+      ref = this.pockets;
+      for (i = 0, len = ref.length; i < len; i++) {
+        pocket = ref[i];
+        pocket.width = tabWid;
+      }
+      return this.currentPocket.width = activeWid;
+    };
+
+    minMargin = 20;
+
+    novaBuffer.prototype.updateItemSize = function() {
+      var addWid, hei, margin, perLine, rest, verticalMargin, wid;
+      wid = 80;
+      hei = 60;
+      perLine = this.width / (wid + minMargin) | 0;
+      rest = this.width - (perLine * wid);
+      margin = rest / (perLine + 1) | 0;
+      if (margin > 20) {
+        addWid = margin - 20;
+        wid += addWid * (perLine + 1) / perLine;
+        hei = wid / 4 * 3 | 0;
+        margin -= addWid;
+      }
+      margin /= 2;
+      verticalMargin = margin * 0.8 | 0;
+      this.style.update("width: " + wid + "px; height: " + hei + "px; margin: " + verticalMargin + "px " + margin + "px;");
+      this.styleFrame.update("padding: " + verticalMargin + "px " + margin + "px;");
+      return true;
+    };
+
+    return novaBuffer;
+
+  })();
+  return new novaBuffer();
+});
+
+buzzlike.directive('novaBuffer', function(novaBuffer) {
+  return {
+    restrict: 'C',
+    template: tC['/novaBuffer/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      novaBuffer.setElement(elem, scope);
+      return scope.novaBuffer = novaBuffer;
+    }
+  };
+});
+
+registerStyles('novaBuffer', ".novaBuffer {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -100px;\n  width: 100px;\n  background: rgba(0,0,0,0.7);\n  z-index: 900;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaBuffer.noAnim {\n  -webkit-transition: none;\n  -moz-transition: none;\n  -o-transition: none;\n  -ms-transition: none;\n  transition: none;\n}\n.novaBuffer.showed {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaBuffer .tabBar {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 30px;\n  background: rgba(0,0,0,0.6);\n}\n.novaBuffer .tabBar .novaBufferTab {\n  float: left;\n  width: 20px;\n  height: 100%;\n  text-align: center;\n  line-height: 28px;\n  cursor: pointer;\n}\n.novaBuffer .tabBar .novaBufferTab.active {\n  cursor: default;\n}\n.novaBuffer .tabBar .novaBufferTab.active .closePocket {\n  display: inline-block;\n  cursor: pointer;\n}\n.novaBuffer .tabBar .novaBufferTab .closePocket {\n  display: none;\n  color: #fff;\n  cursor: pointer;\n}\n.novaBuffer .tabBar .novaBufferTab:nth-child(1) {\n  background: #008e37;\n}\n.novaBuffer .tabBar .novaBufferTab:nth-child(2) {\n  background: #eaa830;\n}\n.novaBuffer .tabBar .novaBufferTab:nth-child(3) {\n  background: #006fa3;\n}\n.novaBuffer .tabBar .novaBufferTab:nth-child(4) {\n  background: #c061f2;\n}\n.novaBuffer .tabBar .novaBufferTab:nth-child(5) {\n  background: #a32900;\n}\n.novaBuffer .tabBar .addPocket {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 30px;\n  text-align: center;\n  line-height: 28px;\n  -webkit-transition: right 0.2s ease;\n  -moz-transition: right 0.2s ease;\n  -o-transition: right 0.2s ease;\n  -ms-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n  cursor: pointer;\n  color: #fff;\n}\n.novaBuffer .tabBar .addPocket.hidden {\n  right: -30px;\n}\n.novaBuffer .tabContents {\n  position: absolute;\n  top: 30px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 4px 5px;\n  padding-bottom: 50px !important;\n  overflow-y: auto;\n}\n.novaBuffer .tabContents .novaItem {\n  width: 80px;\n  height: 60px;\n  position: relative;\n  float: left;\n  overflow: hidden;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  margin: 4px 5px;\n}\n.novaBuffer .tabContents .bufferItem {\n  float: left;\n}\n.novaBuffer .tabContents .bufferItem:hover .removeElement {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaBuffer .tabContents .removeElement {\n  background: url(\"/resources/images/nova/removeCross.svg\") center center no-repeat;\n  position: absolute;\n  left: 5px;\n  top: 5px;\n  width: 16px;\n  height: 16px;\n  cursor: pointer;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n");

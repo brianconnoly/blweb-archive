@@ -1,0 +1,16 @@
+tC['/loginButton/template.jade'] = "<div ng-click=\"doAuth(item.type)\"> <div class=\"white\">{{::item.type.toUpperCase()}}</div> <div class=\"color transparentText\">{{::item.type.toUpperCase()}}</div> </div>";
+
+buzzlike.directive('loginButton', function(browserPopup, loginService) {
+  return {
+    restrict: 'C',
+    template: tC['/loginButton/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      return scope.doAuth = function() {
+        return loginService.doLogin(scope.item.type);
+      };
+    }
+  };
+});
+
+registerStyles('loginButton', ".loginButton {\n  display: inline-block;\n  width: 100px;\n  height: 100px;\n  margin: 8px;\n  color: #fff;\n  font-size: 40px;\n  text-align: center;\n  line-height: 100px;\n  border: 1px solid #fff;\n  -webkit-border-radius: 100px;\n  border-radius: 100px;\n  -webkit-transition: all 0.1s ease;\n  -moz-transition: all 0.1s ease;\n  -o-transition: all 0.1s ease;\n  -ms-transition: all 0.1s ease;\n  transition: all 0.1s ease;\n  cursor: pointer;\n}\n.loginButton div {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  text-align: center;\n  line-height: 100px;\n  cursor: pointer;\n}\n.loginButton .white {\n  color: #fff;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.loginButton .color {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: color 5s ease;\n  -moz-transition: color 5s ease;\n  -o-transition: color 5s ease;\n  -ms-transition: color 5s ease;\n  transition: color 5s ease;\n}\n.loginButton:hover {\n  background: #fff;\n}\n.loginButton:hover .white {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.loginButton:hover .color {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

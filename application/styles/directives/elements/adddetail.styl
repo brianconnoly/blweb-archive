@@ -1,0 +1,408 @@
+.overlayLayout
+    
+    .back
+        position absolute
+        top 5px
+        left 5px
+        height 40px
+        width 40px
+        sprite "/resources/images/icons/closers/big-white.png" center center 80px 80px
+        z-index 1
+
+        &:hover
+            cursor pointer
+
+        @media (min-width: 1100px)
+            top 10px //9px
+            left 10px //34px
+
+    .main
+        size 'full'
+
+    .addAccount
+        size 'full'
+        cursor pointer
+
+        .text
+            position absolute
+            width 100%
+            top 46%
+
+            color #eee
+            font-size 30px
+            text-align center
+
+
+
+    .frame
+        position: absolute
+        overflow: auto
+        
+        top 50px
+        bottom 40px
+
+        transition all 0.2s ease
+
+        &.ruberLeft
+            width 250px
+
+        &.ruberRight
+            left 250px
+            right: 0
+
+        @media (min-width: 1100px)
+            top 60px
+
+            &.ruberLeft
+                width 300px
+
+            &.ruberRight
+                left 300px
+                right 25px
+
+        @media (min-width: 1500px)
+
+            &.ruberLeft
+                width 20%
+
+            &.ruberRight
+                left 20%
+                right 50px
+
+    div.filters
+        position: absolute
+        top 0
+        line-height: 50px
+        height 50px
+        left 250px
+        right 0
+        // background rgba(255,255,255,0.2)
+        padding-right 12px
+        padding-left 20px
+
+        div.section
+            
+            button
+                height 50px
+                line-height: 45px
+                font-size 20px
+
+                color #ccc
+
+                &[disabled]
+                    //text-decoration: underline
+                    color #fff
+                    text-shadow 0px 0px 3px #fff
+                    opacity 1
+
+        @media (min-width: 1100px)
+            line-height: 60px
+            left 300px
+
+            div.section
+                height 60px
+                line-height: 55px
+
+                button
+                    height 60px
+                    line-height: 55px
+                    font-size 22px
+
+        @media (min-width: 1500px)
+            left 20%
+
+        .importFilterCheckbox
+            margin-right 20px
+    
+    .importPanel
+        position: absolute
+        overflow: hidden
+        top 0
+        bottom 0
+        left 0
+        right 0
+
+    .commFilterInput
+        position relative
+        display inline-block
+        font-size 16px
+        color #fff
+        padding 0 10px
+        margin 8px 10px 0 20px
+        width 200px
+        background rgba(255,255,255,0.2)
+
+    ::-webkit-input-placeholder
+        color #ececec
+    :-moz-placeholder
+        color #ececec
+    ::-moz-placeholder
+        color #ececec
+    :-ms-input-placeholder
+        color #ececec
+
+    .searchHostingList
+        position relative
+        overflow hidden
+        float left
+        width 100%
+        margin-top 10px
+
+        .wrapper
+            padding-left 20px
+
+            div
+                float left
+                width 32px
+                height 32px
+                background rgba(255,255,255,0.2)
+                color #ececec
+                margin-right 10px
+                text-align center
+                font-size 16px
+                line-height 32px
+
+                &.cur
+                    background rgba(255,255,255,0.8)
+                    color #333
+
+
+    button.section
+        margin-left 20px
+
+    div.section, button.section
+        display: block
+        height 50px
+        line-height: 45px
+        padding 0
+        color #fff
+
+        &.left
+            float: left
+
+            span
+                font-size 16px
+                cursor pointer
+
+        &.right
+            float: right
+
+        &.separator
+            width 10px
+
+            &.long
+                width 20px
+
+        .checkbox
+            float: left
+            margin 12px 9px
+
+            @media (min-width: 1100px)
+                margin 18px 9px
+
+        @media (min-width: 1100px)
+            height 60px
+            line-height 55px
+
+    ul.addList
+        top 0px
+        bottom 0px
+
+        li.communityEntity
+            width 185px
+            height 250px
+
+    .addList
+        display: block
+        overflow-y: auto;
+
+        position: absolute
+        top 0
+        bottom 0
+        right 0
+        left 0
+
+        li.item
+            float: left
+            display: block
+
+            width 150px
+            height 150px
+
+            margin 20px
+
+            background: rgba(255,255,255,0.2)
+
+            cursor: pointer
+
+            .picWrapper
+
+                margin-bottom 0
+
+                text-align: center
+                overflow: hidden
+                height 100%
+
+                img
+                    position: relative
+                    display: block
+
+            .members
+                position: absolute
+
+                padding 3%
+
+                top 0
+                left 0
+                right 0
+
+                background: rgba(0,0,0,0.8)
+                color #fff
+
+                font-size 12px
+
+                text-align: right
+
+            .title
+                width 90%
+                padding 5%
+                text-align: left
+                //line-height: 30px
+                position: absolute
+                bottom 0
+
+                font-size 15px
+                line-height: 22px
+                font-weight: 300
+
+                color #fff
+                background: rgba(0,0,0,0.8)
+
+                overflow-x: hidden
+                overflow-y: visible
+
+                &.white
+                    background: rgba(255,255,255,0.8)
+                    color #000
+
+    ul.typeBrowser
+        overflow hidden
+        position: fixed
+        top 0
+        left 0
+        right 0
+        height 40px
+
+        li.contentType
+            display: inline-block
+            color: #fff
+            padding 5px 20px
+
+            cursor: pointer
+            font-size 30px
+
+            &.active
+                opacity: 0.6
+
+    ul.contentList
+        top 0px
+        position: absolute
+        bottom 0
+        left 0
+        right 0
+        overflow-y: auto
+
+
+    div.waiting
+        width 100%
+        height 400px
+
+        display: none
+
+        &.active
+            display: block
+
+        div.spinner
+            left 50%
+            top 50%
+            position: absolute
+
+    //Не знаю, что это, но лучше так не делать
+    //div.empty
+    //    position: relative
+    //    width 100%
+    //    height 400px
+    //
+    //    display: none
+    //
+    //    &.active
+    //        display: block
+    //
+    //    div.message
+    //        position: absolute
+    //        text-align: center
+    //        width 100%
+    //        top 40%
+    //
+    //        font-size 35px
+    //        color #fff
+
+.importActions
+    position absolute
+    bottom 0
+    height 40px
+    left 0
+    right 0
+    background rgba(255,255,255,0.2)
+
+    padding-left 10px
+    padding-right 12px
+
+    .section
+        height 40px
+        line-height: 38px
+
+        .checkbox
+            margin 9px 9px
+
+        button
+            height 40px
+            line-height: 38px
+            font-size 16px
+            
+    button.section
+        margin-left 20px
+
+    div.section, button.section
+        display: block
+        height 50px
+        line-height: 45px
+        padding 0
+        color #fff
+
+        &.left
+            float: left
+
+            span
+                font-size 16px
+                cursor pointer
+
+        &.right
+            float: right
+
+        &.separator
+            width 10px
+
+            &.long
+                width 20px
+
+        .checkbox
+            float: left
+            margin 12px 9px
+
+            @media (min-width: 1100px)
+                margin 18px 9px
+
+        @media (min-width: 1100px)
+            height 60px
+            line-height 55px

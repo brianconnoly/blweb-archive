@@ -1,0 +1,31 @@
+buzzlike.directive("onInput", function() {
+  return {
+    restrict: "A",
+    scope: {
+      onInput: '=',
+      settings: '='
+    },
+    link: function(scope, element, attrs) {
+      var T, defaultSettings, elem, settings;
+      elem = $(element);
+      defaultSettings = {
+        timeout: 1000,
+        blurOnEnter: false
+      };
+      settings = updateObject(defaultSettings, scope.settings);
+      T = null;
+      return elem.on('keydown', function(e) {
+        if (T) {
+          clearTimeout(T);
+          T = null;
+        }
+        T = setTimeout(scope.onInput, settings.timeout);
+        if (e.which === keyCodes.enter) {
+          if (settings.blurOnEnter) {
+            return elem[0].blur();
+          }
+        }
+      });
+    }
+  };
+});

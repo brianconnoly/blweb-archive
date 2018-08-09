@@ -1,0 +1,13 @@
+tC['/novaWizardChannelPicker/template.jade'] = "<div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardChannelPicker_channel'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"flush()\" ng-if=\"picked\" class=\"edit\"></div> </div> <div ng-if=\"!picked\" class=\"value pickItems\"> <div ng-repeat=\"item in items\" ng-click=\"pick(item)\" ng-class=\"{'active':isPicked(item)}\" class=\"pickerItem novaItem\"> <div nova-item-preview-type=\"square\" class=\"novaItemPreview\"></div> </div> </div> <div ng-if=\"picked\" class=\"value\"> <div nova-item-id=\"wizard.data[step.variable]\" nova-item-type=\"group\" nova-item-preview-type=\"square\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaWizardChannelPicker', function(account, groupService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardChannelPicker/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.items = groupService.getByProjectId(scope.wizard.data.projectId);
+    }
+  };
+});
+
+registerStyles('novaWizardChannelPicker', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardChannelPicker\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

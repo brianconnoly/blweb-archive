@@ -1,0 +1,19 @@
+buzzlike.directive('notificationModeration', function(lotService, desktopService, stateManager, notificationService) {
+  return {
+    template: tC['/notificationCenter/notificationModeration'],
+    link: function(scope, element, attrs) {
+      scope.actions = [
+        {
+          phrase: 'go_to_lot_requests',
+          action: function() {
+            notificationService.markRead(scope.notification.id);
+            return desktopService.launchApp('lotManager', {
+              lotId: scope.notification.itemList[0].id
+            });
+          }
+        }
+      ];
+      return true;
+    }
+  };
+});

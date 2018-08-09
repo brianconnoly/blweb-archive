@@ -1,0 +1,149 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('novaMultiselect', function() {
+  var novaMultiselect;
+  novaMultiselect = (function() {
+    function novaMultiselect(element1) {
+      this.element = element1;
+      this.selected = [];
+      true;
+    }
+
+    novaMultiselect.prototype.isSelected = function(item) {
+      return indexOf.call(this.selected, item) >= 0;
+    };
+
+    novaMultiselect.prototype.select = function(items) {
+      var i, item, len, results;
+      if (!angular.isArray(items)) {
+        items = [items];
+      }
+      results = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call(this.selected, item) < 0) {
+          results.push(this.selected.push(item));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    };
+
+    novaMultiselect.prototype.deselect = function(items) {
+      var i, item, len, results;
+      if (!angular.isArray(items)) {
+        items = [items];
+      }
+      results = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        results.push(removeElementFromArray(item, this.selected));
+      }
+      return results;
+    };
+
+    novaMultiselect.prototype.activate = function() {
+      var ref, state;
+      state = this.element.hasClass('active');
+      $('.novaMultiselect.active').removeClass('active');
+      if ((ref = this.element) != null) {
+        ref.addClass('active');
+      }
+      return state;
+    };
+
+    novaMultiselect.prototype.flush = function() {
+      $('.novaItemSelectable.selected', this.element).removeClass('selected');
+      return this.selected.length = 0;
+    };
+
+    return novaMultiselect;
+
+  })();
+  return novaMultiselect;
+});
+
+buzzlike.directive('novaMultiselect', function(novaMultiselect, novaMenu) {
+  return {
+    restrict: 'C',
+    scope: true,
+    link: function(scope, element, attrs, ngModel) {
+      var body, elem, index, msId, range, ref;
+      elem = $(element);
+      body = $('body');
+      range = $('<div>', {
+        "class": 'novaRangeSelector'
+      });
+      elem.append(range);
+      scope.multiselect = new novaMultiselect(elem);
+      if (((ref = attrs.novaMultiselectParentObject) != null ? ref.length : void 0) > 0) {
+        index = attrs.novaMultiselectParentIndex * 1 || 1;
+        if (index === 1) {
+          scope.$parent[attrs.novaMultiselectParentObject] = scope.multiselect;
+        } else if (index === 2) {
+          scope.$parent.$parent[attrs.novaMultiselectParentObject] = scope.multiselect;
+        }
+      }
+      msId = getRandomInt(0, 10000);
+      elem.off('.novaMultiselect' + msId);
+      return elem.on('mousedown.novaMultiselect' + msId, function(e) {
+        var areaHeight, areaWidth, currentPos, offset, rangeStyles, startPos;
+        if ($(e.target).parents('.novaItemSelectable').length > 0) {
+          return true;
+        }
+        e.preventDefault();
+        novaMenu.hide();
+        if (scope.multiselect.activate()) {
+          scope.multiselect.flush();
+        }
+        scope.$apply();
+        areaWidth = elem.width();
+        areaHeight = elem.height();
+        offset = elem.offset();
+        startPos = {
+          x: e.pageX - offset.left,
+          y: e.pageY - offset.top
+        };
+        currentPos = null;
+        rangeStyles = {};
+        range.css({
+          'left': startPos.x,
+          'top': startPos.y
+        });
+        body.on('mousemove.novaMultiselectRange', function(e) {
+          range.addClass('active');
+          currentPos = {
+            x: e.pageX - offset.left,
+            y: e.pageY - offset.top
+          };
+          rangeStyles.width = Math.abs(currentPos.x - startPos.x);
+          rangeStyles.height = Math.abs(currentPos.y - startPos.y);
+          if (currentPos.x > startPos.x) {
+            rangeStyles.left = startPos.x;
+            rangeStyles.right = 'auto';
+          } else {
+            rangeStyles.left = 'auto';
+            rangeStyles.right = areaWidth - startPos.x;
+          }
+          if (currentPos.y > startPos.y) {
+            rangeStyles.top = startPos.y;
+            rangeStyles.bottom = 'auto';
+          } else {
+            rangeStyles.top = 'auto';
+            rangeStyles.bottom = areaHeight - startPos.y;
+          }
+          range.css(rangeStyles);
+          return true;
+        });
+        return body.on('mouseup.novaMultiselectRange', function(e) {
+          body.off('mousemove.novaMultiselectRange');
+          body.off('mouseup.novaMultiselectRange');
+          return range.removeClass('active');
+        });
+      });
+    }
+  };
+});
+
+registerStyles('novaMultiselect', ".novaMultiselect .novaRangeSelector {\n  position: absolute;\n  border: 1px solid rgba(242,242,242,0.8);\n  background: rgba(230,230,230,0.5);\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaMultiselect .novaRangeSelector.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

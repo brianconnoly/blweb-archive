@@ -1,0 +1,3 @@
+tC['/novaUserPreviewSquare/template.jade'] = "<div class=\"cover\"><img src=\"{{item.photo}}\" class=\"picPreload\"/></div> <div class=\"name\">{{::item.name}}</div>";
+
+registerStyles('novaUserPreviewSquare', ".novaUserPreviewSquare {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaUserPreviewSquare .cover {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.novaUserPreviewSquare .name {\n  opacity: 0.9;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)\";\n  filter: alpha(opacity=90);\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  padding: 5px 10px;\n  background: rgba(255,255,255,0.9);\n}\n");

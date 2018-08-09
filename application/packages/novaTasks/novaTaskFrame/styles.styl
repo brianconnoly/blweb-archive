@@ -1,0 +1,83 @@
+.wrapper
+    width 100%
+    height 100%
+    float left
+    position relative
+    overflow hidden
+
+.novaFrameContents
+    width 100%
+
+.addTask
+    position absolute
+    cursor pointer
+    right 0
+    width 30px
+    height 30px
+    text-align center
+    line-height 30px
+    font-size 25px
+
+    transform rotateZ(0deg)
+    transition transform 0.2s ease
+
+    z-index 4
+
+    &.active
+        transform rotateZ(45deg)
+
+.showAccepted
+    position absolute
+    top 0
+    right 30px
+    cursor pointer
+    line-height 30px
+    font-size 14px
+    z-index 3
+    opacity 0.5
+    transition all 0.2s ease
+
+    &.active
+        opacity 1
+
+.editOpenedTask
+    width inherit
+    // padding-top 5px
+    padding-bottom 0// 2px
+    overflow hidden
+    z-index 2
+
+    &.fixed
+        position fixed
+        // box-shadow 0 1px 5px 0px rgba(0,0,0,0.15);
+
+.subTask
+    &:first-child
+        border-top 1px solid #ccc
+    & > .backFace
+        display none
+
+.subTasks
+    box-shadow: 0 -1px 5px 0px rgba(0,0,0,0.15);
+    z-index: 3;
+
+.novaMultiselect.active .subTask.selected
+    box-shadow: 10px 0 0 -5px #3496F2 inset
+
+.novaMultiselect .subTask.selected
+    box-shadow: 10px 0 0 -5px #eee inset
+
+.novaMultiselect.active .novaMultiselect > .novaItem.selected.childTask
+    box-shadow: 0 0 0 4px #eee
+
+.novaTaskEdit.createSubtask
+    position fixed
+    // margin-top 0px
+    top 0
+    // left 0
+    // right 0
+    width inherit
+    z-index 3
+    background #fff
+
+    box-shadow 0 5px 5px 0px rgba(0,0,0,0.15);

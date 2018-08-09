@@ -1,0 +1,1 @@
+<div class="wrapper"><div class="cur"><div class="main"></div><div class="utc"></div></div><div ng-click="hideInfinity(1)" class="list"><div ng-repeat="option in options" utc="{{option.value}}" class="item"><span class="utc">{{option.utc}}</span><span class="title">{{option.title}}</span></div></div></div>

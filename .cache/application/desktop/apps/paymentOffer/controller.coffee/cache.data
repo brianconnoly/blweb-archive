@@ -1,0 +1,18 @@
+buzzlike.controller('paymentOfferCtrl', function($scope, account) {
+  var state;
+  $scope.session.expandedHeader = false;
+  state = {
+    escape: $scope.closeApp
+  };
+  $scope.stateTree.applyState(state);
+  $scope.type = $scope.session.type;
+  $scope.agreed = false;
+  return $scope.agree = function() {
+    if (!$scope.agreed) {
+      return false;
+    }
+    state.escape();
+    account.Charge.makeOrder();
+    return true;
+  };
+});

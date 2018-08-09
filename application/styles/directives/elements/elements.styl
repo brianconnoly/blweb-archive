@@ -1,0 +1,210 @@
+$bgColor = #eee
+$mainColor = #3a363b
+
+div.addfilter, div.item-selector
+    display: block
+    position: absolute
+    top 5px
+    right 3px
+
+    width 11px
+    height 11px
+    background $circle
+    border 2px solid rgb( 31, 140, 176 )
+    border-radius 50%
+
+    &:hover
+        cursor pointer
+
+    &.selected
+        background $activeCircle
+        border-color: rgb( 255, 206, 152 )
+
+
+.remove-circle-button
+    cursor: pointer
+    background black
+    border 1px solid black
+    border-radius 50%
+    width 17px
+    height 17px
+    user-select none
+    transition all ease 0.15s
+    display: block
+
+    &:hover
+        background #555
+
+    &:active
+        background #fff
+
+    &:after
+        content ""
+        sprite "../resources/images/icons/remove-button.png" 0 0 7px 7px no-repeat 7px 7px
+        position absolute
+        top 5px
+        left 5px
+        overflow hidden
+
+.remove-button
+    width 13px
+    height 13px
+    border-radius 50%
+    background-color #abb3bb
+    sprite "../resources/images/icons/plus-buttons.png" 3px 3px 30px 15px
+
+    &:hover
+        cursor pointer
+
+.removeBox
+    position: absolute
+    top 5px
+    left 5px
+    width 22px
+    height 22px
+    sprite "/resources/images/icons/square-cross.png" -3px -3px 28px 28px
+    box-shadow 0px 0px 6px 1px black
+    transition all 0.2s ease
+    opacity 0
+
+    :hover > &
+        opacity: 1
+
+    &:hover
+        //opacity: 1
+        cursor pointer
+
+
+
+.sched-alarm
+    position: absolute
+    top 5px
+    right 5px
+    sprite "/resources/images/icons/sched-alarm.png" 0 0 100% 100% no-repeat 30px 30px
+    transition all 0.1s ease
+    opacity 0
+    z-index 600
+
+    :hover > &
+        opacity: 0.7
+
+    &:hover
+        opacity: 1
+        cursor pointer
+
+.close-button
+    sprite "../resources/images/icons/closer.png" 0 0 100% 100%
+
+.add-button
+    width 15px
+    height 15px
+    margin 6px
+    border 1px solid white
+    border-radius 50%
+    sprite "../resources/images/icons/plus-buttons.png" -17px 2px 30px 15px
+
+    &:hover
+        cursor pointer
+
+
+button
+    background #555
+    border 0
+    height 31px
+    color white
+    font-size 18px
+
+    &:hover, & *:hover
+        cursor pointer
+
+    &[disabled]
+        opacity 0.4
+        &:hover
+            cursor default
+
+.hidden
+    transition all ease 0.3s
+    opacity 0
+
+.no-antiscroll
+    overflow auto !important
+    height auto
+
+.antiscroll
+    overflow hidden !important
+    //height 100%
+    box-sizing border-box
+
+    .scroll-box
+        position absolute
+        top 0
+        left 0
+        //right -17px
+        //bottom -17px
+        //padding-bottom 17px
+        overflow scroll
+
+        .size
+            height 100%
+            box-sizing border-box
+
+    &.hover.show
+        .scrollbar-bottom, .scrollbar-right
+            opacity 0.6
+
+    .scrollbar-bottom, .scrollbar-right
+        position absolute
+        opacity 0
+        transition all ease 0.3s
+        display none
+        overflow hidden
+        z-index 10
+        // pointer-events none
+
+        .scroll-bottom, .scroll-right
+            background rgba(57,181,74,0.8)
+            position absolute
+            top 0
+            left 0
+
+            &.animate
+                //transition all linear 0.05s
+
+            &:hover, &:active
+                cursor pointer
+
+        &:hover, &:active, &.active
+            opacity 1
+
+    .scrollbar-bottom
+        height 10px
+        bottom 0
+        right 0
+        left 0
+
+        .scroll-bottom
+            width 50px
+            height 100%
+            top 0px
+
+    .scrollbar-right
+        top 0
+        right 0
+        bottom 0
+        width 10px
+
+        .scroll-right
+            width 100%
+            left 0px
+            height 50px
+
+
+.drop-hover
+    background: rgba(255,255,255,0.2)
+
+.uploadHelper, .importHelper
+    position absolute
+    top -999px
+
+.text-shader
+    text-shadow: rgba(0, 0, 0,0.35) 0 0 0.5em;

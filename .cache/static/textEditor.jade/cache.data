@@ -1,0 +1,80 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Text editor</title><style>* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+@font-face{
+    font-family:"Helvetica Neue";
+    src:url("/fonts/777312/93b6bf6a-418e-4a8f-8f79-cb9c99ef3e32.eot?#iefix");
+    src:local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"), url("/fonts/777312/1bc99c0a-298b-46f9-b325-18b5e5169795.svg#1bc99c0a-298b-46f9-b325-18b5e5169795") format("svg"), url("/fonts/777312/c881c21b-4148-4a11-a65d-f35e42999bc8.woff") format("woff"),url("/fonts/777312/03634cf1-a9c9-4e13-b049-c90d830423d4.ttf") format("truetype");
+    font-weight: 700;
+}
+@font-face{
+    font-family:"Helvetica Neue";
+    src:url("/fonts/777240/5b85c7cc-6ad4-4226-83f5-9d19e2974123.eot?#iefix");
+    src:local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/777240/3fc84193-a13f-4fe8-87f7-238748a4ac54.svg#3fc84193-a13f-4fe8-87f7-238748a4ac54") format("svg"), url("/fonts/777240/835e7b4f-b524-4374-b57b-9a8fc555fd4e.woff") format("woff"),url("/fonts/777240/2c694ef6-9615-473e-8cf4-d8d00c6bd973.ttf") format("truetype");
+    font-weight: 300;
+}
+@font-face{
+    font-family:"Helvetica Neue";
+    src:url("/fonts/777264/7092fdcc-7036-48ce-ae23-cfbc9be2e3b0.eot?#iefix");
+    src:local("Helvetica Neue Medium"), local("HelveticaNeue-Medium"), url("/fonts/777264/ae1dea8c-a953-4845-b616-74a257ba72e6.svg#ae1dea8c-a953-4845-b616-74a257ba72e6") format("svg"), url("/fonts/777264/5b29e833-1b7a-40ab-82a5-cfd69c8650f4.woff") format("woff"),url("/fonts/777264/b0298148-2d59-44d1-9ec9-1ca6bb097603.ttf") format("truetype");
+    font-weight: 400;
+}
+@font-face{
+    font-family: "DINCyr-Light";
+    src: local("DINCyr-Light"), url("/fonts/free/DinCyLt.ttf"), local("Helvetica");
+}
+body{
+    font-smoothing: antialiased;
+    font-family: "Helvetica Neue", sans-serif;
+}
+textarea{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0 23px 0 0;
+    margin: 0;
+    resize: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    font-family: "Helvetica Neue", sans-serif;
+    font-weight: 300;
+    line-height: 1.3em;
+    box-sizing: border-box;
+}
+textarea:focus{
+    border: 0;
+    outline: none;
+    outline-offset: 0;
+    outline-color: transparent;
+}
+
+.locked {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: -20px; /*отступ родителя айфреймом*/
+    right: 0;
+    bottom: 0;
+    background-size: 55px 81px;
+    background-image: url("/resources/images/icons/locks/lock-M.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    //opacity: 0.3;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-resolution: 2dppx) {
+    .locked {
+        background-image: url("/resources/images/icons/locks/lock-M@2x.png");
+    }
+}
+</style></head><body><div class="locked"></div><textarea></textarea></body></html>

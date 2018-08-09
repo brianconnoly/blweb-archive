@@ -1,0 +1,211 @@
+position absolute
+top 0
+left 0
+right 0
+bottom 0
+background #fff
+
+.wizardHead
+    position absolute
+    z-index 1
+    top 0
+    left 0
+    right 0
+    height 70px
+
+    background rgba(255,255,255,.9)
+
+    padding 20px 30px 0 30px
+
+    .title
+        font-size 24px
+        line-height 30px
+        font-weight 500
+        margin-bottom 5px
+
+    .description
+        font-size 18px
+        line-height 20px
+
+.wizardBody
+    position absolute
+    top 0 //100px
+    left 0
+    right 0
+    bottom 0 // 60px
+
+    overflow-y auto
+
+    padding-top 90px
+    padding-bottom 60px
+
+    .bigText
+        font-size 35px
+        line-height 40px
+        margin 0 30px
+        margin-top 50px
+
+    .parameter
+        overflow hidden
+        margin 10px 0
+        .title
+            width 115px //180px
+            padding-right 10px
+            float left
+            text-align right
+            font-size 16px
+            line-height 20px
+
+            .edit
+                color #aaa
+                font-size 10px
+                cursor pointer
+                // margin-top 5px
+
+                &:hover, &.active
+                    color #888
+
+        .value
+            overflow hidden
+            border-left 1px solid #eee
+            padding-left 10px
+            margin-left 125px //190px
+
+            input
+                width 100%
+                font-size 16px
+                height 20px
+                line-height 20px
+                padding: 0;
+                padding-right 10px
+                margin: 0;
+                set-placeholder-style color #999
+
+            .pickedItem
+                margin 5px 6px 5px 6px
+                width 100px
+                height 80px
+
+                float left
+
+                overflow: hidden
+                border-radius 5px
+                box-shadow 0 0 3px 0 rgba(0,0,0,0.4)
+                transform translate3d(0,0,0)
+
+.wizardBottom
+    position absolute
+    z-index 1
+    bottom 0
+    left 0
+    right 0
+    height 60px
+    background rgba(255,255,255,.9)
+
+    .goBar
+        height 60px
+        line-height 60px
+        text-align center
+        padding 0 30px
+
+        transition all 0.2s ease
+
+        opacity 0
+        pointer-events none
+
+        &.active
+            opacity 1
+            cursor pointer
+            pointer-events auto
+
+            &:hover
+                background rgba(0,0,0,.05)
+
+    .goNext
+        float right
+    .goPrev
+        float left
+
+    .picked
+        &.compact
+            & > .novaItem
+                & > .novaItemPreview
+                    .name
+                        width 0
+                        padding 0
+                        opacity 0
+        & > .novaItem
+            margin 10px 5px
+            float right
+
+            box-shadow: 0 0 0 1px #3496f2;
+            border-radius: 5px;
+            overflow: hidden;
+            transform translate3d(0,0,0)
+
+            & > .novaItemPreview
+                & > div
+                    position relative
+                    float left
+                    overflow hidden
+                    height 40px
+                .cover, .novaContentPreview
+                    position relative
+                    float left
+                    height 40px
+                    width 40px
+                .name
+                    box-sizing border-box
+                    position relative
+                    height 40px
+                    max-width 100px
+                    line-height 15px
+                    float left
+                    opacity 1
+                    transition all 0.2s ease
+
+                    // text-overflow: ellipsis
+                    // overflow: hidden
+                    // white-space nowrap
+
+        &:hover
+            .removeItem
+                opacity 1
+
+        .removeItem
+            position absolute
+            right 3px
+            top 3px
+            width 16px
+            height 16px
+
+            z-index 1
+            cursor pointer
+            opacity 0
+
+            background url(/resources/images/nova/removeCross.svg) center center no-repeat
+
+            transition opacity 0.2s ease
+
+.pickerItem
+    width 100px
+    height 80px
+    margin 5px 6px
+    float left
+    border-radius 5px
+    overflow hidden
+    transform translate3d(0,0,0)
+    box-shadow 0 0 3px 0 rgba(0,0,0,0.4)
+
+    *
+        cursor pointer
+
+    &.active
+        box-shadow: 0 0 0 4px #3496f2;
+
+    .novaItemPreview
+        position absolute
+        top 0
+        bottom 0
+        left 0
+        right 0

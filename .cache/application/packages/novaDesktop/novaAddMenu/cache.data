@@ -1,0 +1,70 @@
+tC['/novaAddMenu/template.jade'] = "<div ng-click=\"hideAddMenu($event)\"> <div class=\"novaAddMenuWindow\"> <div ng-repeat=\"wizard in ::wizards\" translate=\"'wizardTitle_' + wizard\" translate-title=\"'wizardDescription_' + wizard\" ng-click=\"fire(wizard)\" class=\"menuItem\"></div> </div> </div>";
+
+buzzlike.service('novaAddMenu', function() {
+  var novaAddMenu;
+  novaAddMenu = (function() {
+    function novaAddMenu() {
+      this.showed = false;
+      this.position = {
+        left: 0,
+        bottom: 40
+      };
+    }
+
+    novaAddMenu.prototype.launch = function(position) {
+      var k, v;
+      for (k in position) {
+        v = position[k];
+        this.position[k] = v;
+      }
+      return this.showed = true;
+    };
+
+    novaAddMenu.prototype.hide = function() {
+      return this.showed = false;
+    };
+
+    return novaAddMenu;
+
+  })();
+  return new novaAddMenu();
+});
+
+buzzlike.directive('novaAddMenu', function(novaWizard, novaAddMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/novaAddMenu/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem, winElem;
+      elem = $(element);
+      winElem = elem.children('.novaAddMenuWindow');
+      scope.wizards = novaWizard.wizards;
+      scope.fire = function(wizard) {
+        return novaWizard.fire(wizard);
+      };
+      scope.$watch(function() {
+        return novaAddMenu.showed;
+      }, function(nVal) {
+        var wid;
+        if (nVal === true) {
+          wid = winElem.width();
+          winElem.css({
+            left: novaAddMenu.position.left - (wid / 2),
+            bottom: novaAddMenu.position.bottom
+          });
+          return setTimeout(function() {
+            return elem.addClass('showed');
+          }, 0);
+        } else {
+          return elem.removeClass('showed');
+        }
+      });
+      return scope.hideAddMenu = function(e) {
+        return novaAddMenu.hide();
+      };
+    }
+  };
+});
+
+registerStyles('novaAddMenu', ".novaAddMenu {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  pointer-events: none;\n  z-index: 1;\n}\n.novaAddMenu.showed {\n  pointer-events: auto;\n}\n.novaAddMenu.showed .novaAddMenuWindow {\n  margin-bottom: 0;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaAddMenu .novaAddMenuWindow {\n  position: absolute;\n  background: rgba(10,10,10,0.75);\n  -webkit-border-radius: 6px;\n  border-radius: 6px;\n  padding: 5px 0;\n  -webkit-transform: scale(0.8);\n  -moz-transform: scale(0.8);\n  -o-transform: scale(0.8);\n  -ms-transform: scale(0.8);\n  transform: scale(0.8);\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  margin-bottom: -20px;\n}\n.novaAddMenu .novaAddMenuWindow:after {\n  content: \"\";\n  border-right: 8px solid transparent;\n  border-left: 8px solid transparent;\n  border-top: 8px solid rgba(10,10,10,0.75);\n  position: absolute;\n  bottom: -8px;\n  left: 50%;\n  margin-left: -8px;\n}\n.novaAddMenu .novaAddMenuWindow .menuItem {\n  color: #fff;\n  padding: 3px 10px 5px;\n  -webkit-transition: background 0.2s ease;\n  -moz-transition: background 0.2s ease;\n  -o-transition: background 0.2s ease;\n  -ms-transition: background 0.2s ease;\n  transition: background 0.2s ease;\n  cursor: pointer;\n  text-align: left;\n}\n.novaAddMenu .novaAddMenuWindow .menuItem:hover {\n  background: rgba(255,255,255,0.2);\n}\n");

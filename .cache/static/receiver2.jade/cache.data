@@ -1,0 +1,3 @@
+<!DOCTYPE html><html><body><script src="//connect.mail.ru/js/loader.js"></script><script>mailru.loader.require('receiver', function() {
+    mailru.receiver.init();
+})</script></body></html>

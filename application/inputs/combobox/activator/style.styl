@@ -1,0 +1,23 @@
+$H = 36px
+.combobox
+    height $H
+    background #fff
+    color #000
+    cursor pointer
+    sprite "/resources/images/icons/arrows/black-settings-drop.png" right top $H ($H*2)
+
+    .value
+        size 'full'
+        padding-left 10px
+        margin-right $H
+        line-height $H
+        font-size 16px
+        overflow hidden
+
+    &.hideSelected .selected
+        display none
+
+    //&.opened
+    //    background-position right -($H)
+
+

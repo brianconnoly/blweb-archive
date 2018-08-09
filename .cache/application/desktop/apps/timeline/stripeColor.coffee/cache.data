@@ -1,0 +1,29 @@
+buzzlike.directive('stripeColor', function(communityService) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      var snColors;
+      snColors = {
+        vk: '#EFF7FE',
+        fb: '#F7FAFC',
+        ok: '#FFFCF4',
+        yt: '#FFF6F0',
+        mm: '#F5FFFF'
+      };
+      if (scope.feed != null) {
+        communityService.getById(scope.feed.communityId, function(community) {
+          return element.css({
+            'background': snColors[community.socialNetwork]
+          });
+        });
+      } else if (scope.lineId != null) {
+        communityService.getById(scope.lineId, function(community) {
+          return element.css({
+            'background': snColors[community.socialNetwork]
+          });
+        });
+      }
+      return true;
+    }
+  };
+});

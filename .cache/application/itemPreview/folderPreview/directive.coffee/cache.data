@@ -1,0 +1,42 @@
+buzzlike.directive('folderPreview', function($compile) {
+  return {
+    restrict: 'E',
+    replace: true,
+    link: function(scope, element, attrs) {
+      var generatePreview, session;
+      generatePreview = function(contentIds) {
+        var body, i, item, len, newElem, newScope, result;
+        body = $(element).parents('.body');
+        element.empty();
+        if (contentIds.length > 0) {
+          if ((typeof session !== "undefined" && session !== null ? session.zoom : void 0) === 'max') {
+            result = contentIds.slice(0, 9);
+          } else {
+            result = contentIds.slice(0, 4);
+          }
+          for (i = 0, len = result.length; i < len; i++) {
+            item = result[i];
+            newScope = scope.$new();
+            newScope.id = item;
+            newScope.type = 'content';
+            newElem = $compile('<div class="itemPreview mini" type="content" id="id" mini></div>')(newScope);
+            element.append(newElem);
+          }
+        }
+        if (scope.item.importInProgress) {
+          return element.append('<div class="importInProgress"></div>');
+        }
+      };
+      scope.$watch('previewItem.contentIds', generatePreview, true);
+      session = scope.$parent.session;
+      if (session != null) {
+        scope.$watch(function() {
+          return session.zoom;
+        }, function(nVal) {
+          return generatePreview(scope.previewItem.contentIds);
+        });
+      }
+      return true;
+    }
+  };
+});

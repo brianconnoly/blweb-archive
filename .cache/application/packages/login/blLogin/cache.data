@@ -1,0 +1,154 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/blLogin/template.jade'] = "<form ng-submit=\"doLogin()\" ng-class=\"{'compact':state.canLogin}\"> <div ng-click=\"backToSocial()\" class=\"loginBackButton transparentText\"><img src=\"/resources/images/login/back-round-corner.svg\" width=\"72px\" height=\"72px\" class=\"corner\"/><img src=\"/resources/images/login/back-round-full.svg\" width=\"72px\" height=\"72px\" class=\"full\"/> <div translate=\"'login_form_back'\" class=\"white\"> </div> <div translate=\"'login_form_back'\" class=\"color transparentText\"> </div> </div> <div translate=\"'login_form_register_merge_account'\" class=\"headText\"></div> <div class=\"loginInput\"> <input ng-model=\"state.login\" ng-change=\"loginChanged()\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 800, 'blur': 0} }\" translate=\"\" translate-placeholder=\"'login_enter_login'\" class=\"login\"/> </div> <div ng-if=\"showHelperLogins &amp;&amp; !state.canForget\" class=\"loginHelpers\"> <div ng-repeat=\"helperLogin in helperLogins | filter:state.login track by $index\" ng-click=\"setHelperLogin(helperLogin)\" class=\"item\"> <div class=\"value\">{{helperLogin}}</div> <div ng-click=\"removeHelperLogin(helperLogin, $event)\" class=\"closer\"></div> </div> </div> <div ng-if=\"state.canLogin\" class=\"passwordContainer\"> <div class=\"loginInput\"> <input type=\"password\" ng-model=\"state.password\" translate=\"\" translate-placeholder=\"'login_enter_password'\" class=\"pass\"/> </div> <button class=\"doLogin\"><img src=\"/resources/images/login/forward.svg\" width=\"10px\" height=\"18px\"/></button> </div> <div ng-if=\"state.canForget\" class=\"forgotPassword\"><span ng-click=\"forgetPassword()\" translate=\"'login_form_forget'\"> </span></div> <div ng-class=\"{'passHidden':passHidden}\" ng-if=\"!state.canLogin\" class=\"loginInput\"> <input type=\"password\" ng-model=\"state.password\" translate=\"\" translate-placeholder=\"'login_enter_new_password'\" class=\"pass hiddenPass\"/> <input type=\"text\" ng-model=\"state.password\" translate=\"\" translate-placeholder=\"'login_enter_new_password'\" class=\"pass visiblePass\"/> <div ng-click=\"passHidden = !passHidden\" class=\"switcher\"><img src=\"/resources/images/login/eyeOpen.svg\" width=\"30px\" height=\"15px\" class=\"visiblePass\"/><img src=\"/resources/images/login/eyeClosed.svg\" width=\"30px\" height=\"15px\" class=\"hiddenPass\"/></div> </div> <div ng-if=\"!state.canLogin\" class=\"loginRegisterRules\"> <div ng-class=\"{'checked':state.rulesAccepted}\" ng-click=\"state.rulesAccepted = !state.rulesAccepted\" class=\"registerCheckbox\"><img src=\"/resources/images/login/check.svg\" width=\"19px\" height=\"17px\" class=\"check\"/></div> <div class=\"registerText\"> <span translate=\"'login_form_register_text_start'\"> </span><span> </span><a translate=\"'login_form_register_text_link'\" ng-click=\"showRules()\"> </a><span> </span><span translate=\"'login_form_register_text_end'\"> </span></div> </div> <button ng-if=\"!state.canLogin\" ng-class=\"{'inactive':state.password.length&lt;6 || !state.rulesAccepted}\" translate=\"'login_form_register_register'\" class=\"loginRegisterButton\"> </button> </form>";
+
+buzzlike.directive('blLogin', function(rpc, loginService, notificationCenter, localStorageService) {
+  return {
+    restrict: 'C',
+    template: tC['/blLogin/template.jade'],
+    scope: true,
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var addHelperLogin, elem, error, ref, state;
+      elem = $(element);
+      scope.state = state = {
+        login: "",
+        password: "",
+        rulesAccepted: false,
+        canLogin: true,
+        canForget: false,
+        canRegister: false
+      };
+      scope.$watch(function() {
+        return loginService.state.mode;
+      }, function(nVal) {
+        if (nVal === 'blLogin') {
+          return $('input.login').focus();
+        }
+      });
+      scope.$watch('state.canLogin', function(nVal) {
+        if ($('input:focus').hasClass('pass')) {
+          return setTimeout(function() {
+            return $('input.pass:visible').focus();
+          }, 0);
+        }
+      });
+      scope.loginChanged = function() {
+        var i, len, login, no107, ref, ref1;
+        scope.showHelperLogins = false;
+        if (((ref = scope.state.login) != null ? ref.length : void 0) > 0) {
+          scope.showHelperLogins = true;
+          no107 = false;
+          ref1 = scope.helperLogins;
+          for (i = 0, len = ref1.length; i < len; i++) {
+            login = ref1[i];
+            if (login.indexOf(scope.state.login) > -1) {
+              no107 = true;
+            }
+          }
+          return rpc.call({
+            method: 'auth.isLoginAvailable',
+            data: scope.state.login,
+            error: function(res) {
+              scope.state.canForget = false;
+              scope.state.canLogin = true;
+              if ((res != null ? res.code : void 0) === 108) {
+                scope.state.canForget = true;
+                scope.state.canLogin = true;
+                return false;
+              }
+              if ((res != null ? res.code : void 0) === 107 && no107) {
+                scope.state.canForget = false;
+                scope.state.canLogin = true;
+                return false;
+              }
+              return true;
+            },
+            success: function(res) {
+              if (res === true) {
+                scope.state.canLogin = false;
+                return scope.state.canForget = false;
+              }
+            }
+          });
+        }
+      };
+      scope.backToSocial = function() {
+        return loginService.state.mode = 'default';
+      };
+      scope.doLogin = function() {
+        notificationCenter.messages.length = 0;
+        if (state.canLogin) {
+          if (state.password.length < 6) {
+            notificationCenter.addMessage({
+              text: 'rpc_error_105',
+              error: true
+            });
+            return;
+          }
+          addHelperLogin(state.login);
+          return loginService.auth(state, null, elem.parents('.newSocial').length > 0);
+        } else {
+          if (state.password.length < 6) {
+            notificationCenter.addMessage({
+              text: 'rpc_error_105',
+              error: true
+            });
+            return;
+          }
+          if (!state.rulesAccepted) {
+            notificationCenter.addMessage({
+              text: 'bl_register_accept_rules',
+              error: true
+            });
+            return;
+          }
+          addHelperLogin(state.login);
+          return loginService.register(state, null, elem.parents('.newSocial').length > 0);
+        }
+      };
+      scope.forgetPassword = function() {
+        if (scope.state.login) {
+          scope.state.canForget = false;
+          return rpc.call({
+            method: 'user.forgotPass',
+            data: state.login.toLowerCase(),
+            success: function(res) {
+              return notificationCenter.addMessage({
+                text: 'register_forget_watch_email'
+              });
+            }
+          });
+        }
+      };
+      try {
+        scope.helperLogins = JSON.parse(localStorageService.get('helperLogins'));
+      } catch (error) {
+        scope.helperLogins = [];
+      }
+      if (((ref = scope.helperLogins) != null ? ref.length : void 0) == null) {
+        scope.helperLogins = [];
+      }
+      scope.showHelperLogins = false;
+      scope.setHelperLogin = function(login) {
+        state.login = login;
+        scope.loginChanged();
+        return scope.showHelperLogins = false;
+      };
+      addHelperLogin = function(login) {
+        if (indexOf.call(scope.helperLogins, login) < 0) {
+          scope.helperLogins.push(login);
+          return localStorageService.add('helperLogins', JSON.stringify(scope.helperLogins));
+        }
+      };
+      return scope.removeHelperLogin = function(login, e) {
+        removeElementFromArray(login, scope.helperLogins);
+        localStorageService.add('helperLogins', JSON.stringify(scope.helperLogins));
+        e.stopPropagation();
+        return e.preventDefault();
+      };
+    }
+  };
+});
+
+registerStyles('blLogin', ".blLogin.modeFrame.compact {\n  height: 280px !important;\n  margin-top: -140px !important;\n}\n.blLogin .headText {\n  display: none;\n}\n.newSocial .blLogin .headText {\n  display: block;\n}\n.newSocial .blLogin .loginBackButton {\n  margin: 0;\n  margin-left: -68px;\n}\n.blLogin .loginHelpers {\n  position: absolute;\n  left: 50%;\n  width: 300px;\n  margin-left: -150px;\n  background: #fff;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  z-index: 5;\n}\n.blLogin .loginHelpers .item {\n  height: 40px;\n  line-height: 40px;\n  padding: 0 10px;\n  text-align: left;\n  cursor: pointer;\n}\n.blLogin .loginHelpers .value {\n  cursor: pointer;\n}\n.blLogin .loginHelpers .closer {\n  position: absolute;\n  right: 10px;\n  top: 12px;\n  background: url(\"/resources/images/desktop/removeCross.svg\") center center no-repeat;\n  position: absolute;\n  width: 16px;\n  height: 16px;\n  cursor: pointer;\n}\n.blLogin .passwordContainer {\n  margin: 0 auto;\n  margin-top: 15px;\n  width: 300px;\n  height: 50px;\n}\n.blLogin .passwordContainer .loginInput {\n  width: 248px;\n  margin: 30px 0;\n}\n.blLogin .passwordContainer .doLogin {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  width: 50px;\n  height: 50px;\n  -webkit-border-radius: 2px;\n  border-radius: 2px;\n  background: rgba(246,246,246,0.5);\n  cursor: pointer;\n  -webkit-transition: background 0.1s ease;\n  -moz-transition: background 0.1s ease;\n  -o-transition: background 0.1s ease;\n  -ms-transition: background 0.1s ease;\n  transition: background 0.1s ease;\n}\n.blLogin .passwordContainer .doLogin img {\n  margin-top: 3px;\n}\n.blLogin .passwordContainer .doLogin:hover {\n  background: rgba(246,246,246,0.3);\n}\n.blLogin .registerButton {\n  margin-top: 30px;\n  width: 100%;\n  text-align: center;\n}\n.blLogin .registerButton span {\n  cursor: pointer;\n  color: #fff;\n  font-size: 30px;\n}\n.blLogin .forgotPassword {\n  margin-top: 30px;\n  width: 100%;\n  text-align: center;\n}\n.blLogin .forgotPassword span {\n  cursor: pointer;\n  color: #fff;\n  font-size: 18px;\n}\n.blLogin .newPasswordContainer {\n  display: none;\n  margin: 0 auto;\n  margin-top: 15px;\n  width: 300px;\n  height: 50px;\n  background: #f6f6f6;\n  -webkit-border-radius: 2px;\n  border-radius: 2px;\n}\n");

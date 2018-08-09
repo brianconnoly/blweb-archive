@@ -1,0 +1,32 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+    div.appControls
+    div.title(translate="'exportXLSApp_title'")
+
+div.body
+    
+    div.exportSettings
+        div.community
+            div.itemPreview(item="community")
+
+        div.exportParams
+            div.caption(translate="'exportXLSApp_title'")
+            input.value(ng-model="params.forcedName")
+
+            div.caption(translate="'exportXLSApp_from'")
+            div.pickerContainer.value
+                div.timePicker(ng-model="params.from", ng-change="changedDate()")
+                div.datePicker(ng-model="params.from", ng-change="changedDate()", dateonly="true") {{params.from | timestampMask: "DD MMM YYYY"}}
+            
+            div.caption(translate="'exportXLSApp_to'")
+            div.pickerContainer.value
+                div.timePicker(ng-model="params.to", ng-change="changedDate()")
+                div.datePicker(ng-model="params.to", ng-change="changedDate()", dateonly="true") {{params.to | timestampMask: "DD MMM YYYY"}}
+
+    div.presets
+        span.preset(ng-repeat="preset in presets", ng-class="{'active':activePreset == preset}")
+            span.link(ng-click="setPreset(preset)", translate="'exportXLSApp_preset_'+preset")
+            //- span(ng-if="$index != presets.length - 1") , 
+
+    ul.options
+        li.hoverActive.option(translate="'exportXLSApp_doExport'", ng-click="doExport()")

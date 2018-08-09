@@ -1,0 +1,6 @@
+div.novaFrameTopBarLayout
+    div.novaFrameTopBar
+        div.goComb(ng-click="goComb()", translate="'novaCollectorPostsFrame_goComb'", ng-if="appItem.type != 'comb' && ugc.combIds.length > 0")
+    
+    div.novaFrameContents
+        div.novaCollectorProposedPost.novaItem.novaItemDroppable.novaItemDraggable(ng-repeat="item in items | filter:proposedFilter", ng-dblclick="openPostEdit(item)")

@@ -1,0 +1,505 @@
+buzzlike.service('desktopState', function(taskService, contextMenu, desktopService, multiselect, stateManager, scheduleService, buffer, $injector, contentService, $rootScope, combService, postService, uploadService) {
+  var cacheSelectable, getDown, getLeft, getRight, getUp, lastRect, moveSelect;
+  lastRect = {
+    x1: 0,
+    y1: 0,
+    elem: false
+  };
+  stateManager.registerState('desktop', {
+    'enter': function() {
+      var i, item, items, len;
+      items = multiselect.getFocused();
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (item.type === 'schedule') {
+          buffer.addItem(postService.getById(item.postId));
+        } else {
+          buffer.addItem(item);
+        }
+      }
+      return $rootScope.$apply();
+    },
+    'escape cmd': function() {
+      buffer.clearCurrentPocket();
+      return $rootScope.$apply();
+    },
+    'D cmd': function() {
+      $(multiselect.state.context).find('.selectableItem').removeClass('selected');
+      multiselect.flush();
+      return $rootScope.$apply();
+    },
+    'A cmd': function() {
+      var context, context_elem, elems;
+      context_elem = multiselect.state.context;
+      multiselect.flush();
+      if (context_elem == null) {
+        context = $('.workarea');
+      } else {
+        context = $(context_elem);
+      }
+      elems = context.find('.selectableItem');
+      elems.each(function() {
+        var item;
+        $(this).addClass('selected');
+        item = angular.element(this).scope().item;
+        return multiselect.addToFocus(item);
+      });
+      return $rootScope.$apply();
+    },
+    'U cmd': function(where) {
+      var i, item, j, len, len1, pHolder, pHolders;
+      if (where == null) {
+        where = [];
+      }
+      if ($(multiselect.state.context).hasClass('pocket') && multiselect.state.focusedHash.length > 0) {
+        where = multiselect.getFocused();
+      }
+      pHolders = [];
+      for (i = 0, len = where.length; i < len; i++) {
+        item = where[i];
+        if (item.type === 'placeholder') {
+          pHolders.push(item);
+        }
+      }
+      if (pHolders.length > 0) {
+        for (j = 0, len1 = pHolders.length; j < len1; j++) {
+          pHolder = pHolders[j];
+          removeElementFromArray(pHolder, where);
+        }
+        return uploadService.requestUpload(where, function(cb) {
+          var seq;
+          seq = new Sequence({
+            name: 'Prepare upload destination'
+          });
+          seq.addStep({
+            name: 'Create comb',
+            "var": 'combItem',
+            action: function(next) {
+              return combService.create({}, next);
+            }
+          });
+          seq.addStep({
+            name: 'Create and schedule post for every placeholder',
+            check: function() {
+              return pHolders.length > 0;
+            },
+            iterator: function(step) {
+              var k, len2, results;
+              results = [];
+              for (k = 0, len2 = pHolders.length; k < len2; k++) {
+                pHolder = pHolders[k];
+                results.push(step(pHolder));
+              }
+              return results;
+            },
+            action: function(next, retry, pHolder) {
+              return postService.create({
+                combId: seq.combItem.id
+              }, function(postItem) {
+                return scheduleService.create({
+                  postId: postItem.id,
+                  communityId: pHolder.communityId,
+                  timestamp: pHolder.timestamp
+                }, function(schedItem) {
+                  if (postItem.id != null) {
+                    where.push(postItem);
+                  }
+                  return next(postItem);
+                });
+              });
+            }
+          });
+          return seq.fire(function(result) {
+            return cb(where);
+          });
+        });
+      } else {
+        return uploadService.requestUpload(where);
+      }
+    },
+    'V cmd': function(where) {
+      var createTextLock, handler, selectText;
+      if (createTextLock) {
+        return false;
+      }
+      createTextLock = true;
+      if (typeof handler !== "undefined" && handler !== null) {
+        clearTimeout(handler);
+      }
+      handler = setTimeout(function() {
+        createTextLock = false;
+        return handler = null;
+      }, 1000);
+      if ($(multiselect.state.context).hasClass('pocket') && multiselect.state.focusedHash.length > 0) {
+        where = multiselect.getFocused();
+      }
+      selectText = true;
+      return contentService.create({
+        type: 'text',
+        value: ''
+      }, function(text) {
+        var i, item, len, pHolders, seq;
+        buffer.addItems([text]);
+        desktopService.launchApp('textEditor', {
+          textId: text.id,
+          startPosition: 'center'
+        });
+        pHolders = [];
+        if ((where != null ? where.length : void 0) > 0) {
+          for (i = 0, len = where.length; i < len; i++) {
+            item = where[i];
+            switch (item.type) {
+              case 'folder':
+                contentService.addContentIds(item, [text.id]);
+                break;
+              case 'comb':
+                combService.addContentIds(item, [text.id]);
+                break;
+              case 'schedule':
+                postService.addContentIds(item.postId, [text.id]);
+                break;
+              case 'post':
+                postService.addContentIds(item.id, [text.id]);
+                break;
+              case 'placeholder':
+                pHolders.push(item);
+                break;
+              case 'task':
+                taskService.call('addEntity', {
+                  taskId: item.id,
+                  entities: [
+                    {
+                      type: 'text',
+                      id: text.id
+                    }
+                  ]
+                }, function() {
+                  return true;
+                });
+            }
+          }
+        }
+        if (pHolders.length > 0) {
+          seq = new Sequence({
+            name: 'Create posts with text'
+          });
+          seq.addStep({
+            name: 'Create comb',
+            "var": 'combItem',
+            action: function(next) {
+              return combService.create({
+                items: [text.id]
+              }, next);
+            }
+          });
+          seq.addStep({
+            name: 'Schedule post',
+            iterator: function(step) {
+              var j, len1, placeholder, results;
+              results = [];
+              for (j = 0, len1 = pHolders.length; j < len1; j++) {
+                placeholder = pHolders[j];
+                results.push(step(placeholder));
+              }
+              return results;
+            },
+            action: function(next, retry, placeholder) {
+              return scheduleService.create({
+                items: [text.id],
+                combId: seq.combItem.id,
+                communityId: placeholder.communityId,
+                timestamp: placeholder.timestamp
+              }, next);
+            }
+          });
+          return seq.fire(function(result) {
+            return true;
+          });
+        }
+      });
+    },
+    'I cmd': function() {
+      desktopService.launchApp('socialImport');
+      return $rootScope.$apply();
+    },
+    'F cmd': function() {
+      desktopService.launchApp('searchMedia');
+      return $rootScope.$apply();
+    },
+    'Tilda': function() {
+      angular.element($('#blMenu')[0]).scope().menuClick();
+      return $rootScope.$apply();
+    },
+    'right': function() {
+      lastRect = moveSelect(getRight, true);
+      return true;
+    },
+    'right shift': function() {
+      moveSelect(getRight, true, true);
+      return true;
+    },
+    'left': function() {
+      lastRect = moveSelect(getLeft, true);
+      return true;
+    },
+    'left shift': function() {
+      moveSelect(getLeft, true, true);
+      return true;
+    },
+    'up': function() {
+      lastRect = moveSelect(getUp, true);
+      return true;
+    },
+    'up shift': function() {
+      moveSelect(getUp, true, true);
+      return true;
+    },
+    'down': function() {
+      lastRect = moveSelect(getDown, true);
+      return true;
+    },
+    'down shift': function() {
+      moveSelect(getDown, true, true);
+      return true;
+    },
+    'right cmd': function() {
+      lastRect = moveSelect(getRight);
+      return true;
+    },
+    'left cmd': function() {
+      lastRect = moveSelect(getLeft);
+      return true;
+    },
+    'up cmd': function() {
+      lastRect = moveSelect(getUp);
+      return true;
+    },
+    'down cmd': function() {
+      lastRect = moveSelect(getDown);
+      return true;
+    },
+    'space': function() {
+      angular.element(multiselect.state.lastFocused).scope().editAction($(multiselect.state.lastFocused));
+      return true;
+    }
+  });
+  moveSelect = function(closestFunc, flush, cmd) {
+    var cach, cached, closest, hei, i, item, lastFocused, lastX, lastY, leftX, leftY, len, offset, wid;
+    if (flush) {
+      multiselect.flush(true);
+    }
+    cached = cacheSelectable();
+    lastX = 0;
+    lastY = 0;
+    lastFocused = multiselect.state.lastFocused;
+    if (lastFocused != null) {
+      item = $(lastFocused);
+      offset = item.offset();
+      if (offset != null) {
+        lastX = offset.left;
+        lastY = offset.top;
+      }
+    }
+    if (!cmd || multiselect.state.startedRect === true) {
+      lastRect = {
+        x1: 0,
+        y1: 0,
+        elem: false
+      };
+      multiselect.state.startedRect = false;
+    }
+    if (!lastRect.elem) {
+      lastRect = {
+        x1: lastX,
+        y1: lastY,
+        elem: item
+      };
+    }
+    closest = closestFunc(cached, lastX, lastY);
+    if (closest != null) {
+      multiselect.state.lastFocused = closest.elem;
+      if (cmd) {
+        for (i = 0, len = cached.length; i < len; i++) {
+          cach = cached[i];
+          leftX = lastRect.x1 < closest.x1 ? lastRect.x1 : closest.x1;
+          leftY = lastRect.y1 < closest.y1 ? lastRect.y1 : closest.y1;
+          wid = Math.abs(lastRect.x1 - closest.x1);
+          hei = Math.abs(lastRect.y1 - closest.y1);
+          if (cach.x1 >= leftX && cach.x1 <= leftX + wid && cach.y1 >= leftY && cach.y1 <= leftY + hei) {
+            multiselect.addToFocus(cach.item);
+            cach.elem.addClass('selected');
+          }
+        }
+      } else {
+        multiselect.addToFocus(closest.item);
+        closest.elem.addClass('selected');
+      }
+      return closest;
+    } else {
+      if (lastFocused != null) {
+        multiselect.addToFocus(angular.element(lastFocused).scope().item);
+        lastFocused.addClass('selected');
+        return {
+          x1: lastX,
+          y1: lastY,
+          elem: lastFocused
+        };
+      }
+    }
+    return {
+      x1: 0,
+      y1: 0,
+      elem: false
+    };
+  };
+  getRight = function(cached, lastX, lastY) {
+    var cach, closest, distX, distY, i, len, ref, ref1;
+    closest = {
+      minX: 0,
+      minY: 0,
+      item: null
+    };
+    for (i = 0, len = cached.length; i < len; i++) {
+      cach = cached[i];
+      if (cach.x1 <= lastX) {
+        continue;
+      }
+      if (((ref = stateManager.stateTree) != null ? (ref1 = ref.activeState) != null ? ref1.name : void 0 : void 0) === 'timeline') {
+        if (cach.y1 !== lastY) {
+          continue;
+        }
+      }
+      distX = cach.x1 - lastX;
+      distY = Math.abs(lastY - cach.y1);
+      if (closest.item === null || distY < closest.minY) {
+        closest.item = cach;
+        closest.minY = distY;
+        closest.minX = distX;
+      }
+      if (distY === closest.minY && distX < closest.minX) {
+        closest.item = cach;
+        closest.minY = distY;
+        closest.minX = distX;
+      }
+    }
+    return closest.item;
+  };
+  getLeft = function(cached, lastX, lastY) {
+    var cach, closest, distX, distY, i, len, ref, ref1;
+    closest = {
+      minX: 0,
+      minY: 0,
+      item: null
+    };
+    for (i = 0, len = cached.length; i < len; i++) {
+      cach = cached[i];
+      if (cach.x1 >= lastX) {
+        continue;
+      }
+      if (((ref = stateManager.stateTree) != null ? (ref1 = ref.activeState) != null ? ref1.name : void 0 : void 0) === 'timeline') {
+        if (cach.y1 !== lastY) {
+          continue;
+        }
+      }
+      distX = lastX - cach.x1;
+      distY = Math.abs(lastY - cach.y1);
+      if (closest.item === null || distY < closest.minY) {
+        closest.item = cach;
+        closest.minY = distY;
+        closest.minX = distX;
+      }
+      if (distY === closest.minY && distX < closest.minX) {
+        closest.item = cach;
+        closest.minY = distY;
+        closest.minX = distX;
+      }
+    }
+    return closest.item;
+  };
+  getUp = function(cached, lastX, lastY) {
+    var cach, closest, distX, distY, i, len;
+    closest = {
+      minX: 0,
+      minY: 0,
+      item: null
+    };
+    for (i = 0, len = cached.length; i < len; i++) {
+      cach = cached[i];
+      if (cach.y1 >= lastY) {
+        continue;
+      }
+      distY = lastY - cach.y1;
+      distX = Math.abs(lastX - cach.x1);
+      if (closest.item === null || distX < closest.minX) {
+        closest.item = cach;
+        closest.minX = distX;
+        closest.minY = distY;
+      }
+      if (distX === closest.minX && distY < closest.minY) {
+        closest.item = cach;
+        closest.minX = distX;
+        closest.minY = distY;
+      }
+    }
+    return closest.item;
+  };
+  getDown = function(cached, lastX, lastY) {
+    var cach, closest, distX, distY, i, len;
+    closest = {
+      minX: 0,
+      minY: 0,
+      item: null
+    };
+    for (i = 0, len = cached.length; i < len; i++) {
+      cach = cached[i];
+      if (cach.y1 <= lastY) {
+        continue;
+      }
+      distY = cach.y1 - lastY;
+      distX = Math.abs(lastX - cach.x1);
+      if (closest.item === null || distX < closest.minX) {
+        closest.item = cach;
+        closest.minX = distX;
+        closest.minY = distY;
+      }
+      if (distX === closest.minX && distY < closest.minY) {
+        closest.item = cach;
+        closest.minX = distX;
+        closest.minY = distY;
+      }
+    }
+    return closest.item;
+  };
+  return cacheSelectable = function() {
+    var cache, context, elem, list;
+    context = multiselect.state.context;
+    if (context == null) {
+      context = $('.multiselect')[0];
+    }
+    elem = $(context);
+    list = elem.find('.selectableItem');
+    cache = [];
+    list.each(function() {
+      var entity, item, itemScope, offset;
+      item = $(this);
+      offset = item.offset();
+      itemScope = angular.element(this).scope();
+      if (itemScope.item.type === 'placeholder') {
+        entity = itemScope.item;
+      } else {
+        entity = itemScope.item;
+      }
+      return cache.push({
+        hash: multiselect.getItemHash(entity),
+        placeholder: itemScope.item.type === 'placeholder',
+        x1: offset.left,
+        y1: offset.top,
+        x2: offset.left + item.width(),
+        y2: offset.top + item.height(),
+        item: entity,
+        elem: item
+      });
+    });
+    return cache;
+  };
+});

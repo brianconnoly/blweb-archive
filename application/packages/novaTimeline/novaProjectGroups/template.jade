@@ -1,0 +1,7 @@
+div.title(translate="moduleName", ng-click="activateAll()")
+div.subItem(
+    ng-repeat="channel in channels | filter:channelFilter", 
+    ng-click="activateChannel(channel)",
+    ng-class="{'active':channelActive(channel)}")
+    div.settings(ng-click="channelSettings(channel, $event)")
+    div.subTitle {{channel.name}}

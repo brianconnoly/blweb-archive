@@ -1,0 +1,28 @@
+tC['/novaSimpleCheckbox/template.jade'] = "<div translate=\"'novaSimpleCheckbox_on'\" ng-if=\"value==true\" class=\"on\"></div> <div translate=\"'novaSimpleCheckbox_off'\" ng-if=\"value==false\" class=\"off\"></div>";
+
+buzzlike.directive('novaSimpleCheckbox', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaSimpleCheckbox/template.jade'],
+    require: '?ngModel',
+    scope: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      if (!ngModel) {
+        return;
+      }
+      elem = $(element);
+      ngModel.$render = function() {
+        scope.value = !!ngModel.$viewValue;
+        return true;
+      };
+      return elem.on('click', function(e) {
+        scope.value = !scope.value;
+        ngModel.$setViewValue(scope.value);
+        return scope.$apply();
+      });
+    }
+  };
+});
+
+registerStyles('novaSimpleCheckbox', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaSimpleCheckbox\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

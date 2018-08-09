@@ -1,0 +1,39 @@
+.helpBrowser
+    position: absolute
+    top 0
+    bottom 0
+    right 0
+    left 0
+    background: #fff
+    overflow hidden
+    
+    &.compact
+        .center
+            width 100%
+            margin-left 0
+            left 0
+            
+        .helpFile
+            width 130%
+            margin-left -15%
+            
+    .center
+        position absolute
+        width 1205px
+        left 50%
+        margin-left: -602px
+        overflow-y: auto
+        overflow-x: hidden
+    
+    .helpFile
+        position: relative
+        display: block
+        width 1205px
+        
+        // opacity 0
+        transition opacity 0.2s ease
+        margin: 0 auto
+        pointer-events none
+
+        // &.visible
+        //     opacity 1

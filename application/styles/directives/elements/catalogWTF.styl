@@ -1,0 +1,37 @@
+$circle = #1b2b36
+$activeCircle = #ff951e
+
+.layout_catalog
+
+    .layout_item
+        display: block
+        width 100%
+        position relative
+
+        &.hidden
+            display: none
+
+        h2.headlining
+            color #fff
+            padding 11px 15px 15px 12px
+            text-shadow: rgba(0,0,0,0.45) 0 0 0.6em
+            font-family "DINCyr-Light", sans-serif
+            font-size 26px
+            font-weight lighter
+            line-height 26px
+            margin: 0
+
+    &.black
+        .layout_item
+            h2.headlining
+                color #000
+                text-shadow: rgba(255,255,255,0.45) 0 0 0.6em
+
+a
+    color white
+    text-decoration: underline;
+
+    &:hover
+        cursor pointer
+
+

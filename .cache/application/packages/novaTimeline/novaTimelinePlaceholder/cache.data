@@ -1,0 +1,19 @@
+tC['/novaTimelinePlaceholder/template.jade'] = "<div class=\"head\"> <div class=\"time\">{{::block.timestamp | timestampMask:'hh:mm'}}</div> <div translate=\"'novaTimelinePlaceholder_createPost'\" ng-click=\"firePicker($event)\" class=\"placeholderAction createPost flushMousedown\"></div> <div translate=\"'novaTimelinePlaceholder_schedulePost'\" ng-click=\"firePicker($event,true)\" class=\"placeholderAction schedulePost flushMousedown\"></div> </div>";
+
+buzzlike.directive('novaTimelinePlaceholder', function(ruleService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelinePlaceholder/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.firePicker = function(e, fromStorage) {
+        scope.launchPostCreate(e, scope.block.timestamp);
+        return true;
+      };
+      return true;
+    }
+  };
+});
+
+registerStyles('novaTimelinePlaceholder', ".novaTimelinePlaceholder {\n  height: 40px;\n  width: 100%;\n}\n.novaTimelinePlaceholder .head {\n  overflow: hidden;\n}\n.novaTimelinePlaceholder .time {\n  float: left;\n  height: 40px;\n  width: 60px;\n  text-align: center;\n  line-height: 40px;\n  font-size: 14px;\n}\n.novaTimelinePlaceholder .placeholderAction {\n  float: left;\n  line-height: 40px;\n  margin-right: 10px;\n  font-size: 14px;\n  cursor: pointer;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n}\n.novaTimelinePlaceholder .placeholderAction:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

@@ -1,0 +1,16 @@
+buzzlike.directive('novaScrollerPage', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.page.element = elem;
+      elem.css('transform', "translate3d(0," + scope.page.top + "px,0)");
+      if (scope.page.anchor === 'bottom') {
+        return elem.css('bottom', '100%');
+      }
+    }
+  };
+});
+
+registerStyles('novaScrollerPage', ".novaScrollerPage {\n  position: absolute;\n  width: 100%;\n}\n");

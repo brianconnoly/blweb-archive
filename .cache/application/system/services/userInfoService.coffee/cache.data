@@ -1,0 +1,34 @@
+buzzlike.service('userInfo', function(env, httpWrapped) {
+  var allUsers, getUserInfoById, handleUserInfo;
+  allUsers = {};
+  handleUserInfo = function(item) {
+    if (allUsers[item.id] != null) {
+      updateObject(allUsers[item.id], item);
+    } else {
+      allUsers[item.id] = item;
+    }
+    return allUsers[item.id];
+  };
+  getUserInfoById = function(id, cb) {
+    if (allUsers[id] != null) {
+      if (typeof cb === "function") {
+        cb(allUsers[id]);
+      }
+      return allUsers[id];
+    } else {
+      httpWrapped.get(env.baseurl + '/user/' + id, function(result) {
+        var newUserInfo;
+        newUserInfo = handleUserInfo(result);
+        if (typeof cb === "function") {
+          cb(newUserInfo);
+        }
+        return true;
+      });
+      return false;
+    }
+  };
+  return {
+    allUsers: allUsers,
+    getUserInfoById: getUserInfoById
+  };
+});

@@ -1,0 +1,79 @@
+.form-control .select2-choice {
+  border: 0;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+}
+.form-control .select2-choice .select2-arrow {
+  -webkit-border-radius: 0 2px 2px 0;
+  border-radius: 0 2px 2px 0;
+}
+.form-control.select2-container {
+  height: auto !important;
+  padding: 0;
+}
+.form-control.select2-container.select2-dropdown-open {
+  border-color: #5897fb;
+  -webkit-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+}
+.form-control.select2-container .select2-choices {
+  border: 0 !important;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+.form-control .select2-container.select2-dropdown-open .select2-choices {
+  -webkit-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+}
+.control-group.warning .select2-container .select2-choice,
+.control-group.warning .select2-container .select2-choices,
+.control-group.warning .select2-container-active .select2-choice,
+.control-group.warning .select2-container-active .select2-choices,
+.control-group.warning .select2-dropdown-open.select2-drop-above .select2-choice,
+.control-group.warning .select2-dropdown-open.select2-drop-above .select2-choices,
+.control-group.warning .select2-container-multi.select2-container-active .select2-choices {
+  border: 1px solid #c09853 !important;
+}
+.control-group.warning .select2-container .select2-choice div {
+  border-left: 1px solid #c09853 !important;
+  background: #fcf8e3 !important;
+}
+.control-group.error .select2-container .select2-choice div {
+  border-left: 1px solid #b94a48 !important;
+  background: #f2dede !important;
+}
+.control-group.info .select2-container .select2-choice div {
+  border-left: 1px solid #3a87ad !important;
+  background: #d9edf7 !important;
+}
+.control-group.success .select2-container .select2-choice div {
+  border-left: 1px solid #468847 !important;
+  background: #dff0d8 !important;
+}
+.control-group.error .select2-container .select2-choice,
+.control-group.error .select2-container .select2-choices,
+.control-group.error .select2-container-active .select2-choice,
+.control-group.error .select2-container-active .select2-choices,
+.control-group.error .select2-dropdown-open.select2-drop-above .select2-choice,
+.control-group.error .select2-dropdown-open.select2-drop-above .select2-choices,
+.control-group.error .select2-container-multi.select2-container-active .select2-choices {
+  border: 1px solid #b94a48 !important;
+}
+.control-group.info .select2-container .select2-choice,
+.control-group.info .select2-container .select2-choices,
+.control-group.info .select2-container-active .select2-choice,
+.control-group.info .select2-container-active .select2-choices,
+.control-group.info .select2-dropdown-open.select2-drop-above .select2-choice,
+.control-group.info .select2-dropdown-open.select2-drop-above .select2-choices,
+.control-group.info .select2-container-multi.select2-container-active .select2-choices {
+  border: 1px solid #3a87ad !important;
+}
+.control-group.success .select2-container .select2-choice,
+.control-group.success .select2-container .select2-choices,
+.control-group.success .select2-container-active .select2-choice,
+.control-group.success .select2-container-active .select2-choices,
+.control-group.success .select2-dropdown-open.select2-drop-above .select2-choice,
+.control-group.success .select2-dropdown-open.select2-drop-above .select2-choices,
+.control-group.success .select2-container-multi.select2-container-active .select2-choices {
+  border: 1px solid #468847 !important;
+}

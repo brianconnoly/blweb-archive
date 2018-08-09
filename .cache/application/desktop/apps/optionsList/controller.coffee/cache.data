@@ -1,0 +1,129 @@
+buzzlike.controller('optionsListCtrl', function($scope, localization) {
+  var callActive, checkOptions, close, confirmState, defaultSettings, init, rawOptions, settings;
+  defaultSettings = {
+    cancelButton: true
+  };
+  settings = {};
+  rawOptions = null;
+  $scope.state = {
+    showed: false,
+    options: [],
+    selected: 0,
+    text: ''
+  };
+  confirmState = {
+    'noMenu': 'inherit',
+    'hideRight': 'inherit',
+    'enter': function() {
+      return callActive();
+    },
+    'left': function() {
+      $scope.state.selected--;
+      if ($scope.state.selected < 0) {
+        return $scope.state.selected = $scope.state.options.length - 1;
+      }
+    },
+    'right': function() {
+      $scope.state.selected++;
+      if ($scope.state.selected > $scope.state.options.length - 1) {
+        return $scope.state.selected = 0;
+      }
+    },
+    'escape': function() {
+      var action, i, j, len, ref, ref1;
+      ref = $scope.state.options;
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        action = ref[i];
+        if (((ref1 = action["class"]) != null ? ref1.indexOf('cancel') : void 0) > -1) {
+          $scope.callAction(i);
+          return;
+        }
+      }
+      return close();
+    }
+  };
+  $scope.stateTree.applyState(confirmState);
+  close = function() {
+    return $scope.closeApp();
+  };
+  init = function(message, options, newSettings) {
+    var j, len, option;
+    updateObject(settings, defaultSettings, newSettings);
+    $scope.state.text = $scope.state.realText = $scope.state.description = '';
+    if (typeof message === 'object') {
+      if (message.phrase) {
+        $scope.state.text = message.phrase;
+      }
+      if (message.realText) {
+        $scope.state.realText = message.realText;
+      }
+      $scope.state.description = message.description;
+    } else if (typeof message === 'string' || typeof message === 'number') {
+      $scope.state.text = '' + message;
+    } else {
+      return false;
+    }
+    $scope.state.selected = 0;
+    $scope.state.options.length = 0;
+    rawOptions = options;
+    for (j = 0, len = options.length; j < len; j++) {
+      option = options[j];
+      if (option.check != null) {
+        if (!option.check()) {
+          continue;
+        }
+      }
+      $scope.state.options.push(option);
+    }
+    if (settings.cancelButton) {
+      $scope.state.options.push({
+        text: 79,
+        action: function() {
+          return true;
+        },
+        "class": 'cancel'
+      });
+    }
+    return $scope.state.showed = true;
+  };
+  $scope.checkOptions = checkOptions = function() {
+    var j, len, option;
+    $scope.state.selected = 0;
+    $scope.state.options.length = 0;
+    for (j = 0, len = rawOptions.length; j < len; j++) {
+      option = rawOptions[j];
+      if (option.check != null) {
+        if (!option.check()) {
+          continue;
+        }
+      }
+      $scope.state.options.push(option);
+    }
+    if (settings.cancelButton) {
+      return $scope.state.options.push({
+        text: 79,
+        action: function() {
+          return true;
+        },
+        "class": 'cancel'
+      });
+    }
+  };
+  callActive = function() {
+    var base;
+    close();
+    if ($scope.state.options[$scope.state.selected] != null) {
+      return typeof (base = $scope.state.options[$scope.state.selected]).action === "function" ? base.action() : void 0;
+    }
+  };
+  $scope.select = function(index) {
+    return $scope.state.selected = index;
+  };
+  $scope.callAction = function(index) {
+    $scope.state.selected = index;
+    callActive();
+    return true;
+  };
+  init($scope.session.message, $scope.session.options, $scope.session.newSettings);
+  return true;
+});

@@ -1,0 +1,3 @@
+.lotContentPreview {
+  display: block;
+}

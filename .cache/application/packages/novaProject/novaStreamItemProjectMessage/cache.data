@@ -1,0 +1,46 @@
+tC['/novaStreamItemProjectMessage/template.jade'] = "<span translate=\"'streamMessage_' + streamItem.value + (streamItem.items.length &gt; 1 ? 's' : '') + (!appItem.profileUserId ? '' : '_me')\" translate-capitalize=\"{{::capitalize}}\" class=\"text\"></span><span ng-repeat=\"parent in uniqParents\" class=\"parentName\"> \"{{trim(getParent(parent).name, $index)}}\"</span> <div ng-class=\"{'center':streamItem.items.length &lt; 3}\" ng-if=\"!appItem.profileUserId &amp;&amp; !noItems\" class=\"entities novaMultiselect\"> <div ng-repeat=\"realItem in streamItem.items track by realItem.id\" class=\"realStreamItem\"> <div ng-repeat=\"itemData in realItem.entities\" nova-item-id=\"itemData.id\" nova-item-type=\"{{::itemData.type}}\" nova-item-context=\"parent\" class=\"streamUserEntity novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemDroppable\"></div> </div> </div>";
+
+buzzlike.directive('novaStreamItemProjectMessage', function(operationsService, $parse) {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamItemProjectMessage/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var ref;
+      if (attrs.streamItem != null) {
+        scope.streamItem = $parse(attrs.streamItem)(scope);
+      }
+      scope.noItems = (ref = scope.streamItem.value) === 'accepted_invite' || ref === 'rejected_invite';
+      scope.parent = operationsService.get(scope.streamItem.parent.type, scope.streamItem.parent.id);
+      scope.uniqParents = [];
+      scope.$watch('streamItem.items', function(nVal) {
+        var i, item, k, len, map, ref1, results, v;
+        if (!((nVal != null ? nVal.length : void 0) > 0)) {
+          return;
+        }
+        map = {};
+        scope.uniqParents.length = 0;
+        ref1 = scope.streamItem.items;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          item = ref1[i];
+          if (item.parent.id !== scope.appItem.id) {
+            map[item.parent.id] = item.parent;
+          }
+        }
+        results = [];
+        for (k in map) {
+          v = map[k];
+          results.push(scope.uniqParents.push(v));
+        }
+        return results;
+      }, 0);
+      scope.getParent = function(parent) {
+        return operationsService.get(parent.type, parent.id);
+      };
+      return scope.trim = function(str, index) {
+        return $.trim(str) + (index < scope.uniqParents.length - 1 ? ',' : '');
+      };
+    }
+  };
+});
+
+registerStyles('novaStreamItemProjectMessage', ".novaStreamItemProjectMessage .entities {\n  padding: 5px 10px;\n  overflow: hidden;\n  text-align: left;\n}\n.novaStreamItemProjectMessage .entities.center {\n  text-align: center;\n}\n.novaStreamItemProjectMessage .entities .streamEntity {\n  width: 80px;\n  height: 60px;\n  margin: 10px;\n  display: inline-block;\n  text-align: left;\n  -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,0.4);\n  box-shadow: 0 0 5px 0 rgba(0,0,0,0.4);\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaStreamItemProjectMessage .entities .streamUserEntity {\n  margin: 5px;\n  display: inline-block;\n  text-align: left;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaStreamItemProjectMessage .entities .streamUserEntity .avatarWrapper {\n  margin: 10px 20px;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaStreamItemProjectMessage .entities .streamUserEntity .userName {\n  width: 100%;\n  margin-bottom: 10px;\n}\n.novaStreamItemProjectMessage .realStreamItem {\n  display: inline-block;\n}\n");

@@ -1,0 +1,435 @@
+tC['/desktop/template.jade'] = "<div params=\"user.settings.wallpaperSettings\" class=\"novaWallpaper\"></div> <div id=\"workarea\" class=\"flushMultiselect asyncUpload\"> <div id=\"topProgressBar\" class=\"progressBar\"> <div class=\"value\"></div> </div> <div id=\"desktop\" class=\"workareaResizer activeDesktop\"> <div id=\"applications\" item=\"desktopService.activeDesktop\" class=\"contextMenu\"></div> <div ng-if=\"notificationStatus.panelShown\" class=\"notificationPanel notificationFader shader\"> <div class=\"panel\"> <div ng-show=\"makeArray(unread).length == 0\" translate=\"'no_unread_notifications'\" class=\"nothingToShow\"></div> <div class=\"notificationsContainer\"> <div ng-repeat=\"notification in makeArray(unread) | orderBy:'created':true | limitTo:5\" class=\"notificationItem\"> <div class=\"notificationPreview\"></div> </div> </div> <ul class=\"options\"> <li ng-click=\"showAll()\" translate=\"'show_all_notifications'\" class=\"option hoverActive\"></li> <li ng-if=\"makeArray(unread).length &gt; 0\" ng-click=\"hideAll($event)\" translate=\"'mark_all_read'\" class=\"option hoverActive cancel\"></li> </ul> </div> </div> </div> <div id=\"menu\" ng-if=\"desktopService.showMenu\" class=\"blMenu flushMousedown\"> <div ng-if=\"!user.settings.simpleMode\" class=\"mainMenu\"> <div class=\"menuHead\"> <div ng-click=\"launchApp('settings')\" class=\"settings\"></div> <div ng-click=\"launchApp('settings')\" class=\"name\">{{user.name}}</div> <div ng-click=\"logout()\" class=\"logout\"></div> </div> <div ng-click=\"launchApp('timeline')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton timeline\"> <div class=\"icon\"></div> <div translate=\"'appName_timeline'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('combs')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton combs\"> <div class=\"icon\"></div> <div translate=\"'appName_combs'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('content')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton content\"> <div class=\"icon\"></div> <div translate=\"'appName_content'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('market')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton market\"> <div class=\"icon\"></div> <div translate=\"'appName_market'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('lotManager')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton lotManager\"> <div class=\"icon\"></div> <div translate=\"'appName_lotManager'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('teamManager')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton teamManager\"> <div class=\"icon\"></div> <div translate=\"'appName_teamManager'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('notificationViewer')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton notificationViewer\"> <div class=\"icon\"></div> <div translate=\"'appName_notificationViewer'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('textEditor')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton textEditor\"> <div class=\"icon\"></div> <div translate=\"'appName_textEditor'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('help')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton help\"> <div class=\"icon\"></div> <div translate=\"'appName_help'\" class=\"title\"></div> </div> <div ng-mouseover=\"desktopService.subMenu = 'shortcuts'\" ng-class=\"{'active':desktopService.subMenu == 'shortcuts'}\" class=\"appButton shortcuts\"> <div class=\"icon\"></div> <div translate=\"'appName_shortcuts'\" class=\"title\"></div> </div> </div> <div ng-if=\"user.settings.simpleMode\" class=\"mainMenu\"> <div class=\"menuHead\"> <div ng-click=\"launchApp('settings')\" class=\"settings\"></div> <div ng-click=\"launchApp('settings')\" class=\"name\">{{user.name}}</div> <div ng-click=\"logout()\" class=\"logout\"></div> </div> <div ng-click=\"launchApp('timeline')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton timeline\"> <div class=\"icon\"></div> <div translate=\"'appName_timeline'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('combs')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton combs\"> <div class=\"icon\"></div> <div translate=\"'appName_combs'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('teamManager')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton teamManager\"> <div class=\"icon\"></div> <div translate=\"'appName_teamManager'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('help')\" ng-mouseover=\"desktopService.subMenu = null\" class=\"appButton help\"> <div class=\"icon\"></div> <div translate=\"'appName_help'\" class=\"title\"></div> </div> </div> <div ng-if=\"desktopService.subMenu == 'shortcuts'\" class=\"popupMenu shortcuts\"> <div ng-click=\"launchApp('searchMedia')\" class=\"actionButton search withHotkey\"> <div class=\"icon\"></div> <div translate=\"'appAction_content_search'\" class=\"title\"></div> <div class=\"hotkey\">Ctrl+f</div> </div> <div ng-click=\"launchApp('socialImport')\" class=\"actionButton import withHotkey\"> <div class=\"icon\"></div> <div translate=\"'appAction_content_import'\" class=\"title\"></div> <div class=\"hotkey\">Ctrl+i</div> </div> <div ng-click=\"launchApp('importXLS')\" class=\"actionButton xls\"> <div class=\"icon\"></div> <div translate=\"'appAction_content_xls'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('addFeed')\" class=\"actionButton addCommunity\"> <div class=\"icon\"></div> <div translate=\"'appAction_combs_addCommunity'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('textEditor')\" class=\"actionButton textEditor\"> <div class=\"icon\"></div> <div translate=\"'appName_textEditor'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('ugcManager')\" ng-if=\"isTiger() || user.roles.Morpheus || user.roles.ugcUser\" class=\"actionButton moderation services\"> <div class=\"icon\"></div> <div translate=\"'appName_ugcManager'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('moderation')\" ng-if=\"user.roles.Morpheus\" class=\"actionButton moderation services\"> <div class=\"icon\"></div> <div translate=\"'appName_moderation'\" class=\"title\"></div> </div> <div ng-click=\"launchApp('callApi')\" ng-if=\"user.roles.apiUser\" class=\"actionButton moderation services\"> <div class=\"icon\"></div> <div translate=\"'appName_callApi'\" class=\"title\"></div> </div> </div> </div> <div id=\"dock\"> <div id=\"showRight\" ng-click=\"showRight()\" dropable-item=\"buffed.currentPocket\" class=\"button droppableItem\"> <div class=\"panelIcon\"></div> </div> <div ng-click=\"hotUpload()\" class=\"hotAction flushMousedown upload\"></div> <div ng-click=\"hotText()\" class=\"hotAction flushMousedown text\"></div> <div class=\"dockClock\"></div> <div class=\"dockNotify\"> <div ng-click=\"triggerPanel()\" ng-class=\"{'error':notificationStatus.error, 'new':makeArray(unread).length&gt;0, 'spinner': spinnerShow}\" class=\"notificationCenter ios-nodelay\"><img src=\"/resources/images/topbar/notify.svg\" width=\"30px\" height=\"30px\" class=\"icon switch black\"/> <div class=\"counter\">{{makeArray(unread).length}}</div> <div ng-click=\"refresh()\" class=\"error\"></div> </div> </div> <div id=\"blMenu\" ng-mousedown=\"menuClick($event)\" class=\"button\"><img src=\"/resources/images/login/dark.svg\"/></div> <div ng-repeat=\"desktop in desktopService.desktops\" class=\"desktopSessions\"> <div ng-if=\"session.hideFromDock != true\" item=\"session\" ng-repeat=\"session in desktop.sessions | orderBy:'id'\" style=\"background:url({{::session.icon}}) center center no-repeat\" ng-click=\"activate(desktop, session)\" ng-class=\"{'active':appsService.activeSession == session}\" class=\"button contextMenu\"><span ng-hide=\"session.icon\" class=\"title\">{{::session.name || session.app}}</span> </div> </div> </div> <div id=\"buffer\" no-effects=\"no-effects\" dropable-item=\"buffed.currentPocket\" class=\"bufferResizer droppableItem flushMultiselect\"> <div ng-if=\"buffed.showed\" class=\"bufferPanel\"></div> </div> <div id=\"bufferResizeHelper\" class=\"bufferResizeHelper\"></div> <div id=\"resizer\" class=\"resizerHandler coffee\"></div> <div class=\"uploadFader\"> <div class=\"window\"> <div translate=\"'import_dropcontent1'\" class=\"caption top\"></div> <div class=\"line-blocks\"> <div class=\"block png\">.png</div> <div class=\"block jpg\">.jpg</div> <div class=\"block gif\">.gif</div> </div> <div class=\"caption middle\"> <span>... </span><span translate=\"'import_dropcontent2'\"></span></div> <div class=\"line-blocks\"> <div class=\"block text\">.txt</div> </div> <div translate=\"'import_dropcontent3'\" class=\"caption bottom\"></div> </div> <div class=\"window wrong\"> <div translate=\"'import_dropcontent4'\" class=\"caption\"></div> </div> <div class=\"realFader\"></div> </div> </div> <div id=\"dropHelper\" class=\"dropHelper\"></div> <div id=\"graphHelper\"> <div class=\"plate\"></div> <div class=\"corner\"></div> </div> <div class=\"combobox-list\"></div> <div id=\"complexMenu\" class=\"complexMenu\"></div> <div id=\"menuWindow\" class=\"menuWindow\"></div> <div id=\"windowDragHelper\"></div> <form class=\"uploadHelper\"> <input type=\"file\" multiple=\"multiple\" ng-model=\"files\" style=\"opacity: 0; top: -55px\" class=\"tutorialCourseTagForce\"/> </form> <form class=\"importHelper\"> <input id=\"importFullHelper\" type=\"file\" accept=\"application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\" style=\"opacity: 0; top: -55px\"/> </form> <form class=\"importHelper\"> <input id=\"importCommunityHelper\" type=\"file\" accept=\"application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\" style=\"opacity: 0; top: -55px\"/> </form>";
+
+buzzlike.directive('desktop', function(account, appsService, desktopService, buffer, notificationCenter, uploadService, tableImport, confirmBox, socketAuth, localization, stateManager) {
+  return {
+    restrict: 'C',
+    template: tC['/desktop/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var app, i, len, ref;
+      scope.sessions = appsService.sessions;
+      scope.appsService = appsService;
+      scope.desktopService = desktopService;
+      scope.user = account.user;
+      scope.notificationStatus = notificationCenter.status;
+      appsService.setDesktopService(desktopService);
+      scope.apps = [
+        {
+          app: 'help',
+          name: 'Help',
+          icon: '/resources/images/desktop/dock/white/help.svg',
+          size: {
+            width: 900,
+            height: 600,
+            minWidth: 700,
+            minHeight: 300
+          }
+        }, {
+          app: 'addFeed',
+          name: 'Add feed',
+          icon: '/resources/images/desktop/white/header-button-addTimeline.svg',
+          noSave: true,
+          size: {
+            width: 682,
+            height: 600,
+            minWidth: 670
+          }
+        }, {
+          app: 'socialImport',
+          name: 'Social import',
+          icon: '/resources/images/desktop/dock/white/import.svg',
+          size: {
+            width: 800,
+            height: 600
+          }
+        }, {
+          app: 'searchMedia',
+          name: 'Search media',
+          icon: '/resources/images/desktop/dock/white/search.svg',
+          size: {
+            width: 688,
+            height: 600
+          }
+        }, {
+          app: 'timeline',
+          name: 'Timeline',
+          icon: '/resources/images/desktop/dock/white/timelines.svg',
+          size: {
+            width: 800,
+            height: 600
+          }
+        }, {
+          app: 'content',
+          name: 'Content',
+          icon: '/resources/images/desktop/dock/white/materials.svg',
+          size: {
+            width: 540,
+            height: 600
+          }
+        }, {
+          app: 'combs',
+          name: 'Combs',
+          icon: '/resources/images/desktop/dock/white/themes.svg',
+          size: {
+            width: 540,
+            height: 600
+          }
+        }, {
+          app: 'market',
+          name: 'Market',
+          icon: '/resources/images/desktop/dock/white/market.svg',
+          size: {
+            width: 624,
+            height: 730,
+            minWidth: 624,
+            minHeight: 560
+          }
+        }, {
+          app: 'teamManager',
+          name: 'Team manager',
+          icon: '/resources/images/desktop/dock/white/teams.svg',
+          size: {
+            width: 865,
+            height: 600,
+            minWidth: 865,
+            maxWidth: 865
+          }
+        }, {
+          app: 'lotManager',
+          name: 'Lot manager',
+          icon: '/resources/images/desktop/dock/white/marketRequests.svg',
+          size: {
+            width: 783,
+            height: 600,
+            minWidth: 783,
+            maxWidth: 783,
+            minHeight: 343
+          }
+        }, {
+          app: 'ugcManager',
+          name: 'UGC manager',
+          icon: '/resources/images/desktop/dock/white/marketRequests.svg',
+          size: {
+            width: 1000,
+            height: 600,
+            minWidth: 1000,
+            maxWidth: 1000,
+            minHeight: 343
+          }
+        }, {
+          app: 'textEditor',
+          name: 'Text editor',
+          icon: '/resources/images/desktop/dock/white/text.svg',
+          size: {
+            width: 400,
+            height: 500
+          }
+        }, {
+          app: 'pollEdit',
+          name: 'Poll editor',
+          size: {
+            width: 400,
+            minWidth: 400,
+            maxWidth: 400,
+            height: 500
+          }
+        }, {
+          app: 'importXLS',
+          name: 'Import XLS',
+          icon: '/resources/images/desktop/dock/white/xls.svg',
+          startPosition: 'center',
+          size: {
+            width: 380,
+            height: 170,
+            maxWidth: 380,
+            minWidth: 380,
+            minHeight: 170,
+            maxHeight: 170
+          }
+        }, {
+          app: 'exportXLS',
+          name: 'Export XLS',
+          icon: '/resources/images/desktop/dock/white/xls.svg',
+          startPosition: 'center',
+          noSave: true,
+          size: {
+            width: 480,
+            height: 280,
+            maxWidth: 380,
+            minWidth: 380,
+            minHeight: 280,
+            maxHeight: 280
+          }
+        }, {
+          app: 'moderation',
+          name: 'Market moderation',
+          size: {
+            width: 600,
+            height: 400
+          }
+        }, {
+          app: 'callApi',
+          name: 'Api testing tool',
+          size: {
+            width: 600,
+            height: 500
+          }
+        }, {
+          app: 'svgTunner',
+          name: 'Svg tunner',
+          size: {
+            width: 600,
+            height: 500
+          }
+        }, {
+          app: 'notificationViewer',
+          name: 'Notification viewer',
+          icon: '/resources/images/desktop/dock/white/notify.svg',
+          startPosition: 'center',
+          size: {
+            width: 470,
+            height: 520,
+            maxWidth: 470,
+            minWidth: 470,
+            minHeight: 355
+          },
+          noSnap: true
+        }, {
+          app: 'settings',
+          name: 'Buzzlike settings',
+          icon: '/resources/images/desktop/actions/white/header-button-settings.svg',
+          startPosition: 'center',
+          size: {
+            width: 581,
+            height: 422,
+            minWidth: 501,
+            maxWidth: 742,
+            minHeight: 300,
+            maxHeight: 860
+          }
+        }
+      ];
+      ref = scope.apps;
+      for (i = 0, len = ref.length; i < len; i++) {
+        app = ref[i];
+        appsService.registerApp(app);
+      }
+      appsService.registerApp({
+        app: 'combEdit',
+        name: 'Тема',
+        size: {
+          width: 800,
+          height: 600
+        }
+      });
+      appsService.registerApp({
+        app: 'lotPreview',
+        name: 'Лот',
+        startPosition: 'center',
+        noResize: true,
+        size: {
+          width: 568,
+          maxWidth: 568,
+          minWidth: 568,
+          height: 'auto'
+        }
+      });
+      appsService.registerApp({
+        app: 'graph',
+        name: 'Динамика',
+        startPosition: 'cursor',
+        size: {
+          width: 568,
+          minWidth: 568,
+          height: 400,
+          minHeight: 400
+        }
+      });
+      appsService.registerApp({
+        app: 'mediaPreview',
+        name: 'Просмотр',
+        startPosition: 'center',
+        size: {
+          width: 600,
+          height: 400
+        }
+      });
+      appsService.registerApp({
+        app: 'requestMaster',
+        name: 'Заявка',
+        startPosition: 'center',
+        noResize: true,
+        noSave: true,
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 590,
+          height: 540
+        }
+      });
+      appsService.registerApp({
+        app: 'postPicker',
+        name: 'Post picker',
+        startPosition: 'cursor',
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 263,
+          height: 420,
+          maxWidth: 263,
+          minWidth: 263,
+          minHeight: 210
+        }
+      });
+      appsService.registerApp({
+        app: 'calendar',
+        name: 'Calendar',
+        startPosition: 'cursor',
+        noSave: true,
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 228,
+          height: 310,
+          maxWidth: 228,
+          minWidth: 228,
+          maxHeight: 310,
+          minHeight: 310
+        }
+      });
+      appsService.registerApp({
+        app: 'ruleInspector',
+        name: 'Rule inspector',
+        startPosition: 'cursor',
+        noSave: true,
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 380,
+          height: 460,
+          maxWidth: 380,
+          minWidth: 380,
+          maxHeight: 460,
+          minHeight: 460
+        }
+      });
+      appsService.registerApp({
+        app: 'optionsList',
+        name: 'Options list',
+        noSave: true,
+        startPosition: 'center',
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 510,
+          height: 'auto'
+        }
+      });
+      appsService.registerApp({
+        app: 'paymentOffer',
+        name: 'Payment offer',
+        noSave: true,
+        startPosition: 'center',
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 700,
+          height: 600
+        }
+      });
+      appsService.registerApp({
+        app: 'inviteUser',
+        name: 'Invite user',
+        noSave: true,
+        noResize: true,
+        startPosition: 'center',
+        alwaysOnTop: true,
+        hideFromDock: true,
+        size: {
+          width: 378,
+          height: 162,
+          maxHeight: 390
+        }
+      });
+      appsService.registerApp({
+        app: 'sendLogViewer',
+        name: 'Send log viewer',
+        startPosition: 'cursor',
+        size: {
+          width: 378,
+          height: 562
+        }
+      });
+      scope.menuClick = function(e) {
+        if (!desktopService.showMenu) {
+          if (e != null) {
+            if (typeof e.stopPropagation === "function") {
+              e.stopPropagation();
+            }
+          }
+          desktopService.showMenu = true;
+          return desktopService.subMenu = null;
+        }
+      };
+      scope.launchApp = function(app) {
+        desktopService.showMenu = false;
+        desktopService.subMenu = null;
+        return desktopService.launchApp(app);
+      };
+      scope.newDesktop = function() {
+        desktopService.showMenu = false;
+        desktopService.subMenu = null;
+        return desktopService.newDesktop();
+      };
+      scope.activate = function(desktop, session) {
+        if (desktop !== desktopService.currentDesktop) {
+          desktopService.selectDesktop(desktop);
+        }
+        if (session != null) {
+          if (session === appsService.activeSession && session.minimized !== true) {
+            appsService.hide(session);
+          } else {
+            appsService.activate(session);
+          }
+        }
+        return true;
+      };
+      scope.logout = function() {
+        desktopService.showMenu = false;
+        desktopService.subMenu = null;
+        return confirmBox.init({
+          phrase: 'popup_exit_title',
+          description: 'popup_exit_subtitle',
+          yes: localization.translate('popup_exit_confirm'),
+          no: localization.translate('morework')
+        }, function() {
+          return socketAuth.logout();
+        });
+      };
+      scope.isTiger = function() {
+        return account.user.login.indexOf('tigermilk') > -1 || account.user.login.indexOf('socialist.pro') > -1 || account.user.login.indexOf('engagency.ru') > -1;
+      };
+      scope.bufferWidth = 176;
+      scope.showRight = function() {
+        buffer.toggleShow();
+        return true;
+      };
+      scope.buffed = buffer;
+      desktopService.init();
+      scope.hotUpload = function() {
+        stateManager.callAction('U', {
+          cmd: true
+        });
+        return true;
+      };
+      scope.hotText = function() {
+        stateManager.callAction('V', {
+          cmd: true
+        });
+        return true;
+      };
+      return true;
+    }
+  };
+});
+
+registerStyles('desktop', ".desktop {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.desktop #wallpaper {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.desktop #wallpaper img {\n  -webkit-transition: opacity 0.5s ease;\n  -moz-transition: opacity 0.5s ease;\n  -o-transition: opacity 0.5s ease;\n  -ms-transition: opacity 0.5s ease;\n  transition: opacity 0.5s ease;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.desktop #wallpaper.visible img {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.desktop #workarea {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  overflow: hidden;\n  -webkit-transition: right 0.2s ease;\n  -moz-transition: right 0.2s ease;\n  -o-transition: right 0.2s ease;\n  -ms-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\n.desktop #buffer {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 40px;\n  width: 0;\n  overflow: hidden;\n  background: rgba(73,73,73,0.8);\n  -webkit-transition: width 0.2s ease;\n  -moz-transition: width 0.2s ease;\n  -o-transition: width 0.2s ease;\n  -ms-transition: width 0.2s ease;\n  transition: width 0.2s ease;\n  z-index: 1000;\n}\n.desktop #bufferResizeHelper {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  overflow: hidden;\n  background: #183ed9;\n  opacity: 0.2;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)\";\n  filter: alpha(opacity=20);\n  z-index: 10000;\n  display: none;\n  pointer-events: none;\n}\n.desktop #bufferResizeHelper.visible {\n  display: block;\n}\n.desktop #resizer {\n  position: absolute;\n  width: 10px;\n  top: 0;\n  bottom: 0;\n  margin-right: -5px;\n  cursor: col-resize;\n  z-index: 100;\n}\n.desktop #desktop {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 40px;\n}\n.desktop #applications {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.desktop #dock {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 40px;\n  background: rgba(73,73,73,0.8);\n  z-index: 1000;\n}\n.desktop #dock .hotAction {\n  float: right;\n  height: 20px;\n  width: 20px;\n  margin: 10px 5px;\n  cursor: pointer;\n}\n.desktop #dock .hotAction.upload {\n  background: url(\"/resources/images/desktop/actions/white/header-button-upload.svg\") center center no-repeat;\n}\n.desktop #dock .hotAction.text {\n  background: url(\"/resources/images/desktop/actions/white/header-button-newText.svg\") center center no-repeat;\n}\n.desktop #dock .desktopSessions .button {\n  border-right: 1px solid #ddd;\n}\n.desktop #dock .dockNotify {\n  float: right;\n  height: 40px;\n  line-height: 40px;\n}\n.desktop #dock .dockClock {\n  float: right;\n  color: #f2f2f2;\n  font-size: 18px;\n  line-height: 40px;\n  margin: 0 10px;\n}\n.desktop #dock .button {\n  float: left;\n  height: 100%;\n  min-width: 50px;\n  cursor: pointer;\n  color: #f2f2f2;\n}\n.desktop #dock .button img {\n  cursor: pointer;\n}\n.desktop #dock .button .title {\n  line-height: 40px;\n  margin: 0 10px;\n  cursor: pointer;\n}\n.desktop #dock .button.active {\n  background-color: rgba(57,181,74,0.8) !important;\n}\n.desktop img.size32 {\n  width: 32px;\n  height: 32px;\n  margin: 4px;\n}\n.desktop #blMenu {\n  background: #f2f2f2;\n  width: 50px;\n  border-top: 1px solid #ccc;\n}\n.desktop #blMenu img {\n  width: 30px;\n  height: 30px;\n  margin-top: 4px;\n  margin-left: 10px;\n}\n.desktop #showRight {\n  float: right !important;\n  border: none;\n  min-width: 40px !important;\n}\n.desktop #showRight div {\n  width: 16px;\n  height: 22px;\n  margin: 9px 12px;\n  background: #f2f2f2;\n  cursor: pointer;\n}\n.desktop #windowDragHelper {\n  pointer-events: none;\n  display: none;\n  position: absolute;\n  background: rgba(0,122,255,0.2);\n  z-index: 1000;\n}\n.desktop #windowDragHelper.topHalf {\n  top: 0;\n  height: 50%;\n  left: 0;\n  right: 0;\n  display: block;\n}\n.desktop #windowDragHelper.topHalf.leftHalf {\n  right: 50%;\n}\n.desktop #windowDragHelper.topHalf.rightHalf {\n  left: 50%;\n}\n.desktop #windowDragHelper.bottomHalf {\n  bottom: 0;\n  height: 50%;\n  left: 0;\n  right: 0;\n  display: block;\n}\n.desktop #windowDragHelper.bottomHalf.leftHalf {\n  top: 50%;\n  right: 50%;\n}\n.desktop #windowDragHelper.bottomHalf.rightHalf {\n  top: 50%;\n  left: 50%;\n}\n.desktop #windowDragHelper.leftHalf {\n  top: 0;\n  width: 50%;\n  left: 0;\n  bottom: 0;\n  display: block;\n}\n.desktop #windowDragHelper.rightHalf {\n  top: 0;\n  width: 50%;\n  right: 0;\n  bottom: 0;\n  display: block;\n}\n.desktop .bgColor_darkGrey {\n  background: #5f5f5f;\n}\n.desktop .bgColor_lightGrey {\n  background: #919191;\n}\n.desktop .bgColor_green {\n  background: #59867b;\n}\n.desktop .bgColor_lightBlue {\n  background: #537fb7;\n}\n.desktop .bgColor_darkBlue {\n  background: #446998;\n}\n.desktop .bgColor_grey {\n  background: #8e8e93;\n}\n.desktop .bgColor_pink {\n  background: #dfdaf1;\n}\n");

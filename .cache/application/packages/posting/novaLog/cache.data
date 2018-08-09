@@ -1,0 +1,29 @@
+tC['/novaLog/template.jade'] = "<div ng-if=\"log.type!='answer'\" class=\"logBar\"> <div ng-if=\"log.timestamp\" class=\"time\">{{::log.timestamp | timestampMask:\"mm:ss\"}}</div> <div class=\"marker\">→</div> <div title=\"{{log.url}}\" class=\"url\">{{::log.jobId}} {{::log.url}}</div> </div> <div ng-if=\"log.type=='answer'\" class=\"logBar\"> <div ng-if=\"log.timestamp\" class=\"time\">{{::log.timestamp | timestampMask:\"mm:ss\"}}</div> <div class=\"marker\">←</div> <div class=\"url\">{{::log.jobId}} Response</div> </div> <div ng-if=\"log.params\" class=\"response\">{{::getContent(log.params)}}</div> <div ng-if=\"log.body\" class=\"response\">{{::getContent(log.body)}}</div> <div ng-if=\"log.err\" class=\"response\">{{::getContent(log.err)}}</div>";
+
+buzzlike.directive('novaLog', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaLog/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.getContent = function(data) {
+        var e, error, error1;
+        if (typeof data === 'string') {
+          try {
+            return JSON.stringify(JSON.parse(data), null, 4);
+          } catch (error) {
+            e = error;
+            return data;
+          }
+        }
+        try {
+          return JSON.stringify(data, null, 4);
+        } catch (error1) {
+          e = error1;
+          return data.toString();
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaLog', ".novaLog .logBar {\n  height: 30px;\n  background: #505050;\n  color: #fff;\n}\n.novaLog .logBar .time {\n  float: right;\n  height: 30px;\n}\n.novaLog .logBar .marker {\n  height: 30px;\n  float: left;\n  font-weight: bolder;\n  line-height: 30px;\n  width: 40px;\n  text-align: center;\n  background: rgba(255,255,255,0.2);\n}\n.novaLog .logBar .url {\n  height: 30px;\n  line-height: 30px;\n  font-size: 14px;\n  padding: 0 10px;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n  cursor: text;\n}\n.novaLog .response {\n  white-space: pre-wrap;\n  padding: 10px;\n  background: #f0f0f0;\n  color: #000;\n  line-height: 16px;\n  font-size: 14px;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n  cursor: text;\n}\n");

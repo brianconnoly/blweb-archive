@@ -1,0 +1,53 @@
+overflow-y auto
+
+.communityBox
+    float left
+    width 60px
+    height 60px
+    margin 5px
+    border 1px solid #F2F2F2
+
+    border-radius 5px
+    overflow hidden
+    transform translate3d(0,0,0)
+
+    .novaItemPreview
+        position absolute
+        top 0
+        bottom 0
+        left 0
+        right 0
+
+    &:hover
+        .name
+            max-height 60px
+        .novaRemove
+            opacity 1
+
+    .name
+        padding 2px 4px
+        font-size 9px
+        max-height 20px
+
+        transition all 0.2s ease
+
+    .novaRemove
+        position absolute
+        top 4px
+        right 4px
+
+.addCommunity
+    text-align center
+    line-height 60px
+    font-size 50px
+    font-weight 200
+    cursor pointer
+
+.ruleItem
+    overflow: hidden;
+    padding: 4px 5px // 4px 5px;
+    .textButton
+        font-size 14px
+        line-height 24px
+        float right
+        z-index 2

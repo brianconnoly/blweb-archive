@@ -1,0 +1,132 @@
+tC['/novaProjectApp/template.jade'] = "<div nova-item-id=\"session.item.id\" nova-item-type=\"project\" class=\"novaItem novaItemDroppable\"> <div class=\"novaAppLeftPanel\"></div> <div class=\"workarea novaFlow\"></div> </div>";
+
+buzzlike.directive('novaProjectApp', function(projectService, account) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectApp/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var buildProjectUnits, elem;
+      elem = $(element);
+      scope.session.noItem = true;
+      scope.session.size = {
+        width: 800,
+        height: 600
+      };
+      scope.isInvited = false;
+      scope.units = [];
+      scope.headUnits = [];
+      buildProjectUnits = function() {
+        scope.units.length = 0;
+        if (scope.project.profileUserId === account.user.id) {
+          scope.headUnits.push({
+            title: 'overview',
+            directive: 'novaProfileOverview'
+          });
+        } else {
+          scope.headUnits.push({
+            title: 'overview',
+            directive: 'novaProjectOverview'
+          });
+          if (scope.isInvited) {
+            scope.headUnits.push({
+              title: 'invitation',
+              directive: 'novaProjectInvitation'
+            });
+          }
+        }
+        scope.units.push({
+          title: 'channels',
+          directive: 'novaProjectGroups',
+          data: {
+            groupId: 'account'
+          }
+        });
+        scope.units.push({
+          title: 'users',
+          directive: 'novaProjectUsers'
+        });
+        scope.units.push({
+          title: 'tasks',
+          directive: 'novaProjectTasks'
+        });
+        scope.units.push({
+          title: 'content',
+          directive: 'novaProjectContent'
+        });
+        if (account.user.roles.labUser) {
+          scope.units.push({
+            title: 'channelMonitor',
+            directive: 'novaProjectChannelMonitors'
+          });
+        }
+        scope.units.push({
+          title: 'themes',
+          directive: 'novaProjectThemes'
+        });
+        scope.units.push({
+          title: 'content',
+          directive: 'novaProjectCollectors'
+        });
+        return setTimeout(function() {
+          return scope.recountHead();
+        }, 0);
+      };
+      projectService.getById(scope.session.item.id, function(proj) {
+        var i, len, member, ref;
+        scope.project = proj;
+        if (proj.appearance.controls === 'white') {
+          elem.parents('.novaApp').removeClass('styleBlack').addClass('styleWhite');
+        }
+        ref = proj.members;
+        for (i = 0, len = ref.length; i < len; i++) {
+          member = ref[i];
+          if (member.userId === account.user.id) {
+            scope.isInvited = member.invited;
+            break;
+          }
+        }
+        return buildProjectUnits();
+      });
+      scope.modules = [
+        {
+          title: 'people',
+          directive: 'novaUsersGroups',
+          data: {
+            projectId: scope.session.item.id
+          }
+        }, {
+          title: 'content',
+          directive: 'novaContentFrame',
+          data: {
+            userId: scope.session.item.id
+          }
+        }, {
+          title: 'comb',
+          directive: 'novaThemesFrame',
+          data: {
+            userId: scope.session.item.id
+          }
+        }, {
+          title: 'task',
+          directive: 'novaTasksFrame',
+          data: {
+            projectId: scope.session.item.id
+          }
+        }
+      ];
+      scope.activeModule = null;
+      return scope.init = function() {
+        scope.runModule = function(module) {
+          scope.activeModule = module;
+          return scope.flow.addFrame(module);
+        };
+        if (scope.flow.flowBoxes.length < 1) {
+          return scope.runModule(scope.modules[3]);
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectApp', ".novaProjectApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n");

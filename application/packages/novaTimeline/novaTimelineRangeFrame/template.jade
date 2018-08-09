@@ -1,0 +1,34 @@
+div(ng-class="{'calendar':calendarActive}")
+    div.novaTimelineCalendar(ng-if="calendarActive")
+    div.novaTimelineMenu
+        div.zoomSwitcher
+            div.switch(
+                ng-click="setZoom(3)",
+                ng-class="{'active':currentZoom==3}", 
+                ng-if="maxZoom > 2", 
+                translate="'novaTimelineFrame_zoom_month'")
+            div.switch(
+                ng-click="setZoom(2)",
+                ng-class="{'active':currentZoom==2}", 
+                ng-if="maxZoom > 1", 
+                translate="'novaTimelineFrame_zoom_week'")
+            div.switch(
+                ng-click="setZoom(1)",
+                ng-class="{'active':currentZoom==1}", 
+                ng-if="maxZoom > 0", 
+                translate="'novaTimelineFrame_zoom_day'")
+            div.switch(
+                ng-click="setZoom(0)",
+                ng-class="{'active':currentZoom==0}", 
+                ng-if="maxZoom > 0", 
+                translate="'novaTimelineFrame_zoom_post'")
+        div.calendarActivator(
+            translate="'novaTimelineFrame_calendar'", 
+            ng-click="calendarActive = !calendarActive",
+            ng-class="{'active':calendarActive}")
+    div.rangeView
+        div.rangeHead
+        div.rangeItems
+            div(ng-repeat="block in items track by block.id", ng-switch="::block.type") 
+                div.novaTimelineDayBreak(ng-switch-when="dayBreak")
+                div.novaTimelineSchedule(ng-switch-when="schedule")

@@ -1,0 +1,43 @@
+overflow hidden
+height 50px
+
+.zoomSwitcher
+    float right
+    height 22px
+    border 1px solid #ccc
+    border-radius 5px
+    margin 13px
+
+    .switch
+        border-right 1px solid #ccc
+        color #808080
+        float left
+        padding 0 9px
+        line-height 22px
+        font-size 10px
+        cursor pointer
+
+        &:last-child
+            border none
+
+        &.active
+            background #ccc
+            color #fff
+            cursor default
+
+.calendarActivator
+    border 1px solid #ccc
+    line-height 22px
+    color #808080
+    float left
+    border-radius 5px
+    margin 13px
+    font-size 11px
+    padding 0 9px
+    cursor pointer
+
+    transition all 0.2s ease
+
+    &.active
+        background #ccc
+        color #fff

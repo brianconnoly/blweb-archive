@@ -1,0 +1,234 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('taskService', function(itemService, rpc, contextMenu, teamService, socketAuth, account, localization, confirmBox, actionsService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'task';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byTeamId = {};
+      this.byParentId = {};
+      this.requestedParent = {};
+      socketAuth.onAuth((function(_this) {
+        return function() {
+          var k, ref, results, v;
+          ref = _this.requestedParent;
+          results = [];
+          for (k in ref) {
+            v = ref[k];
+            results.push(delete _this.requestedParent[k]);
+          }
+          return results;
+        };
+      })(this));
+    }
+
+    classEntity.prototype.handleItem = function(item) {
+      var saved;
+      saved = classEntity.__super__.handleItem.call(this, item);
+      if ((saved._storedParent != null) && (this.byParentId[saved._storedParent] != null) && saved._storedParent !== saved.parent) {
+        removeElementFromArray(saved, this.byParentId[saved._storedParent]);
+      }
+      if (saved.parent == null) {
+        if (this.byTeamId[saved.teamId] == null) {
+          this.byTeamId[saved.teamId] = [];
+        }
+        if (indexOf.call(this.byTeamId[saved.teamId], saved) < 0) {
+          this.byTeamId[saved.teamId].push(saved);
+        }
+      } else {
+        saved._storedParent = saved.parent;
+        if (this.byParentId[saved.parent] == null) {
+          this.byParentId[saved.parent] = [];
+        }
+        if (indexOf.call(this.byParentId[saved.parent], saved) < 0) {
+          this.byParentId[saved.parent].push(saved);
+        }
+      }
+      return saved;
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var item;
+      item = this.storage[id];
+      if (item == null) {
+        return;
+      }
+      if (item.parent == null) {
+        if (this.byTeamId[item.teamId] != null) {
+          removeElementFromArray(item, this.byTeamId[item.teamId]);
+        }
+      } else {
+        if (this.byParentId[item.parent] != null) {
+          removeElementFromArray(item, this.byParentId[item.parent]);
+        }
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.getStorageByTeam = function(id) {
+      if (this.byTeamId[id] == null) {
+        this.byTeamId[id] = [];
+      }
+      return this.byTeamId[id];
+    };
+
+    classEntity.prototype.getStorageByParent = function(id, cb) {
+      if (this.byParentId[id] == null) {
+        this.byParentId[id] = [];
+      }
+      if (this.requestedParent[id] !== true) {
+        this.requestedParent[id] = true;
+        this.query({
+          parent: id
+        }, cb);
+      }
+      return this.byParentId[id];
+    };
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      actionsService.registerParser('task', function(item) {
+        var i, len, ref, ref1, ref2, ref3, team, types, user;
+        types = [];
+        types.push('task' + ((ref = item.status) != null ? ref.capitalizeFirstLetter() : void 0));
+        if (item.userId === account.user.id) {
+          types.push('taskAdmin');
+          types.push('taskMy');
+        } else if (item.teamId) {
+          team = teamService.getById(item.teamId);
+          if ((team != null ? team.userId : void 0) != null) {
+            if (team.userId === account.user.id) {
+              types.push('taskAdmin');
+            } else {
+              ref1 = team.members;
+              for (i = 0, len = ref1.length; i < len; i++) {
+                user = ref1[i];
+                if (user.userId === account.user.id) {
+                  if (((ref2 = user.roles) != null ? ref2.editor : void 0) === true || ((ref3 = user.roles) != null ? ref3.mainEditor : void 0) === true) {
+                    types.push('taskAdmin');
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+        return types;
+      });
+      actionsService.registerAction({
+        sourceType: 'task',
+        targetType: 'project',
+        phrase: 'move_to_project',
+        check2: function(data) {
+          var i, item, len, ref;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if (item.projectId !== data.target.id) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(_this.call('moveToProject', {
+                taskId: item.id,
+                projectId: data.target.id
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      return actionsService.registerAction({
+        sourceType: 'task',
+        phrase: 'move_to_root',
+        check2: function(data) {
+          var i, item, len, ref;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if ((item.parent != null) && (item.projectId != null)) {
+              return true;
+            }
+          }
+          return false;
+        },
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              if ((item.parent != null) && (item.projectId != null)) {
+                results.push(_this.call('unsetParent', {
+                  taskId: item.id
+                }));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          };
+        })(this)
+      });
+    };
+
+    classEntity.prototype.taskOrder = function(item, short) {
+      var multiply, ref, ref1, ref2;
+      if (short == null) {
+        short = false;
+      }
+      multiply = '2';
+      if (item.status === 'started') {
+        multiply = '5';
+        if (ref = account.user.id, indexOf.call(item.users, ref) >= 0) {
+          multiply = '8';
+        }
+      }
+      if (item.status === 'rejected') {
+        multiply = '4';
+        if (ref1 = account.user.id, indexOf.call(item.users, ref1) >= 0) {
+          multiply = '9';
+        }
+      }
+      if (item.status === 'created') {
+        multiply = '3';
+        if (ref2 = account.user.id, indexOf.call(item.users, ref2) >= 0) {
+          multiply = '7';
+        }
+      }
+      if (item.status === 'finished') {
+        multiply = '6';
+        if (account.user.id === item.userId) {
+          multiply = '9';
+        }
+      }
+      if (item.status === 'accepted') {
+        multiply = '1';
+      }
+      if (short) {
+        return multiply;
+      } else {
+        return multiply + item.created;
+      }
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

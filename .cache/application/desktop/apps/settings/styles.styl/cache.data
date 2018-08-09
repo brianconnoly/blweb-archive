@@ -1,0 +1,388 @@
+.appContainer.settings {
+  background: #fff;
+}
+.appContainer.settings .remove {
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.appContainer.settings .dropHelperMsg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  padding-top: 30%;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  pointer-events: none;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+  background: rgba(255,255,255,0.8);
+  color: #554545;
+  font-size: 22px;
+  text-align: center;
+}
+.appContainer.settings .wallpaperDropable.wallpaper-drop .dropHelperMsg {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.settings .scroll-bottom,
+.appContainer.settings .scroll-right {
+  background: rgba(180,180,180,0.8) !important;
+}
+.appContainer.settings .clickable {
+  cursor: pointer;
+}
+.appContainer.settings .clickable * {
+  cursor: pointer;
+}
+.appContainer.settings .bl-checkbox {
+  width: 25px;
+  height: 13px;
+  background: #494949;
+  border: 1px solid #494949;
+}
+.appContainer.settings .bl-checkbox.checked .tumbler {
+  background: #fff;
+  right: 0 !important;
+}
+.appContainer.settings .bl-checkbox.checked .button {
+  background: #494949;
+}
+.appContainer.settings .bl-checkbox .tumbler {
+  background: #494949;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+.appContainer.settings .bl-checkbox .button {
+  top: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
+}
+.appContainer.settings .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-top: 1px solid #ccc;
+}
+.appContainer.settings .leftPanel {
+  width: 150px;
+}
+.appContainer.settings .rightContent {
+  left: 150px;
+}
+.appContainer.settings .menuItem {
+  width: 100%;
+  height: 41px;
+  font-size: 16px;
+  line-height: 40px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 20px;
+  cursor: pointer;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+.appContainer.settings .menuItem span {
+  cursor: pointer;
+}
+.appContainer.settings .menuItem.active {
+  cursor: default;
+  background: #efefef;
+}
+.appContainer.settings .menuItem.active span {
+  cursor: default;
+}
+.appContainer.settings .line {
+  width: 100%;
+  height: 34px;
+  line-height: 34px;
+  -webkit-transition: background ease 0.2s;
+  -moz-transition: background ease 0.2s;
+  -o-transition: background ease 0.2s;
+  -ms-transition: background ease 0.2s;
+  transition: background ease 0.2s;
+  display: inline-block;
+  background: #fff;
+  border-bottom: 1px solid #e6e6e6;
+}
+.appContainer.settings .line:last-child {
+  border-bottom: none;
+}
+.appContainer.settings .line:hover {
+  background: $hoveredWhite;
+}
+.appContainer.settings .line .bl-checkbox:hover,
+.appContainer.settings .line .detacher:hover {
+  cursor: pointer;
+}
+.appContainer.settings .line ::-webkit-input-placeholder {
+  color: rgba(0,0,0,0.4);
+}
+.appContainer.settings .line :-moz-placeholder {
+  color: rgba(0,0,0,0.4);
+}
+.appContainer.settings .line ::-moz-placeholder {
+  color: rgba(0,0,0,0.4);
+}
+.appContainer.settings .line :-ms-input-placeholder {
+  color: rgba(0,0,0,0.4);
+}
+.appContainer.settings .line.setUserData {
+  background: #51c257;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+.appContainer.settings .line input {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  width: 50%;
+  height: 100%;
+  float: left;
+  line-height: 15px;
+  font-size: 15px;
+}
+.appContainer.settings .line .lineTitle {
+  width: 50%;
+  height: 100%;
+  float: left;
+  font-size: 14px;
+  color: $mainColor;
+  text-align: left;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+.appContainer.settings .err {
+  position: relative;
+  padding: 10px 0;
+  height: auto;
+  font-size: 10px;
+  line-height: 13px;
+  text-align: center;
+  color: #8e272d;
+}
+.appContainer.settings .resend {
+  position: relative;
+  hight: 40px;
+  line-height: 42px;
+  text-align: center;
+  cursor: pointer;
+  background: #74b169;
+  color: #fff;
+}
+.appContainer.settings .settingsFrame .header {
+  background: #e6e6e6;
+  overflow: hidden;
+  padding: 0px 20px;
+  margin-bottom: 1px;
+  font-size: 16px;
+  line-height: 32px;
+  font-weight: bolder;
+  padding-top: 5px;
+}
+.appContainer.settings .settingsFrame .section {
+  overflow: hidden;
+  padding: 0 20px;
+}
+.appContainer.settings .settingsFrame .textSection {
+  background: #fff;
+  margin-bottom: 1px;
+  text-align: center;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 13px;
+}
+.appContainer.settings .settingsFrame .billingItems .line {
+  text-align: center;
+}
+.appContainer.settings .settingsFrame .billingItems .za {
+  margin-left: 20px;
+}
+.appContainer.settings .settingsFrame .billingItems input {
+  width: 100%;
+  text-align: center;
+}
+.appContainer.settings .settingsFrame .sectionItemContainer {
+  padding: 10px;
+  background: #fff;
+}
+.appContainer.settings .settingsFrame .sectionItem {
+  float: left;
+}
+.appContainer.settings .settingsFrame .sectionItem:hover .snPic {
+  color: #fff;
+}
+.appContainer.settings .settingsFrame .sectionItem .snPic {
+  margin: 10px;
+  width: 60px;
+  height: 60px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 24px;
+  line-height: 60px;
+  text-align: center;
+  color: #ddd;
+  cursor: pointer;
+}
+.appContainer.settings .settingsFrame .sectionItem .snTitle {
+  cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+}
+.appContainer.settings .settingsFrame .optionsSection .bl-checkbox {
+  float: right;
+  margin: 9px 10px 0 0;
+}
+.appContainer.settings .settingsFrame .optionsSection .line:hover,
+.appContainer.settings .settingsFrame .optionsSection .line *:hover {
+  cursor: pointer;
+}
+.appContainer.settings .accountsSettingsFrame .line .combobox {
+  float: right;
+  width: 50%;
+  height: 34px;
+  background: none;
+  cursor: pointer;
+}
+.appContainer.settings .accountsSettingsFrame .line .combobox * {
+  cursor: pointer;
+}
+.appContainer.settings .accountsSettingsFrame .line .combobox .value {
+  font-size: 14px;
+  line-height: 34px;
+}
+.appContainer.settings .accountsSettingsFrame .line .icon {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  font-size: 8px;
+  margin: 7px 7px 7px 0;
+}
+.appContainer.settings .accountsSettingsFrame .line .icon .shield {
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  width: 100%;
+  height: 100%;
+}
+.appContainer.settings .accountsSettingsFrame .line .icon.plus {
+  background-image: url("/resources/images/icons/pluses/settings-black.png");
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 20px 20px;
+  -moz-background-size: 20px 20px;
+  background-size: 20px 20px;
+  width: 40px;
+  height: 40px;
+  background-color: #fff;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .appContainer.settings .accountsSettingsFrame .line .icon.plus {
+    width: 40px;
+    height: 40px;
+    background-image: url("/resources/images/icons/pluses/settings-black@2x.png");
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 20px 20px;
+    -moz-background-size: 20px 20px;
+    background-size: 20px 20px;
+  }
+}
+.appContainer.settings .accountsSettingsFrame .line:first-child:hover {
+  cursor: default;
+}
+.appContainer.settings .accountsSettingsFrame .line.migration {
+  background: #7bb5d7;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+.appContainer.settings .accountsSettingsFrame .line.migration.not_available {
+  display: none;
+}
+.appContainer.settings .accountsSettingsFrame .line.tableImport {
+  background: #222;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+.appContainer.settings .accountsSettingsFrame .line .icon,
+.appContainer.settings .accountsSettingsFrame .line .sn,
+.appContainer.settings .accountsSettingsFrame .line .bl-checkbox,
+.appContainer.settings .accountsSettingsFrame .line .close-button,
+.appContainer.settings .accountsSettingsFrame .line .detacher {
+  float: left;
+}
+.appContainer.settings .accountsSettingsFrame .line .bl-checkbox {
+  margin-top: 9px;
+}
+.appContainer.settings .accountsSettingsFrame .line .detacher {
+  background: url("/resources/images/desktop/appControl/black/close.svg");
+  width: 14px;
+  height: 14px;
+  margin: 9px 0 9px 9px;
+}
+.appContainer.settings .accountsSettingsFrame .line .sn,
+.appContainer.settings .accountsSettingsFrame .line .icon .shield {
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+}
+.appContainer.settings .accountsSettingsFrame .line .sn {
+  margin: 0 0 0 2px;
+}
+.appContainer.settings .accountsSettingsFrame .line .sn:hover {
+  cursor: pointer;
+}
+.appContainer.settings .settingsFrame .colorsSection {
+  padding: 15px;
+  background: #fff;
+}
+.appContainer.settings .settingsFrame .colorsSection .color {
+  cursor: pointer;
+  width: 70px;
+  height: 50px;
+  float: left;
+  margin: 5px;
+}
+.appContainer.settings .settingsFrame .colorsSection .color:hover .remove {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.settings .settingsFrame .colorsSection .color.none {
+  background: url("/resources/images/desktop/actions/black/header-button-cross.svg") center center no-repeat;
+}
+.appContainer.settings .settingsFrame .colorsSection .color img {
+  cursor: pointer;
+}
+.appContainer.settings .settingsFrame .colorsSection .color.active {
+  outline: 4px solid #fcee21;
+}

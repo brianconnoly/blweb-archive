@@ -1,0 +1,24 @@
+div.novaFrameTopBarLayout
+    div.novaFrameTopBar
+        div.addChannel(ng-click="addChannel()")
+            span.plus +
+            span.label(translate="'novaThemeTimelineSettings_addChannel'")
+    div.novaSettingsLayout.novaFrameContents
+    
+        div.themeChannel(ng-repeat="groupId in groupIds")
+            //- div.novaRemove(ng-click="removeChannel(groupId)")
+            div.channelPreview.novaItemScope.novaItem.novaItemPreview(
+                nova-item-id="groupId"
+                nova-item-type="group"
+                nova-item-preview-type="list")
+            
+            div.settingsBlock
+                div.settingsTitle(translate="'novaChannelSettings_mediaplan'")
+                div.ruleItem(ng-repeat="rule in combRules | filter:{groupId:groupId} | orderBy:rulesOrder")
+                    div.textButton.caution(translate="'novaChannelSettings_rule_delete'", ng-click="deleteRule(rule)")
+                    div.novaRuleSettings(nova-rule-item="rule")
+                div.createRuleItem.ruleItem
+                    div.novaRuleSettingsExt(group-id="groupId", comb-id="appItem.id")
+                
+            div.settingsBlock
+                div.settingsButton.textButton.caution(ng-if="hasRules(groupId)", translate="'novaChannelSettings_delete_rules'", ng-click="deleteAllRules(groupId)")

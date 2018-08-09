@@ -1,0 +1,17 @@
+buzzlike.directive('breadCrombs', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/desktop/appLauncher/breadCrombs'],
+    link: function(scope, element, attrs) {
+      scope.lastStep = function(step) {
+        return scope.stepStack.indexOf(step) === scope.stepStack.length - 1;
+      };
+      scope.jumpStep = function(step) {
+        scope.currentStep = step;
+        return typeof scope.onJumpStep === "function" ? scope.onJumpStep(step) : void 0;
+      };
+      return true;
+    }
+  };
+});

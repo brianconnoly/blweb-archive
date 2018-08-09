@@ -1,0 +1,21 @@
+div.dragHandler.topBar.black.noMaximize.noSettings
+    div.appControls
+    div.title Moderation
+
+div.body
+    //- Делаем построчный вывод информации о лоте
+    div.moderationLot(ng-repeat="item in moderationLots")
+
+        //- Управление модерацией лота
+        div.controlBlock
+            combobox(list="lotCategories", ng-model="item.lotCat")
+            button(ng-click="acceptLot(item)") {{localization.translate('moderation_accept_lot')}}
+            button(ng-click="rejectLot(item)") {{localization.translate('moderation_reject_lot')}}
+
+        //- Просмотр лота
+        //- Работает тот-же механизм что и в маркете
+        div.lotPreview
+
+        //- Список тэгов лота
+        div.tagList(ng-show="item.tags.length>0")
+            div.tag(ng-repeat="tag in item.tags") {{tag}}

@@ -1,0 +1,21 @@
+div.scheduleBar {{::flowFrame.item.timestamp | timestampMask:'hh:mm'}}
+div.novaItem.novaPostView(nova-item-object="post")
+
+div.novaItemDetails
+    div.detail
+        div.label Автор
+        div.value Павел Пивкин
+    div.detail
+        div.label Размещение
+        div.value {{::flowFrame.item.timestamp | timestampMask:'hh:mm, DD ofMMMM YYYY'}}
+    
+    div.detail
+        div.label Активность
+        div.value 1536
+    
+    div.detail
+        div.label Качество
+        div.value 63%
+    
+
+    

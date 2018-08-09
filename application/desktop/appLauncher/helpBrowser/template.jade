@@ -1,0 +1,5 @@
+div.body.helpBrowser(ng-if="showed", ng-class="{'compact':compact}")
+    //- img.helpFile(src="{{helpSrc}}", ng-class="{'visible':loaded}")
+    div.center
+        object.helpFile(data="{{helpSrc}}", type="image/svg+xml", ng-class="{'visible':loaded}")
+            embed(src="{{helpSrc}}", type="image/svg+xml")

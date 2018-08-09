@@ -1,0 +1,368 @@
+.appContainer
+    background: #ccc
+    // border 1px solid #777
+    border-radius 5px
+    
+    transition box-shadow 0.2s ease
+    box-shadow 0 0 10px 0px rgba(0,0,0,0.5)
+    
+    &.expandedHeader
+        .topBar
+            height 80px
+        .body
+            top 80px
+    
+.appLauncher
+    position: absolute
+    min-width 200px
+    min-height 150px
+    
+    &.hideAnimationStart
+        pointer-events none
+        transition all 0.2s ease
+        transform scale(1)
+        opacity 1
+
+        &.hideAnimation
+            opacity 0
+            // margin-top 50px
+
+    
+    &.alwaysOnTop
+        z-index 300 !important
+    
+    // background: #ccc
+
+    &.active
+        z-index 100
+        
+        .appContainer
+            box-shadow 0 0 15px 0px rgba(0,0,0,0.7)
+        
+        .topBar
+            background: none
+            
+    & .black.topBar
+        .iconButton
+            img
+                border-color #494949
+                
+        .switcherPanel
+            
+            .switch
+                border-color #494949
+                
+                .button
+                    border-color #494949
+                    
+        .settingsText
+            color #494949
+            
+        .actionsPanel
+            .action
+                .icon
+                    border-color #494949
+                    
+        .title
+            color #494949
+            
+            set-placeholder-style color #494949
+            
+        input
+            box-sizing border-box
+            padding 5px 0
+            
+        .backButton
+            background: url(/resources/images/desktop/black/back-arrow.svg)
+        
+    .body
+        position: absolute
+        top 30px
+        left 0
+        right 0
+        bottom 0
+        
+        background: #fff
+        border-radius 0 0 5px 5px
+        
+        transition top 0.2s ease
+        
+        box-shadow 0 2px 8px 0 rgba(0,0,0,0.8);
+        
+        padding-bottom: 40px
+        
+        &.widthCrombs
+            border-radius 0
+            bottom: 31px
+        
+            
+    .topBar
+        position: absolute
+        
+        top 0
+        left 0
+        right 0
+        height 30px
+        
+        padding: 0
+        
+        z-index: 50
+        
+        color: #000
+        
+        background: rgba(255,255,255,0.3)
+        transition background 0.2s ease
+        transition height 0.2s ease
+        
+        border-radius 5px 5px 0 0
+        overflow: hidden
+        
+        input
+            width 100%
+            
+        .title       
+            // width 100%   
+            padding: 0 50px
+            
+            text-align: center
+            color #f2f2f2
+            font-size 16px
+            line-height: 30px
+            height 30px
+            
+            text-overflow: ellipsis
+            overflow: hidden
+            white-space nowrap 
+    
+    .iconButton
+        img
+            border-radius 3px
+            border 1px solid #f2f2f2
+        
+    .backButton
+        position: absolute
+        
+        width 21px
+        height 17px
+        
+        margin-top 7px
+        margin-left: 15px
+        
+        background: url(/resources/images/desktop/white/back-arrow.svg)
+        cursor: pointer
+        
+        z-index 50
+            
+    .switcherPanel
+        position: absolute
+        left 10px
+        top 30px
+        
+        .switcher
+            overflow: visible
+            margin 5px 5px 0 5px
+            float: left
+            
+        .iconButton
+            margin 0 auto
+            overflow: hidden
+            text-align: center
+            
+            img
+                cursor: pointer
+        
+        .switch
+            margin 0 auto
+            border 1px solid #f2f2f2
+            border-radius 3px
+            overflow: hidden
+            text-align: center
+            
+            &.bgSwitch
+                .button
+                    width 25px
+                    line-height 21px
+                    font-size 14px
+                    color #f2f2f2
+                    
+                    &.active
+                        background: #f2f2f2
+                        color #75A843
+            
+            &.twoSide
+                
+                .button
+                    cursor: pointer !important
+
+                    &.active
+                        border-right 1px solid transparent
+                        
+                    img
+                        cursor: pointer !important
+            
+            .button
+                float: left
+                height 21px
+                border-right 1px solid #f2f2f2
+                
+                cursor: pointer
+                img
+                    cursor: pointer
+                
+                &.active
+                    cursor: default
+                    img 
+                        cursor: default
+
+                    .activate
+                        display: none
+                    .deactivate
+                        display: block
+                
+                &:last-child
+                    border-right none !important
+        
+        .activate
+            display: block
+        .deactivate
+            display: none
+            
+    .actionsPanel
+        position: absolute
+        right 10px
+        top 30px
+        
+        .action
+            float: right
+            margin 5px 5px 0 5px
+            text-align: center
+            cursor: pointer
+            
+            .icon
+                margin: 0 auto
+                width 23px
+                height 23px
+                border 1px solid #f2f2f2
+                border-radius 3px
+                cursor: pointer
+                
+                img
+                    display: inline-block
+                    cursor: pointer
+                    
+            &.disabled
+                opacity 0.6
+                pointer-events none
+                *
+                    cursor: default
+            
+            .settingsText
+                cursor: pointer
+                        
+    .settingsText
+        margin-top: 2px
+        line-height 11px
+        font-size 11px
+        color #f2f2f2
+        text-align: center
+        
+    .filterPanel
+        top 80px
+        
+        overflow: hidden
+        overflow-y: auto
+        
+    .filterView
+        top 80px
+        left 250px
+        
+        .sideMargin
+            margin: 0
+    
+    .appContainer
+        overflow: hidden
+        
+        position: absolute
+        
+        top 0
+        left 0
+        right 0
+        bottom 0
+        
+    
+    .appContainer
+        position: absolute
+        
+        top 0
+        left 0
+        right 0
+        bottom 0
+        
+    .resize
+        position: absolute        
+        z-index 10
+        
+        &.top
+            top -5px
+            height 10px
+            left 0
+            right 0
+            
+            cursor: ns-resize
+            
+        &.bottom
+            bottom -5px
+            height 10px
+            left 0
+            right 0
+            
+            cursor: ns-resize
+            
+        &.left
+            left -5px
+            width 10px
+            top 0
+            bottom 0
+            
+            cursor: ew-resize
+            
+        &.right
+            right -5px
+            width 10px
+            top 0
+            bottom 0
+            
+            cursor ew-resize
+            
+        &.topleft
+            width 20px
+            height 20px
+            top -10px
+            left -10px
+            
+            cursor: nwse-resize
+            
+        &.topright
+            width 20px
+            height 20px
+            top -10px
+            right -10px
+            
+            cursor: nesw-resize
+            
+        &.bottomright
+            width 20px
+            height 20px
+            right -10px
+            bottom -10px
+            
+            cursor: nwse-resize
+            
+        &.bottomleft
+            width 20px
+            height 20px
+            left -10px
+            bottom -10px
+            
+            cursor: nesw-resize
+            

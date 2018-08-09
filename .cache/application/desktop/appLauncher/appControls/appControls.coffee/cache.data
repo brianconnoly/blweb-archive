@@ -1,0 +1,14 @@
+buzzlike.directive('appControls', function() {
+  return {
+    restrict: 'C',
+    template: tC['/desktop/appLauncher/appControls'],
+    link: function(scope, element, attrs) {
+      scope.triggerSettings = function() {
+        scope.session.expandedHeader = !scope.session.expandedHeader;
+        scope.stateSaver.save();
+        return true;
+      };
+      return true;
+    }
+  };
+});

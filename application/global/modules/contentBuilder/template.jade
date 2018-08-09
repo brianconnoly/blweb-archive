@@ -1,0 +1,36 @@
+div.topbar
+
+div.content
+    canvas(id="canvas")
+div.left-panel
+    div.tab.menu.visible
+        div.caption(ng-click="slideMenu('.figures', 'left')") Фигуры >
+        div.caption(ng-click="slideMenu('.text', 'left')") Текст >
+        div.caption(ng-click="slideMenu('.properties', 'left')") Свойства >
+
+    div.tab.figures
+        div.caption(ng-click="slideMenu('.menu', 'right')") < Фигуры
+        div.figure.line(ng-click="add('Line')()") Line
+        div.figure.circle(ng-click="add('Circle')()") Circle
+        div.figure.square(ng-click="add('Rect')()") Square
+        div.figure.triangle(ng-click="add('Triangle')()") Triangle
+
+    div.tab.text
+        div.caption(ng-click="slideMenu('.menu', 'right')") < Текст
+
+    div.tab.properties
+        div.caption(ng-click="slideMenu('.menu', 'right')") < Свойства
+        div.container
+            div.title Обводка
+            input(type="color", ng-model="objectProperties.stroke", ng-change="updateSelected('stroke')")
+            input(type="number", min="0", max="380", ng-model="objectProperties.strokeWidth", ng-change="updateSelected('strokeWidth')")
+        div.container
+            div.title Цвет
+            input(type="color", ng-model="objectProperties.fill", ng-change="updateSelected('fill')")
+        div.container
+            div.title Прозрачность
+            input(type="range", min="0", max="100", ng-model="objectProperties.opacity", ng-change="updateSelected('opacity')")
+        div.container
+            button()
+
+

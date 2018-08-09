@@ -1,0 +1,174 @@
+buzzlike.service "timezone", (socketAuth, localization, localStorageService, $rootScope, smartDate, account) ->
+    timezonelist = []
+    timezoneData = [
+            "utc": "-11"
+            "city_ru": "Паго-Паго; Самоа; "
+            "city_en": "Pago Pago; Samoa; "
+            "city_ua": "Паго-Паго; Самоа; "
+        ,
+            "utc": "-10"
+            "city_ru": "Гонолулу; Таити; Гавайи; "
+            "city_en": "Honolulu; Tahiti; Hawaii; "
+            "city_ua": "Гонолулу; Таїті; Гаваї; "
+        ,
+            "utc":  "-9"
+            "city_ru": "Аляска; Ситка; Маркизские острова; "
+            "city_en": "Alaska; Sitka; Marquesas Islands; "
+            "city_ua": "Аляска; Ситка; Маркізькі острови; "
+        ,
+            "utc":  "-8"
+            "city_ru": "Лос-Анджелес; Ванкувер; "
+            "city_en": "Los Angeles; Vancouver; "
+            "city_ua": "Лос-Анджелес; Ванкувер; "
+        ,
+            "utc":  "-7"
+            "city_ru": "Финикс; Аризона; Денвер; "
+            "city_en": "Phoenix; Arizona; Denver; "
+            "city_ua": "Фінікс; Арізона; Денвер; "
+        ,
+            "utc":  "-6"
+            "city_ru": "Чикаго; Коста-Рика; Мехико; "
+            "city_en": "Chicago; Costa Rica; Mexico; "
+            "city_ua": "Чікаго; Коста-Ріка; Мехіко; "
+        ,
+            "utc":  "-5"
+            "city_ru": "Нью-Йорк; Торонто; "
+            "city_en": "New York; Toronto; "
+            "city_ua": "Нью-Йорк; Торонто; "
+        ,
+            "utc":  "-4"
+            "city_ru": "Барбадос; Каракас; Гваделупа; "
+            "city_en": "Barbados; Caracas; Guadeloupe; "
+            "city_ua": "Барбадос; Каракас; Гваделупа; "
+        ,
+            "utc":  "-3"
+            "city_ru": "Буэнос-Айрес; Сан-Пауло; Ньюфаундленд; "
+            "city_en": "Buenos Aires; Sao Paulo; Newfoundland; "
+            "city_ua": "Буенос-Айрес; Сан-Пауло; Ньюфаундленд; "
+        ,
+            "utc":  "-2"
+            "city_ru": "Норонья; Южная Георгия; "
+            "city_en": "Noronha; South Georgia; "
+            "city_ua": "Норонья; Південна Георгія; "
+        ,
+            "utc":  "-1"
+            "city_ru": "Азорские острова; Кабо-Верде; "
+            "city_en": "Azores; Cape Verde; "
+            "city_ua": "Азорські острови; Кабо-Верде; "
+        ,
+            "utc":   "0"
+            "city_ru": "Дублин; Лондон; Португалия; "
+            "city_en": "Dublin; London; Portugal; "
+            "city_ua": "Дублін; Лондон; Португалія; "
+        ,
+            "utc":   "1"
+            "city_ru": "Берлин; Париж; Рим; "
+            "city_en": "Tunisia; Paris; Rome; "
+            "city_ua": "Туніс; Париж; Рим; "
+        ,
+            "utc":   "2"
+            "city_ru": "Калининград; Киев; Кишинев; "
+            "city_en": "Kaliningrad; Kiev; Chisinau; "
+            "city_ua": "Калінінград; Киів; Кишинев; "
+        ,
+            "utc":   "3"
+            "city_ru": "Киев(летнее); Москва; Минск; Кувейт; "
+            "city_en": "Minsk; Minsk; Kuwait; "
+            "city_ua": "Москва; Мінск; Кувейт; "
+        ,
+            "utc":   "4"
+            "city_ru": "Самара; Тбилиси; Ереван; "
+            "city_en": "Samara; Tbilisi; Yerevan; "
+            "city_ua": "Самара; Тбілісі; Ереван; "
+        ,
+            "utc":   "5"
+            "city_ru": "Екатеринбург; Самарканд; Мальдивы; "
+            "city_en": "Ekaterinburg; Samarkand; Maldives; "
+            "city_ua": "Екатерiнбург; Самарканд; Мальдіви; "
+        ,
+            "utc":   "6"
+            "city_ru": "Алматы; Новосибирск; Омск; "
+            "city_en": "Almaty; Novosibirsk; Omsk; "
+            "city_ua": "Алмати; Новосибірськ; Омськ; "
+        ,
+            "utc":   "7"
+            "city_ru": "Красноярск; Бангкок; "
+            "city_en": "Krasnoyarsk; Bangkok; "
+            "city_ua": "Красноярськ; Бангкок; "
+        ,
+            "utc":   "8"
+            "city_ru": "Иркутск; Сингапур; КНР; "
+            "city_en": "Irkutsk; Singapore; China; "
+            "city_ua": "Іркутськ; Сінгапур; КНР; "
+        ,
+            "utc":   "9"
+            "city_ru": "Якутск; Япония; Северная и Южная Корея; "
+            "city_en": "Yakutsk; Japan; North and South Korea; "
+            "city_ua": "Якутськ; Японія; Північна та Південна Корея; "
+        ,
+            "utc":  "10"
+            "city_ru": "Владивосток; Магадан; Сахалин; "
+            "city_en": "Vladivostok; Magadan; Sakhalin; "
+            "city_ua": "Владивосток; Магадан; Сахалін; "
+        ,
+            "utc":  "11"
+            "city_ru": "Чокурдах; Соломоновы острова; "
+            "city_en": "Chokhudakh; Solomon Island; "
+            "city_ua": "Чокурдакх; Соломонові острові; "
+        ,
+            "utc":  "12"
+            "city_ru": "Анадырь; Петропавловск-Камчатский; "
+            "city_en": "Anadir; Petropavlovsk-Kamchatskiy; "
+            "city_ua": "Анадірь; Петропавловск-Камчатскій; "
+        ,
+            "utc":  "13"
+            "city_ru": "Самоа; Тонга; Кирибати; "
+            "city_en": "Samoa; Tonga; Kiribati; "
+            "city_ua": "Самоа; Тонга; Кірібаті; "
+        ,
+            "utc":  "14"
+            "city_ru": "Остров Лайн (Кирибати); "
+            "city_en": "Line Island (Kiribati); "
+            "city_ua": "Острів Лаiн (Кірибаті); "
+    ]
+
+    getTimezoneList = ->
+        timezonelist = []
+
+        for timezone in timezoneData
+            if timezone.utc > 0
+                convertedutc = '+'+timezone.utc
+            else
+                convertedutc = timezone.utc
+
+            utc_val = convertedutc
+
+            timezonelist.push
+                value: +timezone.utc
+                utc: utc_val
+                title: timezone['city_'+localization.getLang()]
+
+        res =
+            timezonelist: timezonelist
+            selected: null
+
+    getTimezone = ->
+        account.user.timezone
+
+    setTimezone = (tz) ->
+        account.user.timezone = tz
+
+        localStorageService.remove 'user.timezone'
+        localStorageService.add 'user.timezone', true
+        smartDate.setShiftTime tz
+
+    socketAuth.onAuth ->
+        setTimezone account.user.timezone
+
+    # return
+    {
+        getTimezoneList
+        getTimezone
+
+        setTimezone
+    }

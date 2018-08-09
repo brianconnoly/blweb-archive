@@ -1,0 +1,421 @@
+.postEditor
+    margin 10px
+
+    border 1px solid #F2F2F2
+    border-radius 5px // 3px
+    
+    overflow: hidden
+    
+    float: left;
+    width: 308px;
+    
+    .sendNowButton
+        top 58px
+    
+    .emptyPost
+        width 100%
+        text-align: center
+        box-sizing border-box
+        padding: 15px 50px
+        
+        color #ccc
+        font-size 12px
+
+    &.warn
+        border-color #C1272D
+
+    .actionIcon
+        float: left
+        width 16px
+        height 16px
+        margin 7px
+        
+        cursor: pointer
+        
+        &.upload
+            background: url(/resources/images/desktop/actions/black/header-button-upload.svg) center center no-repeat
+        
+        &.deletePost
+            background url(/resources/images/desktop/removeCross.svg) center center no-repeat
+
+        &.moreActions
+            background: url(/resources/images/desktop/actions/black/header-button-settings.svg) center center no-repeat
+            
+        &.newText
+            background: url(/resources/images/desktop/actions/black/header-button-newText.svg) center center no-repeat
+        
+        &.uploadHere
+            background: url(/resources/images/desktop/actions/black/header-button-upload.svg) center center no-repeat
+
+        &.moveUp
+            background: url(/resources/images/desktop/actions/black/header-button-move-up.svg) center center no-repeat
+
+        &.moveDown
+            background: url(/resources/images/desktop/actions/black/header-button-move-down.svg) center center no-repeat
+    
+    .postSettings
+        height 30px
+        border-bottom 1px solid #f2f2f2
+        
+        .needWorkMark
+            position: relative
+            float: right
+            margin-left: 0
+            bottom 0
+            margin-right 4px
+            border-radius 9px
+            
+            width 17px
+            height 17px
+            margin-top 6px
+
+        .postActions
+            float: right
+            
+            .actionIcon
+                float: right
+                margin-left: 0
+            
+        .postNetwork
+            float: left
+
+            height 30px
+            width 56px
+            
+            box-sizing border-box
+            padding-right 20px
+            
+            text-align: center
+            font-size 16px
+            line-height: 30px
+    
+            background: url(/resources/images/desktop/white/selector.svg) 37px center no-repeat
+            background-color: #f2f2f2
+            color #fff
+            
+            cursor: pointer
+            
+        .postShortcuts
+            float: left
+            
+            .actionIcon
+                margin-right: 0
+                
+    .postContent
+        
+        .contentComment
+            position: absolute
+            bottom 0
+            left 0
+            right 0
+            
+            height 20%
+            transition height 0.2s ease
+
+            min-height: 20px
+            padding 5px 10px
+            
+            font-size 12px
+            line-height 13px
+            background: rgba(255,255,255,0.9)
+            color #494949
+            
+            &:hover
+                height: 60%
+        
+        .removeFromPost
+            position: absolute
+            top 5px
+            left 5px
+            
+            width 16px
+            height 16px
+            background url(/resources/images/desktop/removeCross.svg) center center no-repeat
+
+            opacity 0
+            transition opacity 0.2s ease
+            
+            cursor: pointer
+
+        .previewContainer
+            
+            &.hidden, &.sorting-hidden
+                display: none
+                
+            &.placeholder
+                background: #f2f2f2
+            
+            &:hover
+                .removeFromPost
+                    opacity 1
+        
+        .typeContainer
+            overflow hidden
+            
+            padding 0px 2px
+            
+            .previewContainer
+                margin 3px
+            
+            &:first-child
+                margin-top 10px
+                
+                &.fullSized
+                    margin-top: 0
+            
+            &:last-child
+                margin-bottom 10px
+                
+                &.fullSized
+                    margin-bottom: 0
+            
+            &.fullSized
+                padding: 0
+                margin 10px 0
+                
+                .previewContainer
+                    margin: 0
+                    width 100%
+                    height: 210px
+                    
+                .selected
+                    outline-offset -4px
+                    
+            &.text
+                
+                &:first-child
+                    margin-top 0
+                    
+                .previewContainer
+                    width 298px
+                    height: auto
+                    float: none
+                    
+                    .itemPreview
+                        position: relative
+                        display: block
+                        border none
+                        padding: 0
+                        
+                        .text-preview
+                            position: relative
+                            height: auto
+                            font-size 11px
+                            line-height 12px
+                            padding 4px 2px
+
+                        .name
+                            display: none !important
+                    
+    .postSchedules
+        
+        .postSchedule
+            overflow: hidden
+            // height 85px
+            border-top 1px solid #f2f2f2
+            box-sizing border-box
+            
+            &:first-child
+                background: #f2f2f2
+            
+            .postActions
+                position: absolute
+                top 0
+                right 0
+                
+                .actionIcon
+                    margin-left 0
+                    float: right
+                    
+            .communityIcon
+                overflow: hidden
+                float: left
+                width 60px
+                height 60px
+                margin 12px
+                
+            .scheduleDetails
+                float: left
+                width 175px
+                
+                .title
+                    margin-top 12px
+                    font-size 16px
+                    text-overflow ellipsis
+                    overflow hidden
+                    white-space nowrap   
+                    
+                .datePicker
+                    font-size 12px
+                    line-height 10px
+                    float: left
+                    margin 12px 0 0 15px
+                    
+                .timePicker
+                    float: left
+                    
+                    input
+                        color #494949
+                        background none
+                        font-size 42px
+                        height 42px
+                        width 45px
+                        line-height 42px
+                        padding: 0
+                        
+                    span
+                        color #494949
+                        font-size 42px
+                        margin: 0 1px 0 3px
+                        
+            .statsBlock
+                margin-top 85px
+                overflow: hidden
+                text-align: center
+                background: rgba(255,255,255,0.7)
+                
+                cursor: pointer
+                
+                .statsLabel
+                    background: none
+                    display: inline-block
+                    margin: 0 5px
+                    cursor: pointer
+                    
+                    &.inactive
+                        opacity 0.6
+                    
+                    .statsIcon
+                        width 25px
+                        height 25px
+                        cursor: pointer
+                        
+                    .statsValue
+                        font-size: 14px;
+                        line-height: 25px;
+                        font-weight: bolder;
+                        padding: 0 6px 0 2px;
+                        cursor: pointer
+            
+            .statsGraph
+                background: #fff
+                overflow: hidden
+                
+                .helper
+                    position: absolute
+                    
+                    background: #efefef
+                    box-shadow 0px 0px 2px 0px #454545
+                    
+                    pointer-events none
+                    opacity 0
+                    
+                    transition all 0.2s ease
+                    
+                    padding: 4px
+                    border-radius 5px
+                    
+                    text-align: right
+                    
+                    &.visible
+                        opacity 1
+                    
+                    .points
+                        font-weight: bolder  
+                        font-size 13px
+                        line-height: 16px
+                        margin 0 0 3px 0
+                        
+                    .time
+                        font-size 10px                    
+                        
+                    .icon
+                        width 16px
+                        height 16px
+                        display: inline-block
+                        vertical-align: middle
+                        
+                        top -2px
+                        
+                        margin-right 2px
+                        
+                        &.likes
+                            background: url(/resources/images/desktop/stats/likes.svg) center center no-repeat
+
+                        &.reposts
+                            background: url(/resources/images/desktop/stats/reposts.svg) center center no-repeat
+
+                        &.comments
+                            background: url(/resources/images/desktop/stats/comments.svg) center center no-repeat
+                                
+                        &.commLikes
+                            background: url(/resources/images/desktop/stats/commentsLikes.svg) center center no-repeat  
+
+                .values
+                    position: absolute
+                    top 0
+                    left 0
+                    
+                    .value
+                        position: absolute
+                        
+                        width 4px
+                        height 4px
+                        
+                        margin-top: -5px
+                        margin-left: -5px
+
+                        border-radius 5px
+                        border 3px solid
+                        
+                        background: #fff
+                        
+                        // box-shadow 0px 0px 2px 0px rgba(0,0,0,1)
+
+                        transition all 0.2s ease
+                        cursor: pointer
+                        
+                        &:hover
+                            // width 8px
+                            // height 8px
+                            
+                            // border-radius 5px
+                            
+                            // margin-top: -5px
+                            // margin-left: -5px
+                                
+                            transform scale(1.6)
+                
+                canvas
+                    
+                    width 308px
+                    height 160px
+                    
+                .hideButton
+                    font-size 12px
+                    cursor: pointer
+                    padding-bottom: 15px
+                    
+                    float: right
+                    margin-right 28px
+                    
+                    margin-top: 10px
+                    
+                .graphSwitcher
+                    font-size 12px
+                    cursor: pointer
+                    padding-bottom: 15px
+                    
+                    float: left
+                    margin-left 28px
+                    
+                    margin-top: 10px
+                    
+                    .value
+                        cursor: pointer
+                        
+
+
+
+
+

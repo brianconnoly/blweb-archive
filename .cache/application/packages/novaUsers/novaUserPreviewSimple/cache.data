@@ -1,0 +1,3 @@
+tC['/novaUserPreviewSimple/template.jade'] = "<div class=\"userPic\"><img src=\"{{item.photo}}\" class=\"picPreview picPreload\"/></div>";
+
+registerStyles('novaUserPreviewSimple', ".novaUserPreviewSimple .userPic {\n  -webkit-border-radius: 50px;\n  border-radius: 50px;\n  overflow: hidden;\n}\n.novaUserPreviewSimple img {\n  width: 100%;\n}\n");

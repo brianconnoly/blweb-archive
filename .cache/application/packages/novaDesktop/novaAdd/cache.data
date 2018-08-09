@@ -1,0 +1,25 @@
+tC['/novaAdd/template.jade'] = "<div ng-class=\"{'active':novaAddMenu.showed}\"> <div ng-mousedown=\"showAddMenu($event)\" class=\"addButton\">+</div> <div ng-repeat=\"recent in recentWizards\" ng-click=\"fireAdd(recent)\" translate=\"'wizardShortcut_' + recent\" translate-title=\"'wizardTitle_' + recent\" class=\"addButton recent\"></div> </div>";
+
+buzzlike.directive('novaAdd', function(novaAddMenu, novaWizard) {
+  return {
+    restrict: 'C',
+    template: tC['/novaAdd/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.novaAddMenu = novaAddMenu;
+      scope.showAddMenu = function(e) {
+        novaAddMenu.launch({
+          left: $(e.target).offset().left + 10,
+          bottom: 45
+        });
+        return true;
+      };
+      scope.recentWizards = ['text', 'project'];
+      return scope.fireAdd = function(recent) {
+        return novaWizard.fire(recent);
+      };
+    }
+  };
+});
+
+registerStyles('novaAdd', ".novaAdd {\n  overflow: hidden;\n  float: left;\n}\n.novaAdd .addButton {\n  float: left;\n  cursor: pointer;\n  font-size: 30px;\n  color: rgba(255,255,255,0.5);\n  line-height: 31px;\n  margin-right: 3px;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  width: 20px;\n  text-align: center;\n}\n.novaAdd .addButton:hover {\n  color: rgba(255,255,255,0.9);\n}\n.novaAdd .addButton.recent {\n  right: 15px;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  font-size: 18px;\n  line-height: 41px;\n  margin: 0 3px;\n}\n.novaAdd.active .addButton {\n  color: rgba(255,255,255,0.9);\n}\n.novaAdd.active .addButton.recent {\n  right: 15px;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaAdd .recent {\n  position: relative;\n  color: rgba(255,255,255,0.4);\n  width: 20px;\n  text-align: center;\n  font-weight: bolder;\n}\n.novaAdd:hover .recent {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  right: 0;\n}\n");

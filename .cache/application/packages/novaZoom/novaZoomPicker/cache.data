@@ -1,0 +1,61 @@
+tC['/novaZoomPicker/template.jade'] = "<div ng-click=\"hidePicker()\"> <div class=\"pickerWindow\"> <div class=\"pickerHandler\"></div> </div> </div>";
+
+buzzlike.directive('novaZoomPicker', function(novaZoom) {
+  return {
+    restrict: 'C',
+    template: tC['/novaZoomPicker/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem, pickerHandler, pickerWindow, setValueFromTop, startY;
+      elem = $(element);
+      pickerWindow = elem.find('.pickerWindow');
+      pickerHandler = elem.find('.pickerHandler');
+      startY = 0;
+      scope.$watch(function() {
+        return novaZoom.currentValue;
+      }, function(nVal) {
+        var perc;
+        if (nVal != null) {
+          perc = nVal / 10;
+          return pickerHandler.css('top', 5 + (70 * perc | 0));
+        }
+      }, true);
+      setValueFromTop = function(top) {
+        var perc;
+        top -= 5;
+        perc = top / 70;
+        perc *= 90;
+        perc = perc | 0;
+        perc /= 10;
+        return novaZoom.setValue(perc + 1);
+      };
+      pickerHandler.on('mousedown.novaZoom', function(e) {
+        var handlerTop, pickerTop;
+        pickerTop = pickerWindow.position().top;
+        handlerTop = pickerHandler.position().top;
+        startY = e.clientY;
+        elem.on('mousemove.novaZoom', function(e) {
+          var nVal;
+          nVal = handlerTop + e.clientY - startY;
+          if (nVal > 75) {
+            nVal = 75;
+          }
+          if (nVal < 5) {
+            nVal = 5;
+          }
+          pickerHandler.css('top', nVal);
+          return setValueFromTop(nVal);
+        });
+        return elem.on('mouseup.novaZoom', function() {
+          elem.off('mousemove.novaZoom');
+          return elem.off('mouseup.novaZoom');
+        });
+      });
+      return scope.hidePicker = function() {
+        return novaZoom.hide();
+      };
+    }
+  };
+});
+
+registerStyles('novaZoomPicker', ".novaZoomPicker {\n  position: absolute;\n  z-index: 1000;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  pointer-events: none;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaZoomPicker.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  pointer-events: auto;\n}\n.novaZoomPicker .pickerWindow {\n  position: absolute;\n  height: 100px;\n  width: 30px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  background: #ccc;\n}\n.novaZoomPicker .pickerHandler {\n  position: absolute;\n  left: 5px;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n  background: #aaa;\n  cursor: pointer;\n}\n");

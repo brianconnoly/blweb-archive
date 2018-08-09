@@ -1,0 +1,116 @@
+.uploadFader
+    position absolute
+    z-index 20000
+
+    top 0
+    bottom 0
+    left 0
+    right 0
+
+    background rgba(146,189,89,0.95)
+
+    display: none
+
+    .uploadActive &
+        display: block
+
+    &.wrong-files
+        background rgba(255,41,100,0.95)
+
+        div.window
+            display: none
+
+        div.wrong
+            display: block
+
+    @media (max-height: 600px)
+
+        div.window
+            height 390px
+            margin-top: -190px
+
+            div.caption
+                font-size 30px
+
+                &.top
+                    margin-bottom 15px
+                &.middle
+                    margin: 15px auto
+                &.bottom
+                    font-size 20px
+                    margin-top 15px
+
+            div.line-blocks
+
+                div.block
+                    width 100px
+                    height 100px
+                    line-height 90px
+
+                    font-size 40px
+
+    .realFader
+        position: absolute
+        display: block
+        top 0
+        left 0
+        right 0
+        bottom 0
+
+    .window
+        width 700px
+        height 570px
+
+        position: absolute
+
+        top 50%
+        left 50%
+        margin-top -285px
+        margin-left: -350px
+
+        &.wrong
+            height 50px
+            margin-top -25px
+            display: none
+
+        .caption
+            text-align: center
+            font-size 40px
+            color: #fff
+
+            width 100%
+
+            &.top
+                margin-bottom 30px
+
+            &.middle
+                margin: 30px auto
+
+            &.bottom
+                font-size 25px
+                margin-top 30px
+
+        .line-blocks
+            width 100%
+
+            text-align: center
+
+            div.block
+                display: inline-block
+
+                width 150px
+                height 150px
+
+                background: #fff
+                color: rgba(146,189,89,1)
+
+                font-weight: bold
+                font-size 51px
+                line-height 145px
+
+                margin 10px
+
+                transition all 0.2s ease
+
+                &.active
+                    background: #FFEA1E

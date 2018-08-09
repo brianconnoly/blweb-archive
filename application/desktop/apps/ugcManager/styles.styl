@@ -1,0 +1,746 @@
+div.topBar
+    .centerButtons
+        position: absolute
+        width 100%
+        text-align: center
+        margin-top 10px
+        
+        .tabSwitch
+            display: inline-block
+            
+            width 94px
+            height 25px
+            
+            margin: 0 4px
+
+            border-radius 3px
+            background: #fff
+            
+            font-size 12px
+            line-height: 25px
+
+            cursor: pointer
+            
+            &.active
+                background: #3870B1
+                color #fff
+                cursor: default
+
+.appContainer.ugcManager
+    
+    .settingsMenu
+        float: left
+        width 150px
+        height 272px
+        border-right 1px solid #dbdbdb
+        
+        .settingsItem
+            box-sizing border-box
+            
+            height 35px
+            width 150px
+            
+            padding-left 15px
+            
+            text-align left
+            line-height 35px
+            font-size 12px
+            
+            cursor: pointer
+            
+            &.active
+                cursor: default
+                color: #fff
+                background: #4685bf
+    
+    .bl-checkbox
+        margin-top 5px
+        
+        width 25px
+        height 13px
+        
+        background: #ccc
+        
+        &.checked
+            .tumbler
+                background: #3870B1
+                
+        .tumbler
+            right 11px
+        
+        .button
+            top 2px
+            right 2px
+            
+            width 11px
+            height 11px
+    
+    .appSettingsLayout
+        
+        &.appSettingsLayout_showed                
+            .appSettingsLayout_settings
+                top -119px !important
+        
+        &.showSettings
+            .appSettingsLayout_settings
+                top 40px !important
+                
+            .appSettingsLayout_body
+                top 313px !important
+                
+        .appSettingsLayout_settings
+            top -273px
+            height 272px
+            
+            background: #fff
+            border-bottom 1px solid #e6e6e6
+            
+    .ugcSettings
+        .parameters
+            float: left
+            width 420px
+            height 118px
+            
+            padding-top 30px
+            
+        .parameter
+            overflow: hidden
+            margin-bottom 6px
+            
+            .datePicker
+                border 1px solid #EBEBEB
+                border-radius 3px
+                height 20px
+                width 70px
+                text-align: center
+            
+            .title
+                width 135px
+                text-align left
+                font-size 12px
+                float: left
+                margin-right 4px
+                line-height 21px
+                
+                &.single
+                    width: 160px
+                
+            .value
+                float: left
+                    
+                .timePicker
+                    border 1px solid #EBEBEB
+                    border-radius 3px
+                    
+                    height 20px
+                    width 40px
+                    
+                    span
+                        display: block
+                        float: left
+                        height 20px
+                        line-height 20px
+                        margin: 0
+                        color: #000
+                        font-size 12px
+                        line-height 20px
+                    
+                    input
+                        display: block
+                        float: left
+                        background: none
+                        border none
+                        color #000
+                        width 18px
+                        padding: 0 2px
+                
+                .bl-checkbox
+                    margin-left: 3px 
+                input
+                    font-size 12px
+                    line-height 13px
+                    border 1px solid #EBEBEB
+                    border-radius 3px
+                    height 20px
+                    padding: 0 4px
+                    width 179px
+                    
+                    &.short
+                        width 40px
+                    
+                .mini
+                    float: left
+                    margin-right: 4px
+                    width 40px
+                    text-align: center
+                    
+                .red
+                    color #f00
+                .green
+                    color #0f0
+                .blue
+                    color #00f
+                .demo
+                    float: left
+                    width 18px
+                    height 18px
+                    margin-top 1px
+                    
+            textarea
+                width 179px
+                height 45px
+                
+                float: left
+
+                padding: 2px 4px
+                
+                font-size 12px
+                line-height 13px
+                
+                border 1px solid #EBEBEB
+                border-radius 3px
+                
+                resize none
+                
+                &.tall
+                    height 200px
+        
+        .settingsColumn
+            float: left
+            width 190px
+            margin 20px 0 0 20px
+            
+            .dropSetting
+                margin: 10px 0
+                float: none
+                overflow: hidden
+
+        .dropSetting
+            float: left
+            width 190px
+            margin 20px 0 0 20px
+            
+            .remove
+                background: url(/resources/images/desktop/removeCross.svg) center center no-repeat
+                position: absolute
+                right 5px
+                top 5px
+                
+                width 16px
+                height 16px
+                
+                opacity 0
+                transition all 0.2s ease
+                cursor pointer
+            
+            .title
+                font-size 12px
+                float: left
+                margin-top 20px
+                margin-left: 10px
+                width 100px
+                
+            .dropArea
+                width 80px
+                height 80px
+                // margin 10px
+                float: left
+                
+                &:hover
+                    .remove
+                        opacity 1
+                
+                .itemPreview
+                    .name
+                        font-size 10px
+                        line-height 11px
+                        padding 4px 2px
+                        
+                .value
+                    width 100%
+                    height 100%
+                
+                .helper
+                    position absolute
+                    top 0
+                    bottom 0
+                    left 0
+                    right 0
+                    border 1px solid #EBEBEB
+                    font-size 11px
+                    line-height 15px
+                    text-align: center
+                    padding-top 15px
+
+    .collectorItem
+        overflow hidden
+        cursor: pointer
+        
+        *
+            cursor: pointer
+        
+        &.active
+            background: #3870B1
+            cursor: default
+            
+            *
+                cursor: default
+            
+            .collectorInfo
+                .title, .counters
+                    color: #fff                
+        
+        .communityPreview
+            overflow: hidden
+            border 1px solid #f2f2f2
+            
+            float: left
+            
+            width 58px
+            height 42px
+            
+            margin 10px
+            
+        .collectorInfo
+            float: left
+            width 125px
+            margin-top 12px
+            
+            div
+                height 19px
+                line-height 19px
+            
+            .title
+                font-size 12px
+                color: #555454
+                
+                text-overflow: ellipsis
+                overflow: hidden
+                white-space nowrap 
+                
+            .counters
+                font-size 10px
+                color: #b3b3b3
+                font-weight: bolder
+                
+    .currentCollector
+        
+        .smallPreview
+            float: left
+            width 30px
+            height 30px
+            
+            margin 5px 10px
+            overflow: hidden
+            
+        .title
+            padding-right 200px
+            
+        .filterBlock
+            float: left
+            width 500px
+            height 30px
+            margin: 4px 0
+            padding: 0 10px
+            
+            border 1px solid #efefef
+            background: #fff
+            
+            input
+                box-sizing border-box
+                width 100%
+                height 100%
+                
+                set-placeholder-style color #999
+            
+    .ratingList
+        .cell
+            box-sizing border-box
+            
+            &.userPlace
+                width 50px
+            &.userAvatar
+                width 60px
+            &.userName
+                width 320px
+            &.userRating
+                width 100px
+            &.userProposed
+                width 65px
+            &.userAccepted
+                width 65px
+            &.userPublished
+                width 65px
+            &.userRejected
+                width 65px
+        
+        .tableLine
+            .cell
+                line-height 60px
+                
+            .userPlace
+                text-align: center
+                
+            .userAvatar
+                cursor: pointer
+                padding: 0
+                .userPic
+                    border 1px solid #f2f2f2
+                    cursor: pointer
+                    margin 4px
+                    
+            .userName
+                padding: 0 20px
+                
+            .userRating
+                text-align: center
+            .userProposed
+                text-align: center
+            .userAccepted
+                text-align: center
+            .userPublished
+                text-align: center
+            .userRejected
+                text-align: center
+                
+            
+    .proposedList
+        background: #fff
+        
+        .tableLine
+            height 120px
+            
+            .vk
+                background: rgb(70, 107, 145)
+                width 10px
+                height 10px
+                
+                border-radius 10px
+                
+                position: absolute
+                top 5px
+                right 5px
+            
+            .cell
+                height 120px
+
+            &.ratingLine
+                height 60px
+                .cell
+                    height 60px
+            
+            &.selected
+                outline none
+                background: #3870B1
+                color #fff
+                
+                *
+                    color #fff
+                    opacity 1
+        
+        .head
+            .cell
+                font-size 10px
+                text-align: center
+        
+        .cell
+           
+            &.user
+                width: 80px
+                text-align: center
+                
+            &.text
+                width 280px
+
+            &.attach
+                width: 245px
+                
+            &.date
+                width 85px
+                text-align: center
+                
+            &.actions
+                width 185px                
+
+        .proposedItem
+            margin-bottom 1px
+            
+            .userPic
+                margin 10px 15px 5px
+                width 50px
+                height 50px
+                border-radius 25px
+                overflow: hidden
+                
+            .user
+                padding 0
+                    
+                .userName
+                    text-align: center
+                    font-size 11px
+                    line-height 12px
+            .text
+                padding 20px 10px
+                font-size 11px
+                line-height 12px
+                
+                div
+                    white-space: pre-wrap
+                
+            .attach
+                padding: 11px 0
+                
+                .attachment
+                    width 45px
+                    height 45px
+                    margin: 2px
+                    float: left
+                    
+                    .removeCross
+                        background: url(/resources/images/desktop/removeCross.svg) center center no-repeat
+                        position: absolute
+                        right 5px
+                        top 5px
+                        
+                        width 16px
+                        height 16px
+                        
+                        cursor: pointer
+                        opacity 0
+                        transition opacity 0.2s ease
+
+                    &:hover
+                        .removeCross
+                            opacity 1
+                    
+                &.attachCount_1 
+                    padding: 2
+                                    
+                    .attachment
+                        width 237px
+                        height 112px
+                    
+                &.attachCount_2
+                    padding: 0 2px
+                    
+                    .attachment
+                        width 116px
+                        height 116px
+                    
+                &.attachCount_3
+                    padding 19px 0
+                    
+                    .attachment
+                        width 77px
+                        height 77px
+                        
+                &.attachCount_4
+                    padding 29px 0
+                    
+                    .attachment
+                        width 57px
+                        height 57px
+                        
+            .date
+                text-align: center
+                font-size 10px
+                line-height 30px
+                padding: 0
+                
+                &.doubleLines
+                    line-height: 60px
+                
+            .actions
+                padding: 2px 2px
+                
+                .mode
+                    overflow: hidden
+                    
+                    &.mediaplanner
+                        .timeBox
+                            padding-top: 6px
+                            padding-left 6px
+                            box-sizing border-box
+
+                    .buttons
+                        overflow: hidden
+                        margin-top 25px
+                        
+                        &.single
+                            margin-top: 15px
+                            
+                            .action
+                                height 20px
+                                margin-left: 60px
+                    
+                    .bottom
+                        text-align: center
+                        
+                        .textAction
+                            font-size 12px  
+                            cursor: pointer
+                            margin: 0 10px
+                            
+                        .action
+                            float: none
+                            font-size 12px  
+                            height 20px
+                            line-height 20px
+                            display: inline-block
+                            margin: 0 10px
+                    
+                    .timeScroller
+                        position absolute
+                        top 0
+                        left 0
+                        right 0
+                        
+                        .scrollerButton                            
+                            &.right
+                                right 55px
+                                
+                                &.doubleArrow
+                                    right 20px
+                            
+                            &.left
+                                left 55px
+                                
+                                &.doubleArrow
+                                    left 20px
+
+                    .timeBlock
+                        margin-top 20px
+                        margin-left 12px
+                        overflow: hidden
+                        
+                        .timeBox
+                            float: left
+                            
+                            width 130px
+                            color: #434242
+                            font-size 46px
+                            
+                            input, span
+                                color: #434242
+                                font-size 46px
+                                
+                            input
+                                width 50px
+                                height 50px
+                                                        
+                        .dateBox
+                            margin-top 10px
+                            float: left
+                            
+                            .dateLine
+                                font-size 12px
+                                line-height: 12px
+                
+                .action
+                    float: left
+                    margin: 0 4px
+                    
+                    width 50px
+                    height 40px
+                    
+                    font-size 10px
+                    line-height 11px
+                    text-align: center
+                    
+                    border 1px solid #e6e6e6
+                    border-radius 4px
+                    cursor: pointer
+                    
+                    display: table
+                    
+                    p
+                        display table-cell
+                        vertical-align: middle
+                        cursor: pointer
+                    
+                    &:hover, &.blueButton
+                        background: #3870B1
+                        color #fff
+                        
+                    &.toRight
+                        width 80px
+                    
+            .fader
+                position: absolute
+                bottom 0
+                left 0
+                right 0
+                height 40px
+                background: linear-gradient( to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 70%)
+            
+            &:nth-child(2n)
+                .fader
+                    background: linear-gradient( to bottom, rgba(249,249,249,0) 0%, rgba(249,249,249,1) 70%)
+
+            &.selected
+                .text .fader
+                     background: linear-gradient( to bottom, rgba(56,112,177,0) 0%, rgba(56,112,177,1) 70%)
+
+                .action:hover
+                    background: #fff !important
+                    color #3870B1 !important
+                    
+                    p
+                        color #3870B1 !important
+                        
+                .timePicker
+                    input, span
+                        color: #fff !important
+                        
+                .timeBox
+                    color: #fff !important
+
+body > .proposedItem
+    width 100px
+    height 100px
+    overflow: hidden
+    
+    background: #fff
+    border 1px solid #dfdfdf
+    
+    pointer-events none
+    
+    .cell.user
+        position: absolute
+        bottom -10px
+        right -10px
+        z-index 10
+        
+    .userPic
+        width 40px
+        height 40px
+        overflow: hidden
+        border-radius 20px
+        border 1px solid #dfdfdf
+    
+    .userName, .cell.date, .cell.actions
+        display: none
+        
+    .text
+        position absolute
+        top 0
+        left 0
+        right 0
+        bottom 0
+        padding 5px
+        font-size 10px
+        
+    .attach
+        position: absolute
+        bottom 0
+        right 0
+        left 0
+        background: #fff
+        
+        .attachment
+            width 15px
+            height 15px
+            overflow: hidden
+            float: left
+            margin 2px
+

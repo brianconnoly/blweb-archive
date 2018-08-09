@@ -1,0 +1,26 @@
+@keyframes show
+    from
+        opacity 0
+    to
+        opacity 1
+
+.anim-show
+    &.ng-hide-remove
+        display block!important
+        animation show ease 0.3s
+
+@keyframes show-hide
+    from
+        opacity 0
+        transform translate(0, 0)
+    50%
+        opacity 1
+    to
+        opacity 0
+
+
+
+.anim-show-hide
+    animation show-hide ease 10s
+    margin-left 0  //to
+    margin-top 0   //to

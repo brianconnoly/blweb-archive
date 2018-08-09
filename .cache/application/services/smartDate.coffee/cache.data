@@ -1,0 +1,68 @@
+buzzlike.factory("smartDate", function($compile, $rootScope, localStorageService) {
+  var getLocalMaschineUTC, getShiftTimeBar, getShiftTimeline, onReady, ready, readyCb, resetShiftTimeBar, setLocalMaschineUTC, setShiftTime, setUTC, state;
+  state = {
+    utc: 0
+  };
+  ready = false;
+  readyCb = null;
+  getShiftTimeline = function(timestamp) {
+    var u;
+    u = state.utc - getLocalMaschineUTC();
+    return timestamp - (u * (1000 * 60 * 60));
+  };
+  getShiftTimeBar = function(timestamp) {
+    var u;
+    u = state.utc - getLocalMaschineUTC();
+    return timestamp + (u * (1000 * 60 * 60));
+  };
+  resetShiftTimeBar = function(shiftTime) {
+    var u;
+    u = state.utc - getLocalMaschineUTC();
+    return shiftTime - (u * (1000 * 60 * 60));
+  };
+  setShiftTime = function(utc_val) {
+    ready = true;
+    if (!localStorageService.get('user.timezone')) {
+      setLocalMaschineUTC();
+    } else {
+      setUTC(utc_val);
+    }
+    if (typeof readyCb === "function") {
+      readyCb();
+    }
+    return readyCb = null;
+  };
+  setUTC = function(utc_val) {
+    return state.utc = utc_val;
+  };
+  setLocalMaschineUTC = function() {
+    var hoursDiffStdTime;
+    hoursDiffStdTime = getLocalMaschineUTC();
+    setUTC(hoursDiffStdTime);
+    return hoursDiffStdTime;
+  };
+  getLocalMaschineUTC = function() {
+    var date3, hoursDiffStdTime, rightNow, temp;
+    rightNow = new Date();
+    temp = rightNow.toGMTString();
+    date3 = new Date(temp.substring(0, temp.lastIndexOf(" ") - 1));
+    return hoursDiffStdTime = (rightNow - date3) / (1000 * 60 * 60) | 0;
+  };
+  onReady = function(cb) {
+    if (ready) {
+      return typeof cb === "function" ? cb() : void 0;
+    } else {
+      return readyCb = cb;
+    }
+  };
+  return {
+    onReady: onReady,
+    setShiftTime: setShiftTime,
+    getShiftTimeline: getShiftTimeline,
+    getShiftTimeBar: getShiftTimeBar,
+    resetShiftTimeBar: resetShiftTimeBar,
+    getLocalMaschineUTC: getLocalMaschineUTC,
+    state: state,
+    setLocalMaschineUTC: setLocalMaschineUTC
+  };
+});

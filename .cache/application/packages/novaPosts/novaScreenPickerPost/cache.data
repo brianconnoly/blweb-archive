@@ -1,0 +1,61 @@
+tC['/novaScreenPickerPost/template.jade'] = "<div ng-class=\"{'picked':value.id}\"> <div class=\"screenBar\"> <div translate=\"'novaScreen_back'\" ng-click=\"backScreen()\" class=\"backScreen\"></div> <div ng-if=\"value.id\" nova-item-object=\"value\" nova-item-preview-type=\"list\" class=\"novaItemScope novaItem novaItemPreview\"></div> <div translate=\"'novaScreenPickerPost_helper'\" class=\"novaScreenTextHelper\"></div> </div> <div class=\"projectsList\"> <div ng-repeat=\"item in posts\" nova-item-preview-type=\"timeline\" ng-click=\"setNewValue(item.id)\" ng-if=\"item.id != value.id\" class=\"novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaScreenPickerPost', function(postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaScreenPickerPost/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var currentPage, elem, getPage, loadInProgress, total;
+      elem = $(element);
+      scope.posts = [];
+      currentPage = 0;
+      loadInProgress = false;
+      total = null;
+      getPage = function() {
+        var query;
+        if (loadInProgress) {
+          return;
+        }
+        if ((total != null) && scope.posts.length > 0 && scope.posts.length >= total) {
+          return;
+        }
+        loadInProgress = true;
+        query = {
+          limit: 20,
+          page: currentPage,
+          sortBy: 'lastUpdated',
+          sortType: 'DESC',
+          projectId: scope.postParams.projectId
+        };
+        if (scope.postParams.combId != null) {
+          query.combId = scope.postParams.combId;
+        }
+        return postService.query(query, function(items, ttl) {
+          var i, item, len, results;
+          total = ttl;
+          currentPage++;
+          loadInProgress = false;
+          results = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            results.push(scope.posts.push(item));
+          }
+          return results;
+        });
+      };
+      getPage();
+      return elem.on('mousewheel', function(e) {
+        if (loadInProgress) {
+          return;
+        }
+        if (elem[0].scrollTop + elem.height() > elem[0].scrollHeight - 200) {
+          getPage();
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaScreenPickerPost', ".novaScreenPickerPost {\n  overflow-y: auto;\n  padding-top: 80px;\n}\n.novaScreenPickerPost.picked {\n  padding-top: 140px;\n}\n.novaScreenPickerPost .projectsList .novaItem {\n  cursor: pointer;\n}\n.novaScreenPickerPost .projectsList .novaItemPreview * {\n  pointer-events: none;\n}\n");

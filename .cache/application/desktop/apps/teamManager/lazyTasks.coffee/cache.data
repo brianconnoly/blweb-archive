@@ -1,0 +1,27 @@
+buzzlike.directive('lazyTasks', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, elem;
+      elem = $(element);
+      body = elem.parents('.leftPanel');
+      return elem.on('mousewheel', function(e) {
+        scope.$parent.tasksScrollValue = elem[0].scrollTop;
+        if (scope.taskParams.isLoading === true) {
+          return;
+        }
+        if (elem[0].scrollTop === 0 && scope.taskParams.reloadOnStart === true) {
+          scope.taskParams.reloadOnStart = false;
+          scope.resetTaskList();
+          scope.fetchTasksPage();
+          return scope.$apply();
+        } else if (scope.taskParams.pageSize * scope.taskParams.page < scope.taskParams.total) {
+          if (elem[0].scrollTop + elem.height() > elem[0].scrollHeight - 200) {
+            scope.fetchTasksPage();
+            return scope.$apply();
+          }
+        }
+      });
+    }
+  };
+});

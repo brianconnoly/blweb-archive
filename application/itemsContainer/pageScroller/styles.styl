@@ -1,0 +1,80 @@
+.pageScroller
+    
+    .pageScroller_page
+        position: absolute
+        
+    .pagesContainer
+        position: absolute
+        top 0
+        bottom 0
+        left 0
+        right 0px
+        
+    &.lefty
+        .pagesContainer
+            right 0
+            left 0px
+        
+        .scrollBar
+            right: auto
+            left 0
+        
+            .handler
+                left: 0
+                right auto
+                
+            .helper
+                right: auto
+                left 25px
+                
+    &.hide
+        .scrollBar
+            opacity 0
+            pointer-events none
+        
+    .scrollBar
+        position: absolute
+        top 0
+        bottom 0
+        right 0
+        width 20px
+        cursor: pointer
+        opacity 1
+        transition opacity 0.2s ease
+        
+        .handler
+            width 10px
+            right 0
+            background: rgba(252,194,35,0.8) //#ccc
+            position: absolute
+            
+            cursor: default
+            
+            top 0
+            transition all 0.2s ease
+            
+        .helper
+            position: absolute
+            right 25px
+            
+            height 20px
+            line-height 20px
+            padding 2px 5px
+            
+            margin-top: -10px
+            
+            background: rgba(0,0,0,0.8)
+            color #fff
+            
+            pointer-events none
+            opacity 0
+            
+            transition opacity 0.2s ease
+            
+        &:hover
+            .helper
+                opacity 1
+                
+            .handler
+                width 20px
+            

@@ -1,0 +1,155 @@
+tC['/novaUsersGroups/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div ng-model=\"groupType\" ng-change=\"recountGroups()\" nova-switch-options=\"groupTypes\" nova-switch-view=\"simple\" class=\"novaSwitch groupSwitch\">{{groupType}}</div> <div class=\"filterBox\"> <input ng-model=\"filterBox\" translate=\"\" translate-placeholder=\"'novaProjectMembers_filterBox'\" ng-keydown=\"filterChanged($event)\"/> </div> <div ng-click=\"doInvite()\" ng-class=\"{'active':searchMultiselect.selected.length&gt;0}\" translate=\"invitePhrase\" class=\"inviteMembers novaButton\"></div> <div ng-click=\"doSearch()\" ng-class=\"{'visible':filterBox.length &gt; 0, 'active':searchResults.length &gt; 0}\" class=\"searchPeople\">+</div> </div> <div ng-if=\"searchResults.length == 0\" class=\"novaFrameContents novaMultiselect\"> <div ng-repeat=\"group in groups track by group.key\" class=\"memberGroup\"> <div ng-if=\"group.realTitle\" class=\"groupHead\">{{group.realTitle}}</div> <div ng-if=\"!group.realTitle\" translate=\"'novaProjectMembers_group_' + group.key\" class=\"groupHead\"></div> <div class=\"groupMembers\"> <div ng-repeat=\"member in group.members | filter:memberFilter track by member.userId\" ng-class=\"{'invited':member.invited}\" nova-item-id=\"member.userId\" nova-item-type=\"user\" nova-item-context=\"context\" class=\"userItem novaItem novaItemPreview novaItemSelectable novaItemMenu novaItemDraggable\"></div> </div> </div> </div> <div ng-if=\"searchResults.length &gt; 0\" nova-multiselect-parent-object=\"searchMultiselect\" nova-multiselect-parent-index=\"2\" class=\"novaFrameContents novaMultiselect groupMembers\"> <div ng-repeat=\"item in searchResults\" class=\"userItem novaItem novaItemPreview novaItemSelectable novaItemDraggable\"></div> </div> </div>";
+
+buzzlike.directive('novaUsersGroups', function(userService, projectService, contactListService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaUsersGroups/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var membersService, projectMembers, recountGroups, unreg;
+      scope.groups = [];
+      scope.groupType = "roles";
+      scope.groupTypes = ['roles', 'name'];
+      projectMembers = {};
+      recountGroups = scope.recountGroups = function(members) {
+        var flag, groupMap, i, k, len, member, ref, user, v;
+        if (!members) {
+          members = (ref = scope.context) != null ? ref.members : void 0;
+        }
+        scope.groups.length = 0;
+        emptyObject(projectMembers);
+        groupMap = {};
+        for (i = 0, len = members.length; i < len; i++) {
+          member = members[i];
+          flag = "default";
+          switch (scope.groupType) {
+            case 'roles':
+              flag = member.role;
+              break;
+            case 'name':
+              user = userService.getById(member.userId);
+              if (user.name != null) {
+                flag = user.name[0].toLowerCase();
+              } else if (user.login != null) {
+                flag = user.login[0].toLowerCase();
+              }
+          }
+          if (groupMap[flag] == null) {
+            groupMap[flag] = [];
+          }
+          groupMap[flag].push(member);
+          projectMembers[member.userId] = true;
+        }
+        for (k in groupMap) {
+          v = groupMap[k];
+          scope.groups.push({
+            key: k,
+            realTitle: scope.groupType === 'name' ? k.toUpperCase() : void 0,
+            members: v
+          });
+        }
+        return scope.groups.sort(function(a, b) {
+          if (a.key > b.key) {
+            return -1;
+          }
+          if (a.key < b.key) {
+            return 1;
+          }
+          return 0;
+        });
+      };
+      if (scope.session.item.id != null) {
+        membersService = projectService;
+        scope.invitePhrase = 'novaProjectMembers_inviteMembers';
+        scope.project = projectService.getById(scope.session.item.id);
+        scope.context = scope.project;
+        unreg = scope.$watch('project.members', function(nVal) {
+          if ((nVal != null ? nVal.length : void 0) > 0) {
+            return recountGroups(scope.project.members);
+          }
+        }, true);
+      } else if (scope.flowFrame.data.userId != null) {
+        membersService = contactListService;
+        scope.invitePhrase = 'novaProjectMembers_inviteContactList';
+        contactListService.getByUserId(scope.flowFrame.data.userId, function(item) {
+          scope.contactList = item;
+          return scope.context = item;
+        });
+        unreg = scope.$watch('contactList.members', function(nVal) {
+          if ((nVal != null ? nVal.length : void 0) > 0) {
+            return recountGroups(scope.contactList.members);
+          }
+        }, true);
+      }
+      scope.searchResults = [];
+      scope.doSearch = function() {
+        var ref;
+        if (scope.searchResults.length > 0) {
+          scope.searchResults.length = 0;
+          scope.filterBox = "";
+          return (ref = scope.searchMultiselect) != null ? ref.flush() : void 0;
+        } else {
+          return userService.call('search', scope.filterBox, function(users) {
+            var i, len, results, user;
+            scope.searchResults.length = 0;
+            if (users !== 'noUser') {
+              results = [];
+              for (i = 0, len = users.length; i < len; i++) {
+                user = users[i];
+                if (projectMembers[user.id] !== true) {
+                  results.push(scope.searchResults.push(user));
+                } else {
+                  results.push(void 0);
+                }
+              }
+              return results;
+            }
+          });
+        }
+      };
+      scope.doInvite = function() {
+        var i, len, ref, ref1, ref2, ref3, user;
+        ref1 = (ref = scope.searchMultiselect) != null ? ref.selected : void 0;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          user = ref1[i];
+          membersService.call('addMember', {
+            id: ((ref2 = scope.project) != null ? ref2.id : void 0) || ((ref3 = scope.contactList) != null ? ref3.id : void 0),
+            userId: user.id
+          });
+        }
+        return scope.doSearch();
+      };
+      scope.filterChanged = function(e) {
+        if (e.which === 13 && scope.filterBox.length > 0) {
+          scope.doSearch();
+        }
+        if (scope.searchResults.length > 0) {
+          return scope.searchResults.length = 0;
+        }
+      };
+      return scope.memberFilter = function(member) {
+        var acc, i, len, ref, ref1, user;
+        user = userService.getById(member.userId);
+        if ((user.type == null) || !(((ref = scope.filterBox) != null ? ref.length : void 0) > 0)) {
+          return true;
+        }
+        if (user.name.toLowerCase().indexOf(scope.filterBox) > -1) {
+          return true;
+        }
+        if (user.login.toLowerCase().indexOf(scope.filterBox) > -1) {
+          return true;
+        }
+        ref1 = user.accounts;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          acc = ref1[i];
+          if (acc.screenName.toLowerCase().indexOf(scope.filterBox) > -1) {
+            return true;
+          }
+        }
+        return false;
+      };
+    }
+  };
+});
+
+registerStyles('novaUsersGroups', ".novaUsersGroups .novaFrameTopBar .groupSwitch {\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 30px;\n  width: 30px;\n}\n.novaUsersGroups .novaFrameTopBar .filterBox {\n  position: absolute;\n  top: 0;\n  right: 40px;\n  bottom: 0;\n  left: 30px;\n}\n.novaUsersGroups .novaFrameTopBar .filterBox input {\n  width: 100%;\n  height: 100%;\n  padding: 0 10px;\n  font-size: 14px;\n}\n.novaUsersGroups .novaFrameTopBar .filterBox input::-webkit-input-placeholder {\n  color: #494949;\n}\n.novaUsersGroups .novaFrameTopBar .filterBox input::-moz-input-placeholder {\n  color: #494949;\n}\n.novaUsersGroups .novaFrameTopBar .searchPeople {\n  cursor: pointer;\n  float: right;\n  width: 30px;\n  height: 30px;\n  text-align: center;\n  line-height: 30px;\n  font-size: 25px;\n  z-index: 2;\n  -webkit-transform: rotateZ(0deg);\n  -moz-transform: rotateZ(0deg);\n  -o-transform: rotateZ(0deg);\n  -ms-transform: rotateZ(0deg);\n  transform: rotateZ(0deg);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  pointer-events: none;\n}\n.novaUsersGroups .novaFrameTopBar .searchPeople.visible {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  pointer-events: auto;\n}\n.novaUsersGroups .novaFrameTopBar .searchPeople.active {\n  -webkit-transform: rotateZ(45deg);\n  -moz-transform: rotateZ(45deg);\n  -o-transform: rotateZ(45deg);\n  -ms-transform: rotateZ(45deg);\n  transform: rotateZ(45deg);\n}\n.novaUsersGroups .novaFrameTopBar .inviteMembers {\n  float: right;\n  margin-top: 3px;\n  margin-right: -100%;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaUsersGroups .novaFrameTopBar .inviteMembers.active {\n  margin-right: 5px;\n}\n.novaUsersGroups.novaFrameTopBarLayout .novaFrameContents {\n  overflow-y: auto;\n}\n.novaUsersGroups .memberGroup {\n  overflow: hidden;\n}\n.novaUsersGroups .memberGroup .groupHead {\n  clear: both;\n  width: 100%;\n  border-bottom: 1px solid rgba(0,0,0,0.3);\n  color: #454545;\n  height: 28px;\n  padding-left: 10px;\n  font-weight: bolder;\n  line-height: 28px;\n  margin-bottom: 1px;\n}\n.novaUsersGroups .memberGroup .groupHead .cap {\n  text-transform: capitalize;\n}\n.novaUsersGroups .groupMembers {\n  padding: 10px;\n  overflow: hidden;\n}\n.novaUsersGroups .groupMembers .userItem {\n  float: left;\n  margin: 10px;\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n}\n.novaUsersGroups .groupMembers .userItem.invited:after {\n  content: 'Приглашен';\n  position: absolute;\n  top: 10px;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  color: #3496f2;\n  font-size: 11px;\n  text-align: center;\n  line-height: 64px;\n  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;\n  font-weight: 500;\n  pointer-events: none;\n}\n.novaUsersGroups .groupMembers .userItem.invited .avatarWrapper {\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n}\n.novaUsersGroups .groupMembers .userItem .avatarWrapper {\n  margin: 10px 20px;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaUsersGroups .groupMembers .userItem .userName {\n  width: 100%;\n  margin-bottom: 10px;\n}\n");

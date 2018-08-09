@@ -1,0 +1,465 @@
+$mainColor = white
+$bgColor = #eee
+$color2 = rgba(49, 28, 0, 0.87)
+
+
+.login-page
+    position absolute
+    top 0
+    left 0
+    right 0
+    bottom 0
+    background #13668D
+    transition all ease 0.3s
+    color white
+    opacity 0.01
+
+    transform scale(0.9)
+
+    .noBigLoading &
+        opacity 1
+        transform scale(1)
+
+    .background
+        background linear-gradient( -53deg, rgba( 2, 85, 146, 1 ) 0%, rgba( 0, 84, 145, 0 ) 80%)
+                    linear-gradient( 140deg, rgba( 0, 70, 83, 0 ) 60%, rgba( 32, 160, 255, 0.3 ) 100%)
+                    linear-gradient( -140deg, rgba( 0, 70, 83, 0 ) 50%, rgba( 14, 182, 144, 1 ) 106%)
+                    linear-gradient(5deg, rgba(0,83,92,0.6) 3%, rgba(0,114,130,0) 30%, rgba(0,114,130,0) 40%, rgba(0,114,130,0.1) 64%, rgba(0,58,75,0.5) 83%, #002937 107%)
+                    radial-gradient(75% 60%, circle, #1ad2d5 0%, rgba(0,70,83,0) 90%)
+                    linear-gradient( 7deg, rgba( 0, 198, 180, 0.5 ) 0%, rgba( 0, 83, 99, 0 ) 50%, rgba( 0, 70, 83, 0.5 ) 100%)
+                    linear-gradient( 90deg, rgb( 7, 166, 147 ) 0%, rgb( 0, 174, 223 ) 100%)
+
+    h2
+        font-size 15px
+        margin-top -26px
+        margin-bottom 31px
+
+    div.login_window
+        width 335px
+        margin auto
+        text-align center
+        z-index 10
+        transition all ease 0.3s
+        height 100%
+        color $mainColor
+        position: relative;
+
+        div.window
+            transition all ease 0.2s
+            position absolute
+            top 45%
+            //margin-top 65px
+            width 100%
+            background rgba(255, 255, 255, 0.2)
+            padding: 36px 53px 36px 53px;
+            margin-left: -51px;
+            opacity 0
+
+            input
+                margin-top 20px
+                border-bottom 1px solid rgba(255, 255, 255, 0.3)
+                color rgba(255, 255, 255, 0.8)
+
+            .err
+                color white
+                text-align left
+                font-size 13px
+                margin-top: 5px;
+                width: 100%;
+                display: inline-block;
+                position: absolute;
+                left: 0;
+
+
+            &.login, &.login-confirm, &.login-forgot
+                margin-top: -181px;
+                .err
+                    top: 92px;
+
+            &.register, &.register-confirm
+                margin-top -276px
+                padding 26px 53px 19px 53px
+
+                button
+                    width: 100%;
+                    height: 50px;
+
+                .cancel
+                    position: absolute;
+                    left: 400px;
+                    bottom: 16px;
+                    text-decoration: none;
+                    color $mainColor
+
+                .err
+                    top: 231px;
+
+            &.new-social
+                margin-top -245px
+
+                .newSnAccount
+                    width 100%
+                    //line-height 35px
+                    height 35px
+                    font-size 16px
+                    text-align center
+                    cursor pointer
+                    background #24b52c
+                    margin 10px 0
+
+                    &.disabled
+                        opacity 0.5
+                        pointer-events none
+
+                .ok
+                    margin-top 10px
+
+                .agree
+                    margin-top 22px
+                    margin-bottom 0
+
+            div.logo-header
+                margin-left: -5px;
+                font-size: 74px;
+                line-height: 68px;
+                text-align: left;
+
+                sup
+                    position: absolute;
+                    font-size 32px
+                    right: -2px;
+                    top: -22px;
+                    font-weight: 400;
+
+            div.body
+                padding-top 29px
+                display inline-block
+                position relative
+
+                .content
+                    display inline-block
+                    width 100%
+                    float left
+                    margin: 0;
+
+                    form
+                        display inline-block
+                        position relative
+                        width 100%
+
+                    button
+                        transition all ease 0.2s
+
+
+            &.login-confirm, &.login-forgot, &.register-confirm
+                text-align left
+                font-size 21px
+                line-height: 24px;
+
+                button
+                    margin: 30px 0 20px 0px;
+                    background: transparent;
+                    color: rgba(255, 255, 255,0.8);
+                    font-size: 30px;
+
+            &.register-confirm
+                font-size 16px
+
+            &.login-confirm, &.login-forgot
+                button
+                    margin 98px 0 0 0
+
+
+            div.confirm-annotation
+                padding: 18px 0
+                width: 100%;
+                border-top 1px solid $mainColor
+                border-bottom 1px solid $mainColor
+                display inline-block
+                margin-top 30px
+
+                div.round
+                    width 12px
+                    height 12px
+                    background rgba(255, 255, 255, 0.5)
+                    float left
+                    border-radius 50%
+                    margin 2px 8px 0 0
+
+                div.icon
+                    //border 3px solid $mainColor
+                    border-radius 50%
+                    width 53px
+                    height 53px
+                    margin-left 17px //20px
+                    float left
+                    sprite "../resources/images/icons/reg-exclamation.png"
+                    margin-top: 11px;
+
+                div.text
+                    font-size: 12px;
+                    line-height: 13px;
+                    text-align: left;
+                    margin-left: 18px;
+                    float: left;
+                    width: 245px;
+
+            button.confirm.ok
+                background: transparent;
+                color: white;
+                font-size 30px
+
+            a.mail
+                text-decoration none
+                position absolute
+                top 30px
+                left 0
+                width 100%
+                text-align center
+
+            .socials
+                position relative
+                display inline-block
+                width 100%
+                margin-top: 27px;
+                float right
+
+                div
+                    font-size: 18px;
+                    float left
+                    margin: 10px -2px 0 0;
+
+                button
+                    padding 0
+                    float right
+                    overflow: hidden;
+                    line-height: 31px;
+                    width 37px
+                    height 37px
+                    margin-left 4px
+                    background rgba(255, 255, 255, 0.8)
+                    color rgba(0, 0, 0, 0.6)
+
+                    &.sn:hover
+                        background white
+
+            button
+                &.enter
+                    position absolute
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    top: 58px;
+                    right: 0;
+                    sprite "../resources/images/icons/enter-button.png" 0 0 24px 24px
+                    background-color transparent
+                    opacity 0.8
+                    margin 0
+                    padding 0
+
+                    &:hover
+                        opacity 1
+
+                    &.faded
+                        opacity 0.6
+                        &:hover
+                            cursor default
+
+                &.orange
+                    background transparent
+                    color rgba(255, 255, 255, 0.9)
+                    font-size 28px
+
+                    &:not([DISABLED])
+                        opacity 0.8
+
+                        &:hover
+                            opacity 1
+
+                &.register
+                    margin: 23px 1px 0 0
+                    background transparent
+                    padding 0
+                    white-space nowrap
+                    float right
+                    color white
+
+                //&.vk
+                //    color $bgColor
+                //    background $mainColor
+                //    &:hover
+                //        background #446a93
+
+                &.disabled
+                    background transparent
+                    color white
+                    cursor default
+                    opacity 0.5
+
+                &.ok
+                    width: 100%;
+                    height: 39px;
+                    background: rgba(255, 255, 255, 0.4);
+                    color: rgba(0, 0, 0, 0.8);
+                    font-size: 15px;
+                    margin-left 0
+
+            p
+                font-size 12px
+
+            .wrong-confirm
+                text-align left
+                margin-top 25px
+                float left
+
+                p
+                    font-size 11px
+
+            .description
+                padding-left 14px
+                text-align left
+                width 290px
+
+                p
+                    font-size: 14px;
+                    line-height: 16px;
+                    margin-top: -3px;
+
+            .space
+                margin-top 48px
+
+            .agree
+                float left
+                margin-bottom 16px
+                margin-top 44px
+
+                div
+                    float left
+
+                .bl-checkbox
+                    width: 17px;
+                    height: 17px;
+                    border-color white
+                    //margin-top: 8px;
+
+                    &.checked .tumbler
+                        //background white
+                        position: absolute;
+                        top: -1px;
+                        left: -1px;
+                        right: -1px;
+                        bottom: -1px;
+
+            input
+                width 100%
+
+        &.login > .login,
+        &.login-confirm > .login-confirm,
+        &.login-forgot > .login-forgot,
+        &.register > .register,
+        &.register-confirm > .register-confirm
+        &.new-social > .new-social
+            opacity 1
+            z-index 1
+
+        &.login, &.login-confirm, &.login-forgot, &.new-social
+            .footer
+                top 50%
+                margin-top 193px
+
+        &.register, &.register-confirm
+            .footer
+                top 50%
+                margin-top 255px
+
+        .footer
+            position absolute
+            width 100%
+
+            .freaky
+                margin 0 auto
+                width 100px
+                height 50px
+                sprite "/resources/images/icons/freaky-clocks.png"
+
+            .links
+                margin-top 40px
+                width 100%
+                white-space nowrap
+
+                a, span
+                    //float left
+                    text-decoration: none;
+                    font-size 12px
+                    color rgba(255, 255, 255, 0.8);
+
+                    &.rules
+                        border-left: 1px solid rgba(255, 255, 255, 0.8);
+                        padding-left: 6px;
+                        margin-left: 6px;
+
+                    &.yellow
+                        color white
+                        font-weight normal
+                        margin-left -11px
+
+
+.shader
+    .static
+        position relative
+        max-width 700px
+        width 90%
+        height 100%
+        margin auto
+        background white
+        color rgba(0, 0, 0, 0.8)
+
+        .closer
+            sprite "../resources/images/icons/closer.png" 0 0 100% 100% no-repeat 17px 17px
+            position absolute
+            top 18px
+            right 17px
+
+            &:hover
+                cursor pointer
+
+        .text
+            position absolute
+            top 60px
+            left 60px
+            right 18px
+            bottom 60px
+            padding-right 42px
+            font-size 16px
+            overflow-y auto
+            text-align justify
+
+            h1
+                margin initial
+                font-size 30px
+                font-weight: normal;
+                margin-bottom: 20px;
+                text-align center
+
+            h2
+                font-size 19px
+
+            li
+                padding 5px 10px
+
+            p
+                margin-bottom 10px
+
+            b
+                font-weight normal
+
+#vk-like
+    position fixed
+    bottom 0
+    left 0
+    //width 100%
+    text-align center
+
+    #vk_like
+        margin auto
+        opacity 0

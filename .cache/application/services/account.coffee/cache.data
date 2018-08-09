@@ -1,0 +1,255 @@
+buzzlike.service('account', function(env, rpc, socketService, browserPopup, localization, $injector) {
+  var Charge, Prolong, authed, cbs, desktopService, emptyUser, flushUser, onAuthed, purge, renew, set, update, user;
+  user = {};
+  emptyUser = {
+    loaded: false,
+    id: -1,
+    name: '',
+    firstName: '',
+    lastName: '',
+    login: '',
+    accounts: [],
+    timezone: new Date().getTimezoneOffset() / -60
+  };
+  purge = function() {
+    emptyObject(user);
+    return updateObject(user, emptyUser);
+  };
+  purge();
+  desktopService = null;
+  Charge = (function() {
+    function Charge() {}
+
+    Charge.min = 50;
+
+    Charge.max = 10000;
+
+    Charge.currentAmount = 0;
+
+    Charge.checkAmount = function(amount) {
+      if ((Charge.min <= amount && amount <= Charge.max)) {
+        Charge.currentAmount = amount;
+        return Charge.showOffer();
+      } else {
+        return Charge.enterAmount();
+      }
+    };
+
+    Charge.enterAmount = function() {
+      if (desktopService == null) {
+        desktopService = $injector.get('desktopService');
+      }
+      return desktopService.launchApp('customPayment');
+    };
+
+    Charge.showOffer = function() {
+      if (desktopService == null) {
+        desktopService = $injector.get('desktopService');
+      }
+      return desktopService.launchApp('paymentOffer', {
+        type: 'charge'
+      });
+    };
+
+    Charge.makeOrder = function(order) {
+      var amount, defaultOrder, popup, statuses;
+      amount = (this.currentAmount | 0).toFixed(2);
+      popup = null;
+      statuses = {
+        'OK': function() {
+          $(popup.document.body).html(templateCache["/static/paymentSuccess"]);
+          $(popup.document.body).find("button").click(function() {
+            return popup.close();
+          });
+          return setTimeout(function() {
+            return popup.close();
+          }, 30000);
+        },
+        'FAIL': function() {
+          $(popup.document.body).html(templateCache["/static/paymentFail"]);
+          $(popup.document.body).find("button").click(function() {
+            return popup.close();
+          });
+          return setTimeout(function() {
+            return popup.close();
+          }, 30000);
+        }
+      };
+      order = order || {};
+      defaultOrder = {
+        amount: amount,
+        paymentType: 'direct',
+        source: 'uniteller'
+      };
+      order = updateObject({}, defaultOrder, order);
+      rpc.call('payment.order', order, function(item) {
+        var paymentURL;
+        paymentURL = location.origin + "/static/payment.html?hash=" + Date.now();
+        popup = browserPopup.open(paymentURL, {
+          width: 924
+        });
+        if (popup) {
+          popup.paymentParams = item.paymentParams;
+          popup.paymentUrl = item.paymentUrl;
+          return browserPopup.waitResponse(popup, statuses);
+        }
+      });
+      return true;
+    };
+
+    return Charge;
+
+  })();
+  Prolong = (function() {
+    function Prolong() {}
+
+    Prolong.currentPrice = null;
+
+    Prolong.checkAmount = function(price, cb) {
+      var confirmBox, message;
+      this.currentPrice = price;
+      confirmBox = $injector.get('confirmBox');
+      if (user.amount < price.amount) {
+        message = localization.decrypt('userOptions_prolong_charge', {
+          amount: price.amount - user.amount
+        });
+        return confirmBox.init({
+          realText: message
+        }, (function(_this) {
+          return function() {
+            return _this.charge(cb);
+          };
+        })(this));
+      } else {
+        return confirmBox.init({
+          realText: 'Продлить использование?'
+        }, (function(_this) {
+          return function() {
+            return _this.prolong(cb);
+          };
+        })(this));
+      }
+    };
+
+    Prolong.prolong = function(cb) {
+      if (!this.currentPrice) {
+        return false;
+      }
+      return rpc.call('user.prolongByAccount', this.currentPrice.value, function(res) {
+        return update(cb || void 0);
+      });
+    };
+
+    Prolong.charge = function(cb) {
+      return Charge.checkAmount(this.currentPrice.amount - user.amount);
+    };
+
+    return Prolong;
+
+  })();
+  renew = function(updated, cb) {
+    if (!updated) {
+      return typeof cb === "function" ? cb(user) : void 0;
+    }
+    updateObject(user, updated, {
+      currentLogin: updated.login,
+      loaded: true
+    });
+    user.name = joinStrings([user.firstName, user.lastName]);
+    if (updated.expiredDate) {
+      user.daysRemain = Math.ceil((updated.expiredDate - Date.now()) / DAY);
+      if (user.daysRemain < 0) {
+        user.daysRemain = 0;
+      }
+    }
+    return typeof cb === "function" ? cb(user) : void 0;
+  };
+  update = function(data, cb) {
+    if (typeof data === 'function') {
+      cb = data;
+      data = null;
+    }
+    if (data) {
+      return renew(data, cb);
+    } else {
+      return rpc.call('user.getUser', function(data) {
+        if (!data.err) {
+          return renew(data, cb);
+        } else {
+          return blog("ACC_UPD_GET_ERR", data);
+        }
+      });
+    }
+  };
+  set = function(data, cb) {
+    return rpc.call('user.set', data, function(data) {
+      if (!data.err) {
+        return renew(data, cb);
+      } else {
+        return blog("ACC_SET_ERR", data);
+      }
+    });
+  };
+  cbs = [];
+  onAuthed = function(cb) {
+    if (user.loaded === false) {
+      return cbs.push(cb);
+    } else {
+      return typeof cb === "function" ? cb(true) : void 0;
+    }
+  };
+  authed = function() {
+    var cb, i, len;
+    for (i = 0, len = cbs.length; i < len; i++) {
+      cb = cbs[i];
+      if (typeof cb === "function") {
+        cb(true);
+      }
+    }
+    return cbs.length = 0;
+  };
+  flushUser = function() {
+    return emptyObject(user);
+  };
+  return {
+    user: user,
+    flushUser: flushUser,
+    update: update,
+    set: set,
+    purge: purge,
+    Charge: Charge,
+    Prolong: Prolong,
+    authed: authed,
+    onAuthed: onAuthed
+  };
+}).service('paymentService', function(operationsService) {
+  var handlePayment, init, payments, purge;
+  payments = {};
+  init = function() {
+    return true;
+  };
+  purge = function() {
+    return emptyObject(payments);
+  };
+  handlePayment = function(payment) {
+    var cached;
+    cached = payments[payment.id];
+    if (cached != null) {
+      updateObject(payments[payment.id], payment);
+    } else {
+      payments[payment.id] = payment;
+    }
+    return payments[payment.id];
+  };
+  operationsService.registerAction('create', 'payment', function(id, data) {
+    handlePayment(data.entity);
+    return true;
+  });
+  operationsService.registerAction('update', 'payment', function(id, data) {
+    handlePayment(data.entity);
+    return true;
+  });
+  return operationsService.registerAction('get', 'payment', function(id) {
+    return payments[id];
+  });
+});

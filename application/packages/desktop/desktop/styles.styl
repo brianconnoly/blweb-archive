@@ -1,0 +1,245 @@
+position: absolute
+top 0
+left 0
+right 0
+bottom 0
+
+#wallpaper
+    position: absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    
+    img
+        transition opacity 0.5s ease
+        opacity 0
+    
+    &.visible
+        img
+            opacity 1
+        
+
+#workarea
+    position: absolute
+    top 0
+    bottom 0
+    right 0
+    left 0
+    overflow: hidden
+    
+    transition right 0.2s ease
+    
+#buffer
+    position: absolute
+    top 0
+    right 0
+    bottom 40px
+    width 0
+    overflow hidden
+    
+    background: rgba(73,73,73,0.8)
+    
+    transition width 0.2s ease
+    z-index 1000
+    
+#bufferResizeHelper
+    position: absolute
+    top 0
+    bottom 0
+    right 0
+    overflow: hidden
+    background: #183ED9
+    opacity: 0.2
+    z-index 10000
+    display none
+    pointer-events none
+    
+    &.visible
+        display: block
+    
+#resizer
+    position: absolute
+    width 10px
+    top 0
+    bottom 0
+    margin-right: -5px
+    
+    cursor col-resize
+    z-index 100
+
+#desktop
+    position: absolute
+    top 0
+    left 0
+    right 0
+    bottom 40px
+    
+#applications
+    position: absolute
+    top 0
+    left 0
+    right 0
+    bottom 0
+
+#dock
+    position: absolute
+    
+    bottom 0
+    left 0
+    right 0
+    height 40px
+    
+    background: rgba(73,73,73,0.8)
+    
+    z-index 1000
+    
+    .hotAction
+        float: right
+        height 20px
+        width 20px
+        margin 10px 5px
+        
+        cursor: pointer
+        
+        &.upload
+            background: url(/resources/images/desktop/actions/white/header-button-upload.svg) center center no-repeat
+        &.text
+            background: url(/resources/images/desktop/actions/white/header-button-newText.svg) center center no-repeat
+    
+    .desktopSessions
+        .button
+            border-right 1px solid #ddd
+    
+    .dockNotify
+        float: right
+        height 40px
+        line-height 40px
+        
+    .dockClock
+        float: right
+        color #f2f2f2
+        font-size 18px
+        line-height 40px
+        margin: 0 10px
+        
+        // text-transform: capitalize
+    
+    .button
+        float: left
+        
+        height 100%
+        min-width 50px
+        
+        cursor: pointer
+        
+        color #f2f2f2
+        
+        img 
+            cursor pointer
+            
+        .title
+            line-height: 40px
+            margin: 0 10px
+            cursor pointer
+            
+        &.active
+            background-color: rgba(57,181,74,0.8) !important
+    
+img.size32
+    width 32px
+    height 32px
+    margin 4px
+    
+#blMenu
+    background: #f2f2f2
+    width 50px
+    border-top 1px solid #ccc
+    
+    img
+        width 30px
+        height 30px
+        margin-top: 4px
+        margin-left: 10px
+        
+#showRight
+    float: right !important
+    border none
+    min-width 40px !important
+    
+    div
+        width 16px
+        height 22px
+        margin 9px 12px
+        background: #f2f2f2
+        cursor: pointer
+
+#windowDragHelper
+    pointer-events none
+    display: none
+    position: absolute
+    
+    background: rgba(0,122,255,0.2)
+    z-index 1000
+    
+    &.topHalf
+        top 0
+        height 50%
+        left 0
+        right 0
+        
+        display: block
+        
+        &.leftHalf
+            right 50%
+            
+        &.rightHalf
+            left 50%
+        
+    &.bottomHalf
+        bottom 0
+        height 50%
+        left 0
+        right 0
+        
+        display: block
+        
+        &.leftHalf
+            top 50%
+            right 50%
+            
+        &.rightHalf
+            top 50%
+            left 50%
+        
+    &.leftHalf
+        top 0
+        width 50%
+        left 0
+        bottom 0
+        
+        display: block
+        
+    &.rightHalf
+        top 0
+        width 50%
+        right 0
+        bottom 0
+        
+        display: block
+
+// BG colors
+.bgColor_darkGrey
+    background: #5f5f5f
+.bgColor_lightGrey
+    background: #919191
+.bgColor_green
+    background: #59867b
+.bgColor_lightBlue
+    background: #537fb7 // linear-gradient(to bottom, #1AD6FD 0%, #1D62F0 100%)
+.bgColor_darkBlue
+    background: #446998
+.bgColor_grey
+    background: #8E8E93
+.bgColor_pink
+    background: #dfdaf1

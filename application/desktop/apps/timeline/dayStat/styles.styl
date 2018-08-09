@@ -1,0 +1,121 @@
+.dayStat
+    overflow: hidden
+    height 100%
+    width 100
+    
+    background: rgba(0,0,0,0.4)
+    
+    text-align: center
+    color: #fff
+    
+    // transform scale(1)
+    transition all 0.2s ease
+    
+    // &:hover
+    //     transform scale(1.2)
+        
+    &.completed
+        background: rgba(0,0,0,0.6)
+        
+    .weekDay
+        margin-top: 7px
+        font-size 10px
+        line-height: 11px
+        
+        .zoom_min &
+            text-align: left
+            margin-top: 2px
+            margin-left: 5px
+        
+    .monthYear
+        font-size 10px
+        line-height: 11px
+        
+        .zoom_min &
+            text-align: left
+            margin-left: 5px
+             
+        
+    .monthDay
+        margin-top: 5px
+        font-size 31px
+        font-weight: bolder
+        
+        .zoom_max &
+            font-size 35px
+            margin-top 20px
+            margin-bottom: 13px
+            
+        .zoom_min &
+            position: absolute
+            right 10px
+            top 0
+            font-size 20px
+            margin-top: 3px
+        
+    .stats
+        margin-top 5px
+        cursor: pointer
+        
+        .zoom_min &
+            margin-top: 2px
+        
+        *
+            cursor: pointer
+                
+        .value
+            font-size 16px
+            
+            .zoom_min &
+                font-size 14px
+            
+            .marker
+                display: inline-block
+                
+                border-left solid 5px transparent
+                border-right solid 5px transparent
+                border-bottom solid 9px #34A43D
+                margin-right: 2px
+                
+                &.down
+                    border-left solid 5px transparent
+                    border-right solid 5px transparent
+                    border-top solid 9px #ff0000
+                    border-bottom none
+
+        .period
+            font-size 11px
+        
+    .arrow        
+        position: absolute
+        bottom 10px
+        cursor: pointer
+        
+        .zoom_min &
+            bottom: 5px
+        
+        .corner
+            border 1px solid #fff
+            border-top none
+            
+            width 8px
+            height 8px
+            
+            margin: 5px
+            
+            cursor: pointer
+        
+        &.arrowRight
+            transform rotate(-45deg)
+            right 6px
+            .corner
+                border-left none
+            
+        &.arrowLeft
+            transform rotate(45deg)
+            left 6px
+            .corner
+                border-right none
+                
+
+                

@@ -1,0 +1,349 @@
+tC['/novaPostCreateDayView/template.jade'] = "<div class=\"timeBox\"> <div ng-click=\"goUp()\" class=\"arrow arrowUp\"></div> <div class=\"monthLine\">{{postParams.timestamp | timestampMask:'MMMM'}}</div> <div class=\"dayLine\">{{postParams.timestamp | timestampMask:'D'}}</div> <div class=\"weekDayLine\">{{postParams.timestamp | timestampMask:'ddd'}}</div> <div ng-click=\"goDown()\" class=\"arrow arrowDown\"></div> </div> <div class=\"graph\"> <canvas></canvas> </div>";
+
+buzzlike.directive('novaPostCreateDayView', function(statsCutService, scheduleService, localization, ruleService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostCreateDayView/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var barHei, barWid, body, cHei, cWid, canvas, ctx, drawGraph, elem, greenColor, handleBarSelect, hourStats, jcanvas, period, realTs, redColor, reloadStats, spacer, totalBars, ts, updateStats;
+      body = $('body');
+      elem = $(element);
+      jcanvas = elem.find('canvas');
+      canvas = jcanvas[0];
+      ctx = canvas.getContext('2d');
+      cWid = 240;
+      cHei = 90;
+      barHei = 57;
+      canvas.width = cWid;
+      canvas.height = cHei;
+      redColor = "#CDCDCD";
+      greenColor = "#CDCDCD";
+      period = HOUR;
+      totalBars = 24;
+      barWid = 10;
+      spacer = 1;
+      hourStats = null;
+      if (window.devicePixelRatio > 1) {
+        canvas.width = cWid * window.devicePixelRatio;
+        canvas.height = cHei * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+      drawGraph = function(hours, maxValue) {
+        var hei, hour, i, j, k, l, lastY, m, max, n, postsMax, ref, ref1, ref2, ref3, ref4, ref5, ref6, rulesLen, rulesMax;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (i = k = 0, ref = totalBars - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+          hour = hours[i];
+          if (maxValue === 0) {
+            hei = barHei;
+          } else {
+            hei = Math.ceil(hour.history / maxValue * barHei);
+          }
+          ctx.fillStyle = "#EEF0F2";
+          if ((ts - DAY + (HOUR * i) <= (ref1 = scope.postParams.timestamp) && ref1 < ts - DAY + (HOUR * (i + 1)))) {
+            ctx.fillStyle = "#2FA0F4";
+          }
+          ctx.fillRect(i * barWid, barHei - hei, barWid - spacer, hei);
+          rulesLen = hour != null ? (ref2 = hour.placeholders) != null ? ref2.length : void 0 : void 0;
+          if (rulesLen >= 5) {
+            rulesMax = 5;
+            postsMax = 0;
+          }
+          rulesMax = rulesLen;
+          postsMax = 5 - rulesMax;
+          max = (hour != null ? hour.postsTotal : void 0) || 0;
+          if (max < postsMax) {
+            postsMax = max;
+          }
+          lastY = barHei;
+          ctx.fillStyle = greenColor;
+          for (j = l = 0, ref3 = postsMax; 0 <= ref3 ? l < ref3 : l > ref3; j = 0 <= ref3 ? ++l : --l) {
+            ctx.fillRect(i * barWid, barHei + 2 + (j * 4), barWid - spacer, 3);
+            lastY = barHei + 2 + (j * 4) + 2;
+          }
+          for (j = m = 0, ref4 = rulesMax; 0 <= ref4 ? m < ref4 : m > ref4; j = 0 <= ref4 ? ++m : --m) {
+            if ((hour != null ? hour.placeholders[j].timestamp : void 0) === scope.postParams.timestamp) {
+              ctx.fillStyle = "#2FA0F4";
+            } else if (((hour != null ? hour.placeholders[j].combId : void 0) != null) && (hour != null ? hour.placeholders[j].combId : void 0) === scope.postParams.combId) {
+              ctx.fillStyle = "#99CFF9";
+            } else {
+              ctx.fillStyle = '#EEF0F2';
+            }
+            ctx.fillRect(i * barWid, lastY + 2 + (j * 4), barWid - spacer, 3);
+          }
+          if ((hour == null) || hour.total === 0) {
+            continue;
+          }
+          hei = Math.ceil(hour.total / maxValue * barHei);
+          if (hour.total < hour.history) {
+            ctx.fillStyle = redColor;
+          } else {
+            ctx.fillStyle = greenColor;
+          }
+          if ((ts + (HOUR * i) <= (ref5 = scope.postParams.timestamp) && ref5 < ts + (hour * (i + 1)))) {
+            ctx.fillStyle = "#3fa9f5";
+          }
+          ctx.fillRect(i * barWid, barHei - hei, barWid - spacer, hei);
+        }
+        ctx.strokeStyle = 'rgb(230,230,230)';
+        ctx.font = '300 8px Roboto';
+        ctx.fillStyle = '#999999';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (i = n = 0, ref6 = totalBars - 1; n <= ref6; i = n += 6) {
+          ctx.fillText(i, (i + 0.5) * barWid - spacer / 2, barHei + 24);
+        }
+        return ctx.fillText(23, 23.5 * barWid - spacer / 2, barHei + 24);
+      };
+      updateStats = function() {
+        var commPosts, dO, dayTime, hist, i, id, k, l, len, len1, len2, len3, len4, len5, m, maxValue, n, o, p, pHoldersCache, postStat, q, r, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, rule, ruleDayTs, sched, stat, timestamp;
+        scope.total = 0;
+        scope.history = 0;
+        hourStats = {};
+        maxValue = 0;
+        for (i = k = 0, ref = totalBars - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+          hourStats[i] = {
+            history: 0,
+            total: 0,
+            posts: [],
+            placeholders: [],
+            postsTotal: 0,
+            postsGood: 0,
+            postsBad: 0
+          };
+        }
+        ref1 = scope.stats;
+        for (l = 0, len = ref1.length; l < len; l++) {
+          stat = ref1[l];
+          if (((ref2 = stat.day) != null ? ref2.stats : void 0) == null) {
+            continue;
+          }
+          stat = stat.day;
+          scope.total += stat.stats.activity;
+          scope.history += stat.delta.activity;
+          ref3 = stat.forecast;
+          for (m = 0, len1 = ref3.length; m < len1; m++) {
+            hist = ref3[m];
+            id = Math.floor(hist.ts / period);
+            if (id > totalBars - 1) {
+              id = totalBars - 1;
+            }
+            hourStats[id].history += hist.delta.activity;
+            if (hourStats[id].history > maxValue) {
+              maxValue = hourStats[id].history;
+            }
+          }
+          ref4 = stat.history;
+          for (n = 0, len2 = ref4.length; n < len2; n++) {
+            hist = ref4[n];
+            id = Math.floor((hist.ts - stat.timestamp + (totalBars * period)) / period);
+            if (id > totalBars - 1) {
+              id = totalBars - 1;
+            }
+            if (id < 0) {
+              id = 0;
+            }
+            hourStats[id].total += hist.delta.activity;
+            if (hourStats[id].total > maxValue) {
+              maxValue = hourStats[id].total;
+            }
+          }
+        }
+        postStat = {};
+        ref5 = scope.posts;
+        for (o = 0, len3 = ref5.length; o < len3; o++) {
+          commPosts = ref5[o];
+          for (p = 0, len4 = commPosts.length; p < len4; p++) {
+            sched = commPosts[p];
+            if (postStat[sched.timestamp] == null) {
+              postStat[sched.timestamp] = {
+                total: 0,
+                history: 0
+              };
+            }
+            postStat[sched.timestamp].total += sched.lastStats.activity || 0;
+            if (sched.delta.activity * 1 >= 0) {
+              postStat[sched.timestamp].history += (sched.lastStats.activity * (1 - sched.delta.activity)) || 0;
+            } else {
+              postStat[sched.timestamp].history += (sched.lastStats.activity / (1 + sched.delta.activity)) || 0;
+            }
+          }
+        }
+        for (timestamp in postStat) {
+          stat = postStat[timestamp];
+          id = Math.floor((timestamp - realTs) / period);
+          hourStats[id].postsTotal++;
+          hourStats[id].posts.push({
+            type: 'post'
+          });
+        }
+        pHoldersCache = {};
+        if (((ref6 = scope.rulesData[0]) != null ? ref6.length : void 0) > 0) {
+          ref7 = scope.rulesData[0];
+          for (q = 0, len5 = ref7.length; q < len5; q++) {
+            rule = ref7[q];
+            dO = new Date(rule.timestampStart);
+            id = dO.getHours();
+            dayTime = (HOUR * id) + (MIN * dO.getMinutes());
+            ruleDayTs = realTs + dayTime;
+            if (ruleDayTs < Date.now()) {
+              continue;
+            }
+            if (pHoldersCache[dayTime] != null) {
+              continue;
+            }
+            pHoldersCache[dayTime] = true;
+            if (postStat[ruleDayTs] != null) {
+              continue;
+            }
+            hourStats[id].placeholders.push({
+              combId: rule.combId,
+              timestamp: ruleDayTs
+            });
+          }
+          for (id = r = 0, ref8 = totalBars - 1; 0 <= ref8 ? r <= ref8 : r >= ref8; id = 0 <= ref8 ? ++r : --r) {
+            hourStats[id].placeholders.sort(function(a, b) {
+              if (a.timestamp > b.timestamp) {
+                return 1;
+              }
+              if (a.timestamp < b.timestamp) {
+                return -1;
+              }
+              return 0;
+            });
+          }
+        }
+        drawGraph(hourStats, maxValue);
+        if (scope.total === scope.history) {
+          scope.delta = 0;
+          return;
+        }
+        if (scope.total === 0) {
+          scope.delta = -100;
+          return;
+        }
+        if (scope.history === 0) {
+          scope.delta = 100;
+          return;
+        }
+        if (scope.total > scope.history) {
+          scope.delta = Math.ceil(scope.total / scope.history * 100) - 100;
+        } else {
+          scope.delta = -100 + Math.ceil(scope.total / scope.history * 100);
+        }
+        return true;
+      };
+      scope.stats = [];
+      scope.posts = [];
+      scope.rulesData = [];
+      ts = null;
+      realTs = null;
+      reloadStats = function() {
+        var communityId, dateObj, k, len, ref, results;
+        scope.stats.length = 0;
+        scope.posts.length = 0;
+        scope.rulesData.length = 0;
+        dateObj = new Date(scope.postParams.timestamp);
+        realTs = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+        ts = realTs + DAY;
+        if (scope.postParams.channelId != null) {
+          scope.rulesData.push(ruleService.fetchByGroupId(scope.postParams.channelId));
+        }
+        ref = scope.postParams.pickedCommunities;
+        results = [];
+        for (k = 0, len = ref.length; k < len; k++) {
+          communityId = ref[k];
+          statsCutService.get({
+            timestamp: ts,
+            communityId: communityId
+          }, function(res) {
+            return scope.stats.push(res);
+          });
+          results.push(scope.posts.push(scheduleService.getCommunityDay(realTs, communityId)));
+        }
+        return results;
+      };
+      scope.$watch('postParams.pickedCommunities', function(nVal) {
+        if (nVal == null) {
+          return;
+        }
+        return reloadStats();
+      }, true);
+      scope.$watch('postParams.timestamp', function(nVal) {
+        if (nVal == null) {
+          return;
+        }
+        reloadStats();
+        return updateStats();
+      });
+      scope.$watch('postParams.combId', function(nVal) {
+        return updateStats();
+      });
+      scope.goUp = function() {
+        return scope.postParams.timestamp -= DAY;
+      };
+      scope.goDown = function() {
+        return scope.postParams.timestamp += DAY;
+      };
+      scope.$watch('stats', function() {
+        return updateStats();
+      }, true);
+      scope.$watch('posts', function() {
+        return updateStats();
+      }, true);
+      scope.$watch('rulesData', function() {
+        return updateStats();
+      }, true);
+      elem.on('mousedown', function(e) {
+        var ref, ref1;
+        e.stopPropagation();
+        if ((scope.flow != null) && (((ref = scope.flowFrame) != null ? ref.active : void 0) !== true || ((ref1 = scope.flowBox) != null ? ref1.active : void 0) !== true)) {
+          scope.flow.activate(scope.flowFrame, scope.flowBox);
+          return scope.$apply();
+        }
+      });
+      handleBarSelect = function(e) {
+        var barId, brickId, minutes, phId, postsLen, rulesLen, x, y;
+        x = e.pageX - jcanvas.offset().left;
+        y = barHei - (e.pageY - jcanvas.offset().top);
+        barId = x / barWid | 0;
+        if (y > 0) {
+          minutes = 59 * (y / barHei) | 0;
+          scope.postParams.timestamp = ts - DAY + (HOUR * barId) + (MIN * minutes);
+        } else {
+          y += 2;
+          brickId = Math.abs(y) / 4 | 0;
+          rulesLen = hourStats[barId].placeholders.length;
+          if (rulesLen >= 5) {
+            postsLen = 0;
+            rulesLen = 5;
+          } else {
+            postsLen = 5 - rulesLen;
+          }
+          if (hourStats[barId].posts.length < postsLen) {
+            postsLen = hourStats[barId].posts.length;
+          }
+          if (brickId < postsLen) {
+            return;
+          } else if (rulesLen > 0) {
+            phId = brickId - postsLen;
+            if (rulesLen <= phId) {
+              phId = rulesLen - 1;
+            }
+            scope.postParams.timestamp = hourStats[barId].placeholders[phId].timestamp;
+          }
+        }
+        return scope.$applyAsync();
+      };
+      return jcanvas.on('mousedown', function(e) {
+        handleBarSelect(e);
+        body.on('mousemove.canvasBarSelect', handleBarSelect);
+        return body.on('mouseup.canvasBarSelect', function(e) {
+          body.off('mousemove.canvasBarSelect');
+          return body.off('mouseup.canvasBarSelect');
+        });
+      });
+    }
+  };
+});
+
+registerStyles('novaPostCreateDayView', ".novaPostCreateDayView {\n  height: 110px;\n  width: 100%;\n  color: #000;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.novaScrollerPage .novaPostCreateDayView {\n  height: 140px;\n  margin-top: -1px;\n  border-top: 1px solid #ccc;\n}\n.novaPostCreateDayView .timeBox {\n  position: absolute;\n  width: 60px;\n  text-align: center;\n  left: 0;\n  top: 10px;\n  color: #464545;\n}\n.novaPostCreateDayView .timeBox div.arrow {\n  width: 5px;\n  height: 5px;\n  border-top: 1px solid #464545;\n  border-right: 1px solid #464545;\n  cursor: pointer;\n  margin: 5px 0;\n  margin-left: 26px;\n}\n.novaPostCreateDayView .timeBox div.arrow.arrowUp {\n  -webkit-transform: rotate(-45deg);\n  -moz-transform: rotate(-45deg);\n  -o-transform: rotate(-45deg);\n  -ms-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n}\n.novaPostCreateDayView .timeBox div.arrow.arrowDown {\n  -webkit-transform: rotate(135deg);\n  -moz-transform: rotate(135deg);\n  -o-transform: rotate(135deg);\n  -ms-transform: rotate(135deg);\n  transform: rotate(135deg);\n}\n.novaPostCreateDayView .timeBox div {\n  width: 100%;\n}\n.novaPostCreateDayView .timeBox .monthLine,\n.novaPostCreateDayView .timeBox .weekCaption {\n  font-size: 8px;\n  height: 8px;\n  line-height: 8px;\n  text-transform: uppercase;\n}\n.novaPostCreateDayView .timeBox .monthLine.big,\n.novaPostCreateDayView .timeBox .weekCaption.big {\n  font-size: 11px;\n  height: 12px;\n  line-height: 12px;\n  font-weight: bolder;\n}\n.novaPostCreateDayView .timeBox .dayLine {\n  font-size: 24px;\n  height: 24px;\n  line-height: 26px;\n}\n.novaPostCreateDayView .timeBox .weekDayLine {\n  font-size: 12px;\n  height: 12px;\n  line-height: 12px;\n}\n.novaPostCreateDayView .timeBox .yearLine {\n  font-size: 14px;\n  line-height: 16px;\n  height: 16px;\n}\n.novaPostCreateDayView .timeBox .weekRange {\n  font-size: 10px;\n  height: 10px;\n  line-height: 10px;\n  text-transform: uppercase;\n}\n.novaPostCreateDayView .graph {\n  position: absolute;\n  bottom: 5px;\n  right: 20px;\n  width: 240px;\n  height: 90px;\n}\n.novaPostCreateDayView .graph canvas {\n  width: 240px;\n  height: 90px;\n}\n");

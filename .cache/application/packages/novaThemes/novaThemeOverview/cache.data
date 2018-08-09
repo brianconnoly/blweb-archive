@@ -1,0 +1,20 @@
+tC['/novaThemeOverview/template.jade'] = "<div class=\"novaAppLeftPanelOverview\"> <div class=\"overviewBar\"> <div class=\"overviewCover border03\"> <div type=\"content\" id=\"comb.coverId\" class=\"itemPreview\"></div> </div> <div class=\"overviewText\"> <div class=\"lightTitle\">{{project.name}}</div> <div class=\"mainTitle\">{{comb.name}}</div> <div class=\"activity\"><span translate=\"'novaThemeOverview_activity'\"></span><span>{{comb.lastStats.total || '—'}}</span></div> </div> </div> <div nova-stream-item=\"appItem\" class=\"projectStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> </div>";
+
+buzzlike.directive('novaThemeOverview', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemeOverview/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.$watch('comb.name', function() {
+        return scope.heightChanged();
+      });
+      return scope.heightChanged = function() {
+        scope.unit.unitHeight = scope.unit.elem.height();
+        return scope.recountHead();
+      };
+    }
+  };
+});
+
+registerStyles('novaThemeOverview', ".novaThemeOverview .projectStream {\n  overflow: hidden;\n  padding: 0 15px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  height: 40px;\n}\n");

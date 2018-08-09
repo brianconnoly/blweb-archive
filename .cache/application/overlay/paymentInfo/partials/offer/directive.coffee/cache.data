@@ -1,0 +1,10 @@
+buzzlike.directive("offer", function(paymentInfoService, $compile, localStorageService) {
+  return {
+    restrict: "C",
+    template: function() {
+      var lang;
+      lang = localStorageService.get('user.lang');
+      return tC['/overlay/paymentInfo/partials/offer/' + lang];
+    }
+  };
+});

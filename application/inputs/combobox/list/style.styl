@@ -1,0 +1,52 @@
+$H = 30px
+$itemH = 36px
+
+div.combobox-list
+    size 'full'
+    background rgba(0, 0, 0, 0.3)
+    z-index 100500
+
+    .content
+        position absolute
+        min-width $H
+        min-height $itemH
+        background rgba(255, 255, 255, 0.9)
+        border-top 1px solid #ddd
+        overflow auto
+
+    .list
+        display inline-block
+        min-width 100%
+
+        li
+            height $itemH
+            line-height $itemH
+            padding-left 10px
+            padding-right $itemH
+            white-space: nowrap;
+            //border-bottom 1px solid #ddd
+
+            &.selected
+                sprite "/resources/images/icons/markers/checked.png" right top $itemH $itemH
+
+            &:hover
+                background-color #fff
+                cursor pointer
+
+    &.hideSelected .selected
+        display none
+
+    // parent: postEntity
+    &.snIcon
+        .list
+            border 0
+
+            li
+                padding-left 0
+                padding-right 0
+                height 40px
+                line-height 39px
+                font-size 18px
+                color #fff
+                text-transform uppercase
+                text-align center

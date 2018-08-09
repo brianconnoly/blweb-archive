@@ -1,0 +1,26 @@
+tC['/novaCombPreview/template.jade'] = "<div ng-if=\"previewItem.coverId\" nova-item-id=\"previewItem.coverId\" nova-item-type=\"image\" class=\"cover novaItem novaItemPreview\"></div> <div class=\"bottomShield\"> <div class=\"topLine name\"> <div class=\"wrapper\"> <div class=\"centered\"><img src=\"/resources/images/nova/entities/comb.svg\"/><span>{{::simpleNumber(item.lastStats.activity)}}</span></div> </div> </div> <div class=\"bottomLine\"> <div class=\"inner name\">{{item.name}}</div> </div> </div>";
+
+buzzlike.directive('novaCombPreview', function(novaDesktop) {
+  return {
+    restrict: 'C',
+    template: tC['/novaCombPreview/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      return elem.on('dblclick', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        novaDesktop.launchApp({
+          app: 'novaThemesApp',
+          item: {
+            id: scope.item.id,
+            type: 'comb'
+          }
+        });
+        return scope.$apply();
+      });
+    }
+  };
+});
+
+registerStyles('novaCombPreview', ".novaCombPreview {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: hidden;\n}\n.novaCombPreview .cover {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: auto !important;\n  height: auto !important;\n  margin: 0 !important;\n  pointer-events: none;\n}\n.novaCombPreview .bottomShield {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  width: 100%;\n  height: 51%;\n  min-height: 25px;\n  background: rgba(0,0,0,0.7);\n  color: #fff;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.noItemNames .novaCombPreview .bottomShield {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaCombPreview .bottomShield .topLine {\n  height: 33%;\n  text-align: center;\n}\n.novaCombPreview .bottomShield .topLine .wrapper {\n  position: absolute;\n  bottom: 0;\n  width: 100%;\n  font-size: 10px;\n}\n.novaCombPreview .bottomShield .topLine .centered {\n  display: inline-block;\n}\n.novaCombPreview .bottomShield .topLine .centered img {\n  vertical-align: baseline;\n  height: 0.8em;\n  margin-right: 0.3em;\n}\n.novaCombPreview .bottomShield .bottomLine {\n  margin: 0 5%;\n  height: 67%;\n  width: 90%;\n  display: table;\n}\n.novaCombPreview .bottomShield .inner {\n  display: table-cell;\n  vertical-align: middle;\n  text-align: center;\n  color: #fff;\n  font-size: 10px;\n}\n");

@@ -1,0 +1,134 @@
+buzzlike.controller('calendarCtrl', function($scope) {
+  var currentCallback, days, fillCalendar, getDay, initial, now;
+  $scope.stateTree.applyState({
+    'escape': $scope.closeApp
+  });
+  $scope.session.expandedHeader = false;
+  now = new Date();
+  $scope.current = {
+    year: now.getFullYear(),
+    month: now.getMonth(),
+    day: now.getDate()
+  };
+  initial = {};
+  $scope.$watch('session.cursor', function(nVal) {
+    if (nVal != null) {
+      $scope.current.year = $scope.session.cursor.getFullYear();
+      $scope.current.month = $scope.session.cursor.getMonth();
+      $scope.current.day = $scope.session.cursor.getDate();
+      updateObject(initial, $scope.current);
+      return fillCalendar();
+    }
+  }, true);
+  currentCallback = null;
+  $scope.days = days = [];
+  getDay = function(date) {
+    var day;
+    day = date.getDay();
+    if (day === 0) {
+      day = 7;
+    }
+    return day - 1;
+  };
+  fillCalendar = function() {
+    var active, afterDays, before, calendarEdgeWithoutTime, curWeek, d, date, date_obj, day, i, j, k, month, prevDays, ref, ref1, ref2, year;
+    year = $scope.current.year;
+    month = $scope.current.month;
+    d = new Date(year, month);
+    days.length = 0;
+    curWeek = 0;
+    days.push([]);
+    prevDays = new Date(year, month, 0).getDate();
+    before = getDay(d);
+    if (before > 0) {
+      for (i = j = ref = prevDays - before + 1, ref1 = prevDays; ref <= ref1 ? j <= ref1 : j >= ref1; i = ref <= ref1 ? ++j : --j) {
+        days[0].push({
+          type: 'empty',
+          other: true,
+          date: i,
+          date_obj: new Date(year, month - 1, i),
+          active: true
+        });
+      }
+    }
+    while (d.getMonth() === month) {
+      date = d.getDate();
+      date_obj = new Date($scope.current.year, $scope.current.month, date);
+      active = true;
+      if ($scope.session.calendarEdge > 0) {
+        calendarEdgeWithoutTime = new Date(Math.floor($scope.session.calendarEdge));
+        calendarEdgeWithoutTime.setHours(0, 0, 0, 0);
+        if (date_obj.getTime() < calendarEdgeWithoutTime.getTime()) {
+          active = false;
+        }
+      }
+      day = {
+        date: date,
+        date_obj: date_obj,
+        active: active
+      };
+      if ($scope.current.year === initial.year && $scope.current.month === initial.month && date === initial.day) {
+        day.selected = true;
+      }
+      if (getDay(d) === 0 && days[curWeek].length > 0) {
+        curWeek++;
+        days.push([]);
+      }
+      days[curWeek].push(day);
+      d.setDate(d.getDate() + 1);
+    }
+    if (getDay(d) !== 0) {
+      afterDays = 7 - getDay(d);
+      for (i = k = 0, ref2 = afterDays; 0 <= ref2 ? k < ref2 : k > ref2; i = 0 <= ref2 ? ++k : --k) {
+        days[curWeek].push({
+          type: 'empty',
+          other: true,
+          date: i + 1,
+          date_obj: new Date(year, month + 1, i + 1),
+          active: true
+        });
+      }
+    }
+    curWeek++;
+    $scope.setHeight((30 + 56 + 40) + (curWeek * 33) + 20, true);
+    return true;
+  };
+  fillCalendar();
+  $scope.goRight = function() {
+    $scope.current.month++;
+    if ($scope.current.month > 11) {
+      $scope.current.month = 0;
+      $scope.current.year++;
+    }
+    fillCalendar();
+    return true;
+  };
+  $scope.goLeft = function() {
+    $scope.current.month--;
+    if ($scope.current.month < 0) {
+      $scope.current.month = 11;
+      $scope.current.year--;
+    }
+    fillCalendar();
+    return true;
+  };
+  $scope.pickDate = function(day, e) {
+    if (!day.active) {
+      return false;
+    }
+    initial.year = day.date_obj.getFullYear();
+    initial.month = day.date_obj.getMonth();
+    initial.day = day.date_obj.getDate();
+    $scope.session.api.pick(day.date_obj);
+    updateObject($scope.current, initial);
+    fillCalendar();
+    if (!e.altKey && $scope.session.stay !== true) {
+      $scope.closeApp();
+    }
+    return false;
+  };
+  $scope.hide = function() {
+    return $scope.closeApp();
+  };
+  return true;
+});

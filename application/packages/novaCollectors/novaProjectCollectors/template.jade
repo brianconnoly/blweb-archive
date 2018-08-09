@@ -1,0 +1,4 @@
+div.title(translate="'novaProjectCollectors_title'", ng-if="items.length > 0")
+div.subItem.novaItem.novaItemDroppable.noDrag(ng-repeat="item in items | filter:ugcFilter", ng-click="activate(item)") 
+    div.settings(ng-click="ugcSettings(item, $event)")
+    div.subTitle {{item.name}}

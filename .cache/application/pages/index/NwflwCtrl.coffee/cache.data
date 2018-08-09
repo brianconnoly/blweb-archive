@@ -1,0 +1,246 @@
+var NwflwCtrl;
+
+NwflwCtrl = function(inviteTeamMember, teamService, teamManager, notificationCenter, requestService, lotService, combEdit, socketAuth, resize, tableImport, dragMaster, surveyService, account, overlayManager, touchHelper, optionsList, stateManager, multiselect, contentService, postService, env, httpWrapped, confirmBox, calendar, $state, $rootScope, $scope, $compile, user, uploadService, buffer, combService, notificationService, localization, tutorialService) {
+  var rpLoaded, rpTimer, spinner, spinnerOptions, target, tutorial, tutorialState;
+  $scope.dragMaster = dragMaster;
+  $scope.user = account.user;
+  $scope.unreadNotifications = notificationService.unread;
+  overlayManager.init();
+  rpTimer = null;
+  rpLoaded = false;
+  $scope.showTeamManager = function() {
+    return teamManager.open();
+  };
+  $scope.teamNews = 0;
+  $rootScope.$watch(function() {
+    return teamService.storage;
+  }, function(nVal) {
+    var i, k, len, ref, ref1, ref2, team;
+    $scope.teamNews = 0;
+    for (k in nVal) {
+      team = nVal[k];
+      if ((team != null ? (ref = team.members) != null ? ref.length : void 0 : void 0) > 0) {
+        ref1 = team.members;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          user = ref1[i];
+          if (user.userId === account.user.id && ((ref2 = user.roles) != null ? ref2.invited : void 0) === true) {
+            $scope.teamNews++;
+          }
+        }
+      }
+    }
+    return true;
+  }, true);
+  $rootScope.newRequests = 0;
+  $rootScope.$watch(function() {
+    return lotService.my;
+  }, function(nVal) {
+    var k, lot, results;
+    $rootScope.newRequests = 0;
+    results = [];
+    for (k in nVal) {
+      lot = nVal[k];
+      results.push($rootScope.newRequests += lot.requestsNew);
+    }
+    return results;
+  }, true);
+  $rootScope.returned = 0;
+  $rootScope.$watch(function() {
+    return requestService.requestsFrom;
+  }, function(nVal) {
+    var k, req, results;
+    $rootScope.returned = 0;
+    results = [];
+    for (k in nVal) {
+      req = nVal[k];
+      if (req.unread === true && req.requestStatus === 'returned') {
+        results.push($rootScope.returned++);
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  }, true);
+  $scope.showOptions = function() {
+    overlayManager.loadOverlay('userOptions');
+    return true;
+  };
+  $scope.navigation = [
+    {
+      state: 'timeline'
+    }, {
+      state: 'combs'
+    }, {
+      state: 'content'
+    }, {
+      state: 'market'
+    }
+  ];
+  $scope.multiselectState = multiselect.state;
+  $scope.notificationState = notificationCenter.status;
+  $scope.touchState = touchHelper.state;
+  $scope.animPrefs = user.animPrefs;
+  $scope.localization = localization;
+  $scope.showedPanels = resize.showedPanels;
+  $scope.isRightShownAlways = function() {
+    if (account.user.settings != null) {
+      return account.user.settings.rightPanel;
+    } else {
+      return true;
+    }
+  };
+  $scope.isCurrentState = function(state) {
+    if ($state.current.name === state) {
+      return true;
+    }
+    return false;
+  };
+  $scope.showAddPanel = function() {
+    if (!tutorialService.lockAction('addcommunity_plus')) {
+      return false;
+    }
+    tutorialService.nextLesson('all', [1]);
+    overlayManager.loadOverlay('addWindow');
+    return true;
+  };
+  $scope.isSettingsShowed = function() {
+    return $rootScope.settingsShowed;
+  };
+  $scope.isOverlayShowed = function() {
+    return overlayManager.state.showed;
+  };
+  $scope.isBlurUsed = function() {
+    return $scope.isOverlayShowed();
+  };
+  $scope.go = function(where, e) {
+    if (!tutorialService.lockAction('switchpage_' + where)) {
+      return false;
+    }
+    if ((combEdit.state.currentComb != null) && (e.ctrlKey || e.metaKey)) {
+      buffer.addItems([combEdit.state.currentComb]);
+    }
+    multiselect.state.context = null;
+    if ($state.current.name === where) {
+      stateManager.faderClick();
+      return false;
+    }
+    calendar.hide();
+    window.goUp = null;
+    $state.transitionTo(where);
+    if (tutorialService.status.currentCourse != null) {
+      tutorialService.switchTransitLesson(where);
+    }
+    tutorialService.nextLesson('quickcreatepost', [2]);
+    return tutorialService.nextLesson('quickcreatepostfolder', [2]);
+  };
+  $scope.logout = function() {
+    return confirmBox.init({
+      phrase: 'popup_exit_title',
+      description: 'popup_exit_subtitle',
+      yes: localization.translate('popup_exit_confirm'),
+      no: localization.translate('morework')
+    }, function() {
+      return socketAuth.logout();
+    });
+  };
+  $scope.goUp = function() {
+    return stateManager.faderClick();
+  };
+  tutorial = null;
+  tutorialState = {
+    'escape': function() {
+      return true;
+    }
+  };
+  $scope.showTutorial = function() {
+    tutorial = $compile('<div class="selectcourse shader"></div>')($scope);
+    $('.main-wrapper').append(tutorial);
+    angular.element($('.tutorialcourse')).scope().cancelLesson();
+    return true;
+  };
+  $scope.showMarket = function() {
+    if ($('.requestsManager').length === 0) {
+      return overlayManager.loadOverlay('requestsManager');
+    }
+  };
+  $('.uploadHelper input').on('change', function(e) {
+    uploadService.upload(this, true);
+    return $(this).val('');
+  });
+  $('#importFullHelper').on('change', function(e) {
+    tableImport.uploadFull(this);
+    return $(this).val('');
+  });
+  $('#importCommunityHelper').on('change', function(e) {
+    tableImport.uploadCommunity(this);
+    return $(this).val('');
+  });
+  spinnerOptions = {
+    lines: 13,
+    length: 20,
+    width: 2,
+    radius: 30,
+    corners: 1,
+    rotate: 0,
+    direction: 1,
+    color: '#000',
+    speed: 1,
+    trail: 66,
+    shadow: true,
+    hwaccel: true,
+    className: 'spinner',
+    zIndex: 2e9
+  };
+  target = $('#big_loading').children('.spinner');
+  spinner = new Spinner(spinnerOptions).spin(target[0]);
+  $scope.paymentRequired = false;
+  $scope.showPaymentRequired = function(e) {
+    var days, daysRemain, message, text;
+    if ($scope.user.id === -1) {
+      return;
+    }
+    if (!$scope.user.daysRemain || $scope.user.daysRemain > 3) {
+      return;
+    }
+
+    /*
+    if $scope.user.daysRemain <= 3
+        nav = $ "#nav"
+        nav.addClass('paymentRequired').css('background-color', '')
+        color = 'rgba(222,47,47,0.9)'
+        if color
+            color = getColor color
+            color.g += daysRemain*33  #чем меньше, тем краснее
+            nav.css 'background-color', makeRGBA color
+     */
+    if ((e != null ? e.target.id : void 0) === 'nav') {
+      daysRemain = $scope.user.daysRemain;
+      days = daysRemain + ' ' + localization.declension(daysRemain, 'paymentRequire_days');
+      if (daysRemain > 0) {
+        text = localization.translate('paymentRequire').replace('%s', days);
+      } else {
+        text = localization.translate('paymentRequire_blocked');
+      }
+      message = {
+        realText: text
+      };
+      optionsList.init(message, [
+        {
+          text: 'paymentRequire_charge',
+          action: function() {
+            return overlayManager.loadOverlay('paymentInfo');
+          }
+        }
+      ]);
+      return true;
+    }
+  };
+  $scope.showPaymentRequired();
+  return account.onAuthed(function() {
+    if ($scope.user.statsShowed) {
+      $scope.user.statsShowed = false;
+      surveyService.loadStats();
+    }
+    return true;
+  });
+};

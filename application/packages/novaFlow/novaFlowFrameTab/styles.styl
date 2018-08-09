@@ -1,0 +1,120 @@
+float: left
+
+height 32px
+line-height 32px
+
+min-width 80px
+max-width 320px
+
+.frameTitle
+    margin 7px 3px
+
+    .titleText
+        font-size: 12px
+        font-weight: bolder
+        height 20px
+        line-height: 21px
+        margin: 3px
+
+        max-width 215px
+        width 105px
+
+        white-space nowrap
+        text-overflow: ellipsis
+        overflow: hidden
+
+&:after, &:before
+    content: ""
+    position absolute
+    top 0
+    display: block
+
+    height 32px
+    width 25px
+    background-image: url(/resources/images/nova/window/tab/sides-inactive.svg)
+    background-repeat: no-repeat
+
+&:before
+    background-position: top left
+    left 0
+
+&:after
+    background-position: top right
+    right 0
+
+.novaFlowFrameTabBg
+    position absolute
+    left 25px
+    right 25px
+    height 31px
+    border-top 1px solid rgb(230, 230, 230)
+    background: #efefef
+
+.novaFlowFrameTabContent
+    position: relative
+    z-index 1
+    overflow: hidden;
+    padding-left: 20px;
+    padding-right: 55px;
+    height 100%
+
+    .novaAppItem
+        position relative
+        left auto
+        top 0
+        margin-top 7px
+
+        .itemTitle
+            max-width 215px
+            white-space nowrap
+            text-overflow: ellipsis
+            overflow: hidden
+
+    .tabIcon
+        position absolute
+        top 9px
+        width 14px
+        height 14px
+        cursor: pointer
+        transition all 0.5s ease
+        z-index 1
+
+    .pin
+        background: url(/resources/images/nova/window/tab/pin.svg) center center no-repeat
+        right 35px
+
+    .close
+        background: url(/resources/images/nova/window/tab/close.svg) center center no-repeat
+        right 20px
+        opacity 1
+
+    .closePinned
+        background: url(/resources/images/nova/window/tab/close-pinned.svg) center center no-repeat
+        right 20px
+        opacity 0
+
+&.pinned
+    .novaFlowFrameTabContent
+        padding-right: 35px;
+        .pin
+            opacity 0
+            right 20px
+        .close
+            opacity 0
+        .closePinned
+            opacity 1
+
+
+&.active
+    z-index 100
+    &:after, &:before
+        background-image: url(/resources/images/nova/window/tab/sides.svg)
+
+    .novaFlowFrameTabBg
+        background #fcfcfc
+
+&.noActions
+    .novaFlowFrameTabContent
+        padding-right 12px
+    .tabIcon
+        display none

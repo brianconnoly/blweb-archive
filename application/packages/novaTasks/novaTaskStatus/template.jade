@@ -1,0 +1,17 @@
+//- div(ng-switch="state")
+//-     div(ng-switch-when="startable")
+//-         div.novaButton(ng-click="startTask()") Start
+//-     div(ng-switch-when="finishable")
+//-         div.novaButton(ng-click="finishTask()") Finish
+//-     div(ng-switch-when="acceptable")
+//-         div.novaButton(ng-click="acceptTask()") Accept
+//-         div.novaButton(ng-click="rejectTask()") Reject
+//-     div(ng-switch-when="restartable")
+//-         div.novaButton(ng-click="restartTask()") Restart
+//-     div(ng-switch-when="status")
+//-         div {{item.status}}
+//- div.status
+    //- div.novaButton(ng-if="actions.length > 0", ng-repeat="action in actions track by $index", ng-click="fireAction(action)", translate="'task_'+action", ng-class="action")
+    //- div.taskStatus(ng-if="actions.length == 0", translate="'taskItem_status_'+item.status")
+div.analogStatus
+div.novaLoader

@@ -1,0 +1,32 @@
+width 320px
+height 100%
+// float: left
+position absolute
+background: rgba(255,255,255,0.95)
+
+box-sizing border-box
+border-right 1px solid #e9e9e9
+
+overflow: hidden
+z-index 2
+
+&.active
+    background #fff
+
+&.right
+    border-right none
+    border-left 1px solid #e9e9e9
+
+&.back
+    z-index 1
+
+// &:last-child
+//     border-right none
+
+.flowFrameContents
+    position: absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    overflow: hidden

@@ -1,0 +1,40 @@
+div.dragHandler.topBar.noSettings.black
+    process-bar
+
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title(ng-if="session.item.type == 'schedule'", translate="'graphApp_title_sched'")
+    div.title(ng-if="session.item.type == 'statsCut'", ng-switch="item.statsCutType")
+        span(ng-switch-when="day") {{::(item.timestamp - DAY) | timestampMask:'DD ofMMMM, dddd'}}
+        span(ng-switch-when="week") 
+            span(translate="'graphApp_title_week_from'")
+            span  {{::(item.timestamp - WEEK) | timestampMask:'DD ofMMMM'}} 
+            span(translate="'graphApp_title_week_till'")
+            span  {{::item.timestamp - DAY | timestampMask:'DD ofMMMM'}}
+        span.month(ng-switch-when="month") {{::(item.timestamp - MONTH - DAY - DAY) | timestampMask:'MMMM'}} 
+
+div.body
+
+    div.uniGraph
+
+        div.typeSwitch
+            div.button(ng-class="{'active':graphType == 'cumulative'}", translate="'graphApp_type_cumulative'", ng-click="setGraphType('cumulative')")
+            div.button(ng-class="{'active':graphType == 'dynamic'}", translate="'graphApp_type_dynamic'", ng-click="setGraphType('dynamic')")
+
+        div.graphDescription(translate="'graphApp_description_' + graphType + '_' + linesType")
+
+        div.graphContainer
+            div.hoverBar
+            canvas.fullSize
+            div.dots.fullSize
+            div.helper
+
+        div.legend
+            div.line(ng-repeat="line in lines", ng-click="toggleLine(line)")
+                span.icon(ng-class="line.type")
+                span.number {{line.total || 0}}
+                div.color(ng-style="{'background-color':line.color}", ng-if="lines.length > 1 && showLine[line.type]")
+
+        div.overallSwitch
+            div.button(translate="'graphApp_overall_' + linesType", ng-click="toggleLinesType()")

@@ -1,0 +1,55 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('wallpaperDropable', function(dragMaster, account) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var images;
+      images = [];
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          return element.addClass('wallpaper-drop');
+        },
+        leave: function(elem) {
+          return $(element).removeClass('wallpaper-drop');
+        },
+        end: function() {
+          return $(element).removeClass('wallpaper-drop');
+        },
+        canAccept: function(elem, e) {
+          var i, item, len, ref;
+          images.length = 0;
+          ref = elem.dragObject.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if (item.type === 'image') {
+              images.push(item);
+            }
+          }
+          return images.length > 0;
+        },
+        drop: function(elem, e) {
+          var i, item, len, process, ref;
+          for (i = 0, len = images.length; i < len; i++) {
+            item = images[i];
+            if (ref = item.id, indexOf.call(account.user.wallpapers, ref) < 0) {
+              account.user.wallpapers.unshift(item.id);
+            }
+          }
+          if (account.user.wallpapers.length > 10) {
+            account.user.wallpapers.length = 10;
+          }
+          scope.setWallpaper(account.user.wallpapers[0]);
+          process = scope.progress.add();
+          account.set({
+            wallpapers: account.user.wallpapers
+          }, function() {
+            return scope.progress.finish(process);
+          });
+          return scope.$apply();
+        }
+      });
+      return true;
+    }
+  };
+});

@@ -1,0 +1,350 @@
+.appContainer.pollEdit {
+  background: #fff;
+}
+.appContainer.pollEdit div.bl-checkbox {
+  width: 25px;
+  height: 13px;
+  background: #494949;
+  border: 1px solid #494949;
+}
+.appContainer.pollEdit div.bl-checkbox.checked .tumbler {
+  background: #fff;
+  right: 0 !important;
+}
+.appContainer.pollEdit div.bl-checkbox.checked .button {
+  background: #494949;
+}
+.appContainer.pollEdit div.bl-checkbox .tumbler {
+  background: #494949;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+.appContainer.pollEdit div.bl-checkbox .button {
+  top: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
+}
+.appContainer.pollEdit .remove {
+  background: url("/resources/images/desktop/removeCross.svg") center center no-repeat;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.appContainer.pollEdit .topBar input.title::-webkit-input-placeholder {
+  color: #ccc;
+}
+.appContainer.pollEdit .topBar input.title::-moz-input-placeholder {
+  color: #ccc;
+}
+.appContainer.pollEdit .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.pollEdit .body .editableDiv {
+  white-space: pre-line;
+}
+.appContainer.pollEdit .body .editableDiv:focus {
+  outline: none;
+}
+.appContainer.pollEdit .body .pollValue {
+  min-height: 50px;
+  padding: 15px;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.pollEdit .body .pollValue.placeholder {
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+}
+.appContainer.pollEdit .body .schedules {
+  overflow: hidden;
+  padding: 10px 5px 5px 10px;
+}
+.appContainer.pollEdit .body .schedules .schedule {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #dadada;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  float: left;
+  margin: 5px 9px 10px 5px;
+  cursor: pointer;
+}
+.appContainer.pollEdit .body .schedules .schedule * {
+  cursor: pointer;
+}
+.appContainer.pollEdit .body .schedules .schedule.total {
+  line-height: 26px;
+  text-align: center;
+  color: #dadada;
+}
+.appContainer.pollEdit .body .schedules .schedule.total .caption {
+  margin-top: 3px;
+}
+.appContainer.pollEdit .body .schedules .schedule.total.active {
+  color: #454545;
+}
+.appContainer.pollEdit .body .schedules .schedule.active {
+  cursor: default;
+  -webkit-box-shadow: 0 0 0 3px #fcee21;
+  box-shadow: 0 0 0 3px #fcee21;
+}
+.appContainer.pollEdit .body .schedules .schedule.active * {
+  cursor: default;
+}
+.appContainer.pollEdit .body .schedules .schedule.active .total {
+  background: rgba(255,255,255,0);
+}
+.appContainer.pollEdit .body .schedules .schedule.active .overlay {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.pollEdit .body .schedules .schedule .total {
+  position: absolute;
+  top: 0;
+  right: 0;
+  line-height: 20px;
+  font-size: 14px;
+  font-weight: bolder;
+  padding: 0 5px;
+  background: rgba(255,255,255,0.7);
+  color: #000;
+  -webkit-transition: background 0.2s ease;
+  -moz-transition: background 0.2s ease;
+  -o-transition: background 0.2s ease;
+  -ms-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+.appContainer.pollEdit .body .schedules .schedule .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.7);
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appContainer.pollEdit .body .schedules .schedule .overlay .timeDate {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  text-align: right;
+  font-size: 13px;
+}
+.appContainer.pollEdit .body .schedules .schedule .overlay .timeDate .time {
+  font-weight: bolder;
+}
+.appContainer.pollEdit .body .answers {
+  padding: 0 15px;
+  margin-bottom: 10px;
+}
+.appContainer.pollEdit .body .answers.results .answer .value {
+  padding-right: 40px;
+}
+.appContainer.pollEdit .body .answers .answer {
+  overflow: hidden;
+}
+.appContainer.pollEdit .body .answers .answer.new .dot,
+.appContainer.pollEdit .body .answers .answer.new .value {
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+}
+.appContainer.pollEdit .body .answers .answer:hover .remove {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.pollEdit .body .answers .answer .dot {
+  position: absolute;
+  top: 11px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  background: #454545;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  z-index: 10;
+}
+.appContainer.pollEdit .body .answers .answer .hidden {
+  opacity: 0.3;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+  filter: alpha(opacity=30);
+}
+.appContainer.pollEdit .body .answers .answer .value {
+  text-indent: 20px;
+  min-width: 30px;
+  line-height: 20px;
+  margin-top: 5px;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appContainer.pollEdit .body .answers .answer .value:focus {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.pollEdit .body .answers .answer .remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.appContainer.pollEdit .body .answers .answer .totalPercent {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.appContainer.pollEdit .body .answers .answer .totalBar {
+  height: 4px;
+  margin-top: 5px;
+  margin-bottom: 7px;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.appContainer.pollEdit .body .answers .answer .button {
+  margin-top: 5px;
+  cursor: pointer;
+}
+.appContainer.pollEdit .body .pollGraph {
+  background: #fff;
+  overflow: hidden;
+}
+.appContainer.pollEdit .body .pollGraph .helper {
+  position: absolute;
+  background: #efefef;
+  -webkit-box-shadow: 0px 0px 2px 0px #454545;
+  box-shadow: 0px 0px 2px 0px #454545;
+  pointer-events: none;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 4px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: right;
+}
+.appContainer.pollEdit .body .pollGraph .helper.visible {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.pollEdit .body .pollGraph .helper .points {
+  font-weight: bolder;
+  font-size: 13px;
+  line-height: 16px;
+  margin: 0 0 3px 0;
+}
+.appContainer.pollEdit .body .pollGraph .helper .time {
+  font-size: 10px;
+}
+.appContainer.pollEdit .body .pollGraph .helper .icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  top: -2px;
+  margin-right: 2px;
+}
+.appContainer.pollEdit .body .pollGraph .helper .icon.likes {
+  background: url("/resources/images/desktop/stats/likes.svg") center center no-repeat;
+}
+.appContainer.pollEdit .body .pollGraph .helper .icon.reposts {
+  background: url("/resources/images/desktop/stats/reposts.svg") center center no-repeat;
+}
+.appContainer.pollEdit .body .pollGraph .helper .icon.comments {
+  background: url("/resources/images/desktop/stats/comments.svg") center center no-repeat;
+}
+.appContainer.pollEdit .body .pollGraph .helper .icon.commLikes {
+  background: url("/resources/images/desktop/stats/commentsLikes.svg") center center no-repeat;
+}
+.appContainer.pollEdit .body .pollGraph .values {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.appContainer.pollEdit .body .pollGraph .values .value {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin-top: -5px;
+  margin-left: -5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 3px solid;
+  background: #fff;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.appContainer.pollEdit .body .pollGraph .values .value:hover {
+  -webkit-transform: scale(1.6);
+  -moz-transform: scale(1.6);
+  -o-transform: scale(1.6);
+  -ms-transform: scale(1.6);
+  transform: scale(1.6);
+}
+.appContainer.pollEdit .body .pollGraph canvas {
+  width: 400px;
+  height: 230px;
+}
+.appContainer.pollEdit .anonymous {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: rgba(255,255,255,0.9);
+  border-top: 1px solid rgba(230,230,230,0.9);
+  line-height: 40px;
+  padding-left: 15px;
+}
+.appContainer.pollEdit .anonymous .bl-checkbox {
+  margin-right: 10px;
+}
+.appContainer.pollEdit .anonymous span {
+  line-height: 40px;
+}

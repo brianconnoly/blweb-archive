@@ -1,0 +1,153 @@
+size 'full'
+
+.logo
+    z-index: 1
+    
+&.mode_loginRules
+    .background
+        opacity 0
+        
+    .logo
+        color: #000
+        .light
+            opacity: 0
+        .dark
+            opacity 1
+            
+    .bottomLinks
+        bottom 0
+        opacity 0
+        pointer-events none
+
+.background
+    size 'full'
+    
+    transition all 0.2s ease
+    
+    img
+        size 'full'
+        width 100%
+        height 100%
+        
+        // vendor filter blur(50px)
+    
+    .colorOverlay
+        size 'full'
+        opacity: 0.7
+        transition background-color 5s ease
+        
+.modeFrame
+    position: absolute
+    width 100%
+    top 50%
+    text-align: center
+    transition all 0.2s ease
+    opacity 1
+    
+    &.hidden
+        pointer-events none
+        opacity 0
+    
+    &.default
+        height 120px
+        margin-top: -60px
+        
+        &.hidden
+            margin-top: 60px
+
+        .buzz
+            display: inline-block
+            margin-top: 20px;
+            height 70px
+            
+            .buzzRuLogo
+                position: relative
+                font-family: 'Impact'
+                text-transform: uppercase;
+                font-size: 70px;
+                color: rgba(255,255,255,0.2);
+                transition all 0.2s ease
+                z-index: 2
+                
+            &:hover
+                .buzzRuLogo
+                    color rgba(255,255,255,0.5)
+                    cursor: pointer
+            
+            .buzzHelper
+                position: relative
+                margin-top: -10px
+                opacity 0
+                color: rgba(255,255,255,0.9)
+                transition all 0.2s ease
+                pointer-events none
+                z-index 1
+                transform scale(0.8)
+                width 170px
+                font-size: 16px
+                
+                &.visible
+                    transform scale(1)
+                    opacity 1
+                    margin-top: 5px
+                    
+
+    &.blLogin, &.newSocial
+        height 350px
+        margin-top -175px
+        
+        &.hidden
+            margin-top: -320px
+
+    &.newSocial
+        text-align: center
+        
+    &.loginRules
+        top 0
+        height 100%
+        margin-top 0
+        &.hidden
+            top 50px
+            
+    .panel
+        display: inline-block
+        width 300px
+        margin: 0 30px
+        vertical-align: middle
+        
+    .headText
+        text-align: center   
+
+        color: #fff
+        font-size 30px      
+
+        width 300px
+        
+.bottomLinks
+    position: absolute
+    width 100%
+    text-align: center
+    
+    color: #fff
+    
+    bottom 30px
+    margin-bottom: 0
+    
+    opacity 1
+    transition all 0.2s ease
+    
+    span
+        opacity 0.5
+    
+    .bottomLink
+        text-decoration: none
+        cursor: pointer
+        font-size 17px
+        margin: 0 5px
+        
+.version
+    position: absolute
+    bottom 10px
+    left 10px
+    color: #fff
+    z-index 1000

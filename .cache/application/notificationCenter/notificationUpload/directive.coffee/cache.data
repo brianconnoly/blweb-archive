@@ -1,0 +1,42 @@
+buzzlike.directive('notificationUpload', function(buffer, contentService, notificationService, stateManager) {
+  return {
+    template: tC['/notificationCenter/notificationUpload'],
+    link: function(scope, element, attrs) {
+      var i, j;
+      scope.previewsCount = 0;
+      scope.previewItems = [];
+      for (i = j = 0; j <= 4; i = ++j) {
+        if (scope.notification.ids[i] != null) {
+          scope.previewItems.push(scope.notification.ids[i]);
+        }
+      }
+      scope.previewsCount = scope.previewItems.length;
+      scope.$watch('notification', function(nVal, oVal) {
+        var k;
+        if (nVal.ids !== oVal.ids) {
+          scope.previewItems.length = 0;
+        }
+        if (scope.previewItems.length === 0 && nVal.ids.length > 0) {
+          for (i = k = 0; k <= 4; i = ++k) {
+            if (nVal.ids[i] != null) {
+              scope.previewItems.push(nVal.ids[i]);
+            }
+          }
+          return scope.previewsCount = scope.previewItems.length;
+        }
+      }, true);
+      return scope.actions = [
+        {
+          phrase: 'take_to_right',
+          action: function() {
+            return notificationService.markRead(scope.notification.id, function() {
+              return contentService.getByIds(scope.notification.ids, function(items) {
+                return buffer.addItems(items);
+              });
+            });
+          }
+        }
+      ];
+    }
+  };
+});

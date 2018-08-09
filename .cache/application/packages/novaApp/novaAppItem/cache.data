@@ -1,0 +1,29 @@
+tC['/novaAppItem/template.jade'] = "<div class=\"itemHandler bg01 bgHover02 borderHover035 border03 noDrag novaItem novaItemDraggable\"></div> <div ng-if=\"item.title\" class=\"itemTitle\">{{item.title}}</div> <div ng-if=\"item.name\" class=\"itemTitle\">{{item.name}}</div> <div ng-if=\"!item.title &amp;&amp; !item.name\" translate=\"'itemApp_' + item.type\" class=\"itemTitle\"></div>";
+
+buzzlike.directive('novaAppItem', function(operationsService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaAppItem/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var loadItem, ref, ref1;
+      loadItem = function() {
+        return operationsService.get(scope.localItem.type, scope.localItem.id, function(item) {
+          return scope.item = item;
+        });
+      };
+      if (scope.flowFrame != null) {
+        if (((ref = scope.flowFrame.item) != null ? ref.type : void 0) != null) {
+          scope.localItem = scope.flowFrame.item;
+          loadItem();
+        }
+        return;
+      }
+      if (((ref1 = scope.session.item) != null ? ref1.type : void 0) != null) {
+        scope.localItem = scope.session.item;
+        return loadItem();
+      }
+    }
+  };
+});
+
+registerStyles('novaAppItem', ".novaAppItem {\n  position: absolute;\n  top: 5px;\n  left: 3px;\n  z-index: 5;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaAppItem .itemHandler {\n  float: left;\n  margin: 3px;\n  width: 12px;\n  height: 12px;\n  border: 1px solid rgba(0,0,0,0.3);\n  -webkit-border-radius: 2px;\n  border-radius: 2px;\n}\n.novaAppItem .itemTitle {\n  font-size: 12px;\n  font-weight: bolder;\n  height: 20px;\n  line-height: 21px;\n  margin: 3px;\n}\n");

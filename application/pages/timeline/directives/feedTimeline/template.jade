@@ -1,0 +1,32 @@
+li.feedTimeline(ng-class="{'faded': (status == -1)}")
+    div.contextMenu.head(stripe-color, title="{{item.name}}", ng-mouseenter="hideTimebar($event)", ng-mouseleave="showTimebar($event)", ng-dblclick="openCommunity()")
+        div.noDigest.showCalendar.datePicker.ios-nodelay.tl_opencalendar(ng-model="group.startDay", jump="jumpScroll()")
+        div.photoContainer.feedSort
+            div.socialNetwork(ng-if="!item.photo") {{::item.socialNetwork}}
+            img.picPreload.picture.tl_dragtimeline(ng-src="{{::proxyImage(item.photo)}}")
+            div.photoOverlay(style="background:{{::snColor(item.socialNetwork)}}")
+                div.menuTrigger(ng-click="showFeedMenu($event)")
+                div.sn {{::item.socialNetwork}}
+        //- div.headButton(ng-click="goNow($event)", translate="'timelineApp_goNow'", style="border-bottom: 1px solid {{::snColor(item.socialNetwork)}}")
+        div.headButton.datePicker(ng-model="group.startDay", jump="jumpScroll()", translate="'timelineApp_calendar'", style="border-bottom: 1px solid {{::snColor(item.socialNetwork)}}")
+        switcher.headButton.glue.ios-nodelay(ng-model="group.glued")
+            span(option=0, translate="'timelineApp_glue0'")
+            span(option=1, translate="'timelineApp_glue1'")
+            span(option=2, translate="'timelineApp_glue2'")
+        //- div.removeBox.ios-nodelay(ng-click="removeFeedFromGroup($event)")
+        //-     div.day {{::group.date.day}}
+        //-     div.date {{::group.date.date}}
+        //-     div.month {{::group.date.month}}
+        //- div.feedSort.ios-nodelay
+        
+
+    ul.intervals.tl_intervaltime
+
+    div.timebar
+        div.time
+
+    div.touchBar
+        div.time
+        div.picker.ios-nodelay(ng-click="pickPost()") +
+        div.leftArrow.ios-nodelay(ng-click="stepDown()") -5
+        div.rightArrow.ios-nodelay(ng-click="stepUp()") +5

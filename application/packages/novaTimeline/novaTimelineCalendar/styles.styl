@@ -1,0 +1,133 @@
+overflow hidden
+
+.calendar
+    position absolute
+    width 180px
+    top 5px
+    left 5px
+    bottom 0
+
+    .monthSwitcher
+        padding-left 40px
+        height 30px
+
+        .monthBar
+            line-height 30px
+            font-size 13px
+            text-align center
+            text-transform capitalize
+            color #000
+            font-weight 400
+
+        .rightArrow, .leftArrow
+            line-height 30px
+            z-index 1
+
+            cursor pointer
+
+        .rightArrow
+            float right
+
+        .leftArrow
+            float left
+
+    .weekDays
+        overflow hidden
+        width 100%
+        padding-left 40px
+        .day
+            font-size 11px
+            color #999999
+            text-transform uppercase
+            float left
+            width 20px
+            height 20px
+            line-height 20px
+            text-align center
+
+    .weekLine
+        overflow hidden
+        width 100%
+        .weekNumber
+            float left
+
+            width 18px
+            height 14px
+
+            margin 3px 11px
+
+            font-size 11px
+            text-align center
+            line-height 15px
+            color #000
+
+            &.current
+                background #ccc
+                color #fff
+                border-radius 3px
+
+            &.grey
+                color #ccc
+
+        .calendarDay
+            float left
+            width 18px
+            height 18px
+            margin 1px
+            text-align center
+            font-size 11px
+            line-height 19px
+            font-weight 400
+            cursor pointer
+
+            &.current
+                background #FF0000
+                color #fff
+                border-radius 10px
+                cursor default
+
+            &.grey
+                color #999
+                font-weight 300
+.stats
+    position absolute
+    right 19px
+    bottom 0
+    top 0
+    left 185px
+
+    .header
+        text-align right
+        font-size 13px
+        color #000
+        font-weight 400
+
+        margin 10px 0
+        margin-top 13px
+        height 16px
+        line-height 16px
+
+    .statBlock
+        margin-bottom 10px
+        .statHead
+            font-size 10px
+            line-height 15px
+            height 15px
+            text-align right
+            font-weight 400
+            &.cap
+                text-transform capitalize
+        .statsValue
+            line-height 15px
+            height 15px
+            font-size 12px
+
+            .percent
+                float left
+                width 50px
+                text-align right
+                font-weight 400
+
+            .value
+                text-align right
+                font-weight 400

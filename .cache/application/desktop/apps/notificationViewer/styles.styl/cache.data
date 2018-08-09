@@ -1,0 +1,75 @@
+.appContainer.notificationViewer {
+  background: #fff;
+}
+.appContainer.notificationViewer .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.notificationViewer .body .notificationItem {
+  border-top: 1px solid #ececec;
+}
+.appContainer.notificationViewer .body .notificationItem:last-child {
+  border-bottom: 1px solid #ececec;
+}
+.appContainer.notificationViewer .body .filters {
+  width: 100%;
+  position: relative;
+  left: 20px;
+  top: 10px;
+  font-size: 22px;
+}
+.appContainer.notificationViewer .body .list {
+  margin: 20px auto;
+  width: 400px;
+}
+.appContainer.notificationViewer .body .list .big {
+  height: 100px;
+  margin-bottom: 3px;
+  background: rgba(240,240,240,0.3);
+}
+.appContainer.notificationViewer .body .paginator {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  padding-top: 20px;
+  background: #fff;
+  text-align: center;
+}
+.appContainer.notificationViewer .body .paginator .activator {
+  cursor: pointer;
+}
+.appContainer.notificationViewer .body .paginator .right {
+  position: absolute;
+  right: 20px;
+}
+.appContainer.notificationViewer .body .paginator .left {
+  position: absolute;
+  left: 20px;
+}
+.appContainer.notificationViewer .body .paginator .goPage {
+  display: inline-block;
+  margin: 0 8px;
+  opacity: 0.8;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+  filter: alpha(opacity=80);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+  font-size: 20px;
+}
+.appContainer.notificationViewer .body .paginator .goPage:hover {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.notificationViewer .body .paginator .goPage.active {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  cursor: default;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+}

@@ -1,0 +1,43 @@
+overflow: hidden
+float: left
+
+.addButton
+    float: left
+    cursor: pointer
+    font-size: 30px
+    color: rgba(255,255,255,0.5)
+    line-height: 31px
+    margin-right: 3px
+    transition all 0.2s ease
+    width 20px
+    text-align: center
+    
+    &:hover
+        color: rgba(255,255,255,0.9)
+
+    &.recent
+        right 15px
+        opacity 0
+        font-size 18px
+        line-height: 41px
+        margin: 0 3px
+        
+&.active
+    .addButton
+        color: rgba(255,255,255,0.9)
+        &.recent
+            right 15px
+            opacity 0
+        
+
+.recent
+    position: relative
+    color: rgba(255,255,255,0.4)
+    width 20px
+    text-align: center
+    font-weight: bolder
+
+&:hover
+    .recent
+        opacity 1
+        right 0

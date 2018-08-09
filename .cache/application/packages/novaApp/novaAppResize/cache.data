@@ -1,0 +1,88 @@
+buzzlike.directive('novaAppResize', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var body, elem, flushResize, parent;
+      elem = $(element);
+      parent = elem.parent();
+      body = $('body');
+      flushResize = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        scope.resized(scope.session.size.width, scope.session.size.height);
+        body[0].onmousemove = null;
+        body.off('mouseup.resizeWindow');
+        scope.stateSaver.save('size');
+        return scope.$apply();
+      };
+      return elem.on('mousedown.resizeWindow', function(e) {
+        var bottomGuide, rightGuide, type;
+        e.preventDefault();
+        rightGuide = scope.session.position.x + scope.session.size.width;
+        bottomGuide = scope.session.position.y + scope.session.size.height;
+        type = "bottom";
+        if (element.hasClass('bottom')) {
+          type = 'bottom';
+        } else if (element.hasClass('right')) {
+          type = 'right';
+        } else if (element.hasClass('left')) {
+          type = 'left';
+        } else if (element.hasClass('top')) {
+          type = 'top';
+        } else if (element.hasClass('topleft')) {
+          type = 'topleft';
+        } else if (element.hasClass('topright')) {
+          type = 'topright';
+        } else if (element.hasClass('bottomleft')) {
+          type = 'bottomleft';
+        } else if (element.hasClass('bottomright')) {
+          type = 'bottomright';
+        }
+        body[0].onmousemove = function(e) {
+          var ref, ref1, ref2, ref3, ref4, ref5;
+          if (e.which === 0) {
+            flushResize(e);
+            return;
+          }
+          switch (type) {
+            case 'bottom':
+              scope.setHeight(e.clientY - (((ref = scope.session.position) != null ? ref.y : void 0) || 0), true);
+              break;
+            case 'right':
+              scope.setWidth(e.clientX - (((ref1 = scope.session.position) != null ? ref1.x : void 0) || 0), true);
+              break;
+            case 'left':
+              scope.setPosition(e.clientX, scope.session.position.y, true);
+              scope.setWidth(rightGuide - e.clientX, true);
+              break;
+            case 'top':
+              scope.setPosition(scope.session.position.x, e.clientY, true);
+              scope.setHeight(bottomGuide - e.clientY, true);
+              break;
+            case 'topleft':
+              scope.setPosition(scope.session.position.x, e.clientY, true);
+              scope.setHeight(bottomGuide - e.clientY, true);
+              scope.setPosition(e.clientX, scope.session.position.y, true);
+              scope.setWidth(rightGuide - e.clientX, true);
+              break;
+            case 'topright':
+              scope.setPosition(scope.session.position.x, e.clientY, true);
+              scope.setHeight(bottomGuide - e.clientY, true);
+              scope.setWidth(e.clientX - (((ref2 = scope.session.position) != null ? ref2.x : void 0) || 0), true);
+              break;
+            case 'bottomleft':
+              scope.setHeight(e.clientY - (((ref3 = scope.session.position) != null ? ref3.y : void 0) || 0), true);
+              scope.setPosition(e.clientX, scope.session.position.y, true);
+              scope.setWidth(rightGuide - e.clientX, true);
+              break;
+            case 'bottomright':
+              scope.setHeight(e.clientY - (((ref4 = scope.session.position) != null ? ref4.y : void 0) || 0), true);
+              scope.setWidth(e.clientX - (((ref5 = scope.session.position) != null ? ref5.x : void 0) || 0), true);
+          }
+          return typeof scope.resizeInProgress === "function" ? scope.resizeInProgress(scope.session.size.width, scope.session.size.height) : void 0;
+        };
+        return body.on('mouseup.resizeWindow', flushResize);
+      });
+    }
+  };
+});

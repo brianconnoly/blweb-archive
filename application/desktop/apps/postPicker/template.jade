@@ -1,0 +1,51 @@
+div.dragHandler.topBar.noMaximize.noSettings
+    process-bar
+    div.appControls
+    div.title(translate="'postPickerApp_title'")
+
+div.body
+    div.scheduleInformation
+        
+        div.communityPic
+            img.picPreload(src="{{community.photo}}")
+
+        div.info
+            div.communityName {{community.name}}
+            div.timeInfo
+                div.timePicker.tl_postpickertime(ng-model="state.timestamp")
+                div.datePicker(ng-model="state.timestamp", dateonly="true", options="rightSide") 
+                    div {{date | timestampMask: "DD"}}
+                    div {{date | timestampMask: "MMM"}}
+                    div {{date | timestampMask: "YYYY"}}
+                
+
+    div.postShelf(antiscroll)
+        
+        div.shelfTitle(translate="'postPickerApp_createNew'")
+
+        div.upperBlocks.shelf.ios-scroll
+
+            div.itemSquare(title="{{localization.translate('postpicker_newpost')}}")
+                div.pickerItem.addNew(ng-click="pick(newpost)", translate="'postPickerApp_newPost'")
+
+            div.itemSquare(ng-show="session.groupId", title="{{localization.translate('postpicker_newcomb')}}")
+                div.pickerItem.addComb(ng-click="pick(newcomb)", translate="'postPickerApp_newComb'")
+
+            div.itemSquare(ng-show="session.placeholder != false", title="{{localization.translate('postpicker_newplaceholder')}}")
+                div.pickerItem.addMediaplan(ng-click="pick(placeholder, null, $event)", translate="'postPickerApp_newRule'")
+        
+        div.shelfTitle(ng-show="makeArray(favourites).length > 0", translate="'postPickerApp_favorites'")
+
+        div.favouriteBlocks.shelf(ng-show="makeArray(favourites).length > 0")
+            div.itemSquare(ng-repeat="fav in favourites")
+                div.pickerItem.postSelectorItem(ng-click="pick(fav.lotId, 'lot')", type="lot")
+                    div.unFavourite(ng-click="unFavourite(fav.id, $event)") &#9733;
+                    div.itemPreview(type="lot", id="fav.lotId")
+        
+        div.shelfTitle(translate="'postPickerApp_myPosts'", ng-show="makeArray(posts).length > 0")
+
+        div.postBlocks.shelf
+            div.itemSquare(ng-repeat="iterator in makeArray(posts) | filter:pickerFilter | reverse")
+                div.pickerItem.postSelectorItem(ng-click="pick(iterator.id, 'post')", type="post")
+                    div.itemPreview(type="post", id="iterator.id")
+

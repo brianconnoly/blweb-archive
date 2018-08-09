@@ -1,0 +1,6 @@
+div.pickerBody
+    div.pickerItem.novaItem.novaItemPreview(
+        ng-repeat="item in items track by item.id",
+        ng-click="wizard.pick(item)",
+        ng-class="{'picked':wizard.isPicked(item)}"
+        nova-item-preview-type="square")

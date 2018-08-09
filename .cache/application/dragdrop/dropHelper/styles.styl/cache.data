@@ -1,0 +1,34 @@
+#dropHelper {
+  z-index: 99999;
+  position: absolute;
+  color: #fff;
+  display: none;
+}
+#dropHelper .menuTimeInfo {
+  display: none;
+  background: rgba(0,0,0,0.6);
+}
+#dropHelper .list {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background: #fff;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+  box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+}
+#dropHelper .action {
+  padding: 3px 22px;
+  height: 18px;
+  color: #000;
+  line-height: 18px;
+  font-size: 14px;
+  cursor: pointer;
+}
+#dropHelper .action span {
+  cursor: pointer;
+}
+#dropHelper .action:hover {
+  color: #fff;
+  background: rgba(57,181,74,0.97);
+}

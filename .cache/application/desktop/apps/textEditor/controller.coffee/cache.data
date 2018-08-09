@@ -1,0 +1,90 @@
+buzzlike.controller('textEditorCtrl', function($scope, desktopService, account, buffer, stateManager, localStorageService, contentService, operationsService) {
+  var patchCode, process, ref;
+  $scope.session.expandedHeader = false;
+  patchCode = account.user.id + getRandomInt(10000, 99999) + Date.now();
+  $scope.params = {
+    editedText: ""
+  };
+  if (((ref = $scope.session.textId) != null ? ref.length : void 0) > 0) {
+    process = $scope.progress.add();
+    $scope.text = contentService.getById($scope.session.textId, function(textItem) {
+      operationsService.setLastPatch(textItem.id);
+      $scope.params.editedText = textItem.value;
+      textItem.patch = null;
+      return $scope.progress.finish(process);
+    });
+  } else {
+    $scope.text = {
+      name: '',
+      type: 'text',
+      value: ''
+    };
+  }
+  $scope.stateTree.applyState({
+    enter: 'default',
+    'enter cmd': function() {
+      return $scope.closeApp();
+    },
+    "delete": 'default',
+    escape: $scope.closeApp
+  });
+  $scope.onClose(function() {
+    $scope.textChanged();
+    return true;
+  });
+  $scope.$watch('text.value', function(nVal) {
+    if (nVal != null) {
+      return $scope.params.editedText = nVal;
+    }
+  });
+  return $scope.textChanged = function() {
+    var ref1;
+    if (((ref1 = $scope.text) != null ? ref1.id : void 0) != null) {
+      process = $scope.progress.add();
+      return contentService.save({
+        id: $scope.text.id,
+        value: $scope.params.editedText,
+        type: 'text'
+      }, function(res) {
+        $scope.text.value = $scope.params.editedText;
+        $scope.text.patch = null;
+        if ($scope.session.proposedPost != null) {
+          return rpc.call({
+            method: 'post.saveSuggestedPost',
+            data: $scope.session.proposedPost,
+            anyway: function() {
+              return $scope.progress.finish(process);
+            }
+          });
+        } else {
+          return $scope.progress.finish(process);
+        }
+      });
+    } else if ($scope.params.editedText.length > 0 || $scope.text.name.length) {
+      if ($scope.text.value === $scope.params.editedText) {
+        return;
+      }
+      $scope.text.value = $scope.params.editedText;
+      process = $scope.progress.add();
+      return contentService.create($scope.text, function(textItem) {
+        $scope.text.patch = null;
+        $scope.text = textItem;
+        buffer.addItem(textItem);
+        $scope.session.textId = textItem.id;
+        desktopService.saveState();
+        $scope.stateSaver.save();
+        return $scope.progress.finish(process);
+      });
+    }
+  };
+}).directive('textEditorFocus', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      setTimeout(function() {
+        return $(element).focus();
+      });
+      return true;
+    }
+  };
+});

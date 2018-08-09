@@ -1,0 +1,9 @@
+div.message(ng-bind-html="localization.translate(session.data.text) || session.data.realText")
+div.description(ng-if="session.data.description") {{localization.translate(session.data.description)}}
+div.buttons
+    div.novaButton(  ng-repeat="option in session.data.options",
+                ng-class="{'active':$index==session.data.selected}",
+                class="{{option.class}}",
+                ng-click="fire(option)",
+                ng-if="check(option)",
+                ng-mousemove="select($index)") {{localization.translate( option.text ) || option.realText}}

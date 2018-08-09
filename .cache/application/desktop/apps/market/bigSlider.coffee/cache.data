@@ -1,0 +1,210 @@
+buzzlike.directive('bigSlider', function(desktopService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var _lockTime, elem, fn, goSlide, handler, i, interval, j, len, lock, slide, slides;
+      elem = $(element);
+      interval = 15 * SEC;
+      scope.currentSlide = 0;
+      scope.slides = slides = [
+        {
+          background: '#b3b3b3',
+          src: '/resources/images/desktop/market/honeyflows-offer.svg',
+          lotPreview: '54946f6cb4cf006436dde9ba'
+        }, {
+          background: '#8cd019',
+          src: '/resources/images/desktop/market/rawcafe-category.svg',
+          step: {
+            background: '#8cd019',
+            src: '/resources/images/desktop/market/rawcafe-category.svg',
+            translateTitle: 'marketApp_category_3',
+            itemType: 'lot',
+            fetchOnUpdate: true,
+            query: {
+              categoryIds: 2,
+              sortBy: 'lastUpdated',
+              sortOrder: 'desc'
+            }
+          }
+        }, {
+          background: '#f2f2f2',
+          src: '/resources/images/desktop/market/prolong-category.svg',
+          step: {
+            background: '#f2f2f2',
+            src: '/resources/images/desktop/market/prolong-category.svg',
+            translateTitle: 'marketApp_category_2',
+            itemType: 'lot',
+            fetchOnUpdate: true,
+            query: {
+              categoryIds: 3,
+              sortBy: 'lastUpdated',
+              sortOrder: 'desc'
+            }
+          }
+        }
+      ];
+      fn = function(slide, i) {
+        var slideElem;
+        slideElem = $("<div class='slide' style='background:" + slide.background + " url(\"" + slide.src + "\") center center no-repeat'></div>");
+        slide.elem = slideElem;
+        elem.append(slideElem);
+        if (slide.step != null) {
+          slideElem.addClass('clickable');
+          slideElem.on('click', function() {
+            scope.goSection(slide.step);
+            return scope.$apply();
+          });
+        }
+        if (slide.lotPreview != null) {
+          slideElem.addClass('clickable');
+          slideElem.on('click', function() {
+            desktopService.launchApp('lotPreview', {
+              lotId: slide.lotPreview
+            });
+            return scope.$apply();
+          });
+        }
+        if (i !== scope.currentSlide) {
+          return slideElem.addClass('hideRight');
+        } else {
+          return slideElem.addClass('active');
+        }
+      };
+      for (i = j = 0, len = slides.length; j < len; i = ++j) {
+        slide = slides[i];
+        fn(slide, i);
+      }
+      _lockTime = Date.now();
+      lock = function() {
+        var now;
+        now = Date.now();
+        if (now - _lockTime < 500) {
+          return false;
+        }
+        _lockTime = Date.now();
+        return true;
+      };
+      goSlide = function(id) {
+        var k, len1, next, prev, results;
+        scope.currentSlide = id;
+        if (scope.currentSlide > slides.length - 1) {
+          scope.currentSlide = 0;
+        }
+        next = scope.currentSlide + 1;
+        prev = scope.currentSlide - 1;
+        if (next > slides.length - 1) {
+          next = 0;
+        }
+        if (prev < 0) {
+          prev = slides.length - 1;
+        }
+        results = [];
+        for (i = k = 0, len1 = slides.length; k < len1; i = ++k) {
+          slide = slides[i];
+          if (i === prev) {
+            slide.elem.removeClass('hideRight');
+            slide.elem.addClass('hideLeft');
+            results.push(slide.elem.removeClass('active'));
+          } else if (i === scope.currentSlide) {
+            slide.elem.removeClass('hideRight');
+            slide.elem.removeClass('hideLeft');
+            results.push(slide.elem.addClass('active'));
+          } else if (i === next) {
+            slide.elem.addClass('hideRight');
+            slide.elem.removeClass('hideLeft');
+            results.push(slide.elem.removeClass('active'));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      scope.slideRight = (function(_this) {
+        return function() {
+          if (!lock()) {
+            return;
+          }
+          return goSlide(scope.currentSlide + 1);
+        };
+      })(this);
+      scope.slideLeft = function() {
+        var k, len1, next, prev, results;
+        if (!lock()) {
+          return;
+        }
+        scope.currentSlide--;
+        if (scope.currentSlide < 0) {
+          scope.currentSlide = slides.length - 1;
+        }
+        next = scope.currentSlide - 1;
+        prev = scope.currentSlide + 1;
+        if (prev > slides.length - 1) {
+          prev = 0;
+        }
+        if (next < 0) {
+          next = slides.length - 1;
+        }
+        results = [];
+        for (i = k = 0, len1 = slides.length; k < len1; i = ++k) {
+          slide = slides[i];
+          if (i === prev) {
+            slide.elem.removeClass('hideLeft');
+            slide.elem.addClass('hideRight');
+            results.push(slide.elem.removeClass('active'));
+          } else if (i === scope.currentSlide) {
+            slide.elem.removeClass('hideLeft');
+            slide.elem.removeClass('hideRight');
+            results.push(slide.elem.addClass('active'));
+          } else if (i === next) {
+            slide.elem.addClass('hideLeft');
+            slide.elem.removeClass('hideRight');
+            results.push(slide.elem.removeClass('active'));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      scope.selectSlide = function(id) {
+        var k, len1, results;
+        if (!lock()) {
+          return;
+        }
+        scope.currentSlide = id;
+        if (scope.currentSlide > slides.length - 1) {
+          scope.currentSlide = 0;
+        }
+        results = [];
+        for (i = k = 0, len1 = slides.length; k < len1; i = ++k) {
+          slide = slides[i];
+          if (i < scope.currentSlide) {
+            slide.elem.removeClass('hideRight');
+            slide.elem.addClass('hideLeft');
+            results.push(slide.elem.removeClass('active'));
+          } else if (i === scope.currentSlide) {
+            slide.elem.removeClass('hideRight');
+            slide.elem.removeClass('hideLeft');
+            results.push(slide.elem.addClass('active'));
+          } else if (i > scope.currentSlide) {
+            slide.elem.addClass('hideRight');
+            slide.elem.removeClass('hideLeft');
+            results.push(slide.elem.removeClass('active'));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      handler = setInterval(function() {
+        if (Date.now() - _lockTime < interval) {
+          return;
+        }
+        scope.slideRight();
+        return scope.$apply();
+      }, interval);
+      return scope.$on('$destroy', function() {
+        return clearInterval(handler);
+      });
+    }
+  };
+});

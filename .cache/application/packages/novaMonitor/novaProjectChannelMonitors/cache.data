@@ -1,0 +1,70 @@
+tC['/novaProjectChannelMonitors/template.jade'] = "<div translate=\"'novaProjectChannelMonitors_canvas'\" ng-click=\"openCanvas()\" ng-class=\"{'active':flow.currentCode=='novaSocialCanvas'}\" class=\"title\"></div> <div translate=\"moduleName\" ng-click=\"activateAll()\" class=\"title\"></div> <div ng-repeat=\"channel in channels | filter:channelFilter\" ng-click=\"activateChannel(channel)\" ng-class=\"{'active':channelActive(channel)}\" class=\"subItem\"> <div ng-click=\"channelSettings(channel, $event)\" class=\"settings\"></div> <div class=\"subTitle\">{{channel.name}}</div> </div>";
+
+buzzlike.directive('novaProjectChannelMonitors', function(groupService, updateService, channelMonitorService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectChannelMonitors/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.moduleName = 'novaProjectChannelMonitor_title_single';
+      scope.monitors = channelMonitorService.getByProjectId(scope.session.item.id);
+      scope.moduleName = 'novaProjectChannelMonitor_title_single';
+      scope.channelFilter = function(channel) {
+        return channel.deleted !== true;
+      };
+      scope.channelActive = function(channel) {
+        return scope.flow.currentCode === 'channelMonitor' + channel.id;
+      };
+      scope.activateChannel = function(monitor) {
+        return scope.flow.addFrame({
+          title: 'channelMonitor',
+          directive: 'novaChannelMonitorFrame',
+          item: {
+            id: monitor.id,
+            type: 'group'
+          },
+          data: {
+            groupId: monitor.id
+          },
+          code: 'channelTimeline' + monitor.id
+        }, true);
+      };
+      scope.openCanvas = function() {
+        return scope.flow.addFrame({
+          title: 'socialCanvas',
+          translateTitle: 'novaSocialCanvas_title',
+          directive: 'novaSocialCanvasFrame',
+          code: 'novaSocialCanvas'
+        }, true);
+      };
+      scope.activateAll = function() {
+        var channel, i, len, ref;
+        if (scope.channels.length === 1) {
+          scope.activateChannel(scope.channels[0]);
+        } else {
+          ref = scope.channels;
+          for (i = 0, len = ref.length; i < len; i++) {
+            channel = ref[i];
+            scope.activateChannel(channel, true);
+          }
+        }
+        return true;
+      };
+      return scope.channelSettings = function(monitor, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return scope.flow.addFrame({
+          title: 'channelMonitor',
+          directive: 'novaChannelMonitorSettingsFrame',
+          item: {
+            id: monitor.id,
+            type: 'group'
+          }
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectChannelMonitors', ".novaProjectChannelMonitors.empty {\n  display: none;\n}\n.novaProjectChannelMonitors.single .subItem {\n  display: none;\n}\n");

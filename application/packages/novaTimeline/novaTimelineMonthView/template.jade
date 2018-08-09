@@ -1,0 +1,4 @@
+div.timeBox
+    div.month {{::block.timestamp | timestampMask:'MMMM'}}
+    div.day {{::block.timestamp | timestampMask:'D'}}
+    div.weekDay {{::block.timestamp | timestampMask:'d'}}

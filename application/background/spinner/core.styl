@@ -1,0 +1,20 @@
+@keyframes spin
+    0%
+        transform: rotate(0deg)
+
+    100%
+        transform: rotate(360deg)
+
+
+.png-spinner
+    display none
+    size 'full'
+    z-index 11111
+    background #fff
+
+    .image
+        size 'center' 100px 100px
+        animation spin linear 1s infinite;
+
+    &.active
+        display block

@@ -1,0 +1,18 @@
+buzzlike.directive('communityTitle', function(communityService) {
+  return {
+    restrict: 'C',
+    scope: {
+      communityId: '='
+    },
+    template: tC['/filterCatalog/filterView/communityTitle'],
+    link: function(scope, element, attrs) {
+      scope.communityData = {};
+      scope.$watch('communityId', function(nVal, oVal) {
+        return communityService.getById(scope.communityId, function(data) {
+          return scope.communityData = data;
+        });
+      });
+      return true;
+    }
+  };
+});

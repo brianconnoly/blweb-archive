@@ -1,0 +1,16 @@
+.postPage2 .mainBlock {
+  width: 80%;
+  height: 100%;
+  display: inline-block;
+  margin: 0 auto;
+}
+.postPage2 .mainBlock iframe {
+  height: 100%;
+  width: 100%;
+  background: #000;
+  -webkit-animation: show ease 1s;
+  -moz-animation: show ease 1s;
+  -o-animation: show ease 1s;
+  -ms-animation: show ease 1s;
+  animation: show ease 1s;
+}

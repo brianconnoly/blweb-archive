@@ -1,0 +1,137 @@
+.appContainer.postPicker {
+  background: #3285b6;
+}
+.appContainer.postPicker .scroll-bottom,
+.appContainer.postPicker .scroll-right {
+  background: rgba(50,133,182,0.8) !important;
+}
+.appContainer.postPicker .body {
+  background: #f2f2f2;
+}
+.appContainer.postPicker div.postShelf {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  overflow-y: auto;
+}
+.appContainer.postPicker div.postShelf .shelfTitle {
+  text-align: left;
+  margin: 5px 20px 2px;
+}
+.appContainer.postPicker div.postShelf div.itemSquare {
+  display: inline-block;
+  position: relative;
+  height: 50px;
+  width: 70px;
+  margin: 2px;
+}
+.appContainer.postPicker div.postShelf div.itemSquare div.unFavourite {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: #ff0;
+  cursor: pointer;
+  z-index: 650;
+}
+.appContainer.postPicker div.postShelf div.shelf {
+  overflow: hidden;
+  float: none;
+  padding: 10px 20px;
+}
+.appContainer.postPicker .upperBlocks .pickerItem {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border: 1px solid #494949;
+  color: #494949;
+  text-align: center;
+  font-size: 11px;
+  line-height: 10px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  padding: 13px 10px;
+}
+.appContainer.postPicker div.scheduleInformation {
+  overflow: hidden;
+  height: 80px;
+  position: absolute;
+  top: 0px;
+  left: 0;
+  right: 0;
+  margin: 10px 20px;
+}
+.appContainer.postPicker div.scheduleInformation .communityPic {
+  float: left;
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
+}
+.appContainer.postPicker div.scheduleInformation .info {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 72px;
+}
+.appContainer.postPicker div.scheduleInformation .info .communityName {
+  font-size: 15px;
+  height: 20px;
+  line-height: 20px;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #494949;
+}
+.appContainer.postPicker div.scheduleInformation div.timeInfo {
+  margin-top: -3px;
+}
+.appContainer.postPicker div.scheduleInformation div.timeInfo div.timePicker {
+  float: left;
+  margin-right: 15px;
+  height: 42px;
+}
+.appContainer.postPicker div.scheduleInformation div.timeInfo div.timePicker input {
+  width: 46px;
+  height: 46px;
+  font-size: 42px;
+  line-height: 46px;
+  color: #494949;
+}
+.appContainer.postPicker div.scheduleInformation div.timeInfo div.timePicker span {
+  margin: 0;
+  font-size: 42px;
+  color: #494949;
+}
+.appContainer.postPicker div.scheduleInformation div.timeInfo div.datePicker {
+  background: none;
+  color: #494949;
+  font-size: 12px;
+  line-height: 10px;
+  margin-top: 12px;
+  float: left;
+}
+.appContainer.postPicker div.pickerItem {
+  cursor: pointer;
+  width: 70px;
+  height: 50px;
+  display: block;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  position: relative;
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  -ms-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+  margin: 0 auto;
+}
+.appContainer.postPicker div.pickerItem * {
+  cursor: pointer;
+}
+.appContainer.postPicker div.pickerItem.combPost img {
+  width: 150px;
+}

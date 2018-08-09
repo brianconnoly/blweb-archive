@@ -1,0 +1,281 @@
+buzzlike.directive('proposedItem', function(contentService, postService, userService, desktopService, scheduleService, ugcService, notificationCenter, ruleService, confirmBox) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var counter, doSchedule, i, id, ids, len, loadMore, recountArrows, ref, type;
+      scope.goOwnerPage = function() {
+        var acc, i, len, ref, usr;
+        usr = scope.user || scope.item;
+        ref = usr.accounts;
+        for (i = 0, len = ref.length; i < len; i++) {
+          acc = ref[i];
+          if (acc.socialNetwork === 'vk') {
+            openCommunityPage({
+              communityType: 'profile',
+              socialNetwork: acc.socialNetwork,
+              socialNetworkId: acc.publicId
+            });
+            return;
+          }
+        }
+        acc = usr.accounts[0];
+        return openCommunityPage({
+          communityType: 'profile',
+          socialNetwork: acc.socialNetwork,
+          socialNetworkId: acc.publicId
+        });
+      };
+      if (scope.item.type === 'user') {
+        return true;
+      }
+      scope.actionsMode = 'default';
+      scope.schedParams = {};
+      scope.schedParams.scheduleTimestamp = toMinutes(Date.now());
+      if (scope.item.proposeStatus === 'published') {
+        scope.actionsMode = 'used';
+      }
+      scope.switchMode = function(mode) {
+        var reqTime;
+        scope.actionsMode = mode;
+        if (mode === 'planner') {
+          scope.schedParams.scheduleTimestamp = scope.lastPlanned;
+          if (scope.schedParams.scheduleTimestamp < Date.now() + (2 * MIN)) {
+            scope.schedParams.scheduleTimestamp = toMinutes(Date.now() + (2 * MIN));
+          }
+        }
+        if (mode === 'mediaplanner') {
+          reqTime = toMinutes(Date.now());
+          return ruleService.call('getNextPlaceholders', {
+            communityId: scope.currentCollector.communityId,
+            timestamp: reqTime
+          }, function(res) {
+            var diff, i, len, ref, time;
+            scope.schedParams.data = res;
+            diff = null;
+            ref = res.timestamps;
+            for (i = 0, len = ref.length; i < len; i++) {
+              time = ref[i];
+              if (diff === null || Math.abs(reqTime - time) < diff) {
+                scope.schedParams.scheduleTimestamp = time;
+                diff = Math.abs(reqTime - time);
+              }
+            }
+            return recountArrows();
+          });
+        }
+      };
+      recountArrows = function() {
+        var index;
+        index = scope.schedParams.data.timestamps.indexOf(scope.schedParams.scheduleTimestamp);
+        if (index > 0) {
+          scope.schedParams.canGoLeft = true;
+        } else {
+          scope.schedParams.canGoLeft = false;
+        }
+        if (index < scope.schedParams.data.timestamps.length - 1) {
+          return scope.schedParams.canGoRight = true;
+        } else {
+          return scope.schedParams.canGoRight = false;
+        }
+      };
+      scope.nextTime = function() {
+        var index;
+        index = scope.schedParams.data.timestamps.indexOf(scope.schedParams.scheduleTimestamp);
+        if (scope.schedParams.data.timestamps.length >= index + 1) {
+          scope.schedParams.scheduleTimestamp = scope.schedParams.data.timestamps[index + 1];
+        }
+        if (scope.schedParams.data.timestamps.length - 1 - (index + 1) < 3) {
+          loadMore();
+        }
+        return recountArrows();
+      };
+      scope.prevTime = function() {
+        var index;
+        index = scope.schedParams.data.timestamps.indexOf(scope.schedParams.scheduleTimestamp);
+        if (index - 1 >= 0) {
+          scope.schedParams.scheduleTimestamp = scope.schedParams.data.timestamps[index - 1];
+        }
+        if (index < 3) {
+          loadMore();
+        }
+        return recountArrows();
+      };
+      counter = 0;
+      loadMore = function() {
+        var fireCallBack;
+        counter++;
+        fireCallBack = function(cnt) {
+          return function(res) {
+            if (cnt !== counter) {
+              console.log('cancelled', cnt);
+              return;
+            }
+            scope.schedParams.data = res;
+            return recountArrows();
+          };
+        };
+        return ruleService.call('getNextPlaceholders', {
+          communityId: scope.currentCollector.communityId,
+          timestamp: scope.schedParams.scheduleTimestamp
+        }, fireCallBack(counter));
+      };
+      scope.jumpTime = function(time) {
+        scope.schedParams.scheduleTimestamp = time;
+        scope.schedParams.canGoRight = false;
+        scope.schedParams.canGoLeft = false;
+        return ruleService.call('getNextPlaceholders', {
+          communityId: scope.currentCollector.communityId,
+          timestamp: time
+        }, function(res) {
+          var i, len, ref;
+          scope.schedParams.data = res;
+          console.log('Time arrived:');
+          ref = res.timestamps;
+          for (i = 0, len = ref.length; i < len; i++) {
+            time = ref[i];
+            console.log('   ', new Date(time), 'right:', res.jumpRight[time], 'left:', res.jumpLeft[time], 'rule:', res.rule[time]);
+          }
+          return recountArrows();
+        });
+      };
+      doSchedule = function() {
+        return scheduleService.create({
+          scheduleType: 'post',
+          timestamp: scope.schedParams.scheduleTimestamp,
+          postId: scope.item.id,
+          communityId: scope.currentCollector.communityId
+        }, function() {
+          scope.$parent.lastPlanned = scope.schedParams.scheduleTimestamp + (scope.currentCollector.settings.scheduleInterval * MIN);
+          return console.log(scope.currentCollector.settings.scheduleInterval * MIN, scope.schedParams.scheduleTimestamp);
+        });
+      };
+      scope.schedulePost = function() {
+        if (scope.schedParams.scheduleTimestamp < Date.now()) {
+          notificationCenter.addMessage({
+            realText: 'Нельзя планировать в прошлое',
+            error: true
+          });
+          return;
+        }
+        return scheduleService.call('timeAvailable', {
+          timestamp: scope.schedParams.scheduleTimestamp,
+          communityId: scope.currentCollector.communityId
+        }, function(avail) {
+          if (avail === true) {
+            if (scope.item.proposeStatus === 'created') {
+              return scope.acceptPost(scope.item, function() {
+                return doSchedule();
+              });
+            } else {
+              return doSchedule();
+            }
+          } else {
+            return notificationCenter.addMessage({
+              realText: 'Время занято',
+              error: true
+            });
+          }
+        });
+      };
+      scope.user = userService.getById(scope.item.userId);
+      scope.attaches = [];
+      ref = scope.item.contentIds;
+      for (type in ref) {
+        ids = ref[type];
+        if (type !== 'text') {
+          for (i = 0, len = ids.length; i < len; i++) {
+            id = ids[i];
+            scope.attaches.push(id);
+          }
+        }
+      }
+      scope.text = "";
+      contentService.getByIds(scope.item.contentIds.text, function(items) {
+        var item, j, len1;
+        scope.text = "";
+        for (j = 0, len1 = items.length; j < len1; j++) {
+          item = items[j];
+          if (scope.text !== "") {
+            scope.text += "\n";
+          }
+          scope.text += item.value;
+        }
+        return scope.$watch(function() {
+          return items;
+        }, function(nVal) {
+          var k, len2, results;
+          scope.text = "";
+          results = [];
+          for (k = 0, len2 = items.length; k < len2; k++) {
+            item = items[k];
+            if (scope.text !== "") {
+              scope.text += "\n";
+            }
+            results.push(scope.text += item.value);
+          }
+          return results;
+        }, true);
+      });
+      scope.removeAttach = function(id) {
+        return confirmBox.init('UGCApp_proposedPost_removeContent_confirm', function() {
+          return postService.removeContentIds(scope.item.id, [id], function() {
+            return removeElementFromArray(id, scope.attaches);
+          });
+        });
+      };
+      scope.previewPic = function(e, id) {
+        e.stopPropagation();
+        e.preventDefault();
+        return desktopService.launchApp('mediaPreview', {
+          contentId: id,
+          list: scope.attaches
+        });
+      };
+      scope.previewText = function(e, post) {
+        var ref1;
+        if (((ref1 = post.contentIds.text) != null ? ref1.length : void 0) > 0) {
+          e.stopPropagation();
+          e.preventDefault();
+          return desktopService.launchApp('textEditor', {
+            textId: post.contentIds.text[0],
+            proposedPost: post.id
+          });
+        }
+      };
+      if (scope.item.proposeStatus === 'published') {
+        scheduleService.getOriginalByPostId(scope.item.id, function(sched) {
+          if ((sched != null ? sched.timestamp : void 0) != null) {
+            return scope.schedDate = sched.timestamp;
+          }
+        }, true);
+      }
+      return true;
+    }
+  };
+}).directive('lazyProposed', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, elem;
+      elem = $(element);
+      body = elem.parents('.leftPanel');
+      return elem.on('mousewheel', function(e) {
+        scope.proposedScrollValue = elem[0].scrollTop;
+        if (scope.proposedParams.isLoading === true) {
+          return;
+        }
+        if (elem[0].scrollTop === 0 && scope.proposedParams.reloadOnStart === true) {
+          scope.proposedParams.reloadOnStart = false;
+          scope.resetProposedList();
+          scope.fetchProposedPage();
+          return scope.$apply();
+        } else if (scope.proposedParams.pageSize * scope.proposedParams.page < scope.proposedParams.total) {
+          if (elem[0].scrollTop + elem.height() > elem[0].scrollHeight - 200) {
+            scope.fetchProposedPage();
+            return scope.$apply();
+          }
+        }
+      });
+    }
+  };
+});

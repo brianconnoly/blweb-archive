@@ -1,0 +1,78 @@
+tC['/novaProjectGroups/template.jade'] = "<div translate=\"moduleName\" ng-click=\"activateAll()\" class=\"title\"></div> <div ng-repeat=\"channel in channels | filter:channelFilter\" ng-click=\"activateChannel(channel)\" ng-class=\"{'active':channelActive(channel)}\" class=\"subItem\"> <div ng-click=\"channelSettings(channel, $event)\" class=\"settings\"></div> <div class=\"subTitle\">{{channel.name}}</div> </div>";
+
+buzzlike.directive('novaProjectGroups', function(groupService, updateService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectGroups/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.moduleName = 'novaProjectGroups_title_single';
+      scope.channels = groupService.getByProjectId(scope.session.item.id);
+      scope.$watch('channels', function(nVal) {
+        if (nVal.length === 0) {
+          elem.addClass('empty');
+          return;
+        }
+        elem.removeClass('empty');
+        elem.removeClass('single');
+        if (nVal.length === 1) {
+          elem.addClass('single');
+          return scope.moduleName = 'novaProjectGroups_title_single';
+        } else if (nVal.length > 1) {
+          return scope.moduleName = 'novaProjectGroups_title_multi';
+        }
+      }, true);
+      scope.channelFilter = function(channel) {
+        return channel.deleted !== true;
+      };
+      scope.channelActive = function(channel) {
+        return scope.flow.currentCode === 'channelTimeline' + channel.id;
+      };
+      scope.activateChannel = function(channel, noFlush) {
+        if (noFlush == null) {
+          noFlush = false;
+        }
+        return scope.flow.addFrame({
+          title: 'channel',
+          directive: 'novaTimelineFrame',
+          item: {
+            id: channel.id,
+            type: 'group'
+          },
+          data: {
+            groupId: channel.id
+          },
+          code: 'channelTimeline' + channel.id
+        }, true, noFlush);
+      };
+      scope.activateAll = function() {
+        var channel, i, len, ref;
+        if (scope.channels.length === 1) {
+          scope.activateChannel(scope.channels[0]);
+        } else {
+          ref = scope.channels;
+          for (i = 0, len = ref.length; i < len; i++) {
+            channel = ref[i];
+            scope.activateChannel(channel, true);
+          }
+        }
+        return true;
+      };
+      return scope.channelSettings = function(channel, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return scope.flow.addFrame({
+          title: 'channel',
+          directive: 'novaChannelSettingsFrame',
+          item: {
+            id: channel.id,
+            type: 'group'
+          }
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectGroups', ".novaProjectGroups.empty {\n  display: none;\n}\n.novaProjectGroups.single .subItem {\n  display: none;\n}\n");

@@ -1,0 +1,29 @@
+buzzlike.directive('novaItemMenu', function(novaMenu) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      return elem.on('contextmenu.contextMenu', function(e) {
+        var ref;
+        if ((ref = $(e.target).prop("tagName")) === 'INPUT' || ref === 'TEXTAREA') {
+          return;
+        }
+        if (e.which === 3) {
+          e.preventDefault();
+          e.stopPropagation();
+          novaMenu.show({
+            position: {
+              x: e.pageX,
+              y: e.pageY
+            },
+            items: (typeof scope.getSelectedItems === "function" ? scope.getSelectedItems() : void 0) || [scope.item],
+            context: scope.itemContext,
+            scope: scope
+          });
+        }
+        return false;
+      });
+    }
+  };
+});

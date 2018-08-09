@@ -1,0 +1,33 @@
+.buzzColorPicker {
+  border: 1px solid #e6e6e6;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  height: 20px;
+  width: 40px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.buzzColorPicker .activator {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-transition: background-color 0.2s ease;
+  -moz-transition: background-color 0.2s ease;
+  -o-transition: background-color 0.2s ease;
+  -ms-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+  background: url("/resources/images/desktop/black/selector.svg") center center no-repeat;
+  -webkit-background-size: 6px 3px;
+  -moz-background-size: 6px 3px;
+  background-size: 6px 3px;
+  background-color: rgba(51,51,51,0.6);
+}
+.buzzColorPicker .activator:hover {
+  cursor: pointer;
+  background-color: rgba(51,51,51,0.8);
+}

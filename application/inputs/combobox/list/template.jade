@@ -1,0 +1,7 @@
+div(ng-show="state.opened", ng-click="close()", ng-class="{'hideSelected': state.settings.hideSelected}", class="{{state.listClass}}")
+    div.content(ng-style="state.position", antiscroll)
+        ul.list
+            li(ng-repeat="item in state.list", ng-click="select(item)", ng-class="{'selected': item == state.selected}", class="{{item.class}}", ng-style="item.style") 
+                span(ng-if="item.translateTitle") {{translate(item.translateTitle)}}
+                span(ng-if="item.title") {{item.title}}
+

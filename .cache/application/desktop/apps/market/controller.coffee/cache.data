@@ -1,0 +1,97 @@
+buzzlike.controller('marketCtrl', function($scope, $rootScope, lotService, multiselect) {
+  $scope.session.expandedHeader = false;
+  $scope.session.zoom = 'max';
+  $scope.stateTree.applyState({
+    'escape': function() {
+      return $scope.stepBack();
+    }
+  });
+  $scope.sectionBackground = function() {
+    return $scope.currentStep.background || '#fff';
+  };
+  $scope.sectionPicture = function() {
+    if ($scope.currentStep.src != null) {
+      return 'url(' + $scope.currentStep.src + ') center center no-repeat';
+    }
+    return 'none';
+  };
+  $scope.setMode = function(mode) {
+    if ($scope.currentStep.mode !== mode) {
+      $scope.stepStack.length = 0;
+      $scope.currentStep = {
+        translateTitle: 'marketApp_title',
+        type: 'main',
+        group: true,
+        mode: mode,
+        itemType: 'lot'
+      };
+      return $scope.stepStack.push($scope.currentStep);
+    }
+  };
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'marketApp_title',
+    type: 'main',
+    group: true,
+    mode: 'repost',
+    itemType: 'lot'
+  };
+  $scope.stepStack.push($scope.currentStep);
+  $scope.goSection = function(section) {
+    var id;
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = angular.copy(section);
+    $scope.currentStep.group = false;
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+      return $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+    }
+  };
+  $scope.getGroups = function(cb) {
+    var result;
+    result = [];
+    switch ($scope.currentStep.mode) {
+      case 'repost':
+        result.push({
+          translateTitle: 'marketApp_category_new',
+          fetchOnUpdate: true,
+          type: 'lot',
+          mode: 'repost',
+          query: {
+            sortBy: 'lastUpdated',
+            sortType: 'desc',
+            lotType: 'repost'
+          }
+        });
+        break;
+      case 'post':
+        result.push({
+          translateTitle: 'marketApp_category_new',
+          fetchOnUpdate: true,
+          type: 'lot',
+          mode: 'post',
+          query: {
+            sortBy: 'lastUpdated',
+            sortType: 'desc',
+            lotType: 'post'
+          }
+        });
+    }
+    cb(result);
+    return result;
+  };
+  $scope.queryFunction = function(query, cb) {
+    return lotService.query(query, cb);
+  };
+  return true;
+});

@@ -1,0 +1,11 @@
+tC['/novaScrollerTimestampSeparator/template.jade'] = "<div ng-switch=\"::block.separatorType\"> <div ng-switch-when=\"month\" class=\"cap\">{{::block.timestamp | timestampMask:\"MMMM optYY\"}}</div> <div ng-switch-default=\"ng-switch-default\" translate=\"'virtulScroller_separator_' + block.separatorType\"></div> </div>";
+
+buzzlike.directive('novaScrollerTimestampSeparator', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaScrollerTimestampSeparator/template.jade'],
+    link: function(scope, element, attrs, ngModel) {}
+  };
+});
+
+registerStyles('novaScrollerTimestampSeparator', ".novaScrollerTimestampSeparator {\n  clear: both;\n  width: 100%;\n  border-bottom: 1px solid rgba(0,0,0,0.3);\n  color: #454545;\n  height: 28px;\n  padding-left: 10px;\n  font-weight: bolder;\n  line-height: 28px;\n  margin-bottom: 1px;\n}\n.novaScrollerTimestampSeparator .cap {\n  text-transform: capitalize;\n}\n");

@@ -1,0 +1,24 @@
+tC['/novaWizardWelcomeMigrating/template.jade'] = "<div translate=\"migrationStatus\" class=\"migrationStatus\"></div> <div class=\"migrationProgress\"> <div ng-style=\"{'width':migrationProgress}\" class=\"value\"></div> </div>";
+
+buzzlike.directive('novaWizardWelcomeMigrating', function(rpc) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardWelcomeMigrating/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return rpc.call({
+        method: 'novaMigration.migrate',
+        progress: function(status, perc) {
+          scope.migrationStatus = 'novaWelcome_migration:' + status.replace(/\ /g, '');
+          return scope.migrationProgress = perc + '%';
+        },
+        success: function() {
+          return scope.wizard.pick({
+            id: true
+          });
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaWizardWelcomeMigrating', ".novaWizardWelcomeMigrating {\n  padding: 0 30px;\n  padding-top: 30px;\n}\n.novaWizardWelcomeMigrating .migrationStatus {\n  font-size: 20px;\n  line-height: 30px;\n}\n.novaWizardWelcomeMigrating .migrationProgress {\n  width: 100%;\n  margin-top: 10px;\n  height: 4px;\n  background: rgba(0,0,0,0.1);\n}\n.novaWizardWelcomeMigrating .migrationProgress .value {\n  background: #69c74f;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n}\n");

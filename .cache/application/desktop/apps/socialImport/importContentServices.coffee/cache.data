@@ -1,0 +1,148 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('importAlbumService', function(rpc, itemService, contentService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'importAlbum';
+
+    classEntity.prototype.fetchById = function(id, cb) {
+      var idData;
+      idData = id.split('_');
+      return typeof cb === "function" ? cb({
+        id: id,
+        type: idData[2],
+        communityId: idData[1],
+        albumId: idData[3]
+      }) : void 0;
+    };
+
+    classEntity.prototype.query = function(data, cb) {
+      return rpc.call(data.sn + 'Import.getAlbums', {
+        type: data.type,
+        communityId: data.communityId
+      }, (function(_this) {
+        return function(items) {
+          var i, item, len, result;
+          result = [];
+          if ((items != null ? items.length : void 0) > 0) {
+            for (i = 0, len = items.length; i < len; i++) {
+              item = items[i];
+              item.albumId = item.id;
+              item.id = data.sn + '_' + data.communityId + '_' + data.type + item.id;
+              item.type = _this.itemType;
+              result.push(_this.handleItem(item));
+            }
+          }
+          return typeof cb === "function" ? cb(result) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype["import"] = function(album, cb) {
+      return rpc.call(album.socialNetwork + 'Import.importAlbum', {
+        albumType: album.albumType,
+        snOwnerId: album.snOwnerId,
+        id: album.albumId,
+        communityId: album.communityId,
+        title: album.title
+      }, function(folder) {
+        var item;
+        if (folder != null ? folder.id : void 0) {
+          item = contentService.handleItem(folder);
+          return typeof cb === "function" ? cb(item) : void 0;
+        }
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+}).service('importContentService', function(rpc, itemService, contentService) {
+  var classEntity, counter;
+  counter = 0;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'importContent';
+
+    classEntity.prototype.purge = function() {
+      counter = 0;
+      return classEntity.__super__.purge.call(this);
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      if (item.id == null) {
+        item.id = counter++;
+      }
+      if (item.contentType == null) {
+        item.contentType = item.type;
+        item.type = this.itemType;
+      }
+      return classEntity.__super__.handleItem.call(this, item);
+    };
+
+    classEntity.prototype.fetchById = function(id, cb) {
+      return typeof cb === "function" ? cb({
+        id: id
+      }) : void 0;
+    };
+
+    classEntity.prototype.query = function(data, cb) {
+      return rpc.call(data.sn + 'Import.getAlbumContent', {
+        albumType: data.albumType,
+        snOwnerId: data.snOwnerId,
+        id: data.id,
+        communityId: data.communityId
+      }, (function(_this) {
+        return function(items) {
+          var i, item, len, result;
+          result = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            item.id = item.externalId;
+            item.contentType = item.type;
+            item.type = _this.itemType;
+            result.push(_this.handleItem(item));
+            _this.storage[item.id] = item;
+          }
+          return typeof cb === "function" ? cb(result) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype["import"] = function(itemData, params, cb) {
+      var data, k, v;
+      data = angular.copy(itemData);
+      data.type = data.contentType;
+      for (k in params) {
+        v = params[k];
+        if (v != null) {
+          data[k] = v;
+        }
+      }
+      return rpc.call('socialImport.importItem', data, function(createdItem) {
+        var item;
+        if (createdItem != null) {
+          item = contentService.handleItem(createdItem);
+          return typeof cb === "function" ? cb(item) : void 0;
+        }
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

@@ -1,0 +1,53 @@
+.lightboxPreview {
+  background: rgba(0,0,0,0.9);
+}
+.lightboxPreview div.window {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  position: absolute;
+}
+.lightboxPreview div.window.loading .content {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.lightboxPreview div.window .content {
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.lightboxPreview div.window .video {
+  position: absolute;
+  top: 5%;
+  bottom: 5%;
+  left: 5%;
+  right: 5%;
+}
+.lightboxPreview div.window .buttons {
+  width: 50px;
+  height: 20px;
+  margin: 5px auto;
+  background: rgba(255,255,255,0.3);
+}
+.lightboxPreview div.window .buttons .left,
+.lightboxPreview div.window .buttons .edit,
+.lightboxPreview div.window .buttons .right {
+  height: 100%;
+  float: left;
+}
+.lightboxPreview div.window .buttons .left {
+  display: none;
+}
+.lightboxPreview div.window .buttons .edit {
+  width: 100%;
+}
+.lightboxPreview div.window .buttons .right {
+  display: none;
+}

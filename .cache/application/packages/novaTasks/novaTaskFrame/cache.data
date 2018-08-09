@@ -1,0 +1,100 @@
+tC['/novaTaskFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div ng-click=\"addTask()\" ng-class=\"{'active':addTaskActive}\" class=\"addTask\">+</div> <div ng-class=\"{'active':showAccepted}\" ng-click=\"showAccepted = !showAccepted\" class=\"showAccepted\">Kryzh</div> <div ng-class=\"{'active':compact}\" ng-click=\"triggerCompact()\" class=\"novaTasksCompactSwitch\"> <div class=\"subLines\"></div> </div> <div class=\"novaTaskFilterInput\"> <input ng-model=\"taskFilterString\" translate=\"\" translate-placeholder=\"'novaTasks_filter_placeholder_subtasks'\"/> </div> </div> <div class=\"novaFrameContents novaMultiselect\"> <div nova-item-id=\"flowFrame.item.id\" nova-item-type=\"task\" class=\"novaItemScope novaItem novaTaskEdit novaItemDroppable novaItemMenu editOpenedTask\"></div> <div ng-class=\"{'novaTasksCompact':compact}\" class=\"subTasks novaMultiselect\"> <div ng-repeat=\"item in childTasks | filter:taskFilter | orderBy:taskService.taskOrder:true\" nova-item-preview-type=\"list\" nova-item-context=\"project\" class=\"subTask novaItem novaItemPreview novaItemDraggable novaItemDroppable novaItemSelectable novaItemMenu\"></div> </div> </div> <div nova-task-create=\"nova-task-create\" nova-item-object=\"newTask\" ng-if=\"addTaskActive\" class=\"novaItem novaTaskEdit novaItemDroppable createSubtask\"></div> </div>";
+
+buzzlike.directive('novaTaskFrame', function(taskService, projectService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTaskFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var domElem, elem, headState, nuHei, openedTask, realHeight, subTasks;
+      elem = $(element);
+      openedTask = elem.find('.editOpenedTask');
+      subTasks = elem.find('.subTasks');
+      scope.taskService = taskService;
+      scope.stateTree.applyState({
+        'N alt': function() {
+          scope.addTask();
+          return true;
+        },
+        'escape': function() {
+          scope.addTaskActive = false;
+          return true;
+        }
+      });
+      scope.flowFrame.maxWidth = 516;
+      scope.compact = scope.stateSaver.register('task_compact_' + scope.flowFrame.item.id, {
+        save: function() {
+          return scope.compact;
+        },
+        load: function(data) {
+          return scope.compact = !!data;
+        }
+      });
+      scope.triggerCompact = function() {
+        scope.compact = !scope.compact;
+        return scope.stateSaver.save('task_compact_' + scope.flowFrame.item.id);
+      };
+      if (scope.session.item.type === 'project') {
+        scope.project = projectService.getById(scope.session.item.id);
+      }
+      scope.childTasks = taskService.getStorageByParent(scope.flowFrame.item.id);
+      scope.showAccepted = false;
+      scope.taskFilter = function(item) {
+        var lowText, ref, ref1, ref2;
+        if (item.deleted) {
+          return false;
+        }
+        if (!scope.showAccepted && item.status === 'accepted') {
+          return false;
+        }
+        if (((ref = scope.taskFilterString) != null ? ref.length : void 0) > 0) {
+          lowText = scope.taskFilterString.toLowerCase();
+          if (((ref1 = item.name) != null ? ref1.toLowerCase().indexOf(lowText) : void 0) > -1 || ((ref2 = item.description) != null ? ref2.toLowerCase().indexOf(lowText) : void 0) > -1) {
+            return true;
+          }
+          return false;
+        }
+        return true;
+      };
+      scope.addTaskActive = false;
+      scope.newTask = {
+        parent: scope.flowFrame.item.id,
+        type: 'task',
+        name: "",
+        description: "",
+        entities: [],
+        projectId: scope.flowFrame.item.projectId
+      };
+      scope.addTask = function() {
+        return scope.addTaskActive = !scope.addTaskActive;
+      };
+      domElem = elem.children('.novaFrameContents')[0];
+      headState = 'default';
+      realHeight = 0;
+      nuHei = 0;
+      return elem.on('mousewheel', function(e, delta) {
+        domElem.scrollTop -= delta;
+        if (domElem.scrollTop > 0 && headState === 'default') {
+          headState = 'fixed';
+          realHeight = openedTask.height() + 5;
+          subTasks[0].style.marginTop = realHeight;
+          openedTask.addClass('fixed');
+        } else if (headState === 'fixed' && domElem.scrollTop === 0) {
+          headState = 'default';
+          openedTask.removeClass('fixed');
+          openedTask[0].style.height = 'auto';
+          subTasks[0].style.marginTop = 0;
+        }
+        if (headState === 'fixed') {
+          nuHei = realHeight - domElem.scrollTop;
+          if (nuHei < 0) {
+            nuHei = 0;
+          }
+          return openedTask[0].style.height = nuHei;
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaTaskFrame', ".novaTaskFrame .wrapper {\n  width: 100%;\n  height: 100%;\n  float: left;\n  position: relative;\n  overflow: hidden;\n}\n.novaTaskFrame .novaFrameContents {\n  width: 100%;\n}\n.novaTaskFrame .addTask {\n  position: absolute;\n  cursor: pointer;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  text-align: center;\n  line-height: 30px;\n  font-size: 25px;\n  -webkit-transform: rotateZ(0deg);\n  -moz-transform: rotateZ(0deg);\n  -o-transform: rotateZ(0deg);\n  -ms-transform: rotateZ(0deg);\n  transform: rotateZ(0deg);\n  -webkit-transition: -webkit-transform 0.2s ease;\n  -moz-transition: -moz-transform 0.2s ease;\n  -o-transition: -o-transform 0.2s ease;\n  -ms-transition: -ms-transform 0.2s ease;\n  transition: transform 0.2s ease;\n  z-index: 4;\n}\n.novaTaskFrame .addTask.active {\n  -webkit-transform: rotateZ(45deg);\n  -moz-transform: rotateZ(45deg);\n  -o-transform: rotateZ(45deg);\n  -ms-transform: rotateZ(45deg);\n  transform: rotateZ(45deg);\n}\n.novaTaskFrame .showAccepted {\n  position: absolute;\n  top: 0;\n  right: 30px;\n  cursor: pointer;\n  line-height: 30px;\n  font-size: 14px;\n  z-index: 3;\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTaskFrame .showAccepted.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaTaskFrame .editOpenedTask {\n  width: inherit;\n  padding-bottom: 0;\n  overflow: hidden;\n  z-index: 2;\n}\n.novaTaskFrame .editOpenedTask.fixed {\n  position: fixed;\n}\n.novaTaskFrame .subTask:first-child {\n  border-top: 1px solid #ccc;\n}\n.novaTaskFrame .subTask > .backFace {\n  display: none;\n}\n.novaTaskFrame .subTasks {\n  -webkit-box-shadow: 0 -1px 5px 0px rgba(0,0,0,0.15);\n  box-shadow: 0 -1px 5px 0px rgba(0,0,0,0.15);\n  z-index: 3;\n}\n.novaTaskFrame .novaMultiselect.active .subTask.selected {\n  -webkit-box-shadow: 10px 0 0 -5px #3496f2 inset;\n  box-shadow: 10px 0 0 -5px #3496f2 inset;\n}\n.novaTaskFrame .novaMultiselect .subTask.selected {\n  -webkit-box-shadow: 10px 0 0 -5px #eee inset;\n  box-shadow: 10px 0 0 -5px #eee inset;\n}\n.novaTaskFrame .novaMultiselect.active .novaMultiselect > .novaItem.selected.childTask {\n  -webkit-box-shadow: 0 0 0 4px #eee;\n  box-shadow: 0 0 0 4px #eee;\n}\n.novaTaskFrame .novaTaskEdit.createSubtask {\n  position: fixed;\n  top: 0;\n  width: inherit;\n  z-index: 3;\n  background: #fff;\n  -webkit-box-shadow: 0 5px 5px 0px rgba(0,0,0,0.15);\n  box-shadow: 0 5px 5px 0px rgba(0,0,0,0.15);\n}\n");

@@ -1,0 +1,62 @@
+div
+    div.itemName.novaEditableDiv(
+        ng-model="infoItem.name", 
+        placeholder-text="'novaInfoFrame_itemName'",
+        ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }",
+        ng-change="updateName()",
+        auto-focus,
+        on-enter="updateName")
+
+    div.detailedItemPreview.novaItemScope.novaItem.novaItemPreview(
+        nova-item-object="infoItem",
+        nova-item-preview-type="detailed",
+        ng-class="{'big':bigPreview()}")
+
+    div.itemDetails        
+        div.detailLine(ng-if="infoItem.type == 'audio'")
+            div.caption(translate="'novaInfoFrame_songArtist'")
+            div.value {{::infoItem.artist}}
+            
+        div.detailLine(ng-if="infoItem.type == 'audio'")
+            div.caption(translate="'novaInfoFrame_songTitle'")
+            div.value {{::infoItem.title}}
+
+        div.detailLine(ng-if="infoItem.type == 'text'")
+            div.caption(translate="'novaInfoFrame_textLength'")
+            div.value {{infoItem.value.length}}
+            
+        div.detailLine(ng-if="infoItem.duration")
+            div.caption(translate="'novaInfoFrame_contentLength'")
+            div.value {{::infoItem.duration | secondsToHumanTime}}
+            
+        div.detailLine(ng-if="infoItem.type == 'post'")
+            div.caption(translate="'novaInfoFrame_attachmentsNumber'")
+            div.value {{getAttachments()}}
+            
+        div.detailLine(ng-if="infoItem.type == 'comb'")
+            div.caption(translate="'novaInfoFrame_postsNumber'")
+            div.value {{infoItem.postIds.length}}
+            
+        div.detailLine(ng-if="infoItem.type == 'poll'")
+            div.caption(translate="'novaInfoFrame_answersNumber'")
+            div.value {{infoItem.answers.length}}
+        
+        div.detailLine
+            div.caption(translate="'novaInfoFrame_sentCount'")
+            div.value {{infoItem.useInSentPosts}}
+            
+        div.detailLine
+            div.caption(translate="'novaInfoFrame_activity'")
+            div.value {{getActivity()}}
+    
+        div.detailLine
+            div.caption(translate="'novaInfoFrame_created'")
+            div.value {{::item.created | timestampMask: "DD MMM 'YY"}}
+            
+        div.detailLine
+            div.caption(translate="'novaInfoFrame_owner'")
+            div.value
+                div.novaItemScope.novaItem.novaItemPreview.novaItemDraggable.novaItemDroppable(
+                    nova-item-object="owner",
+                    nova-item-preview-type="name")
+            

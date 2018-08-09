@@ -1,0 +1,75 @@
+tC['/novaStreamsApp/template.jade'] = "<div class=\"novaAppLeftPanel\"> <div translate=\"'novaStreamsApp_people'\" ng-click=\"launchPeople()\" class=\"peopleLauncher\"></div> <div ng-repeat=\"item in makeArray(streams) | filter:streamFilter\" ng-click=\"launchStream(item)\" nova-item-preview-type=\"panel\" class=\"streamLauncher novaItem novaItemPreview novaItemMenu\"></div> </div> <div class=\"workarea novaFlow\"></div>";
+
+buzzlike.directive('novaStreamsApp', function(account, streamService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamsApp/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.session.noItem = true;
+      scope.session.size = {
+        width: 600,
+        height: 500
+      };
+      scope.streams = streamService.storage;
+      streamService.query({
+        member: account.user.id
+      }, function(items) {});
+      scope.streamFilter = function(stream) {
+        if (stream.deleted === true) {
+          return false;
+        }
+        return true;
+      };
+      scope.activeModule = null;
+      scope.launchPeople = function() {
+        return scope.flow.addFrame({
+          title: 'people',
+          directive: 'novaUsersGroups',
+          data: {
+            userId: account.user.id
+          }
+        });
+      };
+      scope.launchStream = function(stream) {
+        return scope.flow.addFrame({
+          title: 'stream',
+          directive: 'novaStreamFrame',
+          item: {
+            id: stream.id,
+            type: 'stream'
+          },
+          data: {
+            streamId: stream.id
+          }
+        });
+      };
+      scope.init = function() {
+        if (scope.session.stream != null) {
+          return scope.launchStream(scope.session.stream);
+        } else {
+          return scope.launchPeople();
+        }
+      };
+      return scope.reInit = function(data) {
+        var ref;
+        if (((ref = data.stream) != null ? ref.id : void 0) != null) {
+          return scope.flow.addFrame({
+            title: 'stream',
+            directive: 'novaStreamFrame',
+            item: {
+              id: data.stream.id,
+              type: 'stream'
+            },
+            data: {
+              streamId: data.stream.id
+            }
+          });
+        }
+      };
+    }
+  };
+});
+
+registerStyles('novaStreamsApp', ".novaStreamsApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaStreamsApp .novaAppLeftPanel .peopleLauncher {\n  height: 50px;\n  line-height: 50px;\n  cursor: pointer;\n  padding: 0 10px;\n}\n.novaStreamsApp .novaAppLeftPanel .streamLauncher {\n  cursor: pointer;\n}\n.novaStreamsApp .novaAppLeftPanel .streamLauncher div {\n  pointer-events: none;\n}\n.novaStreamsApp .novaAppLeftPanel .streamLauncher .backFace {\n  display: none;\n}\n.novaStreamsApp .novaAppLeftPanel .panelContents {\n  overflow-y: auto;\n}\n");

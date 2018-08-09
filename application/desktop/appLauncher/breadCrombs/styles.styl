@@ -1,0 +1,44 @@
+.breadCrombs
+    position: absolute
+    left 0
+    bottom 0
+    right 0
+    
+    height 30px
+    
+    line-height: 30px
+    font-size 11px
+    
+    padding-left: 10px
+
+    background: #fff
+    border-top: 1px solid #494949
+    
+    .cromb
+        float: left
+        
+        &.active
+            .text
+                font-weight: bolder
+                cursor: default
+        
+        .text
+            float: left
+            cursor: pointer
+            
+            max-width: 300px
+            
+            text-overflow: ellipsis
+            overflow: hidden
+            white-space nowrap 
+            
+        .arrow
+            margin: 0 10px
+            margin-top 11px
+            
+            float: left
+            
+            width 5px
+            height 8px
+            
+            background: url(/resources/images/desktop/white/divider.svg)

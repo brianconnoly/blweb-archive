@@ -1,0 +1,58 @@
+tC['/novaPeopleFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div class=\"filterBox\"> <input ng-model=\"filterBox\"/> </div> <div ng-click=\"doSearch()\" class=\"searchPeople\">🔭</div> </div> <div ng-if=\"searchResults.length == 0\" class=\"novaFrameContents\"> <div ng-repeat=\"item in userGroups\" class=\"novaItem\"></div> </div> <div ng-if=\"searchResults.length &gt; 0\" class=\"novaFrameContents searchResults\"> <div class=\"foundBar\"> <div ng-click=\"backToGroups()\" class=\"back\">Go back</div> <div>Found users:</div> </div> <div class=\"container novaMultiselect\"> <div ng-repeat=\"item in searchResults\" ng-dblclick=\"startStream(item)\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaPeopleFrame', function(userService, userGroupService, account, streamService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPeopleFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.userGroups = [];
+      userGroupService.query({}, function(items) {
+        var i, item, len, results;
+        scope.userGroups.length = 0;
+        results = [];
+        for (i = 0, len = items.length; i < len; i++) {
+          item = items[i];
+          results.push(scope.userGroups.push(item));
+        }
+        return results;
+      });
+      scope.filterBox = "";
+      scope.searchResults = [];
+      scope.doSearch = function() {
+        return userService.call('search', scope.filterBox, function(user) {
+          scope.searchResults.length = 0;
+          if (user !== 'noUser') {
+            return scope.searchResults.push(user);
+          }
+        });
+      };
+      scope.backToGroups = function() {
+        return scope.searchResults.length = 0;
+      };
+      return scope.startStream = function(user) {
+        return streamService.create({
+          members: [
+            {
+              userId: account.user.id,
+              role: 'initiator'
+            }, {
+              userId: user.id,
+              role: 'member'
+            }
+          ]
+        }, function(stream) {
+          return scope.flow.addFrame({
+            title: 'stream',
+            directive: 'novaStreamFrame',
+            data: {
+              streamId: stream.id
+            }
+          });
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaPeopleFrame', ".novaPeopleFrame .novaFrameTopBar .filterBox {\n  position: absolute;\n  top: 0;\n  right: 40px;\n  bottom: 0;\n  left: 0;\n}\n.novaPeopleFrame .novaFrameTopBar .filterBox input {\n  width: 100%;\n  height: 100%;\n  padding: 0 10px;\n  font-size: 14px;\n}\n.novaPeopleFrame .novaFrameTopBar .searchPeople {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 40px;\n  cursor: pointer;\n  text-align: center;\n  line-height: 40px;\n  font-size: 20px;\n}\n.novaPeopleFrame .foundBar {\n  height: 30px;\n  line-height: 30px;\n  font-size: 16px;\n  margin: 0 10px;\n}\n.novaPeopleFrame .foundBar .back {\n  float: right;\n  font-size: 12px;\n  cursor: pointer;\n  z-index: 1;\n}\n.novaPeopleFrame .searchResults .container {\n  padding: 20px;\n}\n.novaPeopleFrame .searchResults .novaItem {\n  width: 100px;\n  margin: 20px;\n}\n.novaPeopleFrame .searchResults .novaItem .backFace {\n  display: none;\n}\n");

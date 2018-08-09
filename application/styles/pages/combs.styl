@@ -1,0 +1,857 @@
+.combs_catalog
+
+    h2.headlining
+        padding: 30px 15px 15px 12px;
+
+.combeditor
+
+    .column.content
+        .item
+            transition all 0.2s ease
+
+            .sign
+                transition all 0.2s ease
+
+            .track-name
+                transition all 0.2s ease
+
+            .text-preview
+                transition all 0.2s ease
+
+        &.mini
+            
+            .item
+                margin: 5px
+                width 75px            
+                height 75px
+
+                .sign
+                    top: -27px;
+                    right: -25px;
+                    transform scale(0.15)
+
+                .track-name
+                    top 20px
+                    font-size 10px
+
+                .text-preview
+                    font-size 12px
+
+                .locked
+                    sprite "/resources/images/icons/locks/lock-S.png" center center 23px 34px
+                    bottom 0
+
+    .column.posts
+        .postMode
+            size 'full'
+            overflow hidden
+            padding-top 8px
+
+            .paginator
+                margin 0 35px
+
+                .center
+                    width 310px
+
+            .list
+                position: absolute
+                top 0px
+                bottom 0
+                left 0
+                width 100%
+                padding-top 8px
+
+                overflow-y: auto
+                transition left 0.2s ease
+
+                &.fullPosts
+                    bottom 46px
+                    //top 10px
+
+            .postEdit
+                position: absolute
+                top 0
+                right -100%
+                width 100%
+                bottom 0
+
+                overflow-y: auto
+                transition right 0.2s ease
+
+
+            &.postEditMode
+                .list
+                    position: absolute
+                    top 0
+                    left -101%
+                    width 100%
+
+                .postEdit
+                    position: absolute
+                    top 0
+                    right 0
+                    width 100%
+                    bottom 0
+
+                .paginator
+                    bottom -100%
+
+
+    //&.alone
+    //    .content
+    //        margin-left -50%
+    //
+    //    .posts
+    //        left 25%
+
+.textCounter
+    display none
+
+
+.postEntity
+    float: left
+    display: block
+    position: relative
+    //background rgba(255,255,255, 0.25)
+    background #fff
+    margin 5px 35px 15px 35px
+    width 360px
+
+    &.drop-hover
+        outline 5px solid rgba(255, 255, 255, 0.5)
+        background #fff
+
+    &.warn
+        background: rgba(222, 47, 47, 0.9) !important
+
+    &.onSale
+        background: rgba(255, 215, 0, 1)
+
+    &.text.contents
+        .categorypost_text
+            margin-bottom 10px
+
+        .categories
+            margin-bottom 5px
+
+    &.contents.noText
+        .categories
+            margin-top 5px
+            margin-bottom 5px
+
+    &.emptyPost .category.empty
+        display inline-block
+
+    .category.empty
+        display none
+
+        padding 10px 5px
+        color #aaa
+        text-align center
+        font-size 11px
+
+        a
+            font-size 11px
+            color #777
+
+
+    .snPickerSelected
+        div
+            color #fff
+            font-size 18px
+            font-weight normal
+
+    .wrapper
+        position: relative
+
+        a.remove-circle-button
+            position: absolute
+            top -5px
+            left -5px
+
+    .headSide
+        width 100%
+        height 40px
+        overflow: hidden
+        //background #000
+
+        .buttonsContainer
+            height 40px
+
+            .snIcon
+                float left
+                width 40px
+                height 40px
+
+                color #fff
+                z-index 2
+                outline none
+                text-transform uppercase
+                cursor pointer
+                background-image none
+
+                .value
+                    padding 0
+                    width 100%
+                    line-height 39px
+                    text-align: center
+                    font-size 18px
+
+            .mainButtons
+                width 40px
+                height 40px
+                float left
+                cursor pointer
+                sprite "/resources/images/icons/comb/post-head.png" 0 0 360px 80px
+
+                &.disabled
+                    opacity: 0.3
+                    pointer-events none
+                &.inactive
+                    opacity: 0.4
+
+                &.remove
+                    background-position 0px 0px
+                &.addAlbum
+                    background-position -40px 0px
+                &.clone
+                    background-position -80px 0px
+                &.pasteInto
+                    background-position -120px 0px
+                &.selectPost
+                    background-position -160px 0px
+                &.orderDown
+                    background-position -240px 0px
+                &.orderUp
+                    background-position -200px 0px
+                &.makeLot
+                    background-position -280px 0px
+
+        .checkboxes
+            position relative
+            float right
+            margin-right 10px
+            top 4px
+
+            div
+                float left
+
+                .bl-checkbox
+                    position relative
+                    margin-right 7px
+                    top 4px
+                    border 2px #fff solid
+
+                    .tumbler
+                        background #fff
+
+                span
+                    position relative
+                    top 6px
+                    color #fff
+
+            .second
+                margin-left 42px
+            .none
+                display none
+
+    .categories
+        text-align center
+
+    .category
+        display inline-block
+        text-align left
+        width 340px
+
+        &.categorypost_text
+            width 100%
+
+    .textSeparator
+        size 'abs' auto 40px 0 40px
+        height 1px
+        background #999
+
+    li.item
+        margin 5px
+        width 75px
+        height 75px
+        background #6EA155
+
+        &.contentType_text
+            width 100%
+            height auto
+            float none
+            margin 10px 0 0 0
+            display inline-block
+            overflow hidden
+            background none
+
+            .deleted-mark
+                height 35px
+
+            .itemPreview
+                position relative
+                background none
+
+            .text-preview
+                position relative
+                display inline-block
+                max-height 80px
+                max-width 300px
+                padding 0 0 0 40px
+                margin 0 20px 10px 0
+                background none
+                font-size 11px
+                line-height 20px
+
+            .text-footer
+                display none
+
+            .textCounter
+                display block
+                size 'abs' 28px auto 0 0
+                width 40px
+                height auto
+                font-size 10px
+                text-align center
+                color #999
+
+            .removeBox
+                position absolute
+                top 3px
+                left 12px
+                width 16px
+                height 16px
+                background-size 16px
+                box-shadow none
+                sprite "/resources/images/icons/closers/big-black-noPadding.png"
+                opacity 0.35
+
+                &:hover
+                    opacity 0.7
+
+
+        //&.contentType_url
+        //&.contentType_video
+        //&.contentType_audio
+        //    left 10px
+        //    margin 0 10px 10px 0
+        //    //width 130px
+        //    //height 130px
+
+        //&.contentType_audio
+        //    .sign
+        //        top -53px
+        //        right -46px
+
+        &.contentType_video
+            .play_button
+                position absolute
+                top 50%
+                left 50%
+                border-top 25px solid transparent;
+                border-bottom 25px solid transparent;
+                border-left 35px solid rgba(255, 255, 255, 0.5)
+                margin-left -10px
+                margin-top -22px
+                text-align center
+                font-size 19px
+                line-height 38px
+                cursor pointer
+                z-index 20
+
+        &.descripted
+            float left
+
+            .itemPreview
+                width 75px
+                height 75px
+
+            .contentComment
+                size 'abs' auto 0 0 0
+                height 34px
+                padding 5px
+                overflow hidden
+                box-sizing border-box
+
+                font-size 12px
+                line-height: 1.3em
+
+                background rgba(255,255,255,0.7)
+                transition all ease 0.2s
+                z-index 10
+
+                &:hover
+                    height 100%
+
+                    .removeBox
+                        opacity 0.9
+
+
+    //.categoryPost_image
+    //    margin-bottom 5px
+
+    $scheduleHeight = 80px
+    $scheduleHalfHeight = 40px
+
+    .communityAttach
+        width 100%
+        height $scheduleHeight
+        background rgba(0,0,0,1)
+        margin-top 1px
+
+        .marquee
+            width 100%
+
+        .resched
+            position absolute
+            background url(/resources/images/icons/delete-white.png)
+            background-size: 100%;
+            width 15px
+            height 15px
+            left 2px
+            top 2px
+            z-index 50
+            cursor pointer
+
+        .avatar
+            position absolute
+            top 0
+            left 0
+            width $scheduleHeight
+            height $scheduleHeight
+            overflow hidden
+            background #fff
+
+            .status
+                $h = 80px
+                position absolute
+                width $scheduleHeight
+                height $scheduleHeight
+                background-size: $scheduleHeight
+                transition opacity ease 0.2s
+                z-index 10
+                sprite "/resources/images/icons/scheduleStatus/status.png" 0 $h $h (5*$h)
+
+                &.pending
+                    background-position 0 (-1*$h)
+                &.ready
+                    background-position 0 (-2*$h)
+                &.deleted
+                    background-position 0 (-3*$h)
+                &.completed
+                    background-position 0 (-4*$h)
+                &.error
+                    background-position 0 0
+
+                &:hover
+                    opacity 0
+
+        .info
+            size 'abs' 0 $scheduleHalfHeight 0 $scheduleHeight
+            color #fff
+
+            .name
+                position relative
+                overflow hidden
+                display inline-block
+                box-sizing border-box
+                width 100%
+                height 20px
+                font-size 12px
+
+                .scrollContainer
+                    padding-top 8px
+                    padding-left 10px
+
+            .date
+                position relative
+                vertical-align top
+                padding-left 10px
+                float left
+
+                .datevalue
+                    font-size 44px
+                    display inline-block
+                    vertical-align top
+                    float left
+
+                .monthyear
+                    font-size 15px
+                    float left
+                    margin-left 10px
+                    line-height 13px
+                    padding-top 5px
+                    width 32px
+
+                    .dayValue
+                        line-height 11px
+
+                    .yearValue
+                        font-size 11px
+
+            .time
+                height 44px
+                font-size 44px
+                color #fff
+                float left
+                width 135px
+                text-align center
+
+                .timePicker
+                    margin-left 7px
+                    
+                    span
+                        line-height 44px
+                        font-size inherit
+
+                    input
+                        line-height: 44px
+                        font-size 44px
+                        height initial
+                        width 47px
+                        margin -4px 0 0 0
+                        padding 0
+
+            .signatures
+                size 'abs' auto 5px 0 5px
+                height 18px
+                line-height 18px
+                font-size 14px
+
+                .button
+                    float left
+                    opacity 0.5
+                    padding 0 5px
+                    cursor pointer
+
+                    &.checked
+                        opacity 1
+
+        .buttons
+            size 'abs' 0 0 0 auto
+            width $scheduleHalfHeight
+
+            .button
+                position absolute
+                width $scheduleHalfHeight
+                height $scheduleHalfHeight
+
+                &.onSale
+                    top 0
+                    sprite "/resources/images/icons/comb/post-head.png" right bottom 360px 80px
+
+                    &.active
+                        //background #81AB85
+                        background-color #ffd700
+                        background-position right top
+
+                &.deletionTime
+                    top $scheduleHalfHeight
+                    background #E85B5B
+
+                    .option p
+                        height 100%
+                        color #fff
+                        font-size 12px
+                        line-height $scheduleHalfHeight
+                        text-align center
+
+                    .trash
+                        size 'full'
+                        sprite "/resources/images/icons/trash.png" center center $scheduleHalfHeight $scheduleHalfHeight
+                        background-color #000
+
+            &.cannotSale
+                .onSale
+                    display none
+
+                .deletionTime
+                    top 0
+                    height 100%
+
+                    .option p
+                        line-height $scheduleHeight
+
+        .timeright
+            position relative
+            display inline-block
+            border-radius 100px
+            width 66px
+            height 66px
+            background none
+            margin-left 15px
+            top 18px
+            text-align center
+
+            .switcher
+                cursor pointer
+                width 100%
+                height 100%
+
+                .option
+                    padding-top 22px
+
+                    p
+                        position relative
+                        width auto
+                        height 15px
+                        font-size 16px
+                        color #fff
+                        top -6px
+                        cursor pointer
+
+                    .trash
+                        size full
+                        sprite "/resources/images/icons/trash_icon.png" center center 25px 25px
+                        //cursor pointer
+
+            .background
+                position absolute
+                width 54px
+                height 54px
+                border-radius 100px
+                background rgba(255,255,255,0.2)
+                left 6px
+                top 6px
+                text-align center
+
+            .dollar
+                size full
+                sprite "/resources/images/icons/comb/schedule$.png"
+
+
+
+            //span
+            //    font-size 18px
+            //    line-height 65px
+            //    font-weight bold
+            //    color #fff
+            //    cursor pointer
+
+            .onSale
+                position absolute
+                top 5px
+                right 5px
+                width 24px
+                height 24px
+                background rgba(255, 255, 255, 0.3)
+                sprite "/resources/images/icons/comb/schedule$-mini.png"
+
+                &.trash
+                    sprite "/resources/images/icons/comb/schedule-trash-mini.png"
+
+        .timerightlocked
+            position relative
+            display inline-block
+            border-radius 100px
+            width 33px
+            height 33px
+            background #e0e3d6
+            margin-left 19px
+            top 33px
+
+            div
+                position absolute
+                border-radius 100px
+                width 21px
+                height 7px
+                background #fff
+                top 13px
+                left 6px
+
+            span
+                position absolute
+                left -8px
+                top -4px
+                width 38px
+                height 38px
+                z-index 10
+                font-size 200px
+                line-height 0
+                opacity 0
+
+        &.repost
+            background rgba(0,0,0,0.2)
+            .info
+                .name
+                    .gradient
+                        background: linear-gradient(to right, rgba(147,172,173,0) 0%, rgba(147,172,173,1) 100%);
+
+                        .turbo &
+                            background: rgb(147,172,173)
+            .buttons, .signatures
+                display none
+
+        &.success
+            background #034366
+            .info
+                .name
+                    .gradient
+                        background: linear-gradient(to right, rgba(255,255,255,0) 50%,rgba(3,67,102,1) 100%);
+
+                        .turbo &
+                            background: rgb(3,67,102)
+
+        &.success.repost
+            background #3e606b
+            .info
+                .name
+                    .gradient
+                        background: linear-gradient(to right, rgba(255,255,255,0) 50%,rgba(62,96,107,1) 100%);
+
+                        .turbo &
+                            background: rgb(62,96,107)
+
+        &.error
+            rgba(222, 47, 47, 0.9)
+            .info
+                .name
+                    .gradient
+                        background: linear-gradient(to right, rgba(255,255,255,0) 50%,rgba(224,17,61,1) 100%);
+
+                        .turbo &
+                            background: rgb(224,17,61)
+
+        &.error.repost
+            background #d96e65
+            .info
+                .name
+                    .gradient
+                        background: linear-gradient(to right, rgba(255,255,255,0) 50%,rgba(217,110,101,1) 100%);
+
+                        .turbo &
+                            background: rgb(217,110,101)
+
+    //li.contentType_image
+    //    width 130px
+    //    height 130px
+    //    margin 5px 0px 5px 10px
+
+    .footerSide
+        width 100%
+
+        .scheduleInfo
+            margin-top 10px
+            margin-bottom 10px
+            overflow hidden
+
+            &.repost
+                border-left 4px solid #BECDDC
+                margin-left 10px
+                padding-left: 5px
+
+            .communityIcon
+                width 60px
+                height 60px
+
+                margin: 0 10px
+
+                float: left
+                overflow hidden
+
+            .removeSchedule
+                color #000
+
+                &:hover
+                    color #ffa500
+
+        .switcher
+            display block
+            margin-bottom 15px
+            margin-left 10px
+
+            a.option
+                position relative
+                color black
+
+                &:hover
+                    color #ffa500
+        .options
+            margin-top 10px
+            .bl-checkbox
+                margin 0 10px
+
+        label.optionLabel
+            position: relative;
+            top: -3px;
+
+    .sorting-list
+        li.item.descripted
+            .contentComment
+                width 0
+                height 0
+                margin-left 0 !important
+                opacity 0
+
+.placeHolder
+    //border 1px dashed rgba(255,255,255,0.7)
+    background rgba(255,255,255,0.2)
+
+.helper-transparent
+    .contentComment
+        display: none
+
+.wrapper.postText
+    margin 4px
+
+    p
+        background rgba(247, 233, 141, 0.6)
+        padding 2%
+
+.wrapper.postPicture
+    margin 4px
+    display: block
+    float: left
+
+    img
+        width 60px
+        display: block
+        float: left
+
+    p.descr
+        float: left
+        position: relative
+        padding: 5px;
+        margin-left: 5px;
+
+        background rgba(247, 233, 141, 0.6)
+
+        max-width 75%
+
+        display none
+
+    .editWrapper
+        width 75%
+        float: left
+        margin-left 5px
+
+        display: none
+
+        textarea
+            float: left
+
+            margin 0
+            margin-bottom 5px
+
+            width 95%
+            min-height 60px
+
+        button
+            float: left
+
+    &.withComment
+        width 96%
+
+        p.descr
+            display: block
+
+    &.editComment
+        width 96%
+
+        p.descr
+            display: none
+
+        .editWrapper
+            display: block
+

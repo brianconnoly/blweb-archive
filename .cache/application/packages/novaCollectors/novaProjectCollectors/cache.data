@@ -1,0 +1,51 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaProjectCollectors/template.jade'] = "<div translate=\"'novaProjectCollectors_title'\" ng-if=\"items.length &gt; 0\" class=\"title\"></div> <div ng-repeat=\"item in items | filter:ugcFilter\" ng-click=\"activate(item)\" class=\"subItem novaItem novaItemDroppable noDrag\"> <div ng-click=\"ugcSettings(item, $event)\" class=\"settings\"></div> <div class=\"subTitle\">{{item.name}}</div> </div>";
+
+buzzlike.directive('novaProjectCollectors', function(novaDesktop, ugcService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectCollectors/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      if (scope.appItem.type === 'project') {
+        scope.items = ugcService.getByProjectId(scope.appItem.id);
+      } else {
+        scope.items = ugcService.getByCombId(scope.appItem.id);
+      }
+      scope.ugcFilter = function(item) {
+        var ref;
+        if (scope.appItem.type === 'comb') {
+          return ref = scope.appItem.id, indexOf.call(item.combIds, ref) >= 0;
+        }
+        return scope.appItem.id === item.projectId;
+      };
+      scope.activate = function(ugc) {
+        scope.flow.addFrame({
+          title: 'ugc',
+          directive: 'novaCollectorPostsFrame',
+          item: {
+            id: ugc.id,
+            type: 'ugc'
+          }
+        });
+        return true;
+      };
+      return scope.ugcSettings = function(ugc, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return scope.flow.addFrame({
+          title: 'ugc',
+          directive: 'novaCollectorSettingsFrame',
+          item: {
+            id: ugc.id,
+            type: 'ugc'
+          }
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectCollectors', ".novaProjectCollectors .subItem {\n  height: auto;\n  margin: 2px 0;\n  padding-left: 26px;\n}\n.novaProjectCollectors .subItem * {\n  cursor: pointer;\n}\n");

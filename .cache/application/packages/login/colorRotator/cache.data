@@ -1,0 +1,29 @@
+buzzlike.directive('colorRotator', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var currentColor, elem, intervalHandler, nextColor, prev;
+      scope.$on('$destroy', function() {
+        return clearInterval(intervalHandler);
+      });
+      elem = $(element);
+      prev = null;
+      currentColor = getRandomInt(0, 3);
+      nextColor = function() {
+        if (prev != null) {
+          elem.removeClass(prev);
+        }
+        currentColor++;
+        if (currentColor > 3) {
+          currentColor = 1;
+        }
+        prev = 'color' + currentColor;
+        return elem.addClass(prev);
+      };
+      intervalHandler = setInterval(nextColor, 15000);
+      return nextColor();
+    }
+  };
+});
+
+registerStyles('colorRotator', ".colorRotator.color1 .colorOverlay {\n  background: #6d9f28;\n}\n.colorRotator.color1 .transparentText {\n  color: #6d9f28 !important;\n}\n.colorRotator.color2 .colorOverlay {\n  background: #3786b4;\n}\n.colorRotator.color2 .transparentText {\n  color: #3786b4 !important;\n}\n.colorRotator.color3 .colorOverlay {\n  background: #fcbf09;\n}\n.colorRotator.color3 .transparentText {\n  color: #fcbf09 !important;\n}\n.colorRotator.color4 .colorOverlay {\n  background: #d0d0d0;\n}\n");

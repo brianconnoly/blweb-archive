@@ -1,0 +1,51 @@
+buzzlike.directive('novaItem', function(operationsService, $parse) {
+  return {
+    restrict: 'AC',
+    link: function(scope, element, attrs, ngModel) {
+      var itemId, unreg, unregCtx;
+      scope.novaItemInited = false;
+      if (attrs.novaItemContext != null) {
+        unregCtx = scope.$watch(attrs.novaItemContext, function(nVal) {
+          if ((nVal != null ? nVal.type : void 0) != null) {
+            unregCtx();
+            return scope.itemContext = nVal;
+          }
+        }, true);
+      }
+      if (attrs.novaItemObject != null) {
+        unreg = scope.$watch(attrs.novaItemObject, function(nVal) {
+          if ((nVal != null ? nVal.type : void 0) != null) {
+            unreg();
+            scope.novaItemInited = true;
+            scope.item = nVal;
+            if (attrs.novaItemWatch != null) {
+              return scope.$watch(attrs.novaItemObject, function(nVal) {
+                if (nVal != null) {
+                  scope.novaItemInited = true;
+                  return scope.item = nVal;
+                }
+              });
+            }
+          }
+        }, true);
+        return;
+      }
+      if ((attrs.novaItemType != null) && (attrs.novaItemId != null)) {
+        itemId = $parse(attrs.novaItemId)(scope);
+        scope.novaItemInited = true;
+        scope.item = operationsService.get(attrs.novaItemType, itemId);
+        if (attrs.novaItemWatch != null) {
+          scope.$watch(attrs.novaItemId, function(nVal) {
+            if (nVal != null) {
+              return scope.item = operationsService.get(attrs.novaItemType, nVal);
+            }
+          });
+        }
+        return;
+      }
+      if (scope.item != null) {
+        scope.novaItemInited = true;
+      }
+    }
+  };
+});

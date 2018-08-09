@@ -1,0 +1,205 @@
+tC['/nova/template.jade'] = "<div params=\"user.settings.wallpaperSettings\" class=\"novaWallpaper\"></div> <div class=\"novaDesktop\"></div> <div class=\"novaBuffer\"></div> <div ng-class=\"{'visible':user.novaWelcome}\" class=\"novaBar\"></div> <div id=\"novaAddMenu\" class=\"novaAddMenu\"></div> <div class=\"novaDragHelper\"></div> <div id=\"topProgressBar\" class=\"progressBar\"> <div class=\"value\"></div> </div>";
+
+buzzlike.directive('nova', function(account, streamService, novaDragHelper, stateManager, uploadService) {
+  return {
+    restrict: 'C',
+    template: tC['/nova/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var body, currentTarget, dragEnter, elem, enterCnt, getFileList, helper, items, leaveCnt, posHelper, removeEvents, setTarget;
+      elem = $(element);
+      scope.user = account.user;
+      body = $('body');
+      helper = $('<div>', {
+        "class": 'dropHoverHelper'
+      });
+      currentTarget = null;
+      setTarget = function(target, e) {
+        var actions, elmScope;
+        if (target === currentTarget) {
+          return true;
+        }
+        currentTarget = target;
+        elmScope = angular.element(target).scope();
+        actions = currentTarget.novaDrop.getActions(items, null, e);
+        if (actions.length > 0) {
+          novaDragHelper.show([]);
+          novaDragHelper.setActions(actions);
+          novaDragHelper.showHighLighter(target);
+          return true;
+        } else {
+          novaDragHelper.setActions([]);
+          novaDragHelper.hide();
+          novaDragHelper.flushHighlighter();
+          return false;
+        }
+      };
+      enterCnt = 0;
+      leaveCnt = 0;
+      getFileList = function(transferObject) {
+        var i, item, len, ref, ref1, res, result;
+        result = {};
+        if (transferObject.items) {
+          ref = transferObject.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if (item.type === '') {
+              result.folder = true;
+            }
+            if ((ref1 = item.type) === 'image/png' || ref1 === 'image/jpeg' || ref1 === 'image/gif') {
+              if (!result.image) {
+                result.image = 0;
+              }
+              result.image++;
+            }
+            if (item.type === 'text/plain') {
+              if (!result.text) {
+                result.text = 0;
+              }
+              result.text++;
+            }
+          }
+        }
+        res = [];
+        if (result.image > 0) {
+          res.push({
+            type: 'image'
+          });
+          if (result.image > 1) {
+            res.push({
+              type: 'image'
+            });
+          }
+        }
+        if (result.text > 0) {
+          res.push({
+            type: 'text'
+          });
+          if (result.text > 1) {
+            res.push({
+              type: 'text'
+            });
+          }
+        }
+        if (result.folder) {
+          res.push({
+            type: 'folder'
+          });
+        }
+        return res;
+      };
+      items = [];
+      dragEnter = function(e) {
+        var dropTarget, foundTarget, origE, ref;
+        enterCnt++;
+        if (e.dataTransfer.types.indexOf("Files") < 0) {
+          return false;
+        }
+        items = getFileList(e.dataTransfer);
+        if (!(((ref = stateManager.getCurrentState()) != null ? ref.name : void 0) === 'dropUpload')) {
+          stateManager.applyState({
+            name: 'dropUpload',
+            escape: function() {
+              removeEvents();
+              return stateManager.goBack();
+            }
+          });
+        }
+        origE = e.originalEvent;
+        posHelper(e);
+        e.stopPropagation();
+        e.preventDefault();
+        dropTarget = e.target;
+        foundTarget = false;
+        while (dropTarget) {
+          if (dropTarget.novaDrop) {
+            if (setTarget(dropTarget, origE)) {
+              foundTarget = true;
+              break;
+            }
+          }
+          dropTarget = dropTarget.parentNode;
+        }
+        return scope.$apply();
+      };
+      elem.on('dragenter', dragEnter).on('dragleave', function(e) {
+        leaveCnt++;
+        if (enterCnt === leaveCnt) {
+          return removeEvents();
+        }
+      }).on('dragover', function(e) {
+        posHelper(e);
+        e.stopPropagation();
+        return e.preventDefault();
+      }).on('drop', function(e) {
+        var cbData;
+        e.stopPropagation();
+        e.preventDefault();
+        removeEvents(true);
+        cbData = {
+          action: null,
+          e: null,
+          items: null,
+          ids: null
+        };
+        uploadService.upload(e.dataTransfer, function(items, ids) {
+          cbData.items = items;
+          cbData.ids = ids;
+          if (cbData.action != null) {
+            return cbData.action(cbData.e, items, ids);
+          }
+        });
+        novaDragHelper.preAction = function(action, e2) {
+          cbData.action = action;
+          cbData.e = e2;
+          if (cbData.items != null) {
+            return action(e2, cbData.items, cbData.ids);
+          }
+        };
+        return novaDragHelper.activate(e);
+      }).on('dragend', function(e) {
+        return true;
+      });
+      posHelper = function(e) {
+        var bodyHei, bodyWid, helperPos, origE;
+        origE = e.originalEvent;
+        bodyWid = body.width();
+        bodyHei = body.height();
+        helperPos = {
+          x: origE.pageX,
+          y: origE.pageY
+        };
+        if (origE.pageX > bodyWid - 210 - 20) {
+          helperPos.x = origE.pageX - 20;
+          novaDragHelper.elem.addClass('lefty');
+        } else {
+          helperPos.x = origE.pageX + 20;
+          novaDragHelper.elem.removeClass('lefty');
+        }
+        if (origE.pageY > bodyHei - 120) {
+          helperPos.y = bodyHei - 100;
+        } else {
+          helperPos.y = origE.pageY + 20;
+        }
+        novaDragHelper.elem.css('transform', "translate3d(" + helperPos.x + "px," + helperPos.y + "px, 0)");
+        return true;
+      };
+      return removeEvents = function(leaveHelepr) {
+        var ref;
+        if (leaveHelepr == null) {
+          leaveHelepr = false;
+        }
+        if (((ref = stateManager.getCurrentState()) != null ? ref.name : void 0) === 'dropUpload') {
+          stateManager.goBack();
+        }
+        enterCnt = leaveCnt = 0;
+        currentTarget = null;
+        helper.detach();
+        if (!leaveHelepr) {
+          return novaDragHelper.hide();
+        }
+      };
+    }
+  };
+});
+
+registerStyles('nova', ".nova {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.nova .wallpaper {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.nova .novaDesktop {\n  position: absolute;\n  top: 0;\n  bottom: 40px;\n  left: 0;\n  right: 0;\n}\n.nova .progressBar {\n  position: absolute;\n  top: 0;\n  right: 0;\n  left: 0;\n  height: 2px;\n  pointer-events: none;\n  z-index: 9999;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.nova .progressBar .value {\n  height: 100%;\n  background: rgba(255,30,49,0.9);\n  -webkit-transition: width 0.2s ease;\n  -moz-transition: width 0.2s ease;\n  -o-transition: width 0.2s ease;\n  -ms-transition: width 0.2s ease;\n  transition: width 0.2s ease;\n}\n.nova .progressBar.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

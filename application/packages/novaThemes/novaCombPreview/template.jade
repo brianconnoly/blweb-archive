@@ -1,0 +1,9 @@
+div.cover.novaItem.novaItemPreview(ng-if="previewItem.coverId", nova-item-id="previewItem.coverId",nova-item-type="image")
+div.bottomShield
+    div.topLine.name
+        div.wrapper
+            div.centered
+                img(src="/resources/images/nova/entities/comb.svg")
+                span {{::simpleNumber(item.lastStats.activity)}}
+    div.bottomLine
+        div.inner.name {{item.name}}

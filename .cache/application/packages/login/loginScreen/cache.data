@@ -1,0 +1,67 @@
+tC['/loginScreen/template.jade'] = "<div class=\"colorRotator\"> <div class=\"background\"><img src=\"/resources/images/login/bg128blur.png\"/> <div class=\"colorOverlay\"></div> </div> <div class=\"buzzLogo logo\"><img src=\"/resources/images/login/dark.svg\" width=\"40px\" height=\"45px\" class=\"dark\"/><img src=\"/resources/images/login/light.svg\" width=\"40px\" height=\"45px\" class=\"light\"/> <div class=\"text\">buzzlike</div> </div> <div class=\"modeFrame default\"> <div ng-repeat=\"item in networks\" class=\"loginButton\"> </div><br/> <div class=\"buzz\"> <div ng-click=\"goBuzz()\" class=\"buzzRuLogo\">Buzz!</div> <div class=\"buzzHelper\">Test helper</div> </div> </div> <div class=\"modeFrame blLogin\"> </div> <div class=\"modeFrame newSocial\"> <div class=\"panel loginNewSocial\"></div> <div class=\"panel blLogin\"></div> </div> <div class=\"modeFrame loginRules\"></div> <div class=\"modeFrame loginBuzzRu\"></div> <div class=\"bottomLinks\"><a ng-click=\"showRules()\" translate=\"'about_buzz_rules'\" class=\"bottomLink\"></a> </div> <div style=\"color: black; font-size: 10px\" class=\"version\">Buzzlike FE version {{::fVersion}}</div> </div>";
+
+buzzlike.directive('loginScreen', function(loginService, stateManager, localization) {
+  return {
+    restrict: 'C',
+    template: tC['/loginScreen/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var buzzHelpers, current, elem, frames, helperCnt, helperItem, rotateHelper;
+      elem = $(element);
+      frames = elem.children('.modeFrame');
+      current = null;
+      scope.$watch(function() {
+        return loginService.state.mode;
+      }, function(nVal, oVal) {
+        elem.removeClass('mode_' + oVal);
+        elem.addClass('mode_' + nVal);
+        if (nVal !== current) {
+          frames.addClass('hidden');
+          elem.children('.modeFrame.' + nVal).removeClass('hidden');
+          return current = nVal;
+        }
+      });
+      stateManager.applyState({
+        'enter': 'default',
+        'escape': function() {
+          return loginService.state.mode = scope.rulesFrom || 'default';
+        }
+      });
+      scope.rulesFrom = null;
+      scope.showRules = function() {
+        scope.rulesFrom = loginService.state.mode;
+        if (scope.rulesFrom === 'loginRules') {
+          scope.rulesFrom = null;
+        }
+        return loginService.state.mode = 'loginRules';
+      };
+      scope.goBuzz = function() {
+        return loginService.state.mode = 'loginBuzzRu';
+      };
+      buzzHelpers = [1, 2, 3];
+      helperCnt = 0;
+      helperItem = elem.find('.buzzHelper');
+      rotateHelper = function() {
+        helperItem.removeClass('visible');
+        return setTimeout(function() {
+          helperItem.html(localization.translate('buzzLoginHelper_' + buzzHelpers[helperCnt]));
+          helperCnt++;
+          if (helperCnt > buzzHelpers.length - 1) {
+            helperCnt = 0;
+          }
+          return helperItem.addClass('visible');
+        }, 500);
+      };
+      return setTimeout(function() {
+        var interval;
+        rotateHelper();
+        interval = setInterval(rotateHelper, 8000);
+        return scope.$on('$destroy', function() {
+          return clearInterval(interval);
+        });
+      }, 2000);
+    }
+  };
+});
+
+registerStyles('loginScreen', ".loginScreen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.loginScreen .logo {\n  z-index: 1;\n}\n.loginScreen.mode_loginRules .background {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.loginScreen.mode_loginRules .logo {\n  color: #000;\n}\n.loginScreen.mode_loginRules .logo .light {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.loginScreen.mode_loginRules .logo .dark {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.loginScreen.mode_loginRules .bottomLinks {\n  bottom: 0;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  pointer-events: none;\n}\n.loginScreen .background {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.loginScreen .background img {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100%;\n  height: 100%;\n}\n.loginScreen .background .colorOverlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  opacity: 0.7;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=70)\";\n  filter: alpha(opacity=70);\n  -webkit-transition: background-color 5s ease;\n  -moz-transition: background-color 5s ease;\n  -o-transition: background-color 5s ease;\n  -ms-transition: background-color 5s ease;\n  transition: background-color 5s ease;\n}\n.loginScreen .modeFrame {\n  position: absolute;\n  width: 100%;\n  top: 50%;\n  text-align: center;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.loginScreen .modeFrame.hidden {\n  pointer-events: none;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.loginScreen .modeFrame.default {\n  height: 120px;\n  margin-top: -60px;\n}\n.loginScreen .modeFrame.default.hidden {\n  margin-top: 60px;\n}\n.loginScreen .modeFrame.default .buzz {\n  display: inline-block;\n  margin-top: 20px;\n  height: 70px;\n}\n.loginScreen .modeFrame.default .buzz .buzzRuLogo {\n  position: relative;\n  font-family: 'Impact';\n  text-transform: uppercase;\n  font-size: 70px;\n  color: rgba(255,255,255,0.2);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  z-index: 2;\n}\n.loginScreen .modeFrame.default .buzz:hover .buzzRuLogo {\n  color: rgba(255,255,255,0.5);\n  cursor: pointer;\n}\n.loginScreen .modeFrame.default .buzz .buzzHelper {\n  position: relative;\n  margin-top: -10px;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  color: rgba(255,255,255,0.9);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  pointer-events: none;\n  z-index: 1;\n  -webkit-transform: scale(0.8);\n  -moz-transform: scale(0.8);\n  -o-transform: scale(0.8);\n  -ms-transform: scale(0.8);\n  transform: scale(0.8);\n  width: 170px;\n  font-size: 16px;\n}\n.loginScreen .modeFrame.default .buzz .buzzHelper.visible {\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  margin-top: 5px;\n}\n.loginScreen .modeFrame.blLogin,\n.loginScreen .modeFrame.newSocial {\n  height: 350px;\n  margin-top: -175px;\n}\n.loginScreen .modeFrame.blLogin.hidden,\n.loginScreen .modeFrame.newSocial.hidden {\n  margin-top: -320px;\n}\n.loginScreen .modeFrame.newSocial {\n  text-align: center;\n}\n.loginScreen .modeFrame.loginRules {\n  top: 0;\n  height: 100%;\n  margin-top: 0;\n}\n.loginScreen .modeFrame.loginRules.hidden {\n  top: 50px;\n}\n.loginScreen .modeFrame .panel {\n  display: inline-block;\n  width: 300px;\n  margin: 0 30px;\n  vertical-align: middle;\n}\n.loginScreen .modeFrame .headText {\n  text-align: center;\n  color: #fff;\n  font-size: 30px;\n  width: 300px;\n}\n.loginScreen .bottomLinks {\n  position: absolute;\n  width: 100%;\n  text-align: center;\n  color: #fff;\n  bottom: 30px;\n  margin-bottom: 0;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.loginScreen .bottomLinks span {\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n}\n.loginScreen .bottomLinks .bottomLink {\n  text-decoration: none;\n  cursor: pointer;\n  font-size: 17px;\n  margin: 0 5px;\n}\n.loginScreen .version {\n  position: absolute;\n  bottom: 10px;\n  left: 10px;\n  color: #fff;\n  z-index: 1000;\n}\n");

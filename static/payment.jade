@@ -1,0 +1,138 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        script(src="//code.jquery.com/jquery-2.1.1.min.js")
+        title Запрос...
+        style.
+
+            /* mutual/main.css */
+            @font-face {
+                font-family: 'Helvetica Neue';
+                src: url("/fonts/HelveticaNeue-Light.eot");
+                src: local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/HelveticaNeueLTPro-Lt.otf") format("otf"), url("/fonts/HelveticaNeue-Light.svg#HelveticaNeue-Light") format("svg"), url("/fonts/HelveticaNeue-Light.woff") format("woff"), url("/fonts/HelveticaNeue-Light.ttf") format("ttf");
+                font-weight: 300;
+            }
+            @font-face {
+                font-family: 'Helvetica Neue';
+                src: url("/fonts/HelveticaNeue-Medium.eot");
+                src: local("Helvetica Neue Medium"), local("HelveticaNeue-Medium"), url("/fonts/HelveticaNeue-Medium.svg#HelveticaNeue-Medium") format("svg"), url("/fonts/HelveticaNeue-Medium.woff") format("woff");
+                font-weight: 400;
+            }
+            @font-face {
+                font-family: "DINCyr-Light";
+                src: url("/fonts/HelveticaNeue-Light.eot");
+                src: local("DINCyr-Light"), url("/fonts/DinCyLt.ttf"), local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/HelveticaNeueLTPro-Lt.otf") format("otf"), url("/fonts/HelveticaNeue-Light.svg#HelveticaNeue-Light") format("svg"), url("/fonts/HelveticaNeue-Light.woff") format("woff");
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }
+            body{
+                background: #eee;
+                color: #3a363b;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                text-align: center;
+                -webkit-font-smoothing: antialiased;
+                font-family: "Helvetica Neue", sans-serif;
+                font-weight: 300;
+            }
+            .message {
+                display: inline-block;
+                padding-top: 40px;
+                font-size: 18px;
+            }
+            .message button {
+                line-height: 40px;
+                font-size: 20px;
+                min-width: 150px;
+                margin-top: 40px;
+                background: #3d3d3d;
+                color: #eee;
+                cursor: pointer;
+            }
+            /* ------------- */
+
+            /* loadeingAnimations/circles.css */
+            @keyframes toggle {
+                0%   {opacity: 0}
+                30%  {opacity: 1}
+                100% {opacity: 0}
+            }
+            @-moz-keyframes toggle {
+                0%   {opacity: 0}
+                30%  {opacity: 1}
+                100% {opacity: 0}
+            }
+            @-o-keyframes toggle {
+                0%   {opacity: 0}
+                30%  {opacity: 1}
+                100% {opacity: 0}
+            }
+            @-webkit-keyframes toggle {
+                0%   {opacity: 0}
+                30%  {opacity: 1}
+                100% {opacity: 0}
+            }
+            div#rounds {
+                position: absolute;
+                top: 48%;
+                left: 50%;
+                margin: -65px 0 0 -260px
+            }
+            div.round {
+                position: relative;
+                margin: 0 15px;
+                float: left;
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background: black;
+                opacity: 0;
+                -webkit-animation: toggle 1.7s linear 0.1s infinite;
+                -moz-animation: toggle 1.7s linear 0.1s infinite;
+                -o-animation: toggle 1.7s linear 0.1s infinite;
+                animation: toggle 1.7s linear 0.1s infinite;
+            }
+            /* ------------------------------ */
+
+
+
+
+
+
+
+    body
+        div#rounds
+        script.
+            // loadingAnimations/circles.js
+            var I, appendRound, rounds;
+            rounds = 0;
+            appendRound = function() {
+                var round;
+                round = $('<div class="round">').appendTo("#rounds");
+                if (++rounds >= 4) {
+                    return clearInterval(I);
+                }
+            };
+            I = setInterval(appendRound, 300);
+
+        script.
+            // payment/sendRequest.js
+            var sendPayment;
+            sendPayment = function(url, data) {
+                var form, k, v;
+                form = $('<form style="opacity: 0; position: absolute" action="' + url + '" method="POST">');
+                for (k in data) {
+                    v = data[k];
+                    form.append('<input type="hidden" name="' + k + '" value="' + v + '"/>');
+                }
+                form.appendTo('body').submit();
+            };
+            sendPayment(paymentUrl, paymentParams);
+

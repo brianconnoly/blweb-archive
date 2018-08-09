@@ -1,0 +1,6 @@
+div.title(translate="moduleName", ng-click="activateAll()")
+div.subItem(
+    ng-repeat="subItem in subItems", 
+    ng-click="activateSubItem(subItem)",
+    ng-class="{'active':isActive(subItem)}")
+    div.subTitle(translate="subItem.phrase")

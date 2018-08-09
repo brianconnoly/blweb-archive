@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="690px" height="2390px" viewBox="0 0 690 2390" enable-background="new 0 0 690 2390" xml:space="preserve">
+
+<defs>
+  <style type="text/css">
+   <![CDATA[
+    @font-face {
+        font-family: 'HelveticaNeue-Light';
+        src:url("/fonts/777240/5b85c7cc-6ad4-4226-83f5-9d19e2974123.eot?#iefix");
+	    src:local("Helvetica Neue Light"), local("HelveticaNeue-Light"), url("/fonts/777240/3fc84193-a13f-4fe8-87f7-238748a4ac54.svg#3fc84193-a13f-4fe8-87f7-238748a4ac54") format("svg"), url("/fonts/777240/835e7b4f-b524-4374-b57b-9a8fc555fd4e.woff") format("woff"),url("/fonts/777240/2c694ef6-9615-473e-8cf4-d8d00c6bd973.ttf") format("truetype");
+    }
+   ]]>
+ </style>
+</defs>
+
+<rect x="0" y="2.864" fill="#FFFFFF" width="690" height="2384.535"/>
+<image overflow="visible" width="2233" height="1442" xlink:href="CB146F4D798A7B59.jpg"  transform="matrix(0.24 0 0 0.24 50.1345 801.2767)">
+</image>
+<g>
+	<rect x="52.545" y="106.32" fill="none" width="577.927" height="40.848"/>
+	<text transform="matrix(0.9975 0 0 1 52.5454 116.3161)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Для быстрой навигации в buzzlike предусмотрено несколько возможностей. Перемотка </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">интервалами или плавным скролом, а так же классический календарь.</tspan></text>
+</g>
+<text transform="matrix(0.9975 0 0 1 52.0299 85.1408)" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="26">Навигация по времени</text>
+<g>
+	<rect x="50.148" y="200.39" fill="none" width="577.927" height="39.835"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 210.3854)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Для быстрого перехода на небольшие отрезки времени в прошлое и будущее, </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">используйте кнопки перемотки в начале и конце таймлайна.</tspan></text>
+</g>
+<g>
+	<rect x="50.148" y="439.099" fill="none" width="577.927" height="95.25"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 449.0951)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Кликните на кнопку &quot;сейчас&quot; для перехода на текущее время. Используйте полоску </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">скрола для перемотки таймлайна. Чем дальше от центра вы нажмете, тем быстрее будет </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">происходить перемотка. Если вы удержите кнопку при перемотке, она будет </tspan><tspan x="0" y="66" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">продолжаться</tspan></text>
+</g>
+<g>
+	<rect x="50.148" y="700.746" fill="none" width="577.927" height="107.603"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 710.7421)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Используйте календарь для быстрой навигации по дням, неделям, месяцам. Нажмите на </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">кнопку вызова календаря каждого таймлайна отдельно. Вызванный календарь управляет </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">только одним каналом. При переходе на выбранную дату календарь закроется. Чтобы не </tspan><tspan x="0" y="66" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">закрывать календарь — удержите ctrl при клике на дату.</tspan></text>
+</g>
+<text transform="matrix(0.9975 0 0 1 49.6324 180.3278)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14">Кнопки перемотки</text>
+<text transform="matrix(0.9975 0 0 1 49.6324 679.2145)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14">Календарь</text>
+<g>
+	<rect x="50.148" y="1198.945" fill="none" width="577.927" height="117.716"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 1208.9408)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">Скрывайте пустое время  для удобной навигации по медиапланам или прошлым </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">периодам. Кнопка изменения масштаба выбирает 1 из 3 предложенных вариантов </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">сжатия. Отображение поминутно, сжатие до 3-часовых интервалов, сжатие до суточных </tspan><tspan x="0" y="66" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">интервалов. Масштаб сжимает только незаполненное время, поэтому посты смещаться </tspan><tspan x="0" y="88" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">не будут.</tspan></text>
+</g>
+<g>
+	<rect x="50.148" y="2235.887" fill="none" width="577.927" height="117.716"/>
+	<text transform="matrix(0.9975 0 0 1 50.1479 2245.8828)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">При сжатом масштабе интервалы для планирования так же скрыты. Для планирования в </tspan><tspan x="0" y="22" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">таком режиме можно использовать дабл клик для вызова меню создания поста с </tspan><tspan x="0" y="44" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="14">редактированием времени на более точное.</tspan></text>
+</g>
+<text transform="matrix(0.9975 0 0 1 49.6324 1177.4139)" fill="#494949" font-family="'HelveticaNeue-Bold'" font-size="14">Сжатие свободного времени</text>
+<circle fill="#FDF000" cx="124.452" cy="339.931" r="7.5"/>
+<g>
+	<rect x="111.451" y="385.384" fill="none" width="455.32" height="46.376"/>
+	<text transform="matrix(0.9975 0 0 1 190.8661 393.9518)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">Используйте сочетание ctrl+click на кнопки перемотки </tspan><tspan x="59.711" y="14" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">для быстрого перехода на сутки</tspan></text>
+</g>
+<image overflow="visible" width="2324" height="507" xlink:href="CB146F4D798A7B5B.jpg"  transform="matrix(0.24 0 0 0.24 61.6941 251.4148)">
+</image>
+<circle fill="#FDF000" cx="337.536" cy="616.928" r="7.5"/>
+<image overflow="visible" width="2324" height="379" xlink:href="CB146F4D798A7B5E.jpg"  transform="matrix(0.24 0 0 0.24 61.6941 546.0891)">
+</image>
+<g>
+	<rect x="348.662" y="1087.848" fill="none" width="240.052" height="99.104"/>
+	<text transform="matrix(0.9975 0 0 1 348.6624 1096.416)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">В режиме минимального масштаба </tspan><tspan x="0" y="14" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">календарь вызывается из меню </tspan><tspan x="0" y="28" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">сообщества (клик на аватарку).</tspan></text>
+</g>
+<g>
+	<rect x="459.358" y="844.252" fill="none" width="164.072" height="62.271"/>
+	<text transform="matrix(0.9975 0 0 1 459.3578 852.8193)"><tspan x="0" y="0" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">В среднем и крупном </tspan><tspan x="0" y="14" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">масштабе календарь </tspan><tspan x="0" y="28" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">находится прямо под </tspan><tspan x="0" y="42" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">аватаркой.</tspan></text>
+</g>
+<image overflow="visible" width="2324" height="1163" xlink:href="CB146F4D798A7B5F.jpg"  transform="matrix(0.24 0 0 0.24 60.3285 1328.4205)">
+</image>
+<image overflow="visible" width="2324" height="956" xlink:href="CB146F4D798A7B5A.jpg"  transform="matrix(0.24 0 0 0.24 60.3285 1659.3318)">
+</image>
+<text transform="matrix(0.9975 0 0 1 279.612 1628.4272)" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">Поминутный масштаб</text>
+<text transform="matrix(0.9975 0 0 1 192.2735 1909.9517)" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">Сжатие свободного места до 3-часовых интервалов.</text>
+<text transform="matrix(0.9975 0 0 1 291.5829 2203.2407)" fill="#494949" font-family="'HelveticaNeue-Light'" font-size="12">Сжатие до суток</text>
+<image overflow="visible" width="2324" height="1006" xlink:href="CB146F4D798A7B55.jpg"  transform="matrix(0.24 0 0 0.24 60.3286 1939.9818)">
+</image>
+</svg>

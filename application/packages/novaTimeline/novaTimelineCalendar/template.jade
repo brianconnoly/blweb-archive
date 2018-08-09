@@ -1,0 +1,42 @@
+div.calendar
+    div.monthSwitcher
+        div.rightArrow(ng-click="nextMonth()") >
+        div.leftArrow(ng-click="prevMonth()") <
+        div.monthBar {{currentMonthTime | timestampMask:'MMMM'}}
+    div.weekDays
+        div.day(translate="'148'",index="1")
+        div.day(translate="'149'",index="1")
+        div.day(translate="'150'",index="1")
+        div.day(translate="'151'",index="1")
+        div.day(translate="'152'",index="1")
+        div.day(translate="'153'",index="1")
+        div.day(translate="'147'",index="1")
+    div.weekLine(ng-repeat="week in weeks track by week.timestamp")
+        div.weekNumber(
+            ng-class="{'current':week.current, 'grey':week.grey}"
+            ) {{::week.timestamp | timestampMask:'wk'}}
+        div.calendarDay(
+            ng-repeat="day in week.days track by day.timestamp", 
+            ng-class="{'current':day.current,'grey':day.grey}",
+            ng-click="clickDay(day)"            
+            ) {{::day.date}}
+    
+div.stats 
+    div.header(translate="'novaTimelineCalendar_statsHead'")
+    div.statBlock
+        div.statHead.cap {{scrollerParams.cursor | timestampMask:'MMMM'}}
+        div.statsValue
+            div.percent {{monthPerc}}%
+            div.value {{monthVal | formatNumber}}
+    
+    div.statBlock
+        div.statHead {{scrollerParams.cursor | timestampMask:'wk неделя'}}
+        div.statsValue
+            div.percent {{weekPerc}}%
+            div.value {{weekVal | formatNumber}}
+    
+    div.statBlock
+        div.statHead {{scrollerParams.cursor | timestampMask:'D ofMMMM'}}
+        div.statsValue
+            div.percent {{dayPerc}}%
+            div.value {{dayVal | formatNumber}}

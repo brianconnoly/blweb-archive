@@ -1,0 +1,5 @@
+div.head
+    div.time {{::item.timestamp | timestampMask:'hh:mm'}}
+    div.postStream.novaStreamIndicator(nova-stream-item="post")
+        div.novaStreamIndicatorLastMessage
+div.post.novaItemScope.novaItem.novaItemPreview(ng-if="!(currentZoom > 0)", nova-item-object="post",nova-item-preview-type="timeline")

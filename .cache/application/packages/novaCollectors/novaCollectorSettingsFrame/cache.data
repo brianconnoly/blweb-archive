@@ -1,0 +1,39 @@
+tC['/novaCollectorSettingsFrame/template.jade'] = "<div class=\"novaSettingsLayout\"> <div class=\"settingsBlock\"> <div translate=\"'novaCollectorSettings_name'\" class=\"settingsTitle\"></div> <div ng-model=\"ugc.name\" placeholder-text=\"'novaCollectorSettings_name_placeholder'\" ng-change=\"save()\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }\" class=\"novaEditableDiv\"></div> </div> <div class=\"settingsBlock\"> <div translate=\"'novaCollectorSettings_delete'\" ng-click=\"deleteGroup()\" class=\"settingsButton textButton caution\"></div> </div> </div>";
+
+buzzlike.directive('novaCollectorSettingsFrame', function(ugcService, novaDesktop) {
+  return {
+    restrict: 'C',
+    template: tC['/novaCollectorSettingsFrame/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.flowFrame.maxWidth = 320;
+      scope.ugc = ugcService.getById(scope.flowFrame.item.id);
+      scope.save = function() {
+        return ugcService.save(scope.ugc);
+      };
+      return scope.deleteUGC = function() {
+        return novaDesktop.launchApp({
+          app: 'novaOptionsListApp',
+          noSave: true,
+          data: {
+            text: 'novaCollectorSettings_confirm_delete',
+            description: 'popup_collector_delete_subtitle',
+            onAccept: (function(_this) {
+              return function() {
+                return ugcService["delete"]({
+                  id: scope.ugc.id,
+                  type: scope.ugc.type
+                }, function() {
+                  return scope.flowBox.closeFlowFrame(scope.flowFrame);
+                });
+              };
+            })(this)
+          }
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaCollectorSettingsFrame', ".novaCollectorSettingsFrame {\n  overflow-y: auto;\n}\n.novaCollectorSettingsFrame .communityBox {\n  float: left;\n  width: 60px;\n  height: 60px;\n  margin: 5px;\n  border: 1px solid #f2f2f2;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaCollectorSettingsFrame .communityBox .novaItemPreview {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.novaCollectorSettingsFrame .communityBox:hover .name {\n  max-height: 60px;\n}\n.novaCollectorSettingsFrame .communityBox:hover .novaRemove {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaCollectorSettingsFrame .communityBox .name {\n  padding: 2px 4px;\n  font-size: 9px;\n  max-height: 20px;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaCollectorSettingsFrame .communityBox .novaRemove {\n  position: absolute;\n  top: 4px;\n  right: 4px;\n}\n.novaCollectorSettingsFrame .addCommunity {\n  text-align: center;\n  line-height: 60px;\n  font-size: 50px;\n  font-weight: 200;\n  cursor: pointer;\n}\n.novaCollectorSettingsFrame .ruleItem {\n  overflow: hidden;\n  padding: 4px 5px;\n}\n.novaCollectorSettingsFrame .ruleItem .textButton {\n  font-size: 14px;\n  line-height: 24px;\n  float: right;\n  z-index: 2;\n}\n");

@@ -1,0 +1,35 @@
+tC['/novaProjectThemes/template.jade'] = "<div translate=\"moduleName\" ng-click=\"activateAll()\" ng-class=\"{'active':flow.currentCode == 'projectThemes'}\" class=\"title\"></div> <div ng-repeat=\"combId in appItem.modules.combs.pinned\" ng-click=\"activatePinned(combId)\" class=\"subItem extended noDrag\"> <div nova-item-id=\"combId\" nova-item-type=\"comb\" nova-item-preview-type=\"pinned\" nova-item-context=\"appItem\" class=\"pinnedItem novaItemScope novaItem novaItemPreview novaItemDraggable novaItemDroppable novaItemMenu\"></div> </div>";
+
+buzzlike.directive('novaProjectThemes', function(groupService, novaDesktop, combService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectThemes/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.moduleName = 'novaProjectThemes_title';
+      scope.pinned = [];
+      scope.activatePinned = function(comb) {
+        novaDesktop.launchApp({
+          app: 'novaThemesApp',
+          item: {
+            id: comb,
+            type: 'comb'
+          }
+        });
+        return true;
+      };
+      return scope.activateAll = function() {
+        scope.flow.addFrame({
+          translateTitle: 'novaThemesFrame',
+          unitCode: 'themes',
+          directive: 'novaThemesFrame',
+          code: 'projectThemes'
+        });
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectThemes', ".novaProjectThemes .subItem {\n  height: auto;\n  margin: 2px 0;\n  padding-left: 26px;\n}\n.novaProjectThemes .subItem * {\n  cursor: pointer;\n}\n");

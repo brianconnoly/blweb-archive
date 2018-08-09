@@ -1,0 +1,27 @@
+div.dragHandler.topBar.noSettings.black
+    process-bar
+
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+div.body.widthCrombs
+    
+    div.helpLeft
+        div.section(ng-repeat="section in catalog", ng-class="{'active':currentSection == section}")
+            div.sectionHead(ng-click="section.expanded = !section.expanded")
+                div.expander(ng-class="{'expanded':section.expanded}")
+                div.icon
+                    img(src="{{section.icon}}")
+                div.title(translate="section.translateTitle")
+            div.sectionPages(ng-style="{'height':getSectionHeight(section)}")
+                div.pageHead(ng-repeat="page in section.pages", ng-class="{'active':currentStep == page}", ng-click="selectSection(section, page)", translate="page.translateTitle")
+
+    div.helpRight(ng-class="{'compact':compact}")
+        div.center(ng-if="currentStep.file")
+            object.helpFile(data="{{getHelpFile()}}", type="image/svg+xml", ng-class="{'visible':loaded}")
+                embed(src="{{getHelpFile()}}", type="image/svg+xml")
+
+bread-crombs

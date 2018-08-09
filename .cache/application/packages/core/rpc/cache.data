@@ -1,0 +1,135 @@
+buzzlike.service('rpc', function(socketService, $rootScope, notificationCenter) {
+  var call, callId, callbacks, clearErrorFlush, cnt, debug, flushHandlers, progressStack, registerErrorFlush, showErr;
+  callId = 0;
+  callbacks = {};
+  progressStack = {};
+  showErr = {};
+  debug = 1;
+  socketService.on('rpcAnswer', function(pack) {
+    var base, base1, handler, k, ref;
+    if (debug === 1) {
+      blog('↓ ' + pack.callId, pack.data);
+    }
+    if (((ref = pack.data) != null ? ref.err : void 0) === true) {
+      if (!(typeof callbacks[pack.callId].error === 'function') || callbacks[pack.callId].error(pack.data)) {
+        notificationCenter.addMessage({
+          text: 'rpc_error_' + pack.data.code,
+          error: pack.data.code === 4 ? false : true
+        });
+      }
+      for (k in flushHandlers) {
+        handler = flushHandlers[k];
+        handler();
+      }
+    } else {
+      if (typeof (base = callbacks[pack.callId]).success === "function") {
+        base.success(pack.data);
+      }
+    }
+    if (typeof (base1 = callbacks[pack.callId]).anyway === "function") {
+      base1.anyway(pack.data);
+    }
+    delete callbacks[pack.callId];
+    progressStack[pack.callId].value = 100;
+    notificationCenter.updateStatus(progressStack[pack.callId]);
+    $rootScope.$applyAsync();
+    return true;
+  });
+  socketService.on('rpcStatus', function(pack) {
+    var ref;
+    if (debug === 1) {
+      blog('⇢' + pack.callId, pack.status, pack.progress + '%');
+    }
+    if ((ref = callbacks[pack.callId]) != null) {
+      if (typeof ref.progress === "function") {
+        ref.progress(pack.status, pack.progress);
+      }
+    }
+    $rootScope.$applyAsync();
+    return true;
+  });
+  socketService.onDisconnect(function() {
+    var handlers, id, results;
+    results = [];
+    for (id in callbacks) {
+      handlers = callbacks[id];
+      console.log(id, handlers);
+      if (typeof handlers.anyway === "function") {
+        handlers.anyway(error(99999, 'Disconnected'));
+      }
+      if (typeof handlers.error === "function") {
+        handlers.error(error(99999, 'Disconnected'));
+      }
+      results.push(delete callbacks[id]);
+    }
+    return results;
+  });
+  call = function(method, data, cb, forceErrResult) {
+    var callData, pack, progress, storedCb;
+    progress = notificationCenter.registerProgress(true);
+    progressStack[callId] = progress;
+    if (typeof data === 'function') {
+      cb = data;
+      data = {};
+    }
+    storedCb = null;
+    if (typeof method === 'object') {
+      callData = method;
+      method = callData.method;
+      data = callData.data || {};
+      storedCb = {};
+      if (typeof callData.success === 'function') {
+        storedCb.success = callData.success;
+      }
+      if (typeof callData.complete === 'function') {
+        storedCb.success = callData.complete;
+      }
+      if (typeof callData.error === 'function') {
+        storedCb.error = callData.error;
+      }
+      if (typeof callData.anyway === 'function') {
+        storedCb.anyway = callData.anyway;
+      }
+      if (typeof callData.progress === 'function') {
+        storedCb.progress = callData.progress;
+      }
+    } else {
+      storedCb = {
+        success: cb
+      };
+      if (forceErrResult || (data != null ? data.showErrors : void 0) === true) {
+        storedCb.error = cb;
+      }
+    }
+    callbacks[callId] = storedCb;
+    pack = {
+      callId: callId,
+      method: method,
+      data: data || {}
+    };
+    callId++;
+    if (callId > 1000) {
+      callId = 0;
+    }
+    socketService.emit('rpcCall', pack);
+    if (debug === 1) {
+      return blog('↑ ' + pack.callId, method, data);
+    }
+  };
+  cnt = 0;
+  flushHandlers = {};
+  registerErrorFlush = function(handler) {
+    flushHandlers[cnt] = handler;
+    return cnt++;
+  };
+  clearErrorFlush = function(code) {
+    if (flushHandlers[code] != null) {
+      return delete flushHandlers[code];
+    }
+  };
+  return {
+    call: call,
+    registerErrorFlush: registerErrorFlush,
+    clearErrorFlush: clearErrorFlush
+  };
+});

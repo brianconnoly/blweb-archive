@@ -1,0 +1,148 @@
+buzzlike.service('socketAuth', function(socketService, rpc, localStorageService, account, notificationCenter) {
+  var accounts, authBuzzlike, fetchAccounts, fetchSession, init, inited, logout, onAuth, onAuthStack, onInitStack, onLogin, onLoginStack, onLogout, onLogoutStack, processSession, session;
+  inited = false;
+  onInitStack = [];
+  session = {};
+  processSession = function(session_data) {
+    var _doInit, action, authed, i, len;
+    authed = session.authed;
+    updateObject(session, session_data);
+    _doInit = function() {
+      var action, i, len;
+      inited = true;
+      for (i = 0, len = onInitStack.length; i < len; i++) {
+        action = onInitStack[i];
+        action();
+      }
+      return onInitStack.length = 0;
+    };
+    if (session_data.user_id + 1 && session.authed === true) {
+      return account.update(function() {
+        var action, i, j, len, len1;
+        if (authed !== true) {
+          for (i = 0, len = onAuthStack.length; i < len; i++) {
+            action = onAuthStack[i];
+            action();
+          }
+        }
+        if (authed === false) {
+          for (j = 0, len1 = onLoginStack.length; j < len1; j++) {
+            action = onLoginStack[j];
+            action();
+          }
+        }
+        return _doInit();
+      });
+    } else {
+      account.flushUser();
+      if (authed === true) {
+        for (i = 0, len = onLogoutStack.length; i < len; i++) {
+          action = onLogoutStack[i];
+          action();
+        }
+      }
+      return _doInit();
+    }
+  };
+  init = function(cb) {
+    if (cb != null) {
+      onInitStack.push(cb);
+    }
+    if (inited) {
+      return typeof cb === "function" ? cb() : void 0;
+    }
+  };
+  socketService.onConnect(function() {
+    return rpc.call('user.getSession', processSession);
+  });
+  socketService.on('expired', function() {
+    notificationCenter.addMessage({
+      text: 'logout_on_session_expire'
+    });
+    return logout();
+  });
+  onAuthStack = [];
+  onAuth = function(method) {
+    onAuthStack.push(method);
+    if (session.authed === (typeof true !== "undefined" && true !== null)) {
+      return method();
+    }
+  };
+  onLoginStack = [];
+  onLogin = function(method) {
+    return onLoginStack.push(method);
+  };
+  accounts = [];
+  fetchAccounts = function(cb) {
+    accounts.length = 0;
+    return rpc.call('user.getAccounts', function(data) {
+      if (data.err !== true) {
+        account.update({
+          accounts: data
+        });
+      }
+      return typeof cb === "function" ? cb(accounts) : void 0;
+    });
+  };
+  onAuth(fetchAccounts);
+  fetchSession = function(cb) {
+    return rpc.call('user.getSession', function(data) {
+      processSession(data);
+      return typeof cb === "function" ? cb(data) : void 0;
+    });
+  };
+  socketService.on('user.update', function(data) {
+    if (data) {
+      return account.update(data);
+    } else {
+      return fetchSession();
+    }
+  });
+  authBuzzlike = function(data, cb) {
+    return rpc.call('auth.login', data, function(res) {
+      if ((res != null ? res.err : void 0) !== true) {
+        processSession(res);
+      }
+      return typeof cb === "function" ? cb(res) : void 0;
+    });
+  };
+  onLogoutStack = [];
+  logout = function() {
+    return rpc.call('auth.logout', processSession);
+  };
+  onLogout = function(method) {
+    return onLogoutStack.push(method);
+  };
+  onAuth(function() {
+    var message, user;
+    user = account.user;
+    if (!user.registered) {
+      if (isEmail(user.login)) {
+        message = {
+          text: 'auth_confirmEmail',
+          data: {
+            mail: user.login
+          }
+        };
+      } else {
+        message = {
+          text: 'auth_setEmail'
+        };
+      }
+      message.time = 10 * SEC;
+      return notificationCenter.addMessage(message);
+    }
+  });
+  return {
+    session: session,
+    accounts: accounts,
+    init: init,
+    onAuth: onAuth,
+    fetchAccounts: fetchAccounts,
+    fetchSession: fetchSession,
+    authBuzzlike: authBuzzlike,
+    processSession: processSession,
+    logout: logout,
+    onLogout: onLogout
+  };
+});

@@ -1,0 +1,115 @@
+buzzlike.service('touchHelper', function(combService, contentService) {
+  var device, doc, exPageX, lastEl, lastTime, state, touchEnd, touchMove, viewport;
+  doc = $(document);
+  device = (/(ipad|arm|iphone|ipod)/.exec(navigator.platform.toLowerCase()) || [""])[0];
+  if (device !== 'ipad') {
+    viewport = document.querySelector("meta[name=viewport]");
+    viewport.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0');
+  }
+  state = {
+    device: device,
+    touch: device !== "",
+    multiselect: false,
+    scrolledGroup: null,
+    bigBottom: device !== 'ipad'
+  };
+  exPageX = null;
+  touchMove = function(e) {
+    var e0, scope;
+    e0 = e.originalEvent;
+    scope = angular.element(state.scrolledGroup).scope();
+    scope.doScroll(exPageX - e0.pageX);
+    return exPageX = e0.pageX;
+  };
+  touchEnd = function(e) {
+    state.scrolledGroup = null;
+    doc.off('touchmove.drag');
+    return doc.off('touchend.drag');
+  };
+  if (state.touch) {
+    if (state.device === 'ipad') {
+      $('body').addClass('ipad');
+    }
+    $('body').on('touchmove', function(e) {
+      if (($(e.target).parents('.ios-scroll')[0] == null) || e.originalEvent.touches.length > 1) {
+        e.preventDefault();
+      }
+      return true;
+    });
+    lastTime = Date.now();
+    lastEl = null;
+    doc.on('touchstart', '.ios-nodelay', function(e) {
+      $(this).addClass('pushed');
+      $(this).trigger('mousedown');
+      return true;
+    });
+    doc.on('touchend', '.ios-nodelay', function(e) {
+      var jObj;
+      e.preventDefault();
+      jObj = $(this);
+      jObj.trigger('click');
+      jObj.removeClass('pushed');
+      return true;
+    });
+    doc.on('touchend', '.ios-nodelay', function(e) {
+      var item, item_scope, jObj, now, scope;
+      e.preventDefault();
+      jObj = $(this);
+      now = Date.now();
+      if (lastEl === this && now - lastTime <= 500) {
+        item_scope = angular.element(this).scope();
+        item = item_scope.item;
+        scope = angular.element($('.viewport3d').children()[0]).scope();
+      }
+      lastTime = now;
+      lastEl = this;
+      return true;
+    });
+    doc.on('tap', '.feedGroup', function(e) {
+      e.preventDefault();
+      return true;
+    });
+    doc.on('tap', '.feedInterval', function(e) {
+      angular.element(this).scope().touchbarMove(e.pageX);
+      return true;
+    });
+    doc.on('touchstart', '.feedGroup', function(e) {
+      var e0;
+      e0 = e.originalEvent;
+      if (e0.touches.length > 1) {
+        e.preventDefault();
+        $('.touchBar').hide();
+        exPageX = e0.pageX;
+        state.scrolledGroup = $(e.originalEvent.target).parents('.feedGroup')[0];
+        doc.on('touchmove.drag', touchMove);
+        doc.on('touchend.drag', touchEnd);
+      }
+      return true;
+    });
+  }
+  return {
+    state: state
+  };
+}).directive('touchHelper', function(touchHelper, stateManager, multiselect, localization) {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/touchHelper'],
+    link: function(scope, element, attrs) {
+      var state;
+      scope.localization = localization;
+      scope.state = state = touchHelper.state;
+      scope.multiselect = multiselect.state;
+      scope.triggerMultiselect = function() {
+        return touchHelper.state.multiselect = !touchHelper.state.multiselect;
+      };
+      scope.back = function() {
+        return stateManager.callEscape();
+      };
+      scope.toRight = function() {
+        return angular.element($('.selectedPanel')[0]).scope().selectFocused();
+      };
+      return true;
+    }
+  };
+});

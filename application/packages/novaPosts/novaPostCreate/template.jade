@@ -1,0 +1,111 @@
+div.novaScreen
+    div.novaPostEditor(ng-class="{'withCalendar':calendarActive}")
+        div.postDestination(ng-if="fullView")
+            div.destinationParameters
+                div.novaScreenPicker.picker.projectPicker(
+                    ng-model="postParams.projectId", 
+                    item-type="project", 
+                    phrase="pickProject")
+                div.novaScreenPicker.picker.channelPicker(
+                    ng-model="postParams.channelId", 
+                    item-type="group", 
+                    phrase="pickChannel",
+                    ng-if="postParams.projectId")
+            div.projectPreview.novaItemScope.novaItem.novaItemPreview(
+                nova-item-id="postParams.projectId",
+                nova-item-watch="true",
+                nova-item-type="project",
+                nova-item-preview-type="square")
+        
+        div.calendarContainer
+            div.novaTimelineCalendar(ng-if="calendarActive")
+        div.novaTimelineMenu
+            div.novaScreenPicker.picker.communitiesPicker(
+                ng-model="pickedCommunities",
+                item-type="communityIds",
+                phrase="pickCommunities",
+                ng-if="postParams.channelId",
+                custom-value="getCommunities")
+            div.calendarActivator(
+                translate="'novaTimelineFrame_calendar'", 
+                ng-click="calendarActive = !calendarActive",
+                ng-class="{'active':calendarActive}")
+        
+        div.postTimeBar
+            //- div.hourRate 
+                span(translate="'novaPostCreate_hour_rate'")
+                span {{hourRate}}
+            div.currentDate
+                span.timePicker(ng-model="postParams.timestamp") 
+                span.date(ng-click="calendarActive = true") {{postParams.timestamp | timestampMask:'DD MMM YY'}}
+        
+        div.timeGraph
+            div.novaPostCreateDayView
+        
+        div.themePickerBar
+            div.novaScreenPicker.picker.themePicker(
+                ng-model="postParams.combId", 
+                item-type="comb", 
+                phrase="pickComb",
+                custom-value="combPickerName")
+            div.newThemeName.novaEditableDiv(
+                ng-model="postParams.newThemeName", 
+                placeholder-text="'novaPostCreate_newThemeName'",
+                ng-if="!postParams.combId")
+            div.pickedTheme(ng-if="postParams.combId")
+                div.remove(ng-click="flushComb()") +
+                div.novaItemScope.novaItem.novaItemPreview(
+                    nova-item-id="postParams.combId"
+                    nova-item-type="comb"
+                    nova-item-preview-type="line")
+        
+        div.postControls
+            div.novaScreenPicker.picker.postPicker(
+                ng-model="postParams.postId",
+                item-type="post",
+                phrase="pickCommunities",
+                custom-value="getPostButton")
+            div.postSwitch(
+                ng-click="postParams.postId = null"
+                translate="'novaPostCreate_new_post'"
+                ng-class="{'active':postParams.postId == null}")
+        
+        div.postHelper.novaItemScope.novaItem.novaItemDroppable(
+            ng-if="!postParams.postId"
+            nova-item-object="postParams.newPost")
+            div.newPostText.novaEditableDiv(
+                ng-if="postParams.newPost.contentIds.text.length < 1"
+                ng-model="postParams.newPostText", 
+                placeholder-text="'novaPostCreate_new_post_text'",
+                pasted-items="handlePastedItems")
+            div.novaItem(
+                ng-repeat="id in postParams.newPost.contentIds.text"
+                nova-item-id="id"
+                nova-item-type="text")
+                div.newPostText.novaEditableDiv(
+                    ng-model="item.value"
+                    ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }"
+                    ng-change="saveText(item)"
+                    pasted-items="handlePastedItems")
+                
+            div.novaPostContent
+        
+        div.postPreview(ng-if="postParams.postId")
+            div.novaItemScope.novaItem.novaItemPreview(
+                nova-item-id="postParams.postId"
+                nova-item-type="post"
+                nova-item-preview-type="timeline")
+        
+        div.addMenu
+            div.addItems(ng-click="addItems($event)") +
+            div.addItemsDoubler(ng-click="addItems($event)", translate="'novaPostCreate_addItems'")
+            div.addItemsShortcut.addItemsUpload(ng-click="addItemsUpload()") U
+            div.addItemsShortcut.addItemsStorage(ng-click="addItemsStorage()") S
+        div.spacer
+            
+    div.actions
+        div.action(ng-click="doCancel()", translate="'novaPostCreate_cancel'")
+        div.action.blue(
+            ng-click="doCreate()", 
+            translate="'novaPostCreate_create'",
+            ng-class="{'inactive':createBlocked()}")

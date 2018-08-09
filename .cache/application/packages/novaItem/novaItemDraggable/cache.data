@@ -1,0 +1,122 @@
+buzzlike.directive('novaItemDraggable', function($compile, novaDragHelper) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var body, buildHelper, currentTarget, dragItems, elem, foundTarget, getItems, helper, helperScope, mode, setTarget;
+      elem = $(element);
+      body = $('body');
+      mode = 'still';
+      helper = null;
+      dragItems = [];
+      helperScope = null;
+      buildHelper = function() {
+        getItems();
+        helperScope = scope.$new();
+        helperScope.dragItems = dragItems;
+        helper = $('<div>', {
+          "class": 'novaDragHelper'
+        });
+        body.append(helper);
+        $compile(helper)(helperScope);
+        return helperScope.$apply();
+      };
+      getItems = function() {
+        var i, item, len, ref;
+        dragItems = [];
+        if (scope.multiselect != null) {
+          ref = scope.multiselect.selected;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            dragItems.push(item);
+          }
+        } else if (scope.item != null) {
+          dragItems.push(scope.item);
+        }
+        return dragItems;
+      };
+      currentTarget = null;
+      setTarget = function(target, e) {
+        var actions;
+        if (target === currentTarget) {
+          return true;
+        }
+        currentTarget = target;
+        actions = currentTarget.novaDrop.getActions(dragItems, scope.itemContext, e);
+        if (actions.length > 0) {
+          novaDragHelper.setActions(actions);
+          novaDragHelper.showHighLighter(target);
+          return true;
+        } else {
+          novaDragHelper.setActions([]);
+          novaDragHelper.flushHighlighter();
+          return false;
+        }
+      };
+      foundTarget = null;
+      return elem.on('mousedown.novaDrag', function(e) {
+        var bodyHei, bodyWid, helperPos, startPos;
+        if ($(e.target).parents('.novaItemDraggable')[0] !== element[0]) {
+          return true;
+        }
+        startPos = {
+          x: e.pageX,
+          y: e.pageY
+        };
+        bodyWid = body.width();
+        bodyHei = body.height();
+        helperPos = {
+          x: e.pageX,
+          y: e.pageY
+        };
+        body.on('mousemove.novaDrag', function(e) {
+          var dropTarget;
+          if (mode === 'still') {
+            if (Math.abs(startPos.x - e.pageX) > 10 || Math.abs(startPos.y - e.pageY) > 10) {
+              mode = 'drag';
+              novaDragHelper.show(getItems());
+            }
+          } else {
+            if (e.pageX > bodyWid - 210 - 20) {
+              helperPos.x = e.pageX - 20 - 210;
+              novaDragHelper.elem.addClass('lefty');
+            } else {
+              helperPos.x = e.pageX + 20;
+              novaDragHelper.elem.removeClass('lefty');
+            }
+            if (e.pageY > bodyHei - 120) {
+              helperPos.y = bodyHei - 100;
+            } else {
+              helperPos.y = e.pageY + 20;
+            }
+            novaDragHelper.elem.css('transform', "translate3d(" + helperPos.x + "px," + helperPos.y + "px, 0)");
+            dropTarget = document.elementFromPoint(e.pageX, e.pageY);
+            foundTarget = false;
+            while (dropTarget) {
+              if (dropTarget.novaDrop) {
+                if (setTarget(dropTarget, e)) {
+                  foundTarget = true;
+                  break;
+                }
+              }
+              dropTarget = dropTarget.parentNode;
+            }
+            if (!foundTarget) {
+              novaDragHelper.setActions([]);
+              novaDragHelper.flushHighlighter();
+              currentTarget = null;
+            }
+          }
+          return true;
+        });
+        return body.on('mouseup.novaDrag', function(e) {
+          body.off('mousemove.novaDrag');
+          body.off('mouseup.novaDrag');
+          if (mode !== 'still') {
+            mode = 'still';
+            return novaDragHelper.activate(e);
+          }
+        });
+      });
+    }
+  };
+});

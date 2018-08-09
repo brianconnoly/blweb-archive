@@ -1,0 +1,10 @@
+buzzlike.directive('combEdit', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return scope.element = elem;
+    }
+  };
+});

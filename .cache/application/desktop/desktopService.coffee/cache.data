@@ -1,0 +1,171 @@
+buzzlike.service('desktopService', function(socketAuth, appsService, localStorageService, actionsService) {
+  var desktopService;
+  desktopService = (function() {
+    function desktopService() {
+      this.stateLoaded = false;
+      this.showMenu = false;
+      this.desktops = [];
+      this.activeDesktop = null;
+      actionsService.registerParser('desktop', (function(_this) {
+        return function(item) {
+          var result;
+          result = [];
+          if (item === _this.activeDesktop) {
+            result.push('activeDesktop');
+          }
+          return result;
+        };
+      })(this));
+      socketAuth.onLogout((function(_this) {
+        return function() {
+          return _this.purge();
+        };
+      })(this));
+    }
+
+    desktopService.prototype.purge = function() {
+      var desktop, i, len, ref, results;
+      this.stateLoaded = false;
+      ref = this.desktops;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        desktop = ref[i];
+        results.push(this.closeDesktop(desktop, true));
+      }
+      return results;
+    };
+
+    desktopService.prototype.newDesktop = function(params) {
+      var newDesktop, ref;
+      if (this.desktops.length > 1) {
+        return this.desktops[0];
+      }
+      newDesktop = {
+        type: 'desktop',
+        sessions: [],
+        background: 'lightBlue',
+        wallpaper: typeof coreSettings !== "undefined" && coreSettings !== null ? (ref = coreSettings.wallpapers) != null ? ref[0] : void 0 : void 0
+      };
+      updateObject(newDesktop, params);
+      this.desktops.push(newDesktop);
+      this.selectDesktop(newDesktop);
+      this.saveState();
+      return newDesktop;
+    };
+
+    desktopService.prototype.closeDesktop = function(desktop, noSave) {
+      var i, len, ref, session;
+      if (noSave == null) {
+        noSave = false;
+      }
+      ref = desktop.sessions;
+      for (i = 0, len = ref.length; i < len; i++) {
+        session = ref[i];
+        appsService.close(session, noSave);
+      }
+      removeElementFromArray(desktop, this.desktops);
+      if (!noSave) {
+        return this.saveState();
+      }
+    };
+
+    desktopService.prototype.selectDesktop = function(desktop) {
+      if (this.activeDesktop !== desktop) {
+        appsService.launchSessions(desktop.sessions);
+        return this.activeDesktop = desktop;
+      }
+    };
+
+    desktopService.prototype.saveState = function() {
+      var desktop, i, j, len, len1, ref, ref1, session, str, toSave, toSaveDesktop;
+      if (!this.stateLoaded) {
+        return;
+      }
+      toSave = [];
+      ref = this.desktops;
+      for (i = 0, len = ref.length; i < len; i++) {
+        desktop = ref[i];
+        toSaveDesktop = {
+          sessions: [],
+          background: desktop.background,
+          wallpaper: desktop != null ? desktop.wallpaper : void 0
+        };
+        ref1 = desktop.sessions;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          session = ref1[j];
+          if (session.noSave === true) {
+            continue;
+          }
+          toSaveDesktop.sessions.push({
+            id: session.id,
+            app: session.app,
+            zIndex: session.zIndex,
+            active: session === appsService.activeSession
+          });
+        }
+        toSaveDesktop.sessions.sort(function(a, b) {
+          if (a.zIndex > b.zIndex) {
+            return 1;
+          }
+          if (a.zIndex > b.zIndex) {
+            return -1;
+          }
+          return 0;
+        });
+        toSave.push(toSaveDesktop);
+      }
+      str = JSON.stringify(toSave);
+      return localStorageService.add('desktops' + socketAuth.session.user_id, str);
+    };
+
+    desktopService.prototype.loadState = function() {
+      var data, desktop, i, j, len, len1, ref, session, str;
+      str = localStorageService.get('desktops' + socketAuth.session.user_id);
+      data = JSON.parse(str);
+      if ((data != null ? data.length : void 0) != null) {
+        for (i = 0, len = data.length; i < len; i++) {
+          desktop = data[i];
+          this.newDesktop({
+            background: desktop.background,
+            wallpaper: desktop != null ? desktop.wallpaper : void 0
+          });
+          ref = desktop.sessions;
+          for (j = 0, len1 = ref.length; j < len1; j++) {
+            session = ref[j];
+            appsService.launchApp(session.app, session);
+          }
+        }
+      } else {
+        this.newDesktop();
+      }
+      return this.stateLoaded = true;
+    };
+
+    desktopService.prototype.launchApp = function(app, params, e, no_flush) {
+      var session;
+      if (no_flush == null) {
+        no_flush = false;
+      }
+      session = appsService.launchApp(app, params, e, no_flush);
+      this.saveState();
+      return session;
+    };
+
+    desktopService.prototype.init = function() {
+      appsService.flush();
+      return this.loadState();
+    };
+
+    desktopService.prototype.setWallpaper = function(id) {
+      var ref;
+      if ((ref = this.activeDesktop) != null) {
+        ref.wallpaper = id;
+      }
+      return this.saveState();
+    };
+
+    return desktopService;
+
+  })();
+  return new desktopService();
+});

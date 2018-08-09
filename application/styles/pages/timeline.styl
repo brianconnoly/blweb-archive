@@ -1,0 +1,553 @@
+$mainColor = #2a2a2a
+$darkerGray = #444
+$lighterGray = #6c6c6c
+$button = #6c6c6c
+$activeButton = #333
+$leftBottom = #222
+$rightBottom = rgba(59, 59, 59, 0.4)
+$rightPanel = #393939
+$filterBox = #373737
+$container = rgba(59, 59, 59, 0.4)
+$fillCombHover = #4c2b07
+$emptyCombHover = #1f1f1f
+$combBg = #353535
+$w = 80px
+$h = 60px
+
+div.timeline
+
+    div.timeline-help
+        display: none
+
+        position: absolute
+        top 0
+        bottom 0
+        right 0
+        left 0
+
+        padding-top 40px
+
+        &.showed
+            display: block
+
+        div.top
+            overflow: hidden
+            margin-bottom 50px
+
+            div.arrow
+                width 199px
+                height 75px
+
+                margin: 10px 20px 20px 38px
+
+                sprite '../resources/images/tl-greet/arrow.png' 0px 0px 199px 75px
+
+                float: left
+
+            div.text
+                margin: 40px 0 10px 0
+
+                line-height: 30px
+
+                color: #fff
+                font-size 21px
+
+                span.big-plus
+                    font-size 41px
+
+                    display: inline-block
+                    position: relative
+
+                    top 3px
+                    left 1px
+
+
+        div.scheme
+            width 845px
+            height 515px
+
+            margin 0 auto
+
+            sprite '../resources/images/tl-greet/tl-wf.png' 0px 0px 845px 515px
+
+    div.timeline-top
+        position: absolute
+
+        top 0
+        bottom 0
+        right 0
+        left 0
+
+        // padding-top 40px
+
+        overflow-y: auto
+        -webkit-overflow-scrolling: touch
+        box-sizing border-box
+
+        h3
+            padding 5px
+            color white
+
+            span.remove
+                margin-left 40px
+                font-size 14px
+                color #222
+
+                text-shadow 0px 1px 1px #4d4d4d
+
+                cursor: pointer
+                float right
+
+                &:hover
+                    color #ff951e
+
+        .timelines-view.animated .placeholder
+            transition 0.5s all ease
+
+
+div.timeline-scroller
+    //width 100%
+    height 20px
+    position absolute
+    bottom -20px
+    left 0 // 84px
+    right 0 //30px
+    opacity 0
+    transition all ease 0.3s
+    background rgba(255, 255, 255, 0.3)
+    overflow hidden
+    z-index 11
+
+    .compact &
+        left 135px
+
+    .turbo &
+        background: #94BBD4
+
+    .touch &
+        display: none
+
+    .timeline-scroll
+        height 100%
+
+    .scroller
+        display: none
+        position absolute
+        left 50%
+        height 100%
+        top 0px
+        width 3px
+
+        &:active
+            cursor pointer
+
+    .current-time
+        position absolute
+        top 0
+        bottom 0
+        left 50%
+        width 60px
+        margin-left -30px
+        background rgba(255, 255, 255, 0.6)
+        opacity 1
+        z-index 2
+
+        font-size 14px
+        text-align: center
+        line-height: 20px
+
+        transition background 0.1s ease
+
+        &:hover
+            cursor pointer
+            background rgba(255, 255, 255, 1)
+
+    &:hover .scroller
+        display: block
+
+    div.feedGroup:hover &
+        opacity 1
+        cursor pointer!important
+
+div.feedGroup
+    position relative
+    padding: 12px 0
+    // overflow: hidden
+    
+    .teamTitleContainer
+        margin 5px
+        margin-top: 0
+        overflow: hidden
+        
+        .removeTeam
+            float: left
+            margin-left 10px
+            font-size 12px
+            color: #fff
+            line-height: 20px
+            cursor: pointer
+            
+            span
+                cursor: pointer
+            
+            .x
+                display: inline-block
+                vertical-align: bottom;
+                height 20px
+                width 16px
+                
+                img
+                    width 100%
+                    height 100%
+                    
+            
+            span.text
+                margin-left: 5px
+                transition opacity 0.2s ease
+                opacity 0
+                
+            &:hover
+            
+                span.text
+                    opacity 1
+
+    .teamTitle
+        float: left
+
+        .teamIcon
+            width 20px
+            height 20px
+            margin: 0 5px 0 0
+
+        span
+            display: inline-block
+            margin 2px
+            line-height: 16px
+            font-size 13px
+            color: #484848
+
+    div.left-arrow, div.right-arrow
+        position absolute
+        padding-top: 22px
+        top 0
+        bottom 0
+
+        width 30px
+        
+        background-color rgba(255, 255, 255, 0.9) !important
+
+        z-index 5
+        opacity 0.5
+        transition all ease 0.2s
+
+        .touch &
+            display none
+
+    &:hover div.left-arrow, &:hover div.right-arrow
+            cursor pointer
+            
+            opacity 1
+
+            .turbo &
+                background-color: #A2C5DA
+
+    div.left-arrow
+        left 150px
+        background: url(/resources/images/desktop/timeline/leftArrow.svg) center center no-repeat
+        border-right 1px solid #fff
+
+        .compact &
+            left 100px
+
+    div.right-arrow
+        right 0px
+        background: url(/resources/images/desktop/timeline/rightArrow1.svg) center center no-repeat
+        border-left 1px solid #fff
+
+        .showRight &
+            right 200px
+
+    &.collapsed
+        position: absolute
+        left 0
+        width 100%
+        cursor ns-resize !important
+
+        .feedSort
+            opacity: 1 !important
+
+    &.top
+        .feedSort
+            cursor s-resize !important
+
+    &.bottom
+        .feedSort
+            cursor n-resize !important
+
+ul.eternity
+    overflow: hidden
+    
+    display: block
+    position: absolute
+
+    top 0
+    bottom 0
+    right 0
+    left 0
+
+    background-color rgba(255, 255, 255, 0.1)
+
+    .turbo &
+        background: #6BA0C2
+
+ul.intervals
+    display: block
+    position: absolute
+
+    top 0
+    bottom 0
+    right 0
+    left 0
+
+    background-color rgba(255, 255, 255, 0.1)
+
+ul.timelines
+    position relative
+    display: block
+    width 100%
+
+.dragged
+    opacity 0.5
+
+div.feedItem
+    position: absolute
+    top 0
+    height 150px
+    width 150px
+    transition all 0.2s ease
+
+    opacity: 1
+
+    &.transparent
+        opacity: 0.2
+
+        div.timeLeft, div.timeRight
+            opacity 0
+
+    .requestStatus
+        z-index 666
+
+    .contentPreview
+        background: rgba(255,255,255,0.2)
+
+        &.error
+            background: rgba(222, 47, 47, 0.4)
+
+    //.mini .text .locked
+    //    background-position -386px -35px
+    //
+    //.mini.single .text .locked
+    //    background-position -358px -11px
+
+    // &:hover
+    //     width 160px//!important
+
+    &.waiting
+        opacity: 0.8
+
+    div.timeLeft, div.timeRight
+        height 100%
+        width 30px
+        position: absolute
+
+        opacity 1
+        transition all 0.2s ease
+
+        div.circle
+            background-color: #fff // rgba(255,255,255,0.9)//rgba( 55, 134, 180, 0.9 )
+            border 1px solid #3285b6
+            color: #000
+            position absolute
+            width 50px
+            height 50px
+            top 50%
+            margin-top -25px
+            border-radius 50%
+            line-height: 50px;
+            font-size: 16px;
+            text-align: center;
+
+        &:hover
+            opacity 0 !important
+
+    div.timeLeft
+        //z-index 1000
+        left 0px
+        z-index 2
+        div
+            left -25px
+    div.timeRight
+        right 0px
+        z-index 1
+        div
+            right -25px
+
+    .status
+        $h = 131px
+        $w = 167px
+        position absolute
+        top -1
+        left -1
+        right -1
+        bottom -1
+        transition all ease 0.2s
+        overflow hidden
+        z-index: 555;
+        sprite "/resources/images/icons/scheduleStatus/status.png" 0 $w $w (5*$w)
+
+        .icon
+            position absolute
+            left 0
+            top 0
+            width 100%
+            height 100%
+
+        .title
+            position absolute
+            left 0
+            right 0
+            bottom 7px
+            height 25px
+            font-weight: normal
+            text-align: center
+            color: white
+            font-size: 21px
+
+        .explanation
+            position absolute
+            width 100%
+            height 100%
+            background rgba(0, 0, 0, 0.6)
+            transition all ease 0.2s
+            opacity 0.001
+            padding 8%
+            color #ffffff
+            box-sizing border-box
+            font-size 15px
+
+            .caption
+                font-weight bolder
+                margin-bottom 5px
+
+
+        &:hover
+            opacity 0
+
+        &.planned
+            display none
+
+        &.pending
+            background-position 0 (-1.15*$w)
+        &.ready
+            background-position 0 (-2.15*$w)
+        &.deleted
+            background-position 0 (-3.15*$w)
+        &.completed
+            background-position 0 (-4.15*$w)
+        &.error
+            background-position 0 (-0.15*$w)
+            &:hover
+                opacity 1
+                .explanation
+                    opacity 1
+
+        .zoom_min &
+            $h = 54px
+            $w = 70px
+            // sprite "/resources/images/icons/scheduleStatus/status.png" 0 $h $h (5*$h)
+            sprite "/resources/images/icons/scheduleStatus/status.png" 0 $w $w (5*$w)
+
+            &.pending
+                background-position 0 (-1.15*$w)
+            &.ready
+                background-position 0 (-2.15*$w)
+            &.deleted
+                background-position 0 (-3.15*$w)
+            &.completed
+                background-position 0 (-4.15*$w)
+            &.error
+                background-position 0 (-0.15*$w)
+                
+        .zoom_mid &
+            $h = 103px
+            $w = 139px
+            // sprite "/resources/images/icons/scheduleStatus/status.png" 0 $h $h (5*$h)
+            sprite "/resources/images/icons/scheduleStatus/status.png" 0 $w $w (5*$w)
+
+            &.pending
+                background-position 0 (-1.15*$w)
+            &.ready
+                background-position 0 (-2.15*$w)
+            &.deleted
+                background-position 0 (-3.15*$w)
+            &.completed
+                background-position 0 (-4.15*$w)
+            &.error
+                background-position 0 (-0.15*$w)
+
+
+    .mediaplanSettings
+        position absolute
+        left 5px
+        top 5px
+        width 24px
+        height 24px
+        sprite: "/resources/images/icons/plan_miniicon.png"
+        z-index 10
+        cursor pointer
+
+    .ruleIcon
+        position absolute
+        width 23px
+        height 23px
+        z-index 10
+        left 5px
+        top 5px
+        cursor pointer
+
+    .ruleIcon_single
+        sprite "/resources/images/desktop/mediaplanInspector/black/single.svg"
+
+    .ruleIcon_daily
+        sprite "/resources/images/desktop/mediaplanInspector/black/repeat.svg"
+
+    .ruleIcon_chain
+        sprite "/resources/images/desktop/mediaplanInspector/black/series.svg"
+
+    $halfAd = 25px
+    &:hover .rileAdIcon
+        opacity 0
+
+    .ruleAdIcon
+        position absolute
+        bottom 0
+        right 0
+        border-top $halfAd solid transparent
+        border-left $halfAd solid transparent
+        border-right $halfAd solid #fff200
+        border-bottom $halfAd solid #fff200
+        z-index 1
+
+.feedItem.placeholder_highlighted
+    .placeholder_highlighter
+        position absolute
+        right 0
+        top 0
+        width 100%
+        height 100%
+        background rgba(255, 239, 58, 0.9)
+
+#calendar
+    position: absolute
+    display: none
+    right 0

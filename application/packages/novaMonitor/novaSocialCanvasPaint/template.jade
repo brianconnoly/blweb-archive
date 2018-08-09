@@ -1,0 +1,6 @@
+div.paintHeader
+    div.menuActivator(ng-click="showMenu($event)") ...
+    checkbox.long.power(ng-model="paint.active")
+    div.title(translate="'novaSocialPaintPicker_paint_'+paint.type")
+div.paintBody
+    div.item(ng-repeat="item in paint.items") {{item.value}}

@@ -1,0 +1,5 @@
+div.head
+    div.time {{::block.timestamp | timestampMask:'hh:mm'}}
+    
+    div.placeholderAction.createPost.flushMousedown(translate="'novaTimelinePlaceholder_createPost'", ng-click="firePicker($event)")
+    div.placeholderAction.schedulePost.flushMousedown(translate="'novaTimelinePlaceholder_schedulePost'", ng-click="firePicker($event,true)")

@@ -1,0 +1,187 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('socketService', function(env, localStorageService, $rootScope) {
+  var _emit, _on, connectCbs, connected, disconnectHandler, firstConn, no_worker, onConnect, onDisconnect, onHandlers, resetSid, sid_validated, socket, socketWorker, state, stored_sid, waitEmits, waitOns;
+  socket = {};
+  waitEmits = [];
+  waitOns = [];
+  onHandlers = {};
+  connectCbs = [];
+  stored_sid = localStorageService.get('sid');
+  sid_validated = false;
+  state = {
+    connected: false
+  };
+  connected = false;
+  no_worker = true;
+  if (no_worker) {
+    $.getScript(env.baseurl + 'socket.io/socket.io.js', function() {
+      socket = io(env.baseurl, {
+        secure: true
+      });
+      socket.on('connect', function() {
+        var args, i, len;
+        connected = true;
+        state.connected = true;
+        socket.emit('uid', 'abc');
+        for (i = 0, len = waitOns.length; i < len; i++) {
+          args = waitOns[i];
+          socket.on(args.event, args.cb);
+        }
+        waitOns.length = 0;
+        socket.emit('sid', stored_sid);
+        return $rootScope.$applyAsync();
+      });
+      return socket.on('disconnect', function() {
+        connected = false;
+        state.connected = false;
+        if (typeof disconnectHandler === "function") {
+          disconnectHandler();
+        }
+        return $rootScope.$applyAsync();
+      });
+    });
+  }
+  firstConn = true;
+  if (!no_worker) {
+    socketWorker = new Worker('/workers/socket.js');
+    socketWorker.onmessage = function(e) {
+      var handler, handlers, i, len, ref, results;
+      if (e.data == null) {
+        return;
+      }
+      switch (e.data.type) {
+        case 'connection':
+          if (firstConn === true) {
+            for (e in onHandlers) {
+              handlers = onHandlers[e];
+              socketWorker.postMessage({
+                type: 'on',
+                event: e
+              });
+            }
+            firstConn = false;
+          }
+          socketWorker.postMessage({
+            type: 'emit',
+            event: 'sid',
+            data: stored_sid
+          });
+          return connected = true;
+        case 'on':
+          if (onHandlers[e.data.event] != null) {
+            ref = onHandlers[e.data.event];
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              handler = ref[i];
+              handler(e.data.data);
+              results.push(true);
+            }
+            return results;
+          }
+      }
+    };
+  }
+  resetSid = function() {
+    localStorageService.remove('sid');
+    if (!no_worker) {
+      return socketWorker.postMessage({
+        type: 'emit',
+        event: 'sid',
+        data: stored_sid
+      });
+    } else {
+      return socket.emit('sid', stored_sid);
+    }
+  };
+  if (!no_worker) {
+    socketWorker.postMessage({
+      type: 'baseurl',
+      baseurl: env.baseurl
+    });
+  }
+  onConnect = (function(_this) {
+    return function(cb) {
+      if (cb != null) {
+        connectCbs.push(cb);
+      }
+      if (socket.connected) {
+        return cb();
+      }
+    };
+  })(this);
+  _on = function(e, cb) {
+    if (no_worker) {
+      if (!socket.connected) {
+        return waitOns.push({
+          event: e,
+          cb: cb
+        });
+      } else {
+        return socket.on(e, cb);
+      }
+    } else {
+      if (onHandlers[e] == null) {
+        onHandlers[e] = [];
+      }
+      if (indexOf.call(onHandlers[e], cb) < 0) {
+        onHandlers[e].push(cb);
+      }
+      if (connected) {
+        return socketWorker.postMessage({
+          type: 'on',
+          event: e
+        });
+      }
+    }
+  };
+  _emit = function(e, data) {
+    if (!connected || !sid_validated) {
+      blog("_emit", e, "puted in wait stack");
+      return waitEmits.push({
+        event: e,
+        data: data
+      });
+    } else {
+      if (no_worker) {
+        return socket.emit(e, data);
+      } else {
+        return socketWorker.postMessage({
+          type: 'emit',
+          event: e,
+          data: data
+        });
+      }
+    }
+  };
+  _on('sid', function(sid) {
+    var args, i, j, len, len1, method, results;
+    console.log('SID Recieved');
+    localStorageService.add('sid', sid);
+    stored_sid = sid;
+    sid_validated = true;
+    for (i = 0, len = waitEmits.length; i < len; i++) {
+      args = waitEmits[i];
+      _emit(args.event, args.data);
+    }
+    waitEmits.length = 0;
+    results = [];
+    for (j = 0, len1 = connectCbs.length; j < len1; j++) {
+      method = connectCbs[j];
+      results.push(method());
+    }
+    return results;
+  });
+  disconnectHandler = null;
+  onDisconnect = function(handler) {
+    return disconnectHandler = handler;
+  };
+  return {
+    state: state,
+    on: _on,
+    emit: _emit,
+    onConnect: onConnect,
+    resetSid: resetSid,
+    onDisconnect: onDisconnect
+  };
+});

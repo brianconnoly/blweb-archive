@@ -1,0 +1,7 @@
+div(ng-class="{'active':novaAddMenu.showed}")
+    div.addButton(ng-mousedown="showAddMenu($event)") +
+    div.addButton.recent(
+        ng-repeat="recent in recentWizards", 
+        ng-click="fireAdd(recent)", 
+        translate="'wizardShortcut_' + recent", 
+        translate-title="'wizardTitle_' + recent")

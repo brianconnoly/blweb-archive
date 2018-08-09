@@ -1,0 +1,768 @@
+var AsyncFlow, DAY, DEV_MODE, HOUR, MIN, MONTH, SEC, WEEK, YEAR, ____datetmp, blog, convertNixToTime, convertTimeToHumanTime, convertTimeToNix, defaultCommunityIcon, doGetCaretPosition, emptyObject, findObjectByFields, fixEvent, getBigTimestamp, getClearDataTimestamp, getColor, getHumanDate, getOnlyTime, getQuery, getRandomInt, getUrlFormat, humanizeDays, imageIn, imageInRatio, isCmd, isEmail, joinStrings, justMinutes, keyCodes, leftPanelWidth, loadDevMode, makeArray, makeArrayByFromTo, makeArrayByLength, makeHEX, makeRGBA, makeSpinner, openCommunityPage, proxyPrefix, pushAll, quoteIfExists, removeAll, removeElementFromArray, removeElementsFromPanel, requestAnimFrame, rightPanelWidth, selectElementContents, shuffle, switchDevMode, timeoutDecorator, toMinutes, updateObject, updateObjectFull, urlCropper,
+  hasProp = {}.hasOwnProperty,
+  slice = [].slice;
+
+SEC = 1000;
+
+MIN = 60 * SEC;
+
+HOUR = MIN * 60;
+
+DAY = HOUR * 24;
+
+WEEK = DAY * 7;
+
+MONTH = DAY * 30;
+
+YEAR = 365 * DAY;
+
+rightPanelWidth = 200;
+
+leftPanelWidth = 250;
+
+proxyPrefix = '';
+
+String.prototype.capitalizeFirstLetter = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+Array.prototype.move = function(old_index, new_index) {
+  var k;
+  if (new_index >= this.length) {
+    k = new_index - this.length;
+    while ((k--) + 1) {
+      this.push(void 0);
+    }
+  }
+  this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+  return this;
+};
+
+Date.prototype.getWeekNumber = function() {
+  var d;
+  d = new Date(+this);
+  d.setHours(0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  return Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 8.64e7) + 1) / 7);
+};
+
+quoteIfExists = function(str) {
+  if (str.length > 0) {
+    return '"' + str + '"';
+  } else {
+    return "";
+  }
+};
+
+openCommunityPage = function(item) {
+  var url;
+  url = "";
+  switch (item.socialNetwork) {
+    case 'vk':
+      url = 'https://vk.com/';
+      switch (item.communityType) {
+        case 'profile':
+          url += 'id';
+          break;
+        case 'group':
+        case 'page':
+          url += 'club';
+          break;
+        case 'event':
+          url += 'event';
+      }
+      url += Math.abs(item.socialNetworkId * 1);
+      break;
+    case 'fb':
+      url = 'https://facebook.com/';
+      if (item.communityType === 'user') {
+        url += 'profile.php?id=';
+      }
+      url += Math.abs(item.socialNetworkId * 1);
+      break;
+    case 'ok':
+      url = 'http://ok.ru/';
+      if (item.communityType === 'profile') {
+        url += 'profile/';
+      } else {
+        url += 'group/';
+      }
+      url += item.socialNetworkId;
+      break;
+    case 'yt':
+      url = 'http://youtube.com/channel/' + item.socialNetworkId;
+      break;
+    case 'mm':
+      url = 'http://my.mail.ru/';
+      switch (item.communityType) {
+        case 'profile':
+          url += 'mail/';
+          break;
+        default:
+          url += 'community/';
+      }
+      url += item.screen_name;
+  }
+  if (url.length > 0) {
+    return window.open(url, '_blank');
+  }
+};
+
+emptyObject = function(obj) {
+  var key, results;
+  results = [];
+  for (key in obj) {
+    if (!hasProp.call(obj, key)) continue;
+    results.push(delete obj[key]);
+  }
+  return results;
+};
+
+____datetmp = null;
+
+getHumanDate = function(unixtime) {
+  var day, hours, hours_s, min, min_s, time;
+  if (unixtime != null) {
+    ____datetmp = new Date(unixtime);
+  } else {
+    ____datetmp = new Date();
+  }
+  hours = ____datetmp.getHours();
+  min = ____datetmp.getMinutes();
+  if (hours < 10) {
+    hours_s = '0' + hours;
+  } else {
+    hours_s = hours;
+  }
+  if (min < 10) {
+    min_s = '0' + min;
+  } else {
+    min_s = min;
+  }
+  time = hours_s + ':' + min_s;
+  day = ____datetmp.getDay();
+  switch (day) {
+    case 0:
+      day = 147;
+      break;
+    case 1:
+      day = 148;
+      break;
+    case 2:
+      day = 149;
+      break;
+    case 3:
+      day = 150;
+      break;
+    case 4:
+      day = 151;
+      break;
+    case 5:
+      day = 152;
+      break;
+    case 6:
+      day = 153;
+  }
+  return {
+    date: ____datetmp,
+    time: time,
+    hours: hours,
+    min: min,
+    day: day
+  };
+};
+
+makeArray = function(object) {
+  var k, results, v;
+  results = [];
+  for (k in object) {
+    v = object[k];
+    results.push(v);
+  }
+  return results;
+};
+
+getRandomInt = function(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+fixEvent = function(e) {
+  var body, html, ref, ref1, ref2;
+  e = e || window.event;
+  if (e.pageX === null && e.clientX !== null) {
+    html = document.documentElement;
+    body = document.body;
+    e.pageX = e.clientX + (html && html.scrollLeft || body && body.scrollLeft || 0) - (html.clientLeft || 0);
+    e.pageY = e.clientY + (html && html.scrollTop || body && body.scrollTop || 0) - (html.clientTop || 0);
+  }
+  if (!e.which && e.button) {
+    e.which = (ref = e.button & 1) != null ? ref : {
+      1: (ref1 = e.button & 2) != null ? ref1 : {
+        3: (ref2 = e.button & 4) != null ? ref2 : {
+          2: 0
+        }
+      }
+    };
+  }
+  return e;
+};
+
+blog = function() {
+  var args;
+  args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+  if (window.DEV_MODE) {
+    return console.log.apply(console, arguments);
+  }
+};
+
+findObjectByFields = function(array, data) {
+  var found, item, j, k, len, matched, v;
+  found = null;
+  for (j = 0, len = array.length; j < len; j++) {
+    item = array[j];
+    matched = false;
+    for (k in data) {
+      v = data[k];
+      matched = item[k] === v;
+      if (!matched) {
+        break;
+      }
+    }
+    if (matched) {
+      found = item;
+      break;
+      return found;
+    }
+  }
+  return found;
+};
+
+removeElementFromArray = function(element, array) {
+  var existingIndex;
+  existingIndex = array.indexOf(element);
+  if (existingIndex >= 0) {
+    return array.splice(existingIndex, 1);
+  }
+};
+
+removeAll = function(from, elements) {
+  var element, j, len, results;
+  results = [];
+  for (j = 0, len = elements.length; j < len; j++) {
+    element = elements[j];
+    results.push(removeElementFromArray(element, from));
+  }
+  return results;
+};
+
+pushAll = function(target, toPush) {
+  var item, j, len, results;
+  results = [];
+  for (j = 0, len = toPush.length; j < len; j++) {
+    item = toPush[j];
+    if (target.indexOf(item) === -1) {
+      results.push(target.push(item));
+    } else {
+      results.push(void 0);
+    }
+  }
+  return results;
+};
+
+updateObject = function(target) {
+  var j, key, len, source, value;
+  for (j = 0, len = arguments.length; j < len; j++) {
+    source = arguments[j];
+    if (source === target) {
+      continue;
+    }
+    for (key in source) {
+      value = source[key];
+      target[key] = source[key];
+    }
+  }
+  return target;
+};
+
+updateObjectFull = function() {
+  var item, j, key, len, len1, m, source, sources, target, value;
+  target = arguments[0], sources = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+  for (j = 0, len = sources.length; j < len; j++) {
+    source = sources[j];
+    for (key in source) {
+      value = source[key];
+      if (Object.prototype.toString.call(value) === '[object Array]') {
+        target[key] = [];
+        for (m = 0, len1 = value.length; m < len1; m++) {
+          item = value[m];
+          target[key].push(item);
+        }
+      }
+      if (typeof value === 'object') {
+        if (target[key] == null) {
+          target[key] = {};
+        }
+        updateObjectFull(target[key], value);
+      } else {
+        target[key] = angular.copy(value);
+      }
+    }
+  }
+  return target;
+};
+
+getBigTimestamp = function() {
+  var farInTheFuture;
+  return farInTheFuture = 13788003380350;
+};
+
+toMinutes = function(ts) {
+  var obj;
+  obj = new Date(ts);
+  return new Date(obj.getFullYear(), obj.getMonth(), obj.getDate(), obj.getHours(), obj.getMinutes()).getTime();
+};
+
+justMinutes = function(ts) {
+  var res;
+  res = toMinutes(ts);
+  return res / (60 * 1000);
+};
+
+timeoutDecorator = function(f, time) {
+  return setTimeout(function() {
+    return f.apply(this, arguments);
+  }, time);
+};
+
+isCmd = function(e) {
+  return e.metaKey || e.ctrlKey;
+};
+
+urlCropper = function(url, count, type) {
+  var end, start;
+  url = $.trim(url);
+  url = url.replace(/(http\:\/\/)|(https\:\/\/)|(www\.)/gi, '');
+  if (url[url.length - 1] === '/') {
+    url = url.substr(0, url.length - 1);
+  }
+  if (url.length > count) {
+    switch (type) {
+      case 'middle':
+        start = Math.floor(url.length / 2) - Math.floor(count / 2) - 2;
+        end = Math.floor(url.length / 2) + Math.floor(count / 2) - 2;
+        url = url.substr(0, start) + ' ... ' + url.substr(end, url.length);
+        break;
+      case 'end':
+        url = url.substr(0, count - 3) + '...';
+    }
+  }
+  return url;
+};
+
+humanizeDays = function(days) {
+  var cost, div, num;
+  if (days % 7 === 0) {
+    num = days / 7;
+    div = num % 10;
+    if (div === 1) {
+      return cost = num + ' неделя';
+    } else if (div < 5) {
+      return cost = num + ' недели';
+    } else {
+      return cost = num + ' недель';
+    }
+  } else {
+    div = days % 10;
+    if (div === 1) {
+      return cost = days + ' день';
+    } else if (div < 5) {
+      return cost = days + ' дня';
+    } else {
+      return cost = days + ' дней';
+    }
+  }
+};
+
+convertTimeToHumanTime = function(val, type) {
+  var hours, minutes, mod, result;
+  hours = 0;
+  if (type === 'min') {
+    minutes = val % 60;
+    mod = 0;
+  }
+  if (type === 'ms') {
+    minutes = Math.floor(val / 1000 / 60);
+    mod = val % 60;
+  }
+  result = '';
+  if (minutes > 59) {
+    hours = Math.floor(minutes / 60);
+    minutes = Math.floor(minutes % 60);
+  }
+  if (minutes < 10) {
+    minutes = '0' + minutes;
+  }
+  if (mod < 10) {
+    mod = '0' + mod;
+  }
+  if (hours > 0) {
+    result = hours + ':' + minutes + ':' + mod;
+  } else {
+    result = '00:' + minutes + ':' + mod;
+  }
+  return result;
+};
+
+removeElementsFromPanel = function(alt) {
+  if (!alt) {
+    return $('li.droppableItem.selected .removeBox', $('.selectedPanel')).trigger('click');
+  }
+};
+
+convertTimeToNix = function(hour, min) {
+  min = Math.floor(min) * 1000 * 60;
+  hour = Math.floor(hour) * 1000 * 60 * 60;
+  return min + hour;
+};
+
+convertNixToTime = function(timestamp) {
+  return convertMinToHumanTime(Math.floor((timestamp / 1000) / 60));
+};
+
+doGetCaretPosition = function(oField) {
+  var iCaretPos, oSel;
+  iCaretPos = 0;
+  if (document.selection) {
+    oField.focus();
+    oSel = document.selection.createRange();
+    oSel.moveStart('character', -oField.value.length);
+    iCaretPos = oSel.text.length;
+  } else if (oField.selectionStart || oField.selectionStart === '0') {
+    iCaretPos = oField.selectionStart;
+  }
+  return iCaretPos;
+};
+
+getClearDataTimestamp = function(timestamp) {
+  var data;
+  timestamp = timestamp | 0;
+  if (timestamp != null) {
+    data = new Date(timestamp);
+    data.setHours(0, 0, 0, 0);
+    return data.getTime();
+  } else {
+    return timestamp;
+  }
+};
+
+getUrlFormat = function(url) {
+  var re;
+  re = /(http:\/\/)|(https:\/\/)/;
+  url = $.trim(url);
+  if (!re.test(url)) {
+    url = 'http://' + url;
+  }
+  return url;
+};
+
+shuffle = function(array) {
+  var counter, index, temp;
+  counter = array.length;
+  while (counter > 0) {
+    index = Math.floor(Math.random() * counter);
+    counter--;
+    temp = array[counter];
+    array[counter] = array[index];
+    array[index] = temp;
+  }
+  return array;
+};
+
+requestAnimFrame = requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame || function(callback) {
+  return setTimeout(callback, 1000 / 60);
+};
+
+selectElementContents = function(el) {
+  var range, sel;
+  range = document.createRange();
+  range.selectNodeContents(el);
+  sel = window.getSelection();
+  sel.removeAllRanges();
+  return sel.addRange(range);
+};
+
+getOnlyTime = function(ts) {
+  var newDate, newDateTS;
+  newDate = new Date(ts);
+  newDate.setHours(0, 0, 0, 0);
+  newDateTS = newDate.getTime();
+  return ts - newDateTS;
+};
+
+defaultCommunityIcon = '/resources/images/icons/timeline-empty-avatar@2x.png';
+
+imageInRatio = function(img, ratio) {
+  var css, imgRatio;
+  imgRatio = img.height / img.width;
+  if (imgRatio > ratio) {
+    css = {
+      width: '100%',
+      height: 'auto',
+      marginTop: -((100 * imgRatio - 100 * ratio) / 2) + '%',
+      marginLeft: 0
+    };
+  } else {
+    css = {
+      width: 'auto',
+      height: '100%',
+      marginLeft: -((100 * ratio / imgRatio - 100) / 2) + '%',
+      marginTop: 0
+    };
+  }
+  $(img).css(css);
+  return css;
+};
+
+imageIn = function(img, sizeX, sizeY, whole, rel) {
+  var containerRatio, css, imgRation;
+  imgRation = img.height / img.width;
+  containerRatio = sizeY / sizeX;
+  if (imgRation > containerRatio) {
+    if (whole) {
+      css = {
+        width: 'auto',
+        height: '100%',
+        marginTop: 0,
+        marginLeft: -((sizeY / imgRation - sizeX) / 2)
+      };
+    } else {
+      css = {
+        width: '100%',
+        height: 'auto',
+        marginTop: -((sizeX * imgRation - sizeY) / 2),
+        marginLeft: 0
+      };
+    }
+  } else {
+    if (whole) {
+      css = {
+        width: '100%',
+        height: 'auto',
+        marginLeft: 0,
+        marginTop: -((sizeX * imgRation - sizeY) / 2)
+      };
+    } else {
+      css = {
+        width: 'auto',
+        height: '100%',
+        marginLeft: -((sizeY / imgRation - sizeX) / 2),
+        marginTop: 0
+      };
+    }
+  }
+  $(img).css(css);
+  return css;
+  css = {
+    width: width,
+    height: height,
+    marginTop: -(height - sizeY) / 2 + 'px',
+    marginLeft: -(width - sizeX) / 2 + 'px'
+  };
+  if (rel) {
+    css.width = 100 * width / sizeX + '%';
+    css.height = 100 * height / sizeY + '%';
+    css.marginTop = 100 * parseInt(css.marginTop) / sizeX + '%';
+    css.marginLeft = 100 * parseInt(css.marginLeft) / sizeY + '%';
+  }
+  $(img).css(css);
+  return css;
+};
+
+Math.easeInOutQuad = function(t, b, c, d) {
+  t /= d / 2;
+  if (t < 1) {
+    return c / 2 * t * t + b;
+  }
+  t--;
+  return -c / 2 * (t * (t - 2) - 1) + b;
+};
+
+makeArrayByLength = function(l) {
+  var a;
+  a = new Array();
+  a.length = l;
+  return a;
+};
+
+makeArrayByFromTo = function(from, to) {
+  var c, j, ref, ref1, results;
+  results = [];
+  for (c = j = ref = from, ref1 = to + 1; ref <= ref1 ? j < ref1 : j > ref1; c = ref <= ref1 ? ++j : --j) {
+    results.push(c);
+  }
+  return results;
+};
+
+getColor = function(color) {
+  if (!color) {
+    return false;
+  }
+  if (color.indexOf('rgba') + 1) {
+    color = color.replace(/[()\sa-z]/g, '').split(",");
+    color = {
+      r: +color[0],
+      g: +color[1],
+      b: +color[2],
+      a: +color[3]
+    };
+  }
+  return color;
+};
+
+makeRGBA = function(color) {
+  return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + color.a + ')';
+};
+
+makeHEX = function(color) {
+  var i;
+  for (i in color) {
+    color[i] = color[i].toString(16);
+  }
+  return '#' + color.r + color.g + color.b;
+};
+
+isEmail = function(mail) {
+  return /[\w.]+\@[\w.]+\.\w{2,}/g.test(mail);
+};
+
+joinStrings = function(strings, separator) {
+  var res;
+  if (separator == null) {
+    separator = ' ';
+  }
+  return res = strings.join(separator).replace(/\s+/g, ' ').replace(/(^\s+)|(\s+$)/g, '');
+};
+
+DEV_MODE = false;
+
+switchDevMode = function(state) {
+  DEV_MODE = !DEV_MODE;
+  if (state) {
+    DEV_MODE = true;
+  }
+  if (DEV_MODE) {
+    return localStorage['DEV_MODE'] = true;
+  } else {
+    return delete localStorage['DEV_MODE'];
+  }
+};
+
+loadDevMode = function() {
+  return DEV_MODE = localStorage['DEV_MODE'] || false;
+};
+
+loadDevMode();
+
+AsyncFlow = (function() {
+  function AsyncFlow() {
+    this.actions = [];
+    this.completed = 0;
+    this.succeeded = 0;
+  }
+
+  AsyncFlow.prototype.add = function(action) {
+    return this.actions.push(action);
+  };
+
+  AsyncFlow.prototype.fire = function(cb) {
+    var i, j, len, ref, results;
+    ref = this.actions;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      i = ref[j];
+      results.push((function(_this) {
+        return function(i) {
+          return i.action(function(res) {
+            _this.completed++;
+            if (typeof res === 'undefined') {
+              res = true;
+            }
+            if (res) {
+              _this.succeeded++;
+              i.completed = true;
+              if (_this.completed === _this.actions.length) {
+                if (_this.completed === _this.succeeded) {
+                  return typeof cb === "function" ? cb(true) : void 0;
+                } else {
+                  return typeof cb === "function" ? cb(false) : void 0;
+                }
+              }
+            }
+          });
+        };
+      })(this)(i));
+    }
+    return results;
+  };
+
+  return AsyncFlow;
+
+})();
+
+keyCodes = {
+  backspace: 8,
+  tab: 9,
+  enter: 13,
+  shift: 16,
+  ctrl: 17,
+  alt: 18,
+  caps: 20,
+  esc: 29,
+  space: 32
+};
+
+getQuery = function(loc) {
+  var i, items, j, k, len, query, ref, search, v;
+  if (!loc) {
+    loc = location;
+  }
+  query = {};
+  search = decodeURIComponent(loc.search.substr(1));
+  items = search.split('&');
+  for (j = 0, len = items.length; j < len; j++) {
+    i = items[j];
+    ref = i.split('='), k = ref[0], v = ref[1];
+    query[k] = v;
+  }
+  return query;
+};
+
+makeSpinner = function(target, options) {
+  var spinner, spinnerOptions;
+  spinnerOptions = {
+    lines: 13,
+    length: 20,
+    width: 2,
+    radius: 30,
+    corners: 1,
+    rotate: 0,
+    direction: 1,
+    color: '#fff',
+    speed: 1,
+    trail: 66,
+    shadow: true,
+    hwaccel: true,
+    className: 'spinner',
+    zIndex: 2e9,
+    top: "50%",
+    left: "50%"
+  };
+  if (options) {
+    updateObject(spinnerOptions, options);
+  }
+  spinner = new Spinner(spinnerOptions);
+  if (target) {
+    spinner.spin(target);
+  }
+  return spinner;
+};

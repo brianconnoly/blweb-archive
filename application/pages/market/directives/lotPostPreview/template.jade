@@ -1,0 +1,28 @@
+div.previewContainer.single
+    div.itemPreview(item="item", overlay="lotPostPreview")
+div.detailsContainer
+    div.makeFavourite.flushMousedown(ng-click="triggerFavourite()", ng-class="{'active':isFavourite(item.id)}") &#9733;
+    h3.title {{item.title}} &#160;
+
+    //- div.detail
+        div.title {{localization.translate('market_lot_budget')}}
+        div.value {{item.budget | formatNumber}}
+
+    div.detail.image_author
+        div.value Buzzlike
+
+    div.detail.image_date
+        div.bind.value
+            div.word {{localization.translate('from')}}
+            div.time
+        div.bind.value
+            div.word {{localization.translate('till')}}
+            div.time
+
+    //-div.detail.image_time
+        div.fromvalue {{localization.translate('from')}} {{item.dateFrom | timestampMask:"hh:mm"}}
+        div.tovalue {{localization.translate('to')}} {{item.dateTo | timestampMask:"hh:mm"}}
+
+    div.detail.image_users
+        div.value {{(item.minSubscribers | formatNumber) || 0}}
+        div.value {{(item.price | formatNumber) || 0}}

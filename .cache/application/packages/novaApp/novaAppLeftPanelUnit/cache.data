@@ -1,0 +1,20 @@
+buzzlike.directive('novaAppLeftPanelUnit', function($compile) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem, newElem;
+      elem = $(element);
+      scope.unit.unitScope = scope;
+      scope.unit.elem = elem;
+      newElem = $('<div>', {
+        "class": scope.unit.directive
+      });
+      newElem.html(tC[scope.unit.directive + '/template.jade']);
+      newElem = $($compile(newElem)(scope));
+      elem.append(newElem);
+      return scope.unit.unitHeight = elem.height();
+    }
+  };
+});
+
+registerStyles('novaAppLeftPanelUnit', ".novaAppLeftPanelUnit {\n  max-width: 210px;\n}\n.novaAppLeftPanelUnit .settings {\n  position: absolute;\n  top: 0;\n  left: 8px;\n  margin: 5px;\n  width: 10px;\n  height: 10px;\n  background: #a6a6a6;\n  cursor: pointer;\n}\n.novaAppLeftPanelUnit .title {\n  font-size: 12px;\n  height: 25px;\n  line-height: 25px;\n  padding-left: 20px;\n  color: #000;\n  cursor: pointer;\n}\n.novaAppLeftPanelUnit .title.active {\n  background: #f6f4f4;\n  cursor: default;\n}\n.novaAppLeftPanelUnit .title .settings {\n  margin: 7px 5px 7px 6px;\n  left: 0;\n}\n.novaAppLeftPanelUnit .title span {\n  pointer-events: none;\n}\n.novaAppLeftPanelUnit .subItem {\n  font-size: 12px;\n  height: 25px;\n  line-height: 25px;\n  padding-left: 28px;\n  color: #000;\n}\n.novaAppLeftPanelUnit .subItem .subTitle {\n  cursor: pointer;\n}\n.novaAppLeftPanelUnit .subItem.active {\n  background: #f6f4f4;\n}\n.novaAppLeftPanelUnit .subItem.active .subTitle {\n  cursor: default;\n}\n");

@@ -1,0 +1,57 @@
+buzzlike.controller('notificationViewerCtrl', function($scope, notificationService) {
+  var query;
+  $scope.stateTree.applyState({
+    escape: $scope.closeApp
+  });
+  $scope.session.expandedHeader = false;
+  $scope.onEscape = $scope.closeApp;
+  $scope.currentPage = 0;
+  $scope.totalPages = 0;
+  $scope.notificationsList = [];
+  query = function() {
+    var hei, lines, process;
+    hei = $scope.session.size.height - 50;
+    lines = Math.floor((hei - 60) / 81);
+    if (lines < 1) {
+      lines = 2;
+    }
+    process = $scope.progress.add();
+    return notificationService.query({
+      page: $scope.currentPage,
+      limit: lines,
+      sortBy: 'created',
+      sortType: 'desc'
+    }, function(items, total) {
+      $scope.totalPages = Math.ceil(total / lines);
+      $scope.notificationsList = items;
+      return $scope.progress.finish(process);
+    });
+  };
+  query();
+  $scope.onResize(function(wid, hei) {
+    return query();
+  });
+  $scope.$watch(function() {
+    return notificationService.storage;
+  }, function(nVal) {
+    return query();
+  }, true);
+  $scope.goPage = function(page) {
+    $scope.currentPage = page;
+    return query();
+  };
+  $scope.pageRight = function() {
+    $scope.currentPage++;
+    if ($scope.currentPage > $scope.totalPages - 1) {
+      $scope.currentPage = $scope.totalPages - 1;
+    }
+    return query();
+  };
+  return $scope.pageLeft = function() {
+    $scope.currentPage--;
+    if ($scope.currentPage < 0) {
+      $scope.currentPage = 0;
+    }
+    return query();
+  };
+});

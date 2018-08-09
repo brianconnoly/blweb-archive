@@ -1,0 +1,36 @@
+tC['/novaZoomControl/template.jade'] = "<div ng-click=\"showPicker($event)\" class=\"value\">{{value}}</div>";
+
+buzzlike.directive('novaZoomControl', function(novaZoom) {
+  return {
+    restrict: 'C',
+    template: tC['/novaZoomControl/template.jade'],
+    require: '?ngModel',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      scope.value = ngModel.$viewValue;
+      elem = $(element);
+      ngModel.$render = function() {
+        if (ngModel.$viewValue != null) {
+          scope.value = ngModel.$viewValue;
+          return novaZoom.setValue(scope.value);
+        }
+      };
+      scope.$on('$destroy', function() {
+        return novaZoom.hide();
+      });
+      return scope.showPicker = function(e) {
+        e.stopPropagation();
+        novaZoom.pick({
+          current: scope.value,
+          onChange: function(nVal) {
+            ngModel.$setViewValue(nVal);
+            return scope.value = nVal;
+          }
+        });
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaZoomControl', ".novaZoomControl {\n  float: left;\n  width: 20px;\n  height: 20px;\n  background: rgba(0,0,0,0.1);\n}\n");

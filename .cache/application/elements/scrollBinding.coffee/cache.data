@@ -1,0 +1,34 @@
+buzzlike.directive('scrollBindTo', function() {
+  return {
+    link: function(scope, element, attrs) {
+      var attr, elem, here, setEvent;
+      attr = attrs['scrollBindTo'];
+      if (attr[0] === '@') {
+        here = true;
+        attr = attr.replace("@", "");
+        elem = $(element).find(attr);
+      } else {
+        here = false;
+        elem = $(attr);
+      }
+      setEvent = function() {
+        return $(element).on("mousewheel", function(e, d, dx, dy) {
+          var box, x, y;
+          elem = here ? $(element).find(attr) : $(attr);
+          box = elem.find(".scroll-box");
+          if (!box.length) {
+            box = elem;
+          }
+          x = box.scrollLeft();
+          y = box.scrollTop();
+          box.scrollLeft(x - dx);
+          return box.scrollTop(y - dy);
+        });
+      };
+      elem.on('mouseenter', function() {
+        return $(element).off('mousewheel');
+      }).on('mouseleave', setEvent);
+      return setEvent();
+    }
+  };
+});

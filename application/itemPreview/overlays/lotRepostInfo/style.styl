@@ -1,0 +1,133 @@
+.itemPreview // 150x150 full size
+    $h = 45px
+    & > .lot-repost-info
+        size 'abs' auto 0 0 0
+        height $h
+        z-index 888
+
+        .picWrapper
+            overflow hidden
+            size 'abs' 0 auto 0 0
+            width $h
+
+            .status
+                size 'full'
+
+                &.socialNetwork
+                    .icon
+                        text-transform uppercase
+                        line-height $h
+                        color #fff
+                        font-size 27px
+                        text-align center
+
+                &.requestStatus
+                    .bgColor.active
+                        background #000
+                        opacity 0.5
+
+                    .icon
+                        sprite "/resources/images/icons/requestStatus/status.png" 0 $h (3*$h) $h
+
+                        &.accepted
+                            background-position 0 0
+
+                        &.rejected
+                            background-position -($h) 0
+
+                        &.created, &.returned
+                            background-position -(2*$h) 0
+
+                        &.failed
+                            background-color #ee453e
+
+                        &.completed
+                            background-color #2fbe42
+
+
+                .bgColor
+                    size 'full'
+                    z-index 1
+                    opacity 0.7
+
+                .icon
+                    size 'full'
+                    z-index 2
+
+        .info
+            overflow hidden
+            size 'abs' 0 0 0 $h
+            height $h
+            line-height $h
+            font-size 17px
+            text-align center
+            background #FCEE21
+            color #000
+
+
+#rightPanel .single .itemPreview // 190x190 right panel
+    $h = 60px
+    & > .lot-repost-info
+        height $h
+
+        .picWrapper
+            width $h
+
+            .status
+                &.socialNetwork
+                    .icon
+                        line-height $h
+                        font-size 34px
+
+                &.requestStatus
+                    .icon
+                        sprite "/resources/images/icons/requestStatus/status.png" 0 $h (3*$h) $h
+
+                        &.accepted
+                            background-position 0 0
+                        &.rejected
+                            background-position -($h) 0
+                        &.created, &.returned
+                            background-position -(2*$h) 0
+
+        .info
+            size 'abs' 0 0 0 $h
+            height $h
+            line-height $h
+            font-size 20px
+
+
+
+#rightPanel .itemPreview, // 93x93 small right panel
+.small_view .itemPreview, // 100x100 left panel switcher option
+.size75 .itemPreview // 75x75 content in post (post view)
+    $h = 25px
+    & > .lot-repost-info
+        height $h
+
+        .picWrapper
+            width $h
+
+            .status
+                &.socialNetwork
+                    .icon
+                        line-height $h
+                        font-size 14px
+
+                &.requestStatus
+                    .icon
+                        sprite "/resources/images/icons/requestStatus/status.png" 0 $h (3*$h) $h
+
+                        &.accepted
+                            background-position 0 0
+                        &.rejected
+                            background-position -($h) 0
+                        &.created, &.returned
+                            background-position -(2*$h) 0
+
+        .info
+            size 'abs' 0 0 0 $h
+            height $h
+            line-height $h
+            font-size 10px
+

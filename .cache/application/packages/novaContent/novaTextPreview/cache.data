@@ -1,0 +1,24 @@
+tC['/novaTextPreview/template.jade'] = "<div class=\"name header\">{{item.name}}</div> <div class=\"name value\">{{item.value || 'empty text'}}</div>";
+
+buzzlike.directive('novaTextPreview', function(novaDesktop) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTextPreview/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      return elem.parent().on('dblclick', function(e) {
+        novaDesktop.launchApp({
+          app: 'novaTextEditApp',
+          item: {
+            type: 'text',
+            id: scope.item.id
+          }
+        });
+        return scope.$apply();
+      });
+    }
+  };
+});
+
+registerStyles('novaTextPreview', ".novaTextPreview {\n  margin: 8% 10%;\n  overflow: hidden;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaTextPreview .header {\n  font-weight: bolder;\n  margin-bottom: 2%;\n}\n.novaTextPreview .header,\n.novaTextPreview .value {\n  opacity: 1 !important;\n  -ms-filter: none !important;\n  filter: none !important;\n}\n.novaFolderPreview .novaTextPreview .header,\n.novaFolderPreview .novaTextPreview .value {\n  font-size: 8px !important;\n}\n");

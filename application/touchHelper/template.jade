@@ -1,0 +1,10 @@
+div.touchHelper
+    div.button.right.ios-nodelay(ng-click="toRight()", ng-class="{'disabled':multiselect.focusedHash.length < 1}")
+        span.name {{localization.translate('touch_rightpanel')}}
+
+    div.button.back.ios-nodelay(ng-click="back()")
+        span.name {{localization.translate('touch_back')}}
+
+    div.button.multiselect.ios-nodelay(ng-class="{'active':state.multiselect}", ng-click="triggerMultiselect()")
+        span.name {{localization.translate('touch_multiselect')}}
+

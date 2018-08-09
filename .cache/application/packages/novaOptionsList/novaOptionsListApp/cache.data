@@ -1,0 +1,51 @@
+tC['/novaOptionsListApp/template.jade'] = "<div ng-bind-html=\"localization.translate(session.data.text) || session.data.realText\" class=\"message\"></div> <div ng-if=\"session.data.description\" class=\"description\">{{localization.translate(session.data.description)}}</div> <div class=\"buttons\"> <div ng-repeat=\"option in session.data.options\" ng-class=\"{'active':$index==session.data.selected}\" ng-click=\"fire(option)\" ng-if=\"check(option)\" ng-mousemove=\"select($index)\" class=\"novaButton {{option.class}}\">{{localization.translate( option.text ) || option.realText}}</div> </div>";
+
+buzzlike.directive('novaOptionsListApp', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaOptionsListApp/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem, ref, ref1;
+      elem = $(element);
+      scope.session.noItem = true;
+      scope.session.startPosition = 'center';
+      scope.session.size = {
+        width: 500,
+        height: 'auto'
+      };
+      scope.session.noSave = true;
+      if (!(((ref = scope.session.data) != null ? (ref1 = ref.options) != null ? ref1.length : void 0 : void 0) > 0)) {
+        scope.session.data.options = [];
+        scope.session.data.options.push({
+          text: 79,
+          action: function() {
+            return scope.closeApp();
+          },
+          "class": 'cancel'
+        });
+        scope.session.data.options.push({
+          text: 'novaOptionsListApp_ok',
+          action: function() {
+            return scope.accept();
+          }
+        });
+      }
+      scope.accept = function() {
+        var base;
+        if (typeof (base = scope.session.data).onAccept === "function") {
+          base.onAccept();
+        }
+        return scope.closeApp();
+      };
+      scope.check = function(option) {
+        return (option.check == null) || option.check();
+      };
+      return scope.fire = function(option) {
+        option.action();
+        return scope.closeApp();
+      };
+    }
+  };
+});
+
+registerStyles('novaOptionsListApp', ".novaOptionsListApp {\n  background: #f2f2f2;\n}\n.novaOptionsListApp .message {\n  margin: 10px 20px;\n  margin-bottom: 5px;\n  font-size: 18px;\n}\n.novaOptionsListApp .description {\n  margin: 10px 20px;\n  margin-top: 0;\n}\n.novaOptionsListApp .buttons {\n  float: right;\n  margin-right: 20px;\n  margin-bottom: 10px;\n}\n.novaOptionsListApp .buttons .novaButton {\n  float: left;\n  margin-left: 10px;\n}\n");

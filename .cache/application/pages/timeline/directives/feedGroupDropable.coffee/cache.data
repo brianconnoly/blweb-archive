@@ -1,0 +1,38 @@
+buzzlike.directive('feedGroupDropable', function(dragMaster, dropHelper, communityService, groupService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      new dragMaster.dropTarget(element[0], {
+        enter: function(elem) {
+          return true;
+        },
+        leave: function(elem) {
+          return true;
+        },
+        canAccept: function(elem, e) {
+          var drop_action;
+          drop_action = null;
+          if (elem.dragObject.dragMulti.length === 1 && elem.dragObject.dragMulti[0].item.type === 'team') {
+            drop_action = 'bind_team_to_group';
+          }
+          if (drop_action != null) {
+            dropHelper.setAction(drop_action, e);
+            return true;
+          }
+          return false;
+        },
+        drop: function(elem) {
+          if (elem.dragObject.dragMulti.length === 1 && elem.dragObject.dragMulti[0].item.type === 'team') {
+            return groupService.save({
+              id: scope.group.id,
+              teamId: elem.dragObject.dragMulti[0].item.id
+            }, function() {
+              return true;
+            });
+          }
+        }
+      });
+      return true;
+    }
+  };
+});

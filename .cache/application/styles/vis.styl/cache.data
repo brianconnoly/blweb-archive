@@ -1,0 +1,12 @@
+Error: ParseError: stylus:266:122
+   262|     background: -webkit-linear-gradient(top,  #dedede 0%,#c8c8c8 99%); /* Chrome10+,Safari5.1+ */
+   263|     background: -o-linear-gradient(top, #dedede 0%, #c8c8c8 99%); /* Opera 11.10+ */
+   264|     background: -ms-linear-gradient(top,  #dedede 0%,#c8c8c8 99%); /* IE10+ */
+   265|     background: linear-gradient(to bottom,  #dedede 0%,#c8c8c8 99%); /* W3C */
+   266|     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dedede', endColorstr='#c8c8c8',GradientType=0 ); /* IE6-9 */
+---------------------------------------------------------------------------------------------------------------------------------^
+   267| 
+   268|     border: 1px solid #999999;
+   269|     box-shadow: #aaaaaa 0px 0px 3px 0px;
+
+expected "indent", got ";"

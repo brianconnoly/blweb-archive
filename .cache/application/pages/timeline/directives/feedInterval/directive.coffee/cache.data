@@ -1,0 +1,247 @@
+buzzlike.directive("feedInterval", function(desktopService, actionsService, requestService, dropHelper, account, dragMaster, $rootScope, postService, combService, contentService, scheduleService, notificationCenter, smartDate, localization, ruleService, communityService) {
+  return {
+    priority: 100,
+    restrict: 'C',
+    replace: true,
+    template: templateCache["/pages/timeline/directives/feedInterval"],
+    link: function(scope, element, attrs) {
+      var community, currentActions, elem, findPostTime, groupId, groupItem, interval, lineId, postLen, timeBarDirection, timeBarPos, timeShiftPlan, timebar, timebarMove, toMinutes, touchBar;
+      postLen = $rootScope.postLen;
+      interval = scope.interval;
+      elem = $(element);
+      timeShiftPlan = 1 * MIN;
+      lineId = scope.cId;
+      timebar = scope.timebar;
+      touchBar = scope.touchBar;
+      community = scope.$parent.item;
+      scope.groupId = groupId = scope.$parent.$parent.group.id;
+      groupItem = scope.$parent.$parent.group;
+      scope.makeDiff = function(val) {
+        return (Math.ceil(val * 100)) + '%';
+      };
+      scope.getTimeItem = function() {
+        return {
+          type: 'timeline',
+          timestamp: scope.timeBarPos,
+          socialNetwork: scope.item.socialNetwork,
+          communityId: lineId,
+          groupId: groupId
+        };
+      };
+      scope.intervalDblClick = function(e) {
+        var group, now, offset, tObj, time, timeRes, ts, tstamp;
+        e = fixEvent(e);
+        offset = $(element).offset();
+        timeRes = findPostTime(timeBarPos);
+        if (!timeRes) {
+          return false;
+        }
+        time = timeRes.time;
+        tObj = new Date(time);
+        tstamp = new Date(tObj.getFullYear(), tObj.getMonth(), tObj.getDate(), tObj.getHours(), tObj.getMinutes());
+        now = new Date();
+        ts = toMinutes(now.getTime()) + timeShiftPlan;
+        if (tObj.getTime() < smartDate.getShiftTimeBar(ts)) {
+          return false;
+        }
+        group = false;
+        if (scope.$parent.$parent.group.feeds.length > 1) {
+          group = scope.$parent.$parent.group;
+        }
+        desktopService.launchApp('postPicker', {
+          groupId: scope.$parent.$parent.group.id,
+          group: group,
+          communityId: lineId,
+          timestamp: smartDate.getShiftTimeline(tstamp.getTime()),
+          socialNetwork: community.socialNetwork
+        }, e);
+        return true;
+      };
+      element.off('mousemove');
+      element.on('mousemove', function(e) {
+        e = fixEvent(e);
+        return timebarMove(e.pageX, true, e);
+      });
+      scope.timeBarPos = timeBarPos = 0;
+      timeBarDirection = 'right';
+      toMinutes = function(ts) {
+        var obj;
+        obj = new Date(ts);
+        return new Date(obj.getFullYear(), obj.getMonth(), obj.getDate(), obj.getHours(), obj.getMinutes()).getTime();
+      };
+      findPostTime = function(time) {
+        var from, hTime, i, j, k, lastPossible, left, possible, ref, ref1, ref2, ref3, to;
+        hTime = getHumanDate(time).time;
+        left = false;
+        if (hTime === '23:59' && time < interval.from) {
+          left = true;
+        }
+        possible = true;
+        from = justMinutes(time);
+        to = from + postLen;
+        lastPossible = justMinutes(time);
+        for (i = j = ref = from, ref1 = to; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+          if (!interval.freeMinutes[lineId][i]) {
+            possible = false;
+            break;
+          } else {
+            lastPossible = i;
+          }
+        }
+        if (possible) {
+          return {
+            time: time,
+            left: left
+          };
+        }
+        possible = true;
+        from = lastPossible - postLen;
+        to = lastPossible;
+        for (i = k = ref2 = from, ref3 = to; ref2 <= ref3 ? k < ref3 : k > ref3; i = ref2 <= ref3 ? ++k : --k) {
+          if (!interval.freeMinutes[lineId][i]) {
+            possible = false;
+          }
+        }
+        if (possible) {
+          return {
+            time: (lastPossible - postLen) * (60 * 1000),
+            left: left
+          };
+        }
+        return false;
+      };
+      scope.touchbarMove = function(left) {
+        var coord, date_obj, nT, now, realCoord, realTime, time, ts;
+        left = left | 0;
+        coord = left - interval.left;
+        realTime = interval.realTime[coord];
+        nT = Math.round(realTime / 5);
+        nT = nT * 5;
+        if (interval.freeMinutes[lineId][nT]) {
+          realTime = nT;
+        }
+        realCoord = interval.realCoord[realTime];
+        time = realTime * 60 * 1000;
+        left = interval.left + realCoord;
+        timeBarPos = time;
+        scope.timeBarPos = time;
+        date_obj = getHumanDate(time);
+        touchBar.data('time', time);
+        touchBar.children('.time').html(date_obj.time != null ? date_obj.time : "");
+        touchBar.css({
+          left: left
+        });
+        now = new Date();
+        ts = now.getTime() + timeShiftPlan;
+        $('.touchBar').hide();
+        if (date_obj.date.getTime() < smartDate.getShiftTimeBar(ts)) {
+          return true;
+        } else {
+          return touchBar.show();
+        }
+      };
+      timebarMove = function(left, magnet, e) {
+        var coord, date_obj, nT, now, realCoord, realTime, realTs, tgt, time, ts;
+        left -= scope.session.coords.x;
+        tgt = $(e.target);
+        if (tgt.parent().hasClass('addPostArea') || tgt.hasClass('addPostArea') || tgt.hasClass('feedInterval')) {
+          timebar.removeClass('hidden');
+          scope.$parent.cursor.removeClass('hidden');
+        } else {
+          timebar.addClass('hidden');
+          scope.$parent.cursor.addClass('hidden');
+          return;
+        }
+        left = left | 0;
+        coord = left - interval.left;
+        realTime = interval.realTime[coord];
+        time = realTime * 60 * 1000;
+        if (magnet && e.shiftKey) {
+          nT = Math.round(realTime / 5);
+          nT = nT * 5;
+          if (interval.freeMinutes[lineId][nT]) {
+            realTime = nT;
+          }
+        }
+        now = new Date();
+        ts = now.getTime() + timeShiftPlan;
+        realTs = toMinutes(smartDate.getShiftTimeBar(ts));
+        if (time < realTs && time > realTs - 15 * MIN) {
+          realTime = justMinutes(realTs);
+          time = toMinutes(realTs);
+        }
+        realCoord = interval.realCoord[realTime];
+        if (interval.bigMinutes[lineId][realTime] != null) {
+          timebar.addClass('big');
+        } else {
+          timebar.removeClass('big');
+        }
+        left = interval.left + realCoord;
+        timeBarPos = time;
+        scope.timeBarPos = time;
+        date_obj = getHumanDate(time);
+        timebar.data('time', time);
+        timebar.children('.time').html(date_obj.time != null ? date_obj.time : "");
+        timebar.css({
+          left: left
+        });
+        scope.$parent.cursor.css({
+          left: left
+        });
+        if (date_obj.date.getTime() < realTs) {
+          return timebar.children('.time').css({
+            'color': '#C1272D'
+          });
+        } else {
+          return timebar.children('.time').css({
+            'color': '#fff'
+          });
+        }
+      };
+      currentActions = null;
+      return new dragMaster.dropTarget(element[0], {
+        enter: function(elem, e) {
+          timebar.addClass('showed');
+          scope.$parent.cursor.addClass('showed');
+          return dropHelper.show(currentActions, scope.timeBarPos);
+        },
+        leave: function(elem) {
+          timebar.removeClass('showed');
+          return scope.$parent.cursor.removeClass('showed');
+        },
+        canAccept: function(elem, e) {
+          currentActions = actionsService.getActions({
+            sourceContext: elem.sourceContext,
+            source: elem.dragObject.items,
+            target: scope.getTimeItem(),
+            context: groupItem,
+            targetOnly: true,
+            actionsType: 'dragndrop'
+          });
+          return currentActions.length > 0;
+        },
+        move: function(elem, e) {
+          var dragItem, left, offset;
+          dragItem = elem.dragObject.dragMulti[0].elem;
+          offset = elem.dragObject.offset;
+          left = $(dragItem).position().left + offset.x;
+          return dropHelper.setTime(scope.timeBarPos);
+        },
+        drop: function(elem, e) {
+          var ref;
+          currentActions = actionsService.getActions({
+            sourceContext: elem.sourceContext,
+            source: elem.dragObject.items,
+            target: scope.getTimeItem(),
+            context: groupItem,
+            targetOnly: true,
+            actionsType: 'dragndrop'
+          });
+          dropHelper.show(currentActions, scope.timeBarPos);
+          dropHelper.activate(e, ((ref = elem.sourceContext) != null ? ref.type : void 0) === 'rightPanel');
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});

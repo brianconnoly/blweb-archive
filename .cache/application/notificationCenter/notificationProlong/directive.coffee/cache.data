@@ -1,0 +1,11 @@
+buzzlike.directive('notificationProlong', function(localization) {
+  return {
+    template: tC['/notificationCenter/notificationProlong'],
+    link: function(scope, element, attrs) {
+      scope.getDays = function() {
+        return scope.notification.amount + ' ' + localization.declensionPhrase(scope.notification.amount, 'costDays');
+      };
+      return true;
+    }
+  };
+});

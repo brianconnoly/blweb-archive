@@ -1,0 +1,376 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.controller('ugcManagerCtrl', function(rpc, $scope, buffer, multiselect, account, desktopService, ugcService, communityService, updateService, postService, userService, smartDate, $filter) {
+  var defaultSettings, processQueryResult, tsCache, updateId;
+  $scope.selectState = multiselect.state;
+  $scope.canOverrideLoader = function() {
+    return account.user.roles.Morpheus || account.user.roles.ugcPRO;
+  };
+  $scope.userFilterUpdated = function() {
+    $scope.resetProposedList();
+    return $scope.fetchProposedPage();
+  };
+  tsCache = {};
+  $scope.getFormatedDate = function(ts) {
+    if (ts == null) {
+      return '';
+    }
+    ts = smartDate.getShiftTimeline(ts);
+    if (tsCache[ts] == null) {
+      tsCache[ts] = $filter('timestampMask')(ts, 'DD MMM в hh:mm').toLowerCase();
+    }
+    return tsCache[ts];
+  };
+  $scope.itemHeight = 120;
+  $scope.currentFilter = 'created';
+  $scope.setFilter = function(filter) {
+    if ($scope.currentFilter === filter) {
+      return;
+    }
+    $scope.currentFilter = filter;
+    if (filter === 'rating') {
+      $scope.proposed.length = 0;
+      $scope.itemHeight = 60;
+      $scope.proposedParams.usersFilter = "";
+    } else {
+      $scope.itemHeight = 120;
+    }
+    $scope.resetProposedList();
+    $scope.fetchProposedPage();
+    return $scope.stateSaver.save();
+  };
+  $scope.createCollector = function() {
+    return desktopService.launchApp('addFeed', {
+      api: {
+        onAdd: function(communities) {
+          var comm, i, len, link, results;
+          results = [];
+          for (i = 0, len = communities.length; i < len; i++) {
+            comm = communities[i];
+            link = "";
+            switch (comm.communityType) {
+              case 'profile':
+                link += 'id';
+                break;
+              case 'group':
+              case 'page':
+                link += 'club';
+                break;
+              case 'event':
+                link += 'event';
+            }
+            link += Math.abs(comm.socialNetworkId * 1);
+            results.push(ugcService.create({
+              communityId: comm.id,
+              link: comm.screenName || link,
+              userId: account.user.id,
+              background: "54ec2cdbd05b30a9749bd527",
+              logo: "54ec2cdbd05b30a9749bd527"
+            }, function(item) {
+              $scope.selectCollector(item);
+              return $scope.showSettings = true;
+            }));
+          }
+          return results;
+        }
+      }
+    });
+  };
+  $scope.acceptPost = function(post, cb) {
+    return ugcService.call('acceptPost', post.id, cb);
+  };
+  $scope.acceptPosts = function(e) {
+    var focused, i, len, post, results;
+    focused = multiselect.getFocused();
+    results = [];
+    for (i = 0, len = focused.length; i < len; i++) {
+      post = focused[i];
+      if (post.type === 'post') {
+        results.push($scope.acceptPost(post));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+  $scope.rejectPost = function(post) {
+    return ugcService.call('rejectPost', post.id);
+  };
+  $scope.rejectPosts = function(e) {
+    var focused, i, len, post, results;
+    focused = multiselect.getFocused();
+    results = [];
+    for (i = 0, len = focused.length; i < len; i++) {
+      post = focused[i];
+      if (post.type === 'post') {
+        results.push($scope.rejectPost(post));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+  $scope.takeToRight = function(item) {
+    return buffer.addItem(item);
+  };
+  $scope.collectors = ugcService.storage;
+  ugcService.fetchMy(function(items) {});
+  $scope.currentCollector = null;
+  $scope.ugcCommunity = null;
+  defaultSettings = {
+    logoLink: "",
+    color1: {
+      r: 55,
+      g: 54,
+      b: 54
+    },
+    color2: {
+      r: 247,
+      g: 146,
+      b: 30
+    },
+    color3: {
+      r: 242,
+      g: 242,
+      b: 242
+    },
+    blurBg: true,
+    blurRadius: "40",
+    bgOverlay: true,
+    bgOverlayColor: {
+      r: 0,
+      g: 0,
+      b: 0
+    },
+    bgOverlayOpacity: "20",
+    editorBack: true,
+    editorBackColor: {
+      r: 255,
+      g: 255,
+      b: 255
+    },
+    editorBackOpacity: "20",
+    finalRatingPost: false,
+    finalRatingPostInterval: "7",
+    finalRatingPostText: "ТОП 10 авторов на сегодня:",
+    finalRatingPostDate: 0,
+    finalRatingPostImageId: null,
+    logoSubtitle: true,
+    logoSubtitleText: "Расскажите всем!",
+    logoSubtitleColor: {
+      b: 0,
+      g: 0,
+      r: 0
+    },
+    logoSubtitleFont: "19",
+    popupButtonText: "Ок",
+    popupHeader: true,
+    popupHeaderText: "Спасибо",
+    popupImage: false,
+    popupImageId: null,
+    popupMessage: true,
+    popupMessageText: "После одобрения и публикаций вам будут начисляться баллы в ",
+    ratingHeaderSwitch: true,
+    ratingHeader: "Рейтинг",
+    ratingHeaderImage: false,
+    ratingHeaderImageId: null,
+    ratingHeaderText: false,
+    ratingHeaderTextValue: "Лучшие авторы нашего сообщества",
+    ratingHeaderTextColor: {
+      b: 0,
+      g: 0,
+      r: 0
+    },
+    ratingHeaderTextFont: "43",
+    ratingItemName: "Баллы",
+    textareaPlaceholder: "Напишите текст",
+    uploadButtonText: "Добавьте изображения",
+    scheduleInterval: 10,
+    overrideFaq: true
+  };
+  $scope.lastPlanned = Date.now();
+  $scope.selectCollector = function(item) {
+    var changed, k, v;
+    if ($scope.currentCollector === item) {
+      return;
+    }
+    $scope.lastPlanned = toMinutes(Date.now() + (2 * MIN));
+    ugcService.call('checkSuggested', item.id, function(res) {
+      return true;
+    });
+    $scope.currentCollector = item;
+    $scope.ugcCommunity = communityService.getById(item.communityId);
+    changed = false;
+    for (k in defaultSettings) {
+      v = defaultSettings[k];
+      if (item.settings[k] == null) {
+        item.settings[k] = v;
+        changed = true;
+      }
+    }
+    $scope.saveSettings();
+    $scope.currentFilter = 'created';
+    $scope.resetProposedList();
+    $scope.fetchProposedPage();
+    return true;
+  };
+  $scope.$watch('currentCollector.deleted', function(nVal) {
+    if (nVal === true) {
+      $scope.currentCollector = null;
+      return $scope.showSettings = false;
+    }
+  });
+  $scope.currentSettingsItem = 'general';
+  $scope.showSettings = false;
+  $scope.removeLogo = function() {
+    return ugcService.save({
+      id: $scope.currentCollector.id,
+      logo: "_null"
+    });
+  };
+  $scope.removeBack = function() {
+    return ugcService.save({
+      id: $scope.currentCollector.id,
+      background: "_null"
+    });
+  };
+  $scope.removeTeam = function() {
+    return ugcService.save({
+      id: $scope.currentCollector.id,
+      teamId: "_null"
+    });
+  };
+  $scope.removePopupImage = function() {
+    $scope.currentCollector.settings.popupImageId = null;
+    return $scope.saveSettings();
+  };
+  $scope.removeRatingImage = function() {
+    $scope.currentCollector.settings.ratingHeaderImageId = null;
+    return $scope.saveSettings();
+  };
+  $scope.removeFinalImage = function() {
+    $scope.currentCollector.settings.finalRatingPostImageId = null;
+    return $scope.saveSettings();
+  };
+  $scope.removeLoaderImage = function() {
+    $scope.currentCollector.settings.loaderImageId = null;
+    return $scope.saveSettings();
+  };
+  $scope.removeFaqText = function() {
+    $scope.currentCollector.settings.faqTextId = null;
+    return $scope.saveSettings();
+  };
+  $scope.saveSettings = function() {
+    var process;
+    if ($scope.currentCollector.settings.finalRatingPost === true) {
+      if ($scope.currentCollector.settings.finalRatingPostDate < Date.now() + 2 * MIN) {
+        $scope.currentCollector.settings.finalRatingPostDate = toMinutes(Date.now() + 2 * MIN);
+      }
+    }
+    process = $scope.progress.add();
+    return ugcService.save({
+      id: $scope.currentCollector.id,
+      settings: $scope.currentCollector.settings
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.getRGB = function(color) {
+    return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+  };
+  $scope.proposed = [];
+  $scope.proposedFilter = function(item) {
+    return $scope.currentFilter === item.proposeStatus;
+  };
+  $scope.proposedParams = {
+    usersFilter: "",
+    pageSize: 0,
+    page: 50,
+    total: 0,
+    isLoading: false,
+    reloadOnStart: false
+  };
+  $scope.resetProposedList = function() {
+    $scope.proposedParams.pageSize = Math.ceil(($scope.session.size.height - 100) / $scope.itemHeight) * 2;
+    $scope.proposedParams.page = 0;
+    $scope.proposedParams.total = 0;
+    $scope.proposedParams.isLoading = false;
+    return $scope.proposedParams.reloadOnStart = false;
+  };
+  $scope.fetchProposedPage = function() {
+    var proposedsProcess;
+    if ($scope.proposedParams.isLoading === true) {
+      return;
+    }
+    $scope.proposedParams.isLoading = true;
+    proposedsProcess = $scope.progress.add();
+    if ($scope.currentFilter !== 'rating') {
+      return postService.query({
+        proposedTo: $scope.currentCollector.id,
+        proposeStatus: $scope.currentFilter,
+        limit: $scope.proposedParams.pageSize,
+        page: $scope.proposedParams.page,
+        sortBy: 'created',
+        sortType: 'desc'
+      }, processQueryResult(proposedsProcess));
+    } else {
+      return rpc.call('ugc.queryUsers', {
+        ugcId: $scope.currentCollector.id,
+        name: $scope.proposedParams.usersFilter,
+        limit: $scope.proposedParams.pageSize,
+        page: $scope.proposedParams.page
+      }, function(result) {
+        return processQueryResult(proposedsProcess)(result.items, result.total);
+      });
+    }
+  };
+  processQueryResult = function(process) {
+    return function(items, total) {
+      var i, item, len;
+      if ($scope.proposedParams.page === 0) {
+        $scope.proposed.length = 0;
+      }
+      $scope.proposedParams.page++;
+      $scope.proposedParams.total = total;
+      $scope.progress.finish(process);
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call($scope.proposed, item) < 0) {
+          $scope.proposed.push(item);
+        }
+      }
+      return $scope.proposedParams.isLoading = false;
+    };
+  };
+  updateId = updateService.registerUpdateHandler(function(data) {
+    if (data['post'] != null) {
+      if ($scope.proposedParams.page < 2 || $scope.proposedScrollValue < 300) {
+        $scope.resetProposedList();
+        return $scope.fetchProposedPage();
+      } else {
+        return $scope.proposedParams.reloadOnStart = true;
+      }
+    }
+  });
+  $scope.$on('$destroy', function() {
+    return updateService.unRegisterUpdateHandler(updateId);
+  });
+  $scope.stateSaver.add('stepStack', function() {
+    var ref;
+    return {
+      currentCollector: (ref = $scope.currentCollector) != null ? ref.id : void 0,
+      currentFilter: $scope.currentFilter
+    };
+  }, function(data) {
+    return ugcService.getById(data.currentCollector, function(item) {
+      if ((item != null ? item.id : void 0) != null) {
+        $scope.selectCollector(item);
+      }
+      return $scope.setFilter(data.currentFilter);
+    });
+  });
+  $scope.$watch('currentCollector', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  return true;
+});

@@ -1,0 +1,273 @@
+#menu
+    background: #fff
+    position: absolute
+    left: 0px
+    bottom 39px
+    
+    border-radius 0 2px 0 0
+    
+    z-index 1000
+    
+    .mainMenu
+        // height 330px
+        width 220px
+        background: #f2f2f2
+        
+        .appButton
+            width 220px
+            height 40px
+            
+            cursor: pointer
+
+            *
+                cursor: pointer
+                
+            &.market
+                .icon
+                    background: url(/resources/images/desktop/dock/black/market.svg) center center no-repeat
+                
+            &.teamManager
+                .icon
+                    background: url(/resources/images/desktop/dock/black/teams.svg) center center no-repeat
+
+            &.lotManager
+                .icon
+                    background: url(/resources/images/desktop/dock/black/marketRequests.svg) center center no-repeat
+                
+            &.combs
+                .icon
+                    background: url(/resources/images/desktop/dock/black/themes.svg) center center no-repeat
+                
+            &.timeline
+                .icon
+                    background: url(/resources/images/desktop/dock/black/timelines.svg) center center no-repeat
+
+            &.notificationViewer
+                .icon
+                    background: url(/resources/images/desktop/dock/black/notify.svg) center center no-repeat
+                
+            &.content
+                .icon
+                    background: url(/resources/images/desktop/dock/black/materials.svg) center center no-repeat
+
+            &.textEditor
+                .icon
+                    background: url(/resources/images/desktop/dock/black/text.svg) center center no-repeat
+                    
+            &.help
+                .icon
+                    background: url(/resources/images/desktop/dock/black/help.svg) center center no-repeat
+            
+            &.shortcuts
+                cursor: default
+                *
+                    cursor: default
+                .icon
+                    background: url(/resources/images/desktop/types/black/filter-video.svg) center center no-repeat
+            
+            &:hover, &.active
+                background: #39B54A //#494949
+                color #f2f2f2
+                
+                &.market
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/market.svg) center center no-repeat
+                    
+                &.teamManager
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/teams.svg) center center no-repeat
+                        
+                &.lotManager
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/marketRequests.svg) center center no-repeat
+                    
+                &.combs
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/themes.svg) center center no-repeat
+                    
+                &.timeline
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/timelines.svg) center center no-repeat
+                    
+                &.textEditor
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/text.svg) center center no-repeat
+                
+                &.help
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/help.svg) center center no-repeat
+
+                &.notificationViewer
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/notify.svg) center center no-repeat
+                    
+                &.content
+                    .icon
+                        background: url(/resources/images/desktop/dock/white/materials.svg) center center no-repeat
+                
+                &.shortcuts
+                    .icon
+                        background: url(/resources/images/desktop/types/white/filter-video.svg) center center no-repeat
+            
+            .icon
+                width 50px
+                height 40px
+                float: left
+
+            .title
+                height 40px
+                line-height 40px
+                float: left
+                font-size 15px
+                padding-left 10px
+        
+        .menuHead
+            width 220px
+            height 50px
+            background: #494949
+            overflow: hidden
+            
+            .settings
+                width 50px
+                height 50px
+                // margin 17px
+                float: left
+                
+                background: url(/resources/images/desktop/actions/white/header-button-settings.svg) center center no-repeat
+                cursor: pointer
+                
+            .name
+                font-size 12px
+                line-height 50px
+                width: 120px
+                height 50px
+                float: left
+                color #f2f2f2
+                
+                text-overflow: ellipsis
+                overflow: hidden
+                white-space nowrap  
+                
+                cursor: pointer
+                
+            .logout
+                width 30px
+                height 20px
+                margin 15px 10px
+                float: left
+                
+                background: url(/resources/images/desktop/dock/white/exit.svg) center center no-repeat
+                cursor: pointer
+                
+    .popupMenu
+        width 190px        
+        padding 10px
+        box-sizing border-box
+
+        border-radius 0 4px 4px 0
+        
+        position: absolute
+        bottom 0px
+        left 220px
+        
+        &.combs
+            background: #FCC223
+            bottom 60px
+            
+            .addCommunity
+                .title
+                    line-height 12px !important
+                    margin-top 4px
+                    
+                .icon
+                    background: url(/resources/images/desktop/white/header-button-addTimeline.svg) center center no-repeat
+
+        &.timeline
+            background: #61A3CB // rgba(57,181,74,0.97)
+            bottom 20px
+        
+            
+            
+            .import
+                .icon
+                    background: url(/resources/images/desktop/dock/white/import.svg) center center no-repeat
+            
+            .xls
+                .icon
+                    background: url(/resources/images/desktop/dock/white/xls.svg) center center no-repeat
+        
+        &.shortcuts
+            background: rgba(57,181,74,0.97)
+            border-radius 4px 4px 4px 0
+            
+            .actionButton
+                .hotkey
+                    color #96D49E
+            
+            .addCommunity
+                .title
+                    line-height 12px !important
+                    margin-top 4px
+                    
+                .icon
+                    background: url(/resources/images/desktop/white/header-button-addTimeline.svg) center center no-repeat
+                    
+            .textEditor
+                .icon
+                    background: url(/resources/images/desktop/dock/white/text.svg) center center no-repeat
+                
+            .search
+                .icon
+                    background: url(/resources/images/desktop/dock/white/search.svg) center center no-repeat
+            
+            .import
+                .icon
+                    background: url(/resources/images/desktop/dock/white/import.svg) center center no-repeat
+            
+            .xls
+                .icon
+                    background: url(/resources/images/desktop/dock/white/xls.svg) center center no-repeat
+                    
+            .folder
+                .icon
+                    background: url(/resources/images/desktop/dock/white/newFolder.svg) center center no-repeat
+                    
+            .upload
+                .icon
+                    background: url(/resources/images/desktop/dock/white/download.svg) center center no-repeat
+                    
+            .launchApp
+                .icon
+                    background: url(/resources/images/desktop/dock/white/materials.svg) center center no-repeat
+
+            .services
+                .icon
+                    background: url(/resources/images/desktop/dock/white/services.svg) center center no-repeat
+
+        .actionButton
+            margin 10px
+            width 150px
+            float: left
+            
+            &.withHotkey
+                
+                .title, .hotkey
+                    line-height 16px
+                    
+            *
+                cursor: pointer
+            
+            .icon
+                width 32px
+                height 32px
+                border 1px solid #F2F2F2
+                border-radius 3px
+                float: left
+                margin-right 10px
+            
+            .title, .hotkey
+                font-size 11px
+                line-height: 32px
+                color #f2f2f2
+            
+

@@ -1,0 +1,230 @@
+buzzlike.directive('postEditor', function(uploadService, desktopService, postService, combService, contentService, scheduleService, localization, confirmBox, complexMenu, actionsService, $rootScope) {
+  return {
+    restrict: 'E',
+    template: tC['/desktop/apps/combEdit/postEditor'],
+    replace: true,
+    link: function(scope, element, attrs) {
+      var elem, preparePostContent, process;
+      elem = $(element);
+      scope.emptyPost = false;
+      scope.postContent = [];
+      preparePostContent = function() {
+        var arr, contentOrder, k, ref, schedProcess;
+        scope.emptyPost = true;
+        scope.postContent.length = 0;
+        contentOrder = {
+          'text': 0,
+          'image': 1,
+          'video': 2,
+          'audio': 3,
+          'poll': 4,
+          'file': 5,
+          'url': 6
+        };
+        ref = scope.post.contentIds;
+        for (k in ref) {
+          arr = ref[k];
+          scope.postContent.push({
+            order: contentOrder[k],
+            list: arr,
+            type: k
+          });
+          if (arr.length > 0) {
+            scope.emptyPost = false;
+          }
+        }
+        if (scope.post.scheduled === true) {
+          schedProcess = scope.progress.add();
+          return scheduleService.fetchByPostId(scope.id, function() {
+            return scope.progress.finish(schedProcess);
+          });
+        }
+      };
+      process = scope.progress.add();
+      scope.post = postService.getById(scope.id, function(post) {
+        scope.progress.finish(process);
+        scope.post = post;
+        return preparePostContent();
+      });
+      scope.$watch('post.contentIds', function(nVal) {
+        if (nVal != null) {
+          return preparePostContent();
+        }
+      });
+      scope.isFullSized = function(block) {
+        var ref;
+        return ((ref = block.type) === 'image' || ref === 'video') && block.list.length === 1;
+      };
+      scope.schedules = scheduleService.getByPostId(scope.id);
+      scope.changeOrder = function(step) {
+        var i, neighbour, tempId;
+        if (!step) {
+          return false;
+        }
+        if (typeof step === 'number') {
+          step = -step;
+          i = scope.comb.postIds.indexOf(scope.id);
+          neighbour = scope.comb.postIds[i - step];
+          if (neighbour) {
+            tempId = scope.comb.postIds[i];
+            removeElementFromArray(tempId, scope.comb.postIds);
+            scope.comb.postIds.splice(i - step, 0, tempId);
+            return combService.call('setFlags', {
+              id: scope.comb.id,
+              postIds: scope.comb.postIds
+            }, function() {
+              return true;
+            });
+          }
+        }
+      };
+      scope.removeFromPost = function(id) {
+        process = scope.progress.add();
+        return postService.removeContentIds(scope.id, [id], function() {
+          return scope.progress.finish(process);
+        });
+      };
+      scope.deletePost = function() {
+        var string, title;
+        string = localization.declension(1, 'declension_post');
+        title = localization.translate('comb_remove').replace("%s", string);
+        return confirmBox.init(title, function() {
+          process = scope.progress.add();
+          return postService["delete"]({
+            type: 'post',
+            id: scope.id
+          }, function() {
+            return scope.progress.finish(process);
+          });
+        });
+      };
+      scope.postActions = function(e) {
+        var action, actions, groups, itemsActions, j, k, len, list;
+        itemsActions = actionsService.getActions({
+          source: [scope.post],
+          context: scope.comb
+        });
+        if (itemsActions.length > 0) {
+          groups = {};
+          list = [];
+          for (j = 0, len = itemsActions.length; j < len; j++) {
+            action = itemsActions[j];
+            if (groups[action.category] == null) {
+              groups[action.category] = {
+                type: 'actions',
+                items: []
+              };
+            }
+            groups[action.category].items.push({
+              phrase: action.phrase,
+              action: action.action,
+              priority: action.priority
+            });
+          }
+          for (k in groups) {
+            actions = groups[k];
+            actions.items.sort(function(a, b) {
+              if (a.priority > b.priority) {
+                return -1;
+              }
+              if (a.priority < b.priority) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          complexMenu.show(groups, {
+            top: $(e.target).offset().top + 27,
+            left: $(e.target).offset().left
+          });
+        }
+        return true;
+      };
+      scope.newText = function() {
+        process = scope.progress.add();
+        return contentService.create({
+          type: 'text'
+        }, function(textItem) {
+          return postService.addContentIds(scope.post, [textItem.id], function() {
+            scope.progress.finish(process);
+            return desktopService.launchApp('textEditor', {
+              textId: textItem.id
+            });
+          });
+        });
+      };
+      scope.hotUpload = function() {
+        return uploadService.requestUpload([scope.post]);
+      };
+      scope.showNetworkList = function(e) {
+        var j, len, network, networks, ref;
+        networks = [];
+        ref = $rootScope.networks;
+        for (j = 0, len = ref.length; j < len; j++) {
+          network = ref[j];
+          networks.push({
+            title: network.name,
+            value: network.type
+          });
+        }
+        return complexMenu.show([
+          {
+            object: scope.post,
+            type: 'select',
+            param: 'socialNetwork',
+            items: networks,
+            selectFunction: function() {
+              process = scope.progress.add();
+              return postService.save(scope.post, function() {
+                return scope.progress.finish(process);
+              });
+            }
+          }
+        ], {
+          top: $(e.target).offset().top + 27,
+          left: $(e.target).offset().left
+        });
+      };
+      true;
+      scope.openEditor = function(id, e) {
+        return desktopService.launchApp('textEditor', {
+          textId: id,
+          coords: {
+            x: e.clientX - 100,
+            y: e.clientY - 100
+          }
+        });
+      };
+      return scope.removeContentDescription = function(id) {
+        process = scope.progress.add();
+        delete scope.post.picComments[id];
+        return postService.save({
+          id: scope.post.id,
+          picComments: scope.post.picComments
+        }, function() {
+          return scope.progress.finish(process);
+        });
+      };
+    }
+  };
+}).directive('contentComment', function(contentService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      scope.text = null;
+      scope.$watch(function() {
+        return scope.post.picComments;
+      }, function(nVal) {
+        if (nVal != null ? nVal[scope.id] : void 0) {
+          return scope.text = contentService.getById(nVal[scope.id]);
+        }
+      }, true);
+      return scope.$watch('text', function() {
+        var ref;
+        return scope.commentText = (ref = scope.text) != null ? ref.value : void 0;
+      }, true);
+    }
+  };
+});

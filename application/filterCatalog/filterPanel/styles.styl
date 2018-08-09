@@ -1,0 +1,100 @@
+$W = $leftPanelWidth
+
+.filterPanel
+    size 'abs' 42px auto 0 0
+    width $W
+    /*overflow auto*/
+
+    background rgba(0, 0, 0, 0.2)
+    transition all ease auto 0.2s
+
+    .antiscroll, .no-antiscroll
+        height 100%
+
+    .sections
+        //border-bottom 1px solid #666
+        color #fff
+
+        $H = 44px
+        $left = 15px
+
+        .section
+            font-size 20px
+            white-space nowrap
+            transition all ease 0.2s
+            cursor pointer
+            line-height $H
+            margin-bottom 1px
+
+            .sectionChildrenList
+
+                .sectionChildren
+                    cursor: pointer
+                    padding-left: $left
+                    margin-bottom 1px
+                    background rgba(255, 255, 255, 0.2)
+                    color rgba(0, 0, 0, 0.5)
+
+                    &.active
+                        background rgba(255, 255, 255, 0.8)
+                        color #000
+
+            &.title
+                padding-left $left
+                height $H
+
+            &.warning
+                height: auto
+                font-size 13px
+                white-space normal
+                margin-top 10px
+                margin-bottom: 10px
+                line-height: 16px
+                margin-left 10px
+
+            &.menuButton, .menuButton
+                padding-left $left
+                height $H
+                background rgba(255, 255, 255, 0.4)
+                color rgba(0, 0, 0, 0.3)
+                cursor: pointer
+
+                &.active
+                    background #fff
+                    color #000
+
+            &.active .sectionTitle, .active
+                background #fff
+                color #000
+
+            .sortType
+                height 33px
+                display block
+
+            .bl-checkbox
+                float left
+                margin 11px 10px
+                border 1px solid #AFAEAE
+                cursor pointer
+
+                .tumbler
+                    background #AFAEAE
+
+                &.checked
+                    .tumbler
+                        background #97C35A
+
+
+            .label
+                $labelWidth = $W - $left - 60 - 3
+                width $labelWidth
+                float left
+                white-space nowrap
+                font-size 14px
+
+            .combobox
+                position absolute
+                left 0
+                right 0
+
+

@@ -1,0 +1,370 @@
+buzzlike.factory('uploadService', function(novaWizard, account, notificationService, rpc, updateService, $rootScope, env, combService, contentService, notificationCenter, $http, httpWrapped, localization, socketService) {
+  var MAX_CONCURENT_UPLOAD, MAX_FILE_ATTEMPT, checkByToken, checkSeries, completeCallback, context, createSeries, currentSeries, doUpload, fireUpload, getFilesRecursive, imagetype, maxUpload, nextSeries, queue, requestUpload, showResult, startTask, tasksInProgress, texttype, timeoutHandler, tokenCallbacks, whereCallback;
+  maxUpload = 15 * 1024 * 1024;
+  jQuery.event.props.push('dataTransfer');
+  imagetype = /image.*((png)|(gif)|(jpg)|(jpeg))/gi;
+  texttype = /text.*(plain)/gi;
+  MAX_CONCURENT_UPLOAD = 3;
+  MAX_FILE_ATTEMPT = 3;
+  tasksInProgress = 0;
+  queue = [];
+  currentSeries = null;
+  timeoutHandler = null;
+  context = null;
+  whereCallback = null;
+  completeCallback = null;
+  tokenCallbacks = {};
+  checkByToken = function(token) {
+    if (tokenCallbacks[token].uploaded >= tokenCallbacks[token].total) {
+      return contentService.getByIds(tokenCallbacks[token].ids, function(items) {
+        var base;
+        if (typeof (base = tokenCallbacks[token]).cb === "function") {
+          base.cb(items, tokenCallbacks[token].ids);
+        }
+        return delete tokenCallbacks[token];
+      });
+    }
+  };
+  socketService.on('tokenContentSaved', function(data) {
+    if (tokenCallbacks[data.token] != null) {
+      tokenCallbacks[data.token].uploaded++;
+      tokenCallbacks[data.token].ids.push(data.id);
+      return checkByToken(data.token);
+    }
+  });
+  getFilesRecursive = function(items, series, onFileAdd) {
+    var dir, i, item, len, results;
+    results = [];
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      if (item.kind === 'file') {
+        item = item.webkitGetAsEntry();
+      }
+      if (item.isFile) {
+        results.push(item.file(function(file) {
+          series.total++;
+          if (file.size > maxUpload) {
+            series.large++;
+          }
+          if (file.size <= maxUpload) {
+            series.tasks.push({
+              file: file,
+              attempts: 0,
+              complete: false,
+              inProgress: false
+            });
+          }
+          return onFileAdd();
+        }));
+      } else if (item.isDirectory) {
+        dir = item.createReader();
+        results.push(dir.readEntries(function(items) {
+          return getFilesRecursive(items, series, onFileAdd);
+        }));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+  createSeries = function(tO, cb) {
+    var file, i, j, len, len1, ref, ref1, series;
+    series = {
+      total: 0,
+      large: 0,
+      wrong: 0,
+      uploaded: 0,
+      tasks: []
+    };
+    if (tO.items) {
+      getFilesRecursive(tO.items, series, function() {
+        if (timeoutHandler !== null) {
+          clearTimeout(timeoutHandler);
+        }
+        return timeoutHandler = setTimeout(function() {
+          return typeof cb === "function" ? cb(series) : void 0;
+        }, 500);
+      });
+    } else if (tO.files != null) {
+      ref = tO.files;
+      for (i = 0, len = ref.length; i < len; i++) {
+        file = ref[i];
+        series.total++;
+        console.log(file.type);
+        if (file.size > maxUpload) {
+          series.large++;
+          continue;
+        }
+        series.tasks.push({
+          file: file,
+          attempts: 0,
+          complete: false,
+          inProgress: false
+        });
+      }
+      if (typeof cb === "function") {
+        cb(series);
+      }
+    } else {
+      ref1 = tO.buffer;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        file = ref1[j];
+        series.total++;
+        console.log('!!!', file.item);
+        series.tasks.push({
+          file: file.item,
+          attempts: 0,
+          complete: false,
+          inProgress: false
+        });
+      }
+      if (typeof cb === "function") {
+        cb(series);
+      }
+    }
+    return series;
+  };
+  nextSeries = function() {
+    if (queue.length > 0) {
+      currentSeries = queue.shift();
+    } else {
+      currentSeries = null;
+    }
+    return checkSeries();
+  };
+  checkSeries = function() {
+    var complete, i, len, ref, task;
+    if (currentSeries == null) {
+      return;
+    }
+    complete = true;
+    ref = currentSeries.tasks;
+    for (i = 0, len = ref.length; i < len; i++) {
+      task = ref[i];
+      if (task.complete !== true && task.attempts < MAX_FILE_ATTEMPT) {
+        complete = false;
+        if (task.inProgress === false) {
+          if (tasksInProgress < MAX_CONCURENT_UPLOAD) {
+            startTask(task);
+          }
+        }
+      }
+    }
+    if (complete === true) {
+      showResult();
+      return nextSeries();
+    }
+  };
+  showResult = function(series) {
+    var message, notificationError, token, url;
+    series = currentSeries;
+    notificationError = true;
+    message = series.uploaded + ' ' + localization.translate('global_from') + ' ' + series.total + ' ' + localization.translate('uploadService_uploaded');
+    if (series.wrong > 0) {
+      message += '. ' + localization.translate('uploadService_of_them') + series.wrong + ' ' + localization.translate('uploadService_invalidformat_1');
+    }
+    if (series.large > 0) {
+      message += '. ' + localization.translate('uploadService_of_them') + series.large + ' ' + localization.translate('uploadService_maxsize_2');
+    }
+    if (series.wrong === 0 && series.large === 0) {
+      notificationError = false;
+    }
+    tokenCallbacks[series.token].total -= series.wrong + series.large;
+    checkByToken(series.token);
+    if (notificationError === true) {
+      notificationCenter.addMessage({
+        realText: message,
+        error: notificationError
+      });
+    }
+    url = series.url.split('/');
+    token = url[url.length - 1];
+    notificationService.showNotificationByToken(token);
+    if (account.user.settings.takeUploadToRight === true) {
+      return notificationService.setTokenMax(token, series.uploaded);
+    }
+  };
+  startTask = function(task) {
+    task.inProgress = true;
+    tasksInProgress++;
+    return doUpload(task, function(result) {
+      if (result === false) {
+        if (task.attempts < MAX_FILE_ATTEMPT) {
+          task.attempts++;
+          startTask(task);
+          return tasksInProgress--;
+        }
+      } else {
+        task.complete = true;
+        task.inProgress = false;
+        tasksInProgress--;
+        currentSeries.uploaded++;
+        return checkSeries();
+      }
+    });
+  };
+  doUpload = function(task, cb) {
+    var formDataImage, progress, xhr;
+    progress = notificationCenter.registerProgress();
+    xhr = null;
+    formDataImage = new FormData();
+    formDataImage.append('image', task.file, 'image.' + task.file.type.split('/')[1]);
+    return $.ajax({
+      cache: false,
+      contentType: false,
+      data: formDataImage,
+      processData: false,
+      crossDomain: true,
+      url: currentSeries.url,
+      type: 'POST',
+      xhr: function() {
+        xhr = jQuery.ajaxSettings.xhr();
+        if (xhr.upload) {
+          xhr.upload.addEventListener('progress', function(e) {
+            var p;
+            p = Math.floor(e.loaded / e.total * 100);
+            progress.value = p;
+            notificationCenter.updateStatus(progress);
+            return $rootScope.$applyAsync();
+          }, false);
+        }
+        return xhr;
+      },
+      beforeSend: function() {
+        progress.value = 0;
+        return notificationCenter.updateStatus(progress);
+      },
+      success: function(res) {
+        progress.value = 100;
+        notificationCenter.updateStatus(progress);
+        return cb(true);
+      },
+      error: function(e, st, err) {
+        progress.value = 100;
+        notificationCenter.updateStatus(progress);
+        return cb(false);
+      }
+    });
+  };
+  fireUpload = function(series, cb) {
+    var reqParams;
+    reqParams = {
+      count: series.tasks.length
+    };
+    if (context != null) {
+      reqParams.where = context;
+    }
+    return rpc.call('upload.request', reqParams, function(result) {
+      var token, urlParts;
+      urlParts = result.url.split('/');
+      token = urlParts[urlParts.length - 1];
+      series.token = token;
+      tokenCallbacks[token] = {
+        cb: cb,
+        total: series.tasks.length,
+        uploaded: 0,
+        ids: []
+      };
+      series.url = result.url;
+      if (currentSeries !== null) {
+        return notificationCenter.addMessage({
+          realText: localization.translate('uploadFiles_filesqueue'),
+          error: false
+        });
+      } else {
+        return nextSeries();
+      }
+    });
+  };
+  requestUpload = function(where, cb, ccb) {
+    var dest, i, input, len;
+    context = null;
+    if (cb != null) {
+      whereCallback = cb;
+    } else {
+      whereCallback = null;
+    }
+    if (ccb != null) {
+      completeCallback = ccb;
+    } else {
+      completeCallback = null;
+    }
+    if ((where != null ? where.id : void 0) != null) {
+      context = {
+        type: where.type,
+        id: where.id
+      };
+    }
+    if ((where != null ? where.length : void 0) > 0) {
+      context = [];
+      for (i = 0, len = where.length; i < len; i++) {
+        dest = where[i];
+        context.push({
+          type: dest.type,
+          id: dest.id
+        });
+      }
+    }
+    input = $('.uploadHelper input');
+    input.click();
+    return true;
+  };
+  novaWizard.register('upload', {
+    type: 'simple',
+    action: (function(_this) {
+      return function(data) {
+        var i, len, ref, ref1, wh, where;
+        where = [
+          {
+            type: 'project',
+            id: (data != null ? data.projectId : void 0) || account.user.userProjectId
+          }
+        ];
+        if (((ref = data.where) != null ? ref.length : void 0) > 0) {
+          ref1 = data.where;
+          for (i = 0, len = ref1.length; i < len; i++) {
+            wh = ref1[i];
+            where.push(wh);
+          }
+        }
+        return requestUpload(where, null, data.cb);
+      };
+    })(this)
+  });
+  return {
+    upload: function(transferObject, cb) {
+      var ref;
+      if ((ref = account.user.roles) != null ? ref.Morpheus : void 0) {
+        maxUpload = 1024 * 1024 * 1024;
+      }
+      return createSeries(transferObject, function(series) {
+        queue.push(series);
+        if (whereCallback != null) {
+          return whereCallback(function(where) {
+            var dest, i, len;
+            if ((where != null ? where.id : void 0) != null) {
+              context = {
+                type: where.type,
+                id: where.id
+              };
+            }
+            if ((where != null ? where.length : void 0) > 0) {
+              context = [];
+              for (i = 0, len = where.length; i < len; i++) {
+                dest = where[i];
+                context.push({
+                  type: dest.type,
+                  id: dest.id
+                });
+              }
+            }
+            return fireUpload(series, typeof cb === 'function' ? cb : completeCallback);
+          });
+        } else {
+          return fireUpload(series, typeof cb === 'function' ? cb : completeCallback);
+        }
+      });
+    },
+    requestUpload: requestUpload
+  };
+});

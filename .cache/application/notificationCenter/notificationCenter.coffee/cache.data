@@ -1,0 +1,234 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.factory('notificationCenter', function($rootScope, socketService, localization) {
+  var addMessage, error, getTasks, init, messages, registerProgress, removeMessage, status, tasks, updateProgressValue, updateStatus;
+  tasks = [];
+  messages = [];
+  status = {
+    error: false,
+    progress: false,
+    wait: false
+  };
+  updateProgressValue = function() {
+    var bar, val, value;
+    bar = $('#topProgressBar');
+    value = bar.children('.value');
+    if (tasks.length > 0) {
+      bar.addClass('active');
+      val = tasks[0].value;
+      return value.css({
+        'width': val + '%'
+      });
+    } else {
+      status.wait = false;
+      return bar.removeClass('active');
+    }
+  };
+  init = function() {
+    return messages.length = 0;
+  };
+  registerProgress = function(wait) {
+    var newTasks;
+    newTasks = {
+      value: 0
+    };
+    tasks.push(newTasks);
+    if (wait) {
+      status.wait = true;
+    }
+    return newTasks;
+  };
+  updateStatus = function(bar) {
+    if (bar.value === 100) {
+      removeElementFromArray(bar, tasks);
+    }
+    return updateProgressValue();
+  };
+  getTasks = function() {
+    return tasks;
+  };
+  addMessage = function(msg) {
+    var j, len, message, time;
+    if (msg.text && msg.data) {
+      msg.realText = localization.decrypt(msg.text, msg.data);
+      delete msg.text;
+      delete msg.data;
+    }
+    if (msg.notificationType == null) {
+      for (j = 0, len = messages.length; j < len; j++) {
+        message = messages[j];
+        if (((msg.realText != null) && message.realText === msg.realText) || ((msg.text != null) && message.text === msg.text)) {
+          return false;
+        }
+      }
+    }
+    if (indexOf.call(messages, msg) >= 0) {
+      return false;
+    }
+    messages.push(msg);
+    time = msg.time || 3 * 1000;
+    if (msg.notificationType != null) {
+      time = MIN;
+    }
+    if (msg.time) {
+      time = msg.time;
+    }
+    if (msg.error) {
+      time = 20 * 1000;
+    }
+    return setTimeout(function() {
+      removeElementFromArray(msg, messages);
+      return $rootScope.$applyAsync();
+    }, time);
+  };
+  removeMessage = function(msg) {
+    return removeElementFromArray(msg, messages);
+  };
+  error = function() {
+    return status.error = true;
+  };
+  socketService.on('notify', function(data) {
+    addMessage(data);
+    return $rootScope.$apply();
+  });
+  socketService.on('blog', function(data) {
+    var c, i, j, len;
+    blog('=== BE blog ===\n');
+    for (c = j = 0, len = data.length; j < len; c = ++j) {
+      i = data[c];
+      blog(" ---- " + c + " ----\n", i);
+    }
+    return blog('\n===============');
+  });
+  return {
+    status: status,
+    messages: messages,
+    init: init,
+    registerProgress: registerProgress,
+    updateStatus: updateStatus,
+    getTasks: getTasks,
+    error: error,
+    addMessage: addMessage,
+    removeMessage: removeMessage
+  };
+});
+
+buzzlike.directive('notificationCenter', function(notificationCenter, stateManager, notificationService) {
+  return {
+    restrict: 'C',
+    scope: true,
+    link: function(scope, element, attrs) {
+      var closePanel, elem, panelState, spinner, spinnerOptions, target;
+      elem = $(element);
+      scope.spinnerShow = false;
+      scope.panelShown = false;
+      scope.tasks = notificationCenter.getTasks();
+      scope.notificationStatus = notificationCenter.status;
+      scope.unread = notificationService.unread;
+      scope.$watch('tasks', function(nValue) {
+        if (nValue.length > 0) {
+          return scope.spinnerShow = true;
+        } else {
+          scope.spinnerShow = false;
+          return scope.panelShow = false;
+        }
+      }, true);
+      spinnerOptions = {
+        lines: 9,
+        length: 2,
+        width: 2,
+        radius: 8,
+        corners: 0,
+        rotate: 0,
+        direction: 1,
+        color: '#fff',
+        speed: 1,
+        trail: 75,
+        shadow: false,
+        hwaccel: true,
+        className: 'spinner',
+        zIndex: 2e9
+      };
+      target = elem.find('.spinner');
+      spinner = new Spinner(spinnerOptions).spin(target[0]);
+      scope.refresh = function() {
+        return location.reload();
+      };
+      closePanel = function() {
+        notificationCenter.status.panelShown = false;
+        return stateManager.goBack();
+      };
+      panelState = {
+        name: 'notificationState',
+        'escape': closePanel
+      };
+      scope.triggerPanel = function() {
+        if (scope.notificationStatus.error === true) {
+          return;
+        }
+        if (notificationCenter.status.panelShown === true) {
+          stateManager.faderClick();
+        } else {
+          notificationCenter.status.panelShown = true;
+          stateManager.applyState(panelState);
+        }
+        return true;
+      };
+      return true;
+    }
+  };
+});
+
+buzzlike.directive('notificationPanel', function(desktopService, notificationCenter, notificationService, stateManager) {
+  return {
+    restrict: 'C',
+    scope: true,
+    link: function(scope, element, attrs) {
+      scope.notificationStatus = notificationCenter.status;
+      scope.unread = notificationService.unread;
+      scope.hideAll = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        stateManager.faderClick();
+        return notificationService.markAllRead(function() {
+          return true;
+        });
+      };
+      return scope.showAll = function() {
+        notificationService.markAllRead(function() {
+          return true;
+        });
+        desktopService.launchApp('notificationViewer');
+        return stateManager.faderClick();
+      };
+    }
+  };
+});
+
+buzzlike.directive('notificationItem', function($compile, notificationService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem, flag, inner, previewContainer, template;
+      flag = '';
+      if ($(element).parents('.systemMessages').length > 0) {
+        flag = 'systemmessage="true"';
+      }
+      if ($(element).parents('.notificationPanel').length > 0) {
+        flag = 'unreadnotifications="true"';
+      }
+      elem = $(element);
+      previewContainer = elem.children('.notificationPreview');
+      scope.markRead = function() {
+        return notificationService.markRead(scope.notification.id);
+      };
+      if (scope.notification.notificationType != null) {
+        template = '<notification-' + scope.notification.notificationType + ' ' + flag + '>';
+      }
+      if (template != null) {
+        inner = $compile(template)(scope);
+        return previewContainer.append(inner);
+      }
+    }
+  };
+});

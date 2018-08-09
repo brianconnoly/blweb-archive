@@ -1,0 +1,501 @@
+buzzlike.factory('dragMaster', function($parse, $rootScope, stateManager, multiselect, operationsService, notificationCenter, dropHelper) {
+  var addDocumentEventHandlers, body, clearJunk, currentDropTarget, dragElem, dragInProgress, dragObject, dragState, getCurrentTarget, getMouseOffset, getOffset, getOffsetRect, getOffsetSum, helperObj, makeDraggable, mouseDown, mouseDownAt, mouseMove, mouseUp, removeDocumentEventHandlers, threshold;
+  body = $('body');
+  helperObj = null;
+  threshold = {
+    'x': 5,
+    'y': 5
+  };
+  dragObject = null;
+  dragElem = null;
+  mouseDownAt = null;
+  currentDropTarget = null;
+  dragInProgress = false;
+  dragState = {
+    noMenu: 'inherit',
+    'escape': function() {
+      if (dragObject != null) {
+        dragObject.onDragEnd();
+        dragObject.onDragFail();
+        dragObject = null;
+        dragElem = null;
+      }
+      $('.content-drop').removeClass('content-drop');
+      $('.drop-hover').removeClass('drop-hover');
+      __pholderHelper.detach();
+      $('.sorting-hidden').removeClass('sorting-hidden');
+      currentDropTarget = null;
+      dragInProgress = false;
+      removeDocumentEventHandlers();
+      stateManager.goBack();
+      return dropHelper.flush();
+    }
+  };
+  mouseDown = function(e) {
+    if (notificationCenter.status.progress) {
+      clearJunk();
+      return false;
+    }
+    e = fixEvent(e);
+    if (e.which !== 1 || e.shiftKey) {
+      return;
+    }
+    mouseDownAt = {
+      x: e.pageX,
+      y: e.pageY,
+      element: this
+    };
+    addDocumentEventHandlers();
+    dropHelper.flush();
+    return true;
+  };
+  clearJunk = function() {
+    return $('.helper-transparent').remove();
+  };
+  mouseMove = function(e) {
+    var elem, mouseOffset, newTarget;
+    e = fixEvent(e);
+    if (mouseDownAt) {
+      if (Math.abs(mouseDownAt.x - e.pageX) < threshold.x && Math.abs(mouseDownAt.y - e.pageY) < threshold.y) {
+        return false;
+      }
+      elem = mouseDownAt.element;
+      if (!elem.dragObject.canDrag(e)) {
+        return false;
+      }
+      dragObject = elem.dragObject;
+      dragElem = elem;
+      mouseOffset = getMouseOffset(elem, mouseDownAt.x, mouseDownAt.y);
+      mouseDownAt = null;
+      dragObject.onDragStart(mouseOffset, e);
+      dragInProgress = true;
+      stateManager.applyState(dragState);
+      $rootScope.$apply();
+    }
+    dragObject.onDragMove(e.pageX, e.pageY);
+    newTarget = getCurrentTarget(e);
+    if (newTarget != null) {
+      if (typeof newTarget.onMove === "function") {
+        newTarget.onMove(dragElem, e);
+      }
+    }
+    if (currentDropTarget !== newTarget) {
+      if (currentDropTarget) {
+        currentDropTarget.onLeave(dragElem);
+      }
+      if (newTarget) {
+        newTarget.onEnter(dragElem, e);
+      }
+      currentDropTarget = newTarget;
+    }
+    return false;
+  };
+  mouseUp = function(e) {
+    if (!dragObject) {
+      mouseDownAt = null;
+    } else {
+      stateManager.goBack();
+      dragObject.onDragEnd();
+      if (currentDropTarget != null) {
+        currentDropTarget.accept(dragElem, e);
+        dragObject.onDragSuccess(currentDropTarget);
+      } else {
+        dragObject.onDragFail();
+      }
+      dragObject = null;
+      dragElem = null;
+    }
+    __pholderHelper.detach();
+    $('.sorting-hidden').removeClass('sorting-hidden');
+    currentDropTarget = null;
+    dragInProgress = false;
+    return removeDocumentEventHandlers();
+  };
+  getOffsetRect = function(elem) {
+    var box, clientLeft, clientTop, docElem, left, scrollLeft, scrollTop, top;
+    box = elem.getBoundingClientRect();
+    body = document.body;
+    docElem = document.documentElement;
+    scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
+    scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
+    clientTop = docElem.clientTop || body.clientTop || 0;
+    clientLeft = docElem.clientLeft || body.clientLeft || 0;
+    top = box.top + scrollTop - clientTop;
+    left = box.left + scrollLeft - clientLeft;
+    return {
+      top: Math.round(top),
+      left: Math.round(left)
+    };
+  };
+  getOffsetSum = function(elem) {
+    var left, top;
+    top = 0;
+    left = 0;
+    while (elem) {
+      top = top + Math.floor(elem.offsetTop);
+      left = left + Math.floor(elem.offsetLeft);
+      elem = elem.offsetParent;
+    }
+    return {
+      top: top,
+      left: left
+    };
+  };
+  getOffset = function(elem) {
+    if (elem.getBoundingClientRect) {
+      return getOffsetRect(elem);
+    } else {
+      return getOffsetSum(elem);
+    }
+  };
+  getMouseOffset = function(target, x, y) {
+    return {
+      'x': 0,
+      'y': 0
+    };
+  };
+  getCurrentTarget = function(e) {
+    var elem, x, y;
+    if (navigator.userAgent.match('MSIE') || navigator.userAgent.match('Gecko')) {
+      x = e.clientX;
+      y = e.clientY;
+    } else {
+      x = e.pageX;
+      y = e.pageY;
+    }
+    dragObject.hide();
+    elem = document.elementFromPoint(x, y);
+    dragObject.show();
+    while (elem) {
+      if (elem.dropTarget && elem.dropTarget.canAccept(dragElem, e)) {
+        return elem.dropTarget;
+      }
+      elem = elem.parentNode;
+    }
+    return null;
+  };
+  addDocumentEventHandlers = function() {
+    document.onmousemove = mouseMove;
+    document.onmouseup = mouseUp;
+    return document.ondragstart = document.body.onselectstart = function() {
+      return false;
+    };
+  };
+  removeDocumentEventHandlers = function() {
+    return document.onmousemove = document.onmouseup = document.ondragstart = document.body.onselectstart = null;
+  };
+  makeDraggable = function(element) {
+    return element.onmousedown = mouseDown;
+  };
+  return {
+    setDragObject: function(obj) {
+      return mouseDownAt.element = {
+        'x': 0,
+        'y': 0,
+        'element': obj
+      };
+    },
+    dragInProgress: function() {
+      return dragInProgress;
+    },
+    dragObject: function(element, options) {
+      var bodyHei, bodyWid, currentDroppable, defaults, exParent, helper, mouseOffset, rememberPosition;
+      defaults = {
+        multi: false,
+        helper: false,
+        global: false,
+        pholder: false,
+        candrag: null,
+        start: null,
+        end: null,
+        drag: null,
+        success: null,
+        fail: null
+      };
+      options = options ? $.extend(defaults, options) : defaults;
+      element.dragObject = this;
+      makeDraggable(element);
+      this.dragEntity = element;
+      this.realElement = element;
+      this.offset = null;
+      if (options.multi) {
+        this.dragMulti = [];
+        this.items = [];
+      }
+      rememberPosition = null;
+      mouseOffset = null;
+      currentDroppable = null;
+      exParent = null;
+      helper = null;
+      bodyWid = null;
+      bodyHei = null;
+      this.canDrag = function(e) {
+        if (options.candrag != null) {
+          return options.candrag(element, e);
+        } else {
+          return true;
+        }
+      };
+      this.onDragStart = function(offset, e) {
+        var moveElement, s, toDrag;
+        dropHelper.flush();
+        helperObj = $('#dropHelper');
+        moveElement = element;
+        this.offset = offset;
+        bodyWid = $('body').width();
+        bodyHei = $('body').height();
+        if (options.multi) {
+          toDrag = $('.selectableItem.selected', $(multiselect.state.context));
+          toDrag.each(function() {
+            var children_preview, data, elem, elem_scope, entity, id, s, type;
+            elem = $(this);
+            helper = elem.clone();
+            helper.removeClass('selected');
+            helper.addClass('helper-transparent').addClass('inMove');
+            helper.appendTo(body);
+            s = helper[0].style;
+            elem_scope = null;
+            children_preview = elem.children('.itemPreview')[0];
+            if (children_preview != null) {
+              elem_scope = angular.element(children_preview).scope();
+              if (elem_scope.sched != null) {
+                type = elem_scope.sched.type;
+                id = elem_scope.sched.id;
+              } else {
+                type = $(children_preview).attr('type');
+                id = elem_scope.id;
+                if (type == null) {
+                  if (elem_scope.item != null) {
+                    type = elem_scope.item.type;
+                    id = elem_scope.item.id;
+                  }
+                }
+                if (id == null) {
+                  id = $parse($(children_preview).attr('id'))(elem_scope);
+                }
+              }
+            } else {
+              elem_scope = angular.element(elem[0]).scope();
+              data = elem_scope.item;
+              type = data.type;
+              id = data.id;
+            }
+            if (type === 'placeholder') {
+              entity = elem_scope.item;
+            } else {
+              entity = operationsService.get(type, id);
+            }
+            element.dragObject.items.push(entity);
+            element.dragObject.dragMulti.push({
+              elem: helper[0],
+              real: elem,
+              item: entity,
+              top: s.top,
+              left: s.left,
+              position: s.position,
+              fromRight: elem.parents('.selectedPanel').length > 0,
+              alt: e.altKey
+            });
+            return s.position = 'absolute';
+          });
+        } else {
+          if (options.helper !== false) {
+            if (options.helper === 'clone') {
+              helper = $(element).clone().addClass('inMove');
+            } else {
+              helper = options.helper($(element));
+            }
+            $(element).addClass('dragged');
+            helper.appendTo($(element).parent());
+            moveElement = helper[0];
+            this.dragEntity = helper[0];
+          }
+          s = moveElement.style;
+          rememberPosition = {
+            top: s.top,
+            left: s.left,
+            position: s.position,
+            exTarget: currentDroppable
+          };
+          s.position = 'absolute';
+          if (options.global) {
+            exParent = $(moveElement).parent();
+            $(moveElement).appendTo(body);
+          }
+        }
+        mouseOffset = offset;
+        if (typeof options.start === "function") {
+          options.start(element, e);
+        }
+        if (currentDroppable != null) {
+          return currentDroppable.onPick(element);
+        }
+      };
+      this.hide = function() {
+        var i, item, len, ref, results;
+        if (options.multi) {
+          ref = this.dragMulti;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(item.elem.style.display = 'none');
+          }
+          return results;
+        } else {
+          return this.dragEntity.style.display = 'none';
+        }
+      };
+      this.show = function() {
+        var i, item, len, ref, results;
+        if (options.multi) {
+          ref = this.dragMulti;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(item.elem.style.display = '');
+          }
+          return results;
+        } else {
+          return this.dragEntity.style.display = '';
+        }
+      };
+      this.onDragMove = function(x, y) {
+        var cnt, helperHei, helperWid, i, item, len, ref;
+        if (helperObj == null) {
+          helperObj = $('#dropHelper');
+        }
+        helperWid = helperObj.width() + 20;
+        helperHei = helperObj.height() + 20;
+        if (x > bodyWid - helperWid || y < helperHei) {
+          helperObj[0].style.top = y - mouseOffset.y + 10 + 'px';
+          helperObj[0].style.right = bodyWid - x + mouseOffset.x - 4 + 'px';
+          helperObj[0].style.left = 'auto';
+          helperObj[0].style.bottom = 'auto';
+        } else {
+          helperObj[0].style.bottom = bodyHei - y + mouseOffset.y + 'px';
+          helperObj[0].style.left = x - mouseOffset.x + 12 + 'px';
+          helperObj[0].style.right = 'auto';
+          helperObj[0].style.top = 'auto';
+        }
+        if (options.multi) {
+          cnt = 0;
+          ref = this.dragMulti;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            item.elem.style.top = y - mouseOffset.y + cnt + 'px';
+            item.elem.style.left = x - mouseOffset.x - cnt + 'px';
+            cnt += 10;
+          }
+        } else {
+          this.dragEntity.style.top = y - mouseOffset.y + 'px';
+          this.dragEntity.style.left = x - mouseOffset.x + 'px';
+        }
+        return typeof options.drag === "function" ? options.drag() : void 0;
+      };
+      this.onDragEnd = function() {
+        if (typeof options.end === "function") {
+          options.end();
+        }
+        return currentDropTarget != null ? currentDropTarget.onEnd() : void 0;
+      };
+      this.onDragSuccess = function(dropTarget) {
+        var i, item, len, ref;
+        if (typeof options.success === "function") {
+          options.success(dropTarget);
+        }
+        currentDroppable = dropTarget;
+        if (options.multi) {
+          ref = this.dragMulti;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            item.elem.remove();
+          }
+          this.dragMulti.length = 0;
+          this.items.length = 0;
+          return $(element).removeClass('dragged');
+        } else {
+          if (options.helper) {
+            helper.remove();
+            return $(element).removeClass('dragged');
+          }
+        }
+      };
+      this.onDragFail = function() {
+        var i, item, len, ref, s;
+        if (options.multi) {
+          ref = this.dragMulti;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            item.elem.remove();
+          }
+          this.dragMulti.length = 0;
+          this.items.length = 0;
+          $(element).removeClass('dragged');
+        } else {
+          if (options.helper) {
+            helper.remove();
+            $(element).removeClass('dragged');
+          } else {
+            $(element).appendTo(exParent);
+            exParent = null;
+            s = element.style;
+            s.top = rememberPosition.top;
+            s.left = rememberPosition.left;
+            s.position = rememberPosition.position;
+          }
+          currentDroppable = rememberPosition.exTarget;
+        }
+        return typeof options.fail === "function" ? options.fail() : void 0;
+      };
+      return this.toString = function() {
+        return element.id;
+      };
+    },
+    dropTarget: function(element, options) {
+      var defaults;
+      defaults = {
+        name: options.name,
+        canAccept: null,
+        drop: null,
+        enter: null,
+        move: null,
+        leave: null
+      };
+      options = options ? $.extend(defaults, options) : defaults;
+      element.dropTarget = this;
+      this.canAccept = function(dragObject, e) {
+        if (options.canAccept != null) {
+          return options.canAccept(dragObject, e);
+        } else {
+          return true;
+        }
+      };
+      this.accept = function(dragObject, e) {
+        if (typeof options.drop === "function") {
+          options.drop(dragObject, e);
+        }
+        return this.onLeave();
+      };
+      this.onMove = function(elem, e) {
+        return typeof options.move === "function" ? options.move(elem, e) : void 0;
+      };
+      this.onEnter = function(elem, e) {
+        dropHelper.flush();
+        return typeof options.enter === "function" ? options.enter(elem, e) : void 0;
+      };
+      this.onLeave = function(elem) {
+        dropHelper.flush();
+        return typeof options.leave === "function" ? options.leave(elem) : void 0;
+      };
+      this.onPick = function(elem) {
+        return typeof options.pick === "function" ? options.pick(elem) : void 0;
+      };
+      this.toString = function() {
+        return element.id;
+      };
+      return this.onEnd = function() {
+        return typeof options.end === "function" ? options.end() : void 0;
+      };
+    }
+  };
+});

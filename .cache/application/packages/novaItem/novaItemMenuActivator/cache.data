@@ -1,0 +1,27 @@
+buzzlike.directive('novaItemMenuActivator', function(novaMenu) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      return elem.on('click.novaMenuActivator', function(e) {
+        var offset;
+        e.preventDefault();
+        e.stopPropagation();
+        offset = elem.offset();
+        return novaMenu.show({
+          menuStyle: 'center',
+          position: {
+            x: offset.left + Math.ceil(elem.width() / 2),
+            y: offset.top + elem.height() + 5
+          },
+          items: [scope.item],
+          context: scope.itemContext,
+          scope: scope
+        });
+      });
+    }
+  };
+});
+
+registerStyles('novaItemMenuActivator', ".novaItemMenuActivator:hover {\n  cursor: pointer;\n}\n");

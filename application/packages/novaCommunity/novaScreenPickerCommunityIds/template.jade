@@ -1,0 +1,9 @@
+div.screenBar
+    div.backScreen(translate="'novaScreen_back'", ng-click="backScreen()")
+    div.novaScreenTextHelper(translate="'novaScreenPickerCommunityIds_helper'")
+div.projectsList
+    div.novaItem.novaItemPreview(
+        ng-repeat="item in communities", 
+        nova-item-preview-type="list", 
+        ng-click="pick(item.id)", 
+        ng-class="{'active':picked(item.id)}")

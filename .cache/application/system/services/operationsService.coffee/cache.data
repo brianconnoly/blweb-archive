@@ -1,0 +1,167 @@
+buzzlike.service('operationsService', function(socketService, rpc, $http, env, $rootScope, updateService, account) {
+  var awaitingCallback, call, cnt, contentTypes, get, getByIds, getPatches, handler, lastPatch, parseOperations, patches, query, registerAction, registeredActions, requestOperation, save, setLastPatch, stackToRequest;
+  stackToRequest = {
+    operations: [],
+    cbs: [],
+    handler: null
+  };
+  awaitingCallback = {};
+  registeredActions = {};
+  cnt = 0;
+  handler = null;
+  socketService.on('operationsResponse', function(result) {
+    blog('operationsResult', result);
+    if (typeof result === 'object') {
+      parseOperations([result]);
+    } else {
+      parseOperations(result);
+    }
+    if (handler === null) {
+      return handler = setTimeout(function() {
+        $rootScope.$apply();
+        return handler = null;
+      }, 500);
+    }
+  });
+  requestOperation = function(data, cb) {
+    var newKey, operation;
+    newKey = 'oK' + Date.now() + cnt;
+    cnt++;
+    operation = {
+      actionType: data.action,
+      entities: data.entities,
+      entityKey: newKey,
+      confirmed: data.confirmed || false
+    };
+    if (data.action === 'update') {
+      if (data.entities[0].type === 'comb' || data.entities[0].type === 'post') {
+        data.entities[0].clientUpdated = Date.now();
+      }
+    }
+    stackToRequest.operations.push(operation);
+    if (cb != null) {
+      stackToRequest.cbs.push(cb);
+    }
+    if (data.cb != null) {
+      awaitingCallback[newKey] = data.cb;
+    }
+    blog('operation fire', data.action, data.entities.length > 1 ? data.entities : data.entities[0]);
+    rpc.call('operations.request', {
+      actionType: data.action,
+      entities: data.entities,
+      entityKey: newKey,
+      confirmed: data.confirmed || false
+    }, function(result) {
+      return typeof cb === "function" ? cb(result) : void 0;
+    });
+    return true;
+  };
+  parseOperations = function(operations) {
+    var entity, j, len, name, name1, operation, operationParams, ref, refreshScheduleItem, results;
+    results = [];
+    for (j = 0, len = operations.length; j < len; j++) {
+      operation = operations[j];
+      operationParams = {
+        id: operation.entityId,
+        entity: operation.entity,
+        action: operation.action,
+        type: operation.entityType,
+        confirmCode: operation.confirmCode,
+        failCode: operation.failCode
+      };
+      entity = get(operationParams.type, operationParams.id);
+      if ((ref = registeredActions[operation.entityType]) != null) {
+        if (typeof ref[name = operation.action] === "function") {
+          ref[name](operation.entityId, operationParams);
+        }
+      }
+      if (operation.entityKey != null) {
+        if (typeof awaitingCallback[name1 = operation.entityKey] === "function") {
+          awaitingCallback[name1](operation.entityId, registeredActions[operation.entityType].get(operation.entityId), operationParams);
+        }
+      }
+      updateService.triggerUpdate([entity], operation.action);
+      refreshScheduleItem = function(id) {
+        return $('.sched_' + id).each(function(i, sched) {
+          var schedScope;
+          schedScope = angular.element(sched).scope().$$childHead;
+          return typeof schedScope.refreshItem === "function" ? schedScope.refreshItem() : void 0;
+        });
+      };
+      if (operationParams.type === 'schedule' && operation.action === 'update') {
+        refreshScheduleItem(operationParams.entity.id);
+      }
+      if (operationParams.type === 'request' && operation.action === 'update') {
+        results.push(refreshScheduleItem(operationParams.entity.scheduleId));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+  get = function(type, id, cb) {
+    var ref;
+    return (ref = registeredActions[type]) != null ? ref.get(id, cb) : void 0;
+  };
+  getByIds = function(type, ids, cb) {
+    var ref;
+    return (ref = registeredActions[type]) != null ? ref.getByIds(ids, cb) : void 0;
+  };
+  query = function(type, query, cb) {
+    var ref;
+    return (ref = registeredActions[type]) != null ? ref.query(query, cb) : void 0;
+  };
+  call = function(type, method, data, cb) {
+    var ref;
+    return (ref = registeredActions[type]) != null ? ref.call(method, data, cb) : void 0;
+  };
+  save = function(type, item, cb) {
+    var ref;
+    return (ref = registeredActions[type]) != null ? ref.save(item, cb) : void 0;
+  };
+  registerAction = function(action, typeStr, cb) {
+    var arr, j, len, results, type;
+    arr = typeStr.split('/');
+    if (arr.length < 2) {
+      arr = [typeStr];
+    }
+    results = [];
+    for (j = 0, len = arr.length; j < len; j++) {
+      type = arr[j];
+      if (registeredActions[type] == null) {
+        registeredActions[type] = {};
+      }
+      results.push(registeredActions[type][action] = cb);
+    }
+    return results;
+  };
+  lastPatch = {};
+  patches = {};
+  getPatches = function(textId) {
+    if (patches[textId] == null) {
+      patches[textId] = [];
+    }
+    return patches[textId];
+  };
+  setLastPatch = function(textId) {
+    var ref;
+    lastPatch[textId] = Date.now();
+    return (ref = patches[textId]) != null ? ref.length = 0 : void 0;
+  };
+  contentTypes = null;
+  return {
+    setContentTypes: function(types) {
+      return contentTypes = types;
+    },
+    requestOperation: requestOperation,
+    parseOperations: parseOperations,
+    get: get,
+    getByIds: getByIds,
+    save: save,
+    query: query,
+    call: call,
+    registerAction: registerAction,
+    getPatches: getPatches,
+    setLastPatch: setLastPatch
+  };
+});

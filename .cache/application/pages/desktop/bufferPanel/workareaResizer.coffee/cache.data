@@ -1,0 +1,9 @@
+buzzlike.directive('workareaResizer', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      scope.workarea = $(element);
+      return true;
+    }
+  };
+});

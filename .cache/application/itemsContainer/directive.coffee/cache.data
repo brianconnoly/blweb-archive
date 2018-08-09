@@ -1,0 +1,10 @@
+buzzlike.directive('itemsContainer', function() {
+  return {
+    restrit: 'E',
+    replace: true,
+    template: tC['/itemsContainer'],
+    link: function(scope, element, attrs) {
+      return true;
+    }
+  };
+});

@@ -1,0 +1,140 @@
+.paymentInfo
+
+    padding 0 50px
+
+    .piWindowWrapper
+        position relative
+        margin 0 auto
+        background #fff
+        //top 70px
+        height 100%
+        width 920px
+        max-height 700px
+
+        .leftArrow
+        .rightArrow
+            position absolute
+            top 300px
+            width 52px
+            height 34px
+            margin-top -17px
+            cursor pointer
+            z-index 10
+
+        .leftArrow
+            left 20px
+            sprite "/resources/images/icons/paymentinfo/arrow_left.png" 0px 0px 100% 100%
+
+        .rightArrow
+            right 20px
+            sprite "/resources/images/icons/paymentinfo/arrow_right.png" 0px 0px 100% 100%
+
+            &.disabled
+                display none
+
+        .head
+            position absolute
+            top 0
+            left 0
+            right 0
+            overflow hidden
+
+            .buzzlikeLogo
+                float left
+                margin 20px 0 0 40px
+
+            .menu
+                position relative
+                float right
+                margin 40px 70px 0 0
+
+                span
+                    margin-left 35px
+                    font-size 16px
+                    color #444
+                    cursor pointer
+
+        .scrollLayer
+            size 'abs' 96px 0 70px 0
+            overflow auto
+            text-align center
+
+            .sequence
+            .page
+                size full
+
+                .centerTitle
+                    font-size 40px
+                    margin 0 0 50px 0
+
+            .text
+                h4
+                    font-size 24px
+                    padding-bottom 15px
+
+                span
+                    display block
+                    font-size 17px
+                    line-height 1.2em
+
+
+        .directPanel
+            position absolute
+            left 0
+            right 0
+            bottom 0
+            height 70px
+            text-align center
+
+            .circles
+                display inline-block
+                padding-top 15px
+
+                .circle
+                    border 2px solid #eee
+                    border-radius 50%
+                    width 34px
+                    height 34px
+                    margin-left 5px
+                    float left
+
+                    &.last
+                        sprite "/resources/images/icons/paymentinfo/offer-mini.png" center center 14px 18px
+
+                    //&.last.active
+                    //    sprite "/resources/images/icons/paymentinfo/offer-mini-active.png" center center 14px 18px
+
+                    &:first-child
+                        margin-left 0
+
+            button.next
+                position absolute
+                right 15px
+                bottom 10px
+                width 200px
+                height 50px
+                background #7bc688
+                color #ffffff
+                font-size 22px
+
+                &.disabled
+                    background #bebebe
+
+            &.postPage
+                .circle.active
+                    background-color #f8ed9a
+                    border-color #f8ed9a
+            &.moneyPage
+                .circle.active
+                    background-color #b8debf
+                    border-color #b8debf
+            &.offer
+                .circle.active
+                    background-color #bebebe
+                    border-color #bebebe
+
+
+    @media screen and (min-height: 700px)
+        .piWindowWrapper
+            size 'center' 700px 920px
+

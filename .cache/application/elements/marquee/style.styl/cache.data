@@ -1,0 +1,9 @@
+.marquee .scrollContainer,
+.marquee .scrolling {
+  display: inline-block;
+  white-space: nowrap;
+}
+.marquee .scrollContainer span,
+.marquee .scrolling span {
+  white-space: nowrap;
+}

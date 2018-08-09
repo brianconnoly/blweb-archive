@@ -1,0 +1,7 @@
+div.updatesIndicator(ng-if="updates > 0") {{updates}}
+
+div.streamCover(ng-if="userPhoto")
+    img.picPreload(src="{{userPhoto}}")
+
+div.streamTitle 
+    div.titleText {{title}}

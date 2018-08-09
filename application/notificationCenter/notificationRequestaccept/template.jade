@@ -1,0 +1,10 @@
+div.previews
+    div.itemPreview(type="lot", id="notification.itemList[2].id")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header {{translate('notification_request_accept')}}
+    div.description(ng-bind-html="translate('offerCost') + ' ' + getSumm()")
+
+div.notificationButtons

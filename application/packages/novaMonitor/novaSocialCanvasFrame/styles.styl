@@ -1,0 +1,82 @@
+&.collapsed
+    .socialCanvas
+        bottom 30px
+    .socialPalette
+        height 30px
+
+.socialCanvas
+    position absolute
+    top 0
+    left 0
+    right 0
+    bottom 50%
+    min-height 50%
+    transition all 0.2s ease
+
+    canvas
+        position absolute
+        top 0
+        left 0
+        right 0
+        bottom 0
+
+.socialPalette
+    position absolute
+    bottom 0
+    left 0
+    right 0
+    height 50%
+    transition all 0.2s ease
+    background #fff
+
+    .paletteBar
+        height 30px
+        background #f2f2f2
+        box-shadow 0 0 5px 0 rgba(0,0,0,0.5)
+
+        .progressBar
+            position absolute
+            top 0
+            left 0
+            height 2px
+            background #f00
+            opacity 1
+
+            z-index 2
+            pointer-events none
+
+        .statusMessage
+            position absolute
+            right 0
+            top 0
+            bottom 0
+            height 30px
+            line-height 30px
+            padding 0 10px
+
+        .paletteButton
+            width 30px
+            height 30px
+            line-height 30px
+            float left
+            cursor pointer
+
+        .addPaint
+            font-size 24px
+            line-height 29px
+            text-align center
+
+        .toggleBar
+            font-size 20px
+            // line-height 24px
+            text-align center
+            // transform rotate(45deg)
+            transition all 0.2s ease
+            float left
+
+            &.collapsed
+                transform rotate(180deg)
+
+    .paletteList
+        padding 5px
+        overflow-y auto

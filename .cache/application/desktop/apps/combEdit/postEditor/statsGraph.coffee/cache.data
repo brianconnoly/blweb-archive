@@ -1,0 +1,273 @@
+buzzlike.directive('statsGraph', function($rootScope, $filter) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var canvas, canvasHeight, canvasWidth, context, drawGraph, drawLine, elem, helper, horLine, humanDays, positionHelper, simpleCache, simpleNumber, values, workHeight, workWidth;
+      workWidth = 240;
+      workHeight = 110;
+      elem = $(element);
+      canvas = elem.children('canvas')[0];
+      context = canvas.getContext('2d');
+      values = elem.children('.values');
+      helper = elem.children('.helper');
+      scope.scale = false;
+      scope.switchScale = function(val) {
+        scope.scale = val;
+        return drawGraph();
+      };
+      if (window.devicePixelRatio > 1) {
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvas.width = canvasWidth * window.devicePixelRatio;
+        canvas.height = canvasHeight * window.devicePixelRatio;
+        canvas.style.width = canvasWidth;
+        canvas.style.height = canvasHeight;
+        context.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+      positionHelper = function(x, y) {
+        if (x > 160) {
+          return helper.css({
+            left: 'auto',
+            right: 308 - x + 15,
+            top: y - 20
+          });
+        } else {
+          return helper.css({
+            right: 'auto',
+            left: x + 15,
+            top: y - 20
+          });
+        }
+      };
+      drawLine = function(startX, startY, endX, endY) {
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(endX, endY);
+        return context.stroke();
+      };
+      humanDays = function(ts) {
+        if (ts >= 30 * DAY) {
+          ts = ts / 30 * DAY | 0;
+          return ts + ' м';
+        }
+        if (ts === 7 * DAY) {
+          return '1 н';
+        }
+        if (ts >= DAY) {
+          ts = ts / DAY | 0;
+          return ts + ' д';
+        }
+        if (ts >= HOUR) {
+          ts = ts / HOUR | 0;
+          return ts + ' ч';
+        }
+        ts = ts / MIN | 0;
+        return ts + ' м';
+      };
+      simpleCache = {};
+      simpleNumber = function(number) {
+        if (simpleCache[number] != null) {
+          return simpleCache[number];
+        }
+        if (number >= 1000000) {
+          simpleCache[number] = (number / 1000000).toFixed(1);
+          if (simpleCache[number][simpleCache[number].length - 1] === '0') {
+            simpleCache[number] = simpleCache[number].substring(0, simpleCache[number].length - 2);
+          }
+          simpleCache[number] += 'm';
+        } else if (number >= 1000) {
+          simpleCache[number] = (number / 1000).toFixed(1);
+          if (simpleCache[number][simpleCache[number].length - 1] === '0') {
+            simpleCache[number] = simpleCache[number].substring(0, simpleCache[number].length - 2);
+          }
+          simpleCache[number] += 'k';
+        } else {
+          simpleCache[number] = number;
+        }
+        return simpleCache[number];
+      };
+      horLine = function(y, val, drawNum) {
+        if (drawNum == null) {
+          drawNum = true;
+        }
+        drawLine(34, y, 34 + workWidth, y);
+        if (drawNum) {
+          return context.fillText(simpleNumber(val, 1), 25, y);
+        }
+      };
+      drawGraph = function() {
+        var bars, big, bigLines, dig, drawingLine, graph, graphs, i, j, k, l, lastValue, len, len1, len2, linesCnt, m, max, maxGraphs, n, o, p, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, results, smallLines, stat, v, value, willChange, x, y;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        if (scope.scale) {
+          maxGraphs = {};
+        }
+        max = 0;
+        ref = scope.schedule.stats;
+        for (j = 0, len = ref.length; j < len; j++) {
+          stat = ref[j];
+          ref1 = stat.stats;
+          for (k in ref1) {
+            v = ref1[k];
+            if (scope.showGhaph[k] !== true) {
+              continue;
+            }
+            if (v > max) {
+              max = v;
+            }
+            if (scope.scale) {
+              if (maxGraphs[k] == null) {
+                maxGraphs[k] = 0;
+              }
+              if (v > maxGraphs[k]) {
+                maxGraphs[k] = v;
+              }
+            }
+          }
+        }
+        bars = scope.schedule.stats.length;
+        context.lineWidth = 1;
+        context.strokeStyle = 'rgb(180,180,180)';
+        drawLine(34, 24, 34, workHeight + 26);
+        drawLine(34, workHeight + 25, workWidth + 34, workHeight + 25);
+        context.lineWidth = 0.5;
+        context.strokeStyle = 'rgb(230,230,230)';
+        context.font = '8px Helvetica Neue';
+        context.fillStyle = '#aaa';
+        context.textAlign = 'center';
+        for (i = l = 0, ref2 = bars; 0 <= ref2 ? l < ref2 : l > ref2; i = 0 <= ref2 ? ++l : --l) {
+          x = 34 + (workWidth / (bars - 1)) * i;
+          if (i > 0) {
+            drawLine(x, 25, x, workHeight + 25);
+          }
+          context.fillText(humanDays(scope.schedule.stats[i].delay), x, 25 + workHeight + 15);
+        }
+        if (!scope.scale) {
+          context.textAlign = 'right';
+          dig = (max + "").length;
+          big = 1;
+          for (i = m = 0, ref3 = dig - 1; 0 <= ref3 ? m < ref3 : m > ref3; i = 0 <= ref3 ? ++m : --m) {
+            big *= 10;
+          }
+          bigLines = max / big | 0;
+          for (i = n = 0, ref4 = bigLines; 0 <= ref4 ? n <= ref4 : n >= ref4; i = 0 <= ref4 ? ++n : --n) {
+            y = workHeight + 25 - (workHeight / max) * (big * i);
+            horLine(y, big * i);
+          }
+          if (bigLines === 1) {
+            smallLines = big / 2 | 0;
+            linesCnt = max / smallLines | 0;
+            for (i = o = 1, ref5 = linesCnt; 1 <= ref5 ? o <= ref5 : o >= ref5; i = 1 <= ref5 ? ++o : --o) {
+              y = workHeight + 25 - (workHeight / max) * (smallLines * i);
+              horLine(y, smallLines * i);
+            }
+          }
+        }
+        horLine(25, max, !scope.scale && ((y == null) || y - 25 > 12));
+        if (scope.schedule.stats.length < 2) {
+          return;
+        }
+        graphs = [
+          {
+            id: 'likes',
+            color: '#D50000'
+          }, {
+            id: 'reposts',
+            color: '#4B6A88'
+          }, {
+            id: 'comments',
+            color: '#3E3E3E'
+          }, {
+            id: 'commLikes',
+            color: '#8A2BE2'
+          }
+        ];
+        values.empty();
+        drawingLine = false;
+        results = [];
+        for (p = 0, len1 = graphs.length; p < len1; p++) {
+          graph = graphs[p];
+          if (scope.showGhaph[graph.id] !== true) {
+            continue;
+          }
+          if (!(scope.schedule.lastStats[graph.id] > 0)) {
+            continue;
+          }
+          lastValue = null;
+          ref6 = scope.schedule.stats;
+          for (i = q = 0, len2 = ref6.length; q < len2; i = ++q) {
+            stat = ref6[i];
+            if (((ref7 = stat.stats) != null ? ref7[graph.id] : void 0) == null) {
+              continue;
+            }
+            x = 34 + (workWidth / (bars - 1)) * i;
+            if (scope.scale) {
+              y = workHeight + 25 - (workHeight / maxGraphs[graph.id]) * stat.stats[graph.id];
+            } else {
+              y = workHeight + 25 - (workHeight / max) * stat.stats[graph.id];
+            }
+            if (!drawingLine) {
+              context.beginPath();
+              context.lineWidth = 3;
+              context.strokeStyle = graph.color;
+              context.moveTo(x, y);
+              drawingLine = true;
+            } else {
+              context.lineTo(x, y);
+            }
+            if (i === bars - 1 && drawingLine) {
+              context.stroke();
+            }
+            willChange = false;
+            if (!(i === bars - 1 || lastValue !== stat.stats[graph.id])) {
+              if (scope.schedule.stats[i + 1] != null) {
+                if (scope.schedule.stats[i + 1].stats[graph.id] !== stat.stats[graph.id]) {
+                  willChange = true;
+                }
+              }
+            }
+            if (willChange || i === bars - 1 || lastValue !== stat.stats[graph.id]) {
+              value = $('<div>', {
+                "class": 'value'
+              });
+              value.css({
+                'top': y + 'px',
+                'left': x + 'px',
+                'border-color': graph.color
+              });
+              (function(x, y, stat, graph) {
+                return value.on('mouseenter', function() {
+                  var points, statTS, time1, time2;
+                  statTS = scope.schedule.timestamp + stat.delay;
+                  time1 = $filter('timestampMask')(statTS, 'DD MMM');
+                  time2 = $filter('timestampMask')(statTS, 'hh:mm');
+                  points = $filter('formatNumber')(stat.stats[graph.id]);
+                  helper.empty();
+                  helper.html("<div class='points'><div class='icon " + graph.id + "'></div>" + points + "</div><div class='time'>" + time2 + "</div><div class='time'>" + time1 + "</div>");
+                  positionHelper(x, y);
+                  return helper.addClass('visible');
+                });
+              })(x, y, stat, graph);
+              value.on('mouseleave', function() {
+                return helper.removeClass('visible');
+              });
+              values.append(value);
+            }
+            lastValue = stat.stats[graph.id];
+          }
+          if (drawingLine) {
+            context.stroke();
+            results.push(drawingLine = false);
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      drawGraph();
+      scope.$watch('showGhaph', function(nVal) {
+        return drawGraph();
+      }, true);
+      return true;
+    }
+  };
+});

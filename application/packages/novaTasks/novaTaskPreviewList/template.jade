@@ -1,0 +1,43 @@
+div(ng-dblclick="openTask(item, $event)", ng-class="taskStyle")
+    //- div.novaButton.taskButton Button
+    div.taskActions.novaItemMenuActivator ...
+    div.novaTaskStatus
+    div.taskName {{item.name}}
+    div.taskDescription {{item.description}}
+    
+    div.taskStream.novaStreamIndicator(nova-stream-item="item")
+        div.novaStreamIndicatorLastMessage
+        
+    div.taskItems.novaMultiselect(ng-if="hasItems()")
+        div.taskItem.novaItem.novaItemPreview.novaItemDraggable.novaItemDroppable.novaItemSelectable.novaItemMenu(
+            ng-if="entity.id != appItem.id"
+            ng-repeat="entity in item.entities track by entity.id",
+            nova-item-id="entity.id",
+            nova-item-type="{{entity.type}}",
+            nova-item-context="taskItem")
+    
+    div.childTasksList(ng-if="childTasks.length > 0")
+        div.childTasks.novaMultiselect
+            div.childTask.novaItem.novaItemSelectable.novaItemMenu.novaItemDraggable(
+                ng-repeat="item in childTasks | filter:subtasksFilter",
+                ng-dblclick="openTask(childTaskItem, $event)")
+                div.childTaskMark.novaTaskPreviewListChild(ng-class="childStatus")
+                    div.executorMark(ng-click="markClick(item)")
+                        div.overlay
+                        div.novaItemScope.novaItem.novaItemPreview(
+                            ng-if="childTaskItem.executor",
+                            nova-item-type="user",
+                            nova-item-id="childTaskItem.executor",
+                            nova-item-preview-type="simple",
+                            nova-item-watch)
+                    div.taskOptions.novaItemMenuActivator(nova-item-object="item") ...
+                    
+                div.childTaskName {{item.name}}
+        
+        div.progressDetails
+            span.caption(translate="'novaTaskPreviewList_completed'")
+            span {{completed}}/{{childTasks.length}}
+        
+        div.taskProgress
+            div.value(ng-style="{'width':progress+'%'}")
+            div.started(ng-style="{'width':started+'%','left':progress+'%'}")

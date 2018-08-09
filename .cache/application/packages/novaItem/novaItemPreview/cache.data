@@ -1,0 +1,93 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('novaItemPreview', function($compile, contentService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var buildPreview, elem, infoActivator, previewElem, unregInit;
+      elem = $(element);
+      previewElem = null;
+      if (attrs.novaItemPreviewBackFace) {
+        elem.append($('<div>', {
+          "class": 'backFace'
+        }));
+      }
+      infoActivator = $('<div>', {
+        "class": 'novaInfoActivator',
+        html: 'i'
+      });
+      infoActivator.on('mousedown', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (scope.flowBox != null) {
+          return scope.flowBox.addFlowFrame({
+            title: 'info',
+            directive: 'novaInfoFrame',
+            item: {
+              id: scope.previewItem.id,
+              type: scope.previewItem.type
+            }
+          }, scope.flowFrame);
+        }
+      });
+      elem.append(infoActivator);
+      scope.buildPreview = buildPreview = function() {
+        var itemType, previewClass, tmpl;
+        scope.previewItem = scope.item;
+        itemType = scope.item.type;
+        if (itemType == null) {
+          console.log('WTF?', scope.item);
+          return;
+        }
+        previewClass = 'nova' + itemType.capitalizeFirstLetter() + 'Preview';
+        if (attrs.novaItemPreviewType != null) {
+          previewClass += attrs.novaItemPreviewType.capitalizeFirstLetter();
+        }
+        previewElem = $('<div>', {
+          "class": previewClass
+        });
+        tmpl = tC['/' + previewClass + '/template.jade'];
+        if (tmpl != null) {
+          previewElem.append(tmpl);
+        } else if (tC['/' + 'nova' + itemType.capitalizeFirstLetter() + 'Preview' + '/template.jade'] != null) {
+          previewElem.append(tC['/' + 'nova' + itemType.capitalizeFirstLetter() + 'Preview' + '/template.jade']);
+          previewElem.addClass('nova' + itemType.capitalizeFirstLetter() + 'Preview');
+        } else {
+          previewElem.append('not implemented preview: ' + scope.item.type);
+        }
+        if (indexOf.call(contentService.getContentTypes(), itemType) >= 0) {
+          previewElem.addClass('novaContentPreview');
+        }
+        previewElem.appendTo(elem);
+        return $compile(previewElem)(scope);
+      };
+      scope.rebuildPreview = function() {
+        if (previewElem != null) {
+          if (typeof previewElem.remove === "function") {
+            previewElem.remove();
+          }
+        }
+        return scope.buildPreview();
+      };
+      return unregInit = scope.$watch('novaItemInited', function(nVal) {
+        var unreg;
+        if (nVal === true) {
+          unregInit();
+          return unreg = scope.$watch('item.type', function(nVal) {
+            if (nVal != null) {
+              unreg();
+              buildPreview();
+              if (attrs.novaItemWatch) {
+                return scope.$watch('item.id', function(nVal) {
+                  return scope.rebuildPreview();
+                });
+              }
+            }
+          });
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaItemPreview', ".novaItemPreview .backFace {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  border: 1px solid rgba(0,0,0,0.1);\n  background: rgba(0,0,0,0.05);\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n}\n");

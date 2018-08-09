@@ -1,0 +1,28 @@
+vendors = moz webkit o ms official
+
+@keyframes hidefront
+    0%
+        display block
+        opacity 1
+
+    99%
+        display block
+        opacity 0
+        transform: rotateX(30deg)
+    100%
+        display none
+        opacity 0
+        transform: rotateX(30deg)
+
+@keyframes hideback
+    0%
+        display block
+        opacity 1
+    99%
+        display block
+        opacity 0
+        transform: rotateX(-30deg)
+    100%
+        display none
+        opacity 0
+        transform: rotateX(-30deg)

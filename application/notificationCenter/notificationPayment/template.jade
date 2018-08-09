@@ -1,0 +1,15 @@
+div.preview
+    img(ng-if="notification.direction == 'outcoming'", src="/resources/images/elements/greenCircle.svg", width="60px", height="60px")
+    img(ng-if="notification.direction == 'incoming'", src="/resources/images/elements/greenCircle.svg", width="60px", height="60px")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header(ng-if="notification.direction == 'outcoming'") {{translate('notification_outcoming_payment')}}
+    div.header(ng-if="notification.direction == 'incoming'") {{translate('notification_incoming_payment')}}
+
+    div.description
+        span(ng-if="notification.direction == 'outcoming'") {{translate('notification_outcoming_payment_description')}}: {{getSumm()}}.
+        span(ng-if="notification.direction == 'incoming'") {{translate('notification_incoming_payment_description')}}: {{getSumm()}}.
+
+div.notificationButtons

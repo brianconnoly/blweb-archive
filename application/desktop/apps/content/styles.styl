@@ -1,0 +1,805 @@
+.picPreload
+    opacity 0
+    transition opacity 0.2s ease
+    &.visible
+        opacity 1
+
+.appContainer.content
+    
+    background: #75A843
+    
+    .scroll-bottom, .scroll-right
+        background: rgba(117,168,67,0.8) !important
+    
+    .body
+        overflow-y: auto
+        
+    .paginator
+        .page
+            border-color: #75A843
+            &.active
+                background: #75A843
+        
+.itemPreview.folder, .itemPreview.importAlbum
+    border 1px solid #75A843
+    
+    .name
+        background: rgba(117,168,67,0.9)
+        color: #fff
+        
+.itemPreview
+    box-sizing border-box
+    border-radius 3px
+
+    .name
+        max-height 40%
+        
+    .sign
+        position absolute
+        top 6px
+        right 6px
+        width 12px
+        
+    .itemPreview
+        border-radius 2px
+        
+        .itemPreview
+            
+            // &.folder
+            //     background: rgba(117,168,67,0.9)
+            
+            &.text
+                .name
+                    display: none
+                .duration
+                    display: none
+
+    &.text
+        border 1px solid #494949
+        box-sizing border-box
+        overflow: hidden
+        
+        .name
+            background: rgba(0,0,0,0.8)
+            
+    &.video
+        .name
+            background: rgba(0,0,0,0.8)
+            
+        .duration
+            background: rgba(0,0,0,0.8)
+            position: absolute
+            top 0
+            left 0
+            
+    &.file
+        border 1px solid #ccc
+        box-sizing border-box
+        overflow: hidden
+        background: #fff
+        
+        .infoBlock
+            position: absolute
+            top 15px
+            left 7px
+            
+            width 85px
+            
+            font-size 12px
+            line-height: 15px
+        
+        .name
+            position: absolute
+            bottom 0
+            left 0
+            right 20px
+            
+            padding 4px 7px
+            
+            background: rgba(26,26,26,0.9)
+            
+            text-overflow: ellipsis
+            overflow: hidden
+            white-space nowrap 
+            
+        .extension
+            position: absolute
+            bottom 0
+            right 0
+            // width 30px
+            
+            height 13px
+            
+            line-height: 13px;
+            font-size: 13px;
+            text-align center
+            font-weight bolder
+            padding: 4px 10px
+            
+            color: #fff
+            background: #b3b3b3
+            
+            min-width 20px
+
+            &.ext_xls, &.ext_doc, &.ext_docx, &.ext_xlsx, &.ext_ppt, &.ext_pptx, &.ext_pdf, &.ext_rtf, &.ext_odt, &.ext_ods, &.ext_odp
+                background: #39b54a
+                
+            &.ext_svg, &.ext_ai, &.ext_psd
+                background: #f46c21
+            
+            &.ext_zip, &.ext_rar, &.ext_7z, &.ext_7zip, &.ext_arj
+                background: #ed1e79
+                
+        .icon
+            position: absolute
+            right 0
+            top 0
+            width auto
+            
+    &.audio, &.task
+        border 1px solid #494949
+        background: #fff
+        
+        .track-name
+            font-size 10px
+            line-height 11px
+            color: #000
+            
+            position: absolute
+            
+            left 6px
+            bottom 10px
+            
+        .audioHead, .artist
+            text-overflow: ellipsis
+            overflow: hidden
+            white-space nowrap          
+            
+        .artist
+            font-weight: bolder
+    
+    &.url, &.poll
+        border 1px solid #494949
+        background: #fff
+        
+        .totalVotes
+            position: absolute
+            top 3px
+            left 5px
+            
+            font-size 10px
+
+        .sign
+            width 10px
+        
+        .site-title
+            position: absolute
+            
+            font-size 10px
+            line-height 11px
+
+            bottom 3px
+            left 4px
+            right 4px
+            
+            .description
+                overflow: hidden
+            
+            .siteTitle
+                text-overflow: ellipsis
+                overflow: hidden
+                white-space nowrap 
+                
+                font-weight: bolder
+                line-height 12px
+            
+    
+.itemsContainer
+    
+    .previewContainer
+        // overflow: hidden
+    
+    .itemPreview.mini
+        .name
+            line-height 8px
+            font-size 8px
+            
+            padding: 1px 3px
+    
+    .zoom_min &, &.zoom_min
+        padding 10px
+        
+        .previewContainer
+            margin 10px
+            width 70px
+            height 54px
+            
+        .itemPreview.folder, .itemPreview.comb
+            padding: 2px
+        
+        .itemPreview
+            &.file
+                .extension
+                    line-height 13px
+                    font-size 12px
+                    
+                    padding: 2px 6px
+                    height 12px
+                    min-width 18px
+                    
+                .infoBlock
+                    top 3px
+                    left: 4px
+                    font-size 10px
+                    line-height: 11px
+                    width: 60px
+                    
+                    .size
+                        margin-bottom 1px
+                    
+                .icon
+                    width: 20px
+            
+            &.text
+                font-size 10px
+                line-height 11px
+                
+                .locked
+                    background-size 27px 40px
+                
+                .text-preview
+                    padding: 4px 6px
+                    height 42px
+                    
+            &.video
+                .duration
+                    padding: 1px 3px
+                    font-size: 10px
+                    
+            &.audio, &.task
+                .track-name
+                    left 6px
+                    right 6px
+                    bottom 6px
+                    
+            &.url, &.poll
+                .sign
+                    top 4px
+                    right 4px
+                    
+                .description
+                    max-height 22px
+                
+            .name
+                height 12px
+
+        .name
+            line-height 14px
+            font-size 12px
+            
+            padding: 2px 6px
+            
+        .size
+            font-size 8px
+            line-height 8px
+            
+        .itemPreview.mini
+            width 28px
+            height 20px
+            margin: 2px
+            padding 1px
+            
+            &.file
+                .extension
+                    padding: 0
+                    line-height 18px
+                    font-size 12px
+                    
+                    height 100%
+                    width 100%
+                    min-width: 0
+                    text-align: center
+                    
+                .infoBlock
+                    display: none
+                .icon
+                    display: none
+                .name
+                    display: none
+                img
+                    z-index 1
+            
+            &.image
+                padding: 0
+            
+            .itemPreview.mini
+                width 10px
+                height 6px
+                margin 1px
+                padding: 0
+                
+                &.file
+                    .extension
+                        line-height 7px
+                        font-size 5px
+                        
+                        height 100%
+                        width 100%
+                        text-align: center
+                
+                .sign
+                    display: none
+                    
+                .track-name
+                    display: none
+                    
+                .site-title
+                    display: none
+                
+            .text-preview
+                height 9px
+                padding-left: 3px
+                padding-right 0
+                white-space nowrap
+                text-overflow: ellipsis
+                overflow: hidden
+                
+            .duration
+                font-size 9px
+                
+            .track-name, .site-title
+                font-size 8px
+                line-height 8px
+                bottom 1px
+                left 2px
+                
+            .site-title
+                right 1px
+                
+                .description
+                    display: none
+                
+                .siteTitle
+                    line-height: 8px
+                
+            .sign
+                width 5px
+                right 2px
+                top: 2px
+                
+            &.url
+                .sign
+                    width 7px
+                
+    .zoom_mid &, &.zoom_mid
+        padding 10px
+
+        .previewContainer
+            margin 10px
+            width 139px
+            height 103px
+            
+        .itemPreview.folder, .itemPreview.comb, .itemPreview.post
+            padding: 3px 3px 2px 2px
+            
+        .itemPreview    
+            &.file
+                
+                .name
+                    padding 4px 7px
+
+            &.text
+                font-size 11px
+                line-height 13px
+                
+                .text-preview
+                    padding: 4px 10px
+                    height 90px
+                    
+            &.video
+                .duration
+                    padding: 2px 5px;
+                    font-size: 12px;
+                    
+            &.audio, &.task
+                .track-name
+                    font-size 11px
+                    line-height 12px
+                    left 9px
+                    right 9px
+                    bottom 33px
+                    
+            &.url, &.poll      
+                
+                .totalVotes
+                    top 9px
+                    left 8px
+                    
+                    font-size 13px
+                                
+                .site-title
+                    bottom 8px
+                    left 9px
+                    right 9px
+                    
+                    font-size 11px
+                    line-height 12px
+                    
+                    .description
+                        max-height 49px
+                
+            .sign
+                width 20px
+                top 5px
+                right 5px
+                    
+            .name
+                max-height: 24px
+            
+        .name
+            line-height 13px
+            font-size 13px
+            
+            padding: 4px 10px
+            
+        .size
+            font-size 12px
+            line-height 15px
+            
+        .itemPreview.mini
+            width 61px
+            height 43px
+            margin: 2px 2px 3px 3px
+            
+            &.file
+                .extension
+                    line-height 12px
+                    font-size 12px
+                    
+                    padding: 2px 6px
+                    height 11px
+                    min-width 18px
+                    
+                .infoBlock
+                    top 2px
+                    left: 4px
+                    width: 60px
+                    
+                    .size, .date
+                        font-size 9px
+                        line-height: 11px
+                    
+                    .size
+                        margin-bottom 1px
+                    
+                .icon
+                    width: 20px
+            
+            &.folder
+                padding: 1px 1px 2px 2px
+                
+            &.text
+                .text-preview
+                    padding: 3px 0 0 5px
+                    
+                    font-size 11px
+                    line-height: 11px
+                    
+                    height: 35px
+                    
+            &.url, &.poll
+                
+                .totalVotes
+                    top 3px
+                    left 5px
+                    
+                    font-size 10px
+                    
+                .sign
+                    width 10px
+            
+            .sign
+                top 3px
+                right 3px
+                width 12px
+
+            .track-name
+                font-size 9px
+                line-height 10px
+                left 5px
+                right 5px
+                bottom 3px
+                
+            .site-title
+                bottom 2px
+                left 4px
+                right 1px
+                
+                .description
+                    text-overflow: ellipsis
+                    overflow: hidden
+                    white-space nowrap 
+
+                    max-height 12px
+                
+                .siteTitle
+                    line-height: 12px
+                    
+            .name
+                height 13px
+                line-height 11px
+                font-size 11px
+                padding: 2px 0 0 5px
+                
+            .duration
+                font-size: 10px;
+            
+            .itemPreview.mini
+                width 25px
+                height 16px
+                margin 2px 2px 1px 1px
+                
+                &.file
+                    .extension
+                        padding: 0
+                        line-height 17px
+                        font-size 12px
+                        
+                        height 16px
+                        width 100%
+                        text-align: center
+                        
+                    .infoBlock
+                        display: none
+                    .icon
+                        display: none
+                    .name
+                        display: none
+                    img
+                        z-index 1
+                
+                .text-preview
+                    padding 1px 0 0 3px
+                    height 12px
+                    white-space nowrap
+                    
+                .track-name, .site-title
+                    display: none
+                    
+                .sign
+                    width 7px
+                    top 2px
+                    right 2px
+                
+    .zoom_max &, &.zoom_max
+        padding 15px
+
+        .previewContainer
+            margin 15px
+            
+        .itemPreview.folder, .itemPreview.comb, .itemPreview.post
+            padding: 3px 3px
+            
+        .itemPreview
+            &.file
+                .icon
+                    width: 50px
+                    
+                .infoBlock
+                    font-size 14px
+                    line-height: 15px
+
+                    .size
+                        font-size 14px
+                        margin-bottom: 2px
+                    
+                .extension
+                    line-height 14px
+                    font-size 13px
+                    
+                    padding: 4px 10px
+                    
+                    height: 14px
+                    
+            &.text
+                font-size 13px
+                line-height 15px
+                
+                .locked
+                    bottom: 0
+                
+                .text-preview
+                    padding: 4px 10px
+                    height 117px
+                    
+            &.video
+                .duration
+                    padding: 2px 5px;
+                    font-size: 12px;
+                    
+            &.audio, &.task
+                .track-name
+                    font-size 13px
+                    line-height 14px
+                    left 10px
+                    right 9px
+                    bottom 45px
+                    
+            &.url, &.poll   
+                
+                .totalVotes
+                    top 10px
+                    left 9px
+                    
+                    font-size 15px
+                                  
+                .site-title
+                    bottom 10px
+                    left 9px
+                    right 9px
+                    
+                    font-size 13px
+                    line-height 14px
+                    
+                    .description
+                        max-height 57px
+                        margin-bottom: 5px
+                
+            .sign
+                width 20px
+                top 10px
+                right 10px
+                    
+            .name
+                max-height: 26px
+            
+        .name
+            line-height 14px
+            font-size 13px
+            
+            padding: 4px 10px
+            
+        .size
+            font-size 12px
+            line-height 15px
+        
+        .itemPreview.mini
+            width 47px
+            height 35px
+            margin: 3px
+            
+            &.file
+                .extension
+                    line-height 12px
+                    font-size 10px
+                    
+                    padding: 0px 2px
+                    height 12px
+                    min-width 16px
+                
+                .name
+                    padding-left 3px
+                .infoBlock
+                    top 2px
+                    left: 2px
+                    width: 60px
+                    
+                    .size, .date
+                        font-size 8px
+                        line-height: 9px
+                    
+                    .size
+                        margin-bottom 1px
+                    
+                .icon
+                    width: 10px
+            
+            &.folder
+                padding: 2px 2px 1px 1px
+                
+            &.text
+                
+                .text-preview
+                    padding: 3px 0 0 5px
+                    font-size: 9px;
+                    line-height: 9px;
+                    height: 27px;
+                    
+            .totalVotes
+                top 2px
+                left 4px
+                
+                font-size 10px
+                    
+            .sign
+                top 3px
+                right 3px
+                width 8px
+                
+            .site-title
+                font-size 8px
+                line-height 9px
+                left 3px
+                right 1px
+                right 2px
+                bottom 2px
+                
+                .description
+                    text-overflow: ellipsis
+                    overflow: hidden
+                    white-space nowrap 
+                    
+                    margin: 0
+                    
+                .siteTitle
+                    line-height 9px
+
+            .track-name
+                font-size 8px
+                line-height 9px
+                left 3px
+                right 2px
+                bottom 2px
+                    
+            .name
+                height 10px
+                line-height 10px
+                font-size 9px
+                padding: 2px 0 0 5px
+                
+            .duration
+                font-size: 9px;
+            
+            .itemPreview.mini
+                width 18px
+                height 12px
+                margin 1px 1px 2px 2px
+                padding: 0
+                
+                &.file
+                    .extension
+                        padding: 0
+                        line-height 10px
+                        font-size 9px
+                        
+                        height 100%
+                        width 100%
+                        min-width: 0
+                        text-align: center
+                        
+                    .infoBlock
+                        display: none
+                    .icon
+                        display: none
+                    .name
+                        display: none
+                    img
+                        z-index 1
+
+                &.url, &.poll
+                    
+                    .totalVotes
+                        top 3px
+                        left 5px
+                        
+                        font-size 10px
+                        
+                    .sign
+                        width 7px
+                
+                .site-title
+                    display: none
+                
+                .text-preview
+                    padding 1px 0 0 2px
+                    height 12px
+                    white-space nowrap
+                    
+                .track-name
+                    display: none
+                    
+                .sign
+                    top 1px
+                    right 1px
+                    width 6px
+

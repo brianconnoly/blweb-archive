@@ -1,0 +1,27 @@
+buzzlike.directive("marquee", function() {
+  return {
+    restrict: "AC",
+    transclude: true,
+    template: '<div class="scrollContainer"><div class="scrolling" ng-transclude></div></div>',
+    link: function(scope, element, attrs) {
+      var T, elem;
+      T = 0;
+      elem = $(element);
+      return elem.on("mouseenter", ".scrolling", function() {
+        var temp;
+        temp = this;
+        return T = setTimeout(function() {
+          var time;
+          $(temp).addClass("scrolling-left");
+          if (attrs.speed) {
+            time = 1 / (attrs.speed / elem.find(".scrolling").width());
+            return $(temp).css("animation-duration", time + "s");
+          }
+        }, 600);
+      }).on("mouseleave", ".scrolling", function() {
+        clearTimeout(T);
+        return $(this).removeClass("scrolling-left");
+      });
+    }
+  };
+});

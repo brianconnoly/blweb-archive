@@ -1,0 +1,1 @@
+<div ng-if="showed" ng-class="{'compact':compact}" class="body helpBrowser"><div class="center"><object data="{{helpSrc}}" type="image/svg+xml" ng-class="{'visible':loaded}" class="helpFile"><embed src="{{helpSrc}}" type="image/svg+xml"/></object></div></div>

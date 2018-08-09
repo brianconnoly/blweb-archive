@@ -1,0 +1,58 @@
+buzzlike.directive('dockClock', function(localization) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var dateObj, mode, updateTime, vals;
+      dateObj = new Date();
+      vals = {
+        day: dateObj.getDay(),
+        date: dateObj.getDate(),
+        month: dateObj.getMonth(),
+        year: dateObj.getYear()
+      };
+      mode = 1;
+      updateTime = function() {
+        var hh, mm, obj, ss;
+        obj = new Date();
+        hh = obj.getHours();
+        mm = obj.getMinutes();
+        ss = obj.getSeconds();
+        if (hh < 10) {
+          hh = '0' + hh;
+        }
+        if (mm < 10) {
+          mm = '0' + mm;
+        }
+        if (ss < 10) {
+          ss = '0' + ss;
+        }
+        if (mode === 0) {
+          return element.html(vals.base + hh + ':' + mm + ':' + ss);
+        } else {
+          return element.html(vals.base + hh + ':' + mm);
+        }
+      };
+      element.on('dblclick', function(e) {
+        var handler;
+        if (mode === 0) {
+          clearInterval(handler);
+          handler = setInterval(updateTime, MIN);
+          mode = 1;
+        } else {
+          clearInterval(handler);
+          handler = setInterval(updateTime, SEC);
+          mode = 0;
+        }
+        return updateTime();
+      });
+      return localization.onLangLoaded(function() {
+        var handler;
+        vals.day = localization.translate(147 + vals.day)[1];
+        vals.mon = localization.translate(154 + vals.month)[2];
+        vals.base = vals.day[0].toUpperCase() + vals.day[1] + ', ' + vals.date + ' ' + vals.mon.toLowerCase() + '. ';
+        handler = setInterval(updateTime, MIN);
+        return updateTime();
+      });
+    }
+  };
+});

@@ -1,0 +1,77 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+    div.appControls
+    div.title(translate="'importXLSApp_title'")
+
+div.body
+    
+    div.instructions(translate="'importXLSApp_instructions'")
+
+    ul.options
+        li.hoverActive.option(translate="'importXLSApp_doImport'", ng-click="doImport()")
+
+    div.example
+        a.getExample(href="{{getExampleHref()}}", translate="'importXLSApp_example'", target="_blank")
+
+//- div.center
+//-     h2 {{localization.translate("tableImport_title")}}
+//-     h4.content  {{localization.translate("tableImport_forWhat")}}
+//-     div.content.introtext {{localization.translate("tableImport_text")}}
+
+//-     div.importer.single(ng-if="state.communityId")
+//-         h3.content {{localization.translate("tableImport_communityImport")}}
+//-         table.meanings
+//-             tr
+//-                 td.time {{localization.translate("tableImport_tbl_time")}}
+//-                 td.date {{localization.translate("tableImport_tbl_date")}}
+//-                 td.text {{localization.translate("tableImport_tbl_text")}}
+//-                 td.link {{localization.translate("tableImport_tbl_link")}}
+
+//-         div.example.content {{localization.translate("tableImport_example")}}
+//-         table.examples
+//-             tr
+//-                 td.time {{localization.translate("tableImport_tbl_exmp_time")}}
+//-                 td.date {{localization.translate("tableImport_tbl_exmp_date")}}
+//-                 td.text.small.left {{localization.translate("tableImport_tbl_exmp_text")}}
+//-                 td.link {{localization.translate("tableImport_tbl_exmp_link")}}
+//-                 td.dots ...
+//-                 td.link {{localization.translate("tableImport_tbl_exmp_link")}}
+
+//-         div.download.content
+//-             div.label {{localization.translate("tableImport_download")}}
+//-             //-a(href="/static/tableExamples/__importNarrow.csv", download="")
+//-                 div.file CSV
+//-             a(href="https://drive.google.com/a/buzzlike.ru/uc?id=0B1elezTkrbKVTktkV0ctZUY5SWs&export=download", target="_blank")
+//-                 div.file XLS
+
+//-         div.button(ng-click="uploadCommTable()") {{localization.translate("tableImport_upload")}}
+
+//-     div.importer.multi(ng-if="!state.communityId")
+//-         h3.content {{localization.translate("tableImport_freeImport")}}
+//-         table.meanings
+//-             tr
+//-                 td.time {{localization.translate("tableImport_tbl_time")}}
+//-                 td.date {{localization.translate("tableImport_tbl_date")}}
+//-                 td.comm {{localization.translate("tableImport_tbl_comm")}}
+//-                 td.text {{localization.translate("tableImport_tbl_text")}}
+//-                 td.link {{localization.translate("tableImport_tbl_link")}}
+
+//-         div.example.content {{localization.translate("tableImport_example")}}
+//-         table.examples
+//-             tr
+//-                 td.time {{localization.translate("tableImport_tbl_exmp_time")}}
+//-                 td.date {{localization.translate("tableImport_tbl_exmp_date")}}
+//-                 td.comm.small.left {{localization.translate("tableImport_tbl_exmp_comm")}}
+//-                 td.text.small.left {{localization.translate("tableImport_tbl_exmp_text")}}
+//-                 td.link.small {{localization.translate("tableImport_tbl_exmp_link")}}
+//-                 td.dots ...
+//-                 td.link.small {{localization.translate("tableImport_tbl_exmp_link")}}
+
+//-         div.download.content
+//-             div.label {{localization.translate("tableImport_download")}}
+//-             //-a(href="/static/tableExamples/__importWide.csv", download="")
+//-                 div.file CSV
+//-             a(href="https://drive.google.com/a/buzzlike.ru/uc?id=0B1elezTkrbKVV3R3OFVRMzlNTE0&export=download", target="_blank")
+//-                 div.file XLS
+
+//-         div.button(ng-click="uploadFullTable()") {{localization.translate("tableImport_upload")}}

@@ -1,0 +1,53 @@
+.optionsList {
+  text-align: center;
+}
+.optionsList .window {
+  overflow: hidden;
+  display: inline-block;
+  max-width: 450px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 30px;
+}
+.optionsList .window .message {
+  margin: 40px 20px 20px;
+  font-size: 27px;
+  color: 1 c1c1b;
+}
+.optionsList .window .description {
+  font-size: 14px;
+  line-height: 18px;
+  text-align: left;
+  margin: 0px 40px 35px 40px;
+}
+.options {
+  font-size: 16px;
+  text-align: right;
+}
+.options .option {
+  text-align: center;
+  padding: 10px 20px;
+  min-width: 55px;
+  font-weight: lighter;
+  cursor: pointer;
+  float: right;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  margin-left: 15px;
+  background: #fff;
+  -webkit-box-shadow: 0px 1px 1px 0px #c6c6c5;
+  box-shadow: 0px 1px 1px 0px #c6c6c5;
+}
+.options .option.cancel {
+  background: #ededec;
+  color: 1 c1c1b;
+  border: 1px solid #c6c6c6;
+  padding: 9px 19px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.options .option.active,
+.options .option.hoverActive:hover {
+  background: #3a81c1;
+  color: #fff;
+}

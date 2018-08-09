@@ -1,0 +1,81 @@
+buzzlike.factory("paymentInfoService", function($state, account) {
+  var fetchData, map, nextStep, prevStep, saveDate, showPage, status;
+  status = {
+    sequence: null,
+    step: null,
+    accept: null,
+    agreed: false
+  };
+  map = {
+    introPage: "introPage",
+    postPage: {
+      allowArrows: true,
+      prevPage: "introPage",
+      steps: 2,
+      final: function() {
+        $state.go('market');
+        return true;
+      }
+    },
+    moneyPage: {
+      allowArrows: true,
+      prevPage: "introPage",
+      steps: 2,
+      final: function() {
+        return account.charge(600.00);
+      }
+    },
+    offerPage: 'offerPage'
+  };
+  showPage = function(sequence, step) {
+    var ref;
+    status.sequence = sequence;
+    if (step) {
+      status.step = step;
+    } else if ((ref = map[status.sequence]) != null ? ref.steps : void 0) {
+      status.step = 1;
+    } else {
+      status.step = 0;
+    }
+    return true;
+  };
+  nextStep = function() {
+    var ref, ref1, ref2, ref3;
+    status.step++;
+    if (!((ref = map[status.sequence]) != null ? ref.steps : void 0)) {
+      status.step = 0;
+    }
+    if (status.step > ((ref1 = map[status.sequence]) != null ? ref1.steps : void 0)) {
+      status.step = (ref2 = map[status.sequence]) != null ? ref2.steps : void 0;
+      if ((ref3 = map[status.sequence]) != null) {
+        ref3.final();
+      }
+    }
+    return true;
+  };
+  prevStep = function() {
+    var ref, ref1;
+    status.step--;
+    if (!((ref = map[status.sequence]) != null ? ref.steps : void 0)) {
+      status.step = 0;
+    }
+    if (status.step <= 0) {
+      showPage((ref1 = map[status.sequence]) != null ? ref1.prevPage : void 0);
+      status.step = 0;
+    }
+    return true;
+  };
+  fetchData = function() {
+    return true;
+  };
+  saveDate = function() {
+    return true;
+  };
+  return {
+    status: status,
+    map: map,
+    showPage: showPage,
+    nextStep: nextStep,
+    prevStep: prevStep
+  };
+});

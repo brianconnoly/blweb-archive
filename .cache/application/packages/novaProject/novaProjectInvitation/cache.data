@@ -1,0 +1,38 @@
+tC['/novaProjectInvitation/template.jade'] = "<div ng-class=\"{'active':isInvited}\"> <div translate=\"'novaProject_invitationBar'\" class=\"title\"></div> <div class=\"actions\"> <div translate=\"'novaProject_invitationBar_accept'\" ng-click=\"acceptInvitation()\" class=\"novaButton acceptInvite\"></div> <div translate=\"'novaProject_invitationBar_reject'\" ng-click=\"rejectInvitation()\" class=\"novaButton rejectInvite\"></div> </div> </div>";
+
+buzzlike.directive('novaProjectInvitation', function(projectService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectInvitation/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.$watch('isInvited', function(nVal) {
+        if (nVal === true) {
+          scope.unit.unitHeight = 115;
+        } else {
+          scope.unit.unitHeight = 0;
+        }
+        return scope.recountHead();
+      });
+      scope.rejectInvitation = function() {
+        scope.isInvited = false;
+        return projectService.call('declineInvite', {
+          id: scope.project.id
+        }, function() {
+          scope.closeApp();
+          return true;
+        });
+      };
+      return scope.acceptInvitation = function() {
+        scope.isInvited = false;
+        return projectService.call('acceptInvite', {
+          id: scope.project.id
+        }, function() {
+          return true;
+        });
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectInvitation', ".novaProjectInvitation {\n  height: 0;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  background: #3496f2;\n  color: #fff;\n  overflow: hidden;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaProjectInvitation.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  height: 115px;\n}\n.novaProjectInvitation .title {\n  font-weight: 400;\n  font-size: 14px;\n  margin: 10px;\n  margin-bottom: 4px;\n  text-align: center;\n}\n.novaProjectInvitation .actions {\n  text-align: center;\n}\n.novaProjectInvitation .novaButton {\n  display: inline-block;\n  margin: 5px;\n  right: 0;\n}\n.novaProjectInvitation .acceptInvite {\n  background: #46b029;\n}\n.novaProjectInvitation .rejectInvite {\n  background: #bd4f4f;\n}\n");

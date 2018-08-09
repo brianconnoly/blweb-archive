@@ -1,0 +1,114 @@
+tC['/novaWallpaper/template.jade'] = "<div><img class=\"blurred\"/><img class=\"real\"/></div>";
+
+buzzlike.directive('novaWallpaper', function(contentService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWallpaper/template.jade'],
+    replace: true,
+    scope: {
+      params: '=?'
+    },
+    link: function(scope, element, attrs, ngModel) {
+      var body, currentWallpaper, elem, imageInRatio, imgBlurred, imgR, imgReal, settingsMap;
+      body = $('body');
+      elem = $(element);
+      imgBlurred = elem.children('img.blurred');
+      imgReal = elem.children('img.real');
+      imgR = null;
+      imageInRatio = function(img, ratio) {
+        var css, imgRatio;
+        imgRatio = img.height / img.width;
+        if (imgRatio > ratio) {
+          css = {
+            width: '100%',
+            height: 'auto',
+            "margin-top": -((100 * imgRatio - 100 * ratio) / 2) + '%',
+            "margin-left": 0
+          };
+        } else {
+          css = {
+            width: 'auto',
+            height: '100%',
+            "margin-left": -((100 * ratio / imgRatio - 100) / 2) + '%',
+            "margin-top": 0
+          };
+        }
+        $(img).css(css);
+        return css;
+      };
+      settingsMap = {
+        wallpaper: "",
+        color: '#537fb7',
+        wallpaperStyle: 'stretch'
+      };
+      currentWallpaper = null;
+      scope.$watch('params', function(nVal) {
+        var bodyHei, bodyWid, k, ref, v;
+        if (nVal == null) {
+          scope.params = {};
+        }
+        for (k in settingsMap) {
+          v = settingsMap[k];
+          if (scope.params[k] == null) {
+            scope.params[k] = v;
+          }
+        }
+        elem.css({
+          background: scope.params.color || '#537fb7'
+        });
+        if ((scope.params.wallpaper == null) || scope.params.wallpaper === "") {
+          currentWallpaper = null;
+          elem.removeClass('showReal');
+          elem.removeClass('showBlurred');
+        }
+        if (((ref = scope.params.wallpaper) != null ? ref.length : void 0) > 0 && scope.params.wallpaper !== currentWallpaper) {
+          currentWallpaper = scope.params.wallpaper;
+          elem.removeClass('showReal');
+          bodyWid = body.width();
+          bodyHei = body.height();
+          return contentService.getById(scope.params.wallpaper, function(image) {
+            var img;
+            img = new Image;
+            img.onload = function() {
+              var bodyRatio;
+              if (elem.hasClass('showReal')) {
+                return;
+              }
+              imgBlurred[0].src = image.thumbnail;
+              elem.addClass('showBlurred');
+              bodyRatio = bodyHei / bodyWid;
+              return imgBlurred.css(imageInRatio(img, bodyRatio));
+            };
+            img.src = image.thumbnail;
+            imgR = new Image;
+            imgR.onload = function() {
+              var bodyRatio;
+              if (scope.params.wallpaper !== nVal.wallpaper) {
+                return;
+              }
+              imgReal[0].src = image.original;
+              elem.removeClass('showBlurred');
+              elem.addClass('showReal');
+              bodyRatio = bodyHei / bodyWid;
+              return imgReal.css(imageInRatio(imgR, bodyRatio));
+            };
+            return imgR.src = image.original;
+          });
+        }
+      }, true);
+      $(window).on('resize', function(e) {
+        var bodyHei, bodyRatio, bodyWid;
+        if (imgR == null) {
+          return;
+        }
+        bodyWid = body.width();
+        bodyHei = body.height();
+        bodyRatio = bodyHei / bodyWid;
+        return imgReal.css(imageInRatio(imgR, bodyRatio));
+      });
+      return true;
+    }
+  };
+});
+
+registerStyles('novaWallpaper', ".novaWallpaper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  pointer-events: none;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaWallpaper img {\n  position: absolute;\n  top: 0;\n  left: 0;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaWallpaper .real {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaWallpaper .blurred {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  width: 100%;\n  -webkit-filter: blur(40px);\n  -moz-filter: blur(40px);\n  -o-filter: blur(40px);\n  -ms-filter: blur(40px);\n  filter: blur(40px);\n}\n.novaWallpaper.showBlurred .blurred {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaWallpaper.showReal .real {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

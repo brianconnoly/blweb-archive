@@ -1,0 +1,17 @@
+overflow-y auto
+padding-top 80px
+
+&.picked
+    padding-top 140px
+
+.projectsList
+    .novaItem
+        cursor pointer
+        transition opacity 0.2s ease
+        opacity 0.5
+
+        &.active
+            opacity 1
+            
+    .novaItemPreview *
+        pointer-events none

@@ -1,0 +1,118 @@
+.itemPreview.lot, .itemPreview.post
+    overflow: visible
+    
+    .priceTag
+        position: absolute
+        bottom 0
+        right 0
+        
+        padding: 0 10px
+        
+        font-size 23px
+        line-height 30px
+        height 30px
+        
+        color #494949
+        background #FFFF00
+        
+        transition bottom 0.2s ease
+        
+        z-index 1000
+        
+    &:hover
+        .priceTag
+            bottom -30px
+            
+
+    .zoom_min &
+        .priceTag
+            font-size 12px
+            line-height 16px
+            height 16px
+
+.appContainer.market
+    background: #f2f2f2
+        
+    .page
+        border-color #484848
+        
+        &.active
+            background: #484848
+    
+    .body
+        background: #fff
+        box-shadow none
+        overflow-y: auto
+        
+        padding-bottom 30px
+        
+        .stepView
+            min-height: 0
+            
+    .sectionPicrute
+        width 100%
+        height 288px
+        
+    .bigSlider
+        width 100%
+        height 288px
+        overflow: hidden
+        margin-bottom 10px
+        
+        .paginatorCircle
+            position: absolute
+            bottom 15px
+            left 0
+            right 0
+            z-index 100
+            
+            .page
+                border-color #484848
+                
+                &.active
+                    background: #484848
+        
+        .slide
+            position: absolute
+            width 100%
+            height 100%
+            left: 0
+
+            transition all 0.5s ease
+            
+            img
+                height 100%
+
+            &.clickable
+                cursor: pointer
+            
+            &.hideRight
+                left 100%
+            
+            &.hideLeft
+                left -100%
+                
+            &.active
+                z-index 50
+                
+        .arrow
+            position: absolute
+            top 0
+            bottom 0
+            
+            width 100px
+            
+            z-index 100
+            cursor: pointer
+            
+            background-position: center center
+            background-repeat: no-repeat
+            background-size: 27px 55px
+
+            &.left
+                left 0
+                background-image: url("/resources/images/desktop/black/leftArrow.svg")
+                
+            &.right
+                right 0
+                background-image: url("/resources/images/desktop/black/rightArrow.svg")

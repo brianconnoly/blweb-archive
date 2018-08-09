@@ -1,0 +1,16 @@
+buzzlike.directive("label", function() {
+  return {
+    restrict: "A",
+    scope: {
+      model: '=label'
+    },
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return elem.on('click', function() {
+        scope.model = !scope.model;
+        return scope.$parent.$apply();
+      });
+    }
+  };
+});

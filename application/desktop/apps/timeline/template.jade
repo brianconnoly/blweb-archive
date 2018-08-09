@@ -1,0 +1,48 @@
+div.dragHandler.topBar
+    process-bar
+    div.appControls
+
+    div.title(translate="'timelineApp_title'")
+
+    div.actionsPanel
+        div.action.flushMousedown
+            div.icon
+                img(src="/resources/images/desktop/white/header-button-addTimeline.svg", ng-click="addFeed()")
+            div.settingsText(translate="'addFeedApp_create_group'", ng-click="addFeed()")
+
+        div.action.flushMousedown
+            div.icon
+                img(src="/resources/images/desktop/actions/white/header-button-newText.svg", ng-click="newText()")
+            div.settingsText(translate="'contentApp_newText'", ng-click="newText()")
+
+        div.action.flushMousedown
+            div.icon.folder
+                img(src="/resources/images/desktop/actions/white/header-button-newPost.svg", ng-click="newPost()")
+            div.settingsText(translate="'combsApp_newPost'", ng-click="newPost()")
+
+        div.action(ng-click="showMoreMenu($event)")
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-settings.svg")
+            div.settingsText.flushMousedown(translate="'contentApp_more'")
+    
+    div.switcherPanel
+        zoom-switch
+
+        div.switcher
+            div.switch.twoSide.statsType
+                div.button(ng-class="{'active':session.statsType == 'real'}", ng-click="session.statsType = 'real'")
+                    img.activate(src="/resources/images/desktop/timeline/statsType/viewAbsolute.svg")
+                    img.deactivate(src="/resources/images/desktop/timeline/statsType/viewAbsoluteActive.svg")
+
+                div.button(ng-class="{'active':session.statsType == 'percent'}", ng-click="session.statsType = 'percent'")
+                    img.activate(src="/resources/images/desktop/timeline/statsType/viewPercent.svg")
+                    img.deactivate(src="/resources/images/desktop/timeline/statsType/viewPercentActive.svg")
+                
+            div.settingsText(translate="'timelineApp_statsType'")
+
+
+div.body.itemsContainer.timeline.multiselect.ios-scroll.contextMenu.colorDirective(context="{'type':'timelineApp'}", class="zoom_{{session.zoom}}")
+    div.timeline-top.layout_catalog(scroll-top="white", antiscroll)
+        div.feedGroupList
+
+//- help-browser

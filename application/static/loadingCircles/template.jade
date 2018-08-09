@@ -1,0 +1,57 @@
+style.
+    @keyframes toggle {
+        0%   {opacity: 0}
+        30%  {opacity: 1}
+        100% {opacity: 0}
+    }
+    @-moz-keyframes toggle {
+        0%   {opacity: 0}
+        30%  {opacity: 1}
+        100% {opacity: 0}
+    }
+    @-o-keyframes toggle {
+        0%   {opacity: 0}
+        30%  {opacity: 1}
+        100% {opacity: 0}
+    }
+    @-webkit-keyframes toggle {
+        0%   {opacity: 0}
+        30%  {opacity: 1}
+        100% {opacity: 0}
+    }
+    * {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+    body{
+        background: #eee;
+        color: #3a363b;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding-left: 30px;
+    }
+    div#rounds {
+        position: absolute;
+        top: 48%;
+        left: 50%;
+        margin: -65px 0 0 -260px
+    }
+    div.round {
+        position: relative;
+        margin: 0 15px;
+        float: left;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: black;
+        opacity: 0;
+        -webkit-animation: toggle 1.7s linear 0.1s infinite;
+        -moz-animation: toggle 1.7s linear 0.1s infinite;
+        -o-animation: toggle 1.7s linear 0.1s infinite;
+        animation: toggle 1.7s linear 0.1s infinite;
+    }
+div#rounds

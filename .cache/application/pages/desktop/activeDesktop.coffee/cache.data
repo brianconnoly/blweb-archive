@@ -1,0 +1,15 @@
+buzzlike.directive('activeDesktop', function(appsService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      elem.on('mousedown.activeDesktop', function(e) {
+        scope.blMenu = false;
+        appsService.flushActive();
+        return scope.$apply();
+      });
+      return true;
+    }
+  };
+});

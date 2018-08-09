@@ -1,0 +1,32 @@
+tC['/novaThemeTimeline/template.jade'] = "<div ng-click=\"activateAll()\" ng-class=\"{'active':isActive()}\" class=\"title\"> <div ng-click=\"mediaplanSettings($event)\" class=\"settings\"></div><span translate=\"'novaThemeTimeline_title'\"></span> </div>";
+
+buzzlike.directive('novaThemeTimeline', function(taskService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemeTimeline/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.isActive = function(item) {
+        return scope.flow.currentCode === 'theme_timeline';
+      };
+      scope.activateAll = function() {
+        return scope.flow.addFrame({
+          title: 'themeSchedules',
+          translateTitle: 'novaThemeTimeline',
+          directive: 'novaThemeTimelineFrame',
+          code: 'theme_timeline'
+        });
+      };
+      return scope.mediaplanSettings = function(e) {
+        scope.flow.addFrame({
+          title: 'themeSchedules_settings',
+          translateTitle: 'novaThemeTimeline_settings',
+          directive: 'novaThemeTimelineSettingsFrame',
+          code: 'theme_timeline_settings'
+        });
+        return e.stopPropagation();
+      };
+    }
+  };
+});

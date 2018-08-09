@@ -1,0 +1,4 @@
+div.combobox(ng-click="open(list)", ng-class="{'opened': state.opened}")
+    div.value(ng-class="selected.class", ng-style="selected.style")
+        span(ng-if="selected.phrase", translate="selected.phrase")
+        span(ng-if="selected.title") {{selected.title}}

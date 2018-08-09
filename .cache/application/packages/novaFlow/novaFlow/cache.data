@@ -1,0 +1,935 @@
+tC['/novaFlow/template.jade'] = "<div class=\"frameTabs\"> </div> <div class=\"flowBoxes\"> </div>";
+
+buzzlike.service('novaFlow', function($compile, stateManager, novaStateTree) {
+  var _minFrameWid, novaFlow, novaFlowBox, novaFlowFrame;
+  _minFrameWid = 320;
+  novaFlow = (function() {
+    novaFlow.prototype.applyStateTree = function(stateTree) {
+      this.currentStateTree = stateTree;
+      return stateManager.setTree(this.currentStateTree);
+    };
+
+    function novaFlow(element1, scope1) {
+      this.element = element1;
+      this.scope = scope1;
+      this.currentStateTree = null;
+      this.flowBoxesContainer = this.element.children('.flowBoxes');
+      this.flowTabsContainer = this.element.children('.frameTabs');
+      this.flowBoxes = [];
+      this.scope.stateSaver.register('flow', {
+        save: (function(_this) {
+          return function() {
+            var box, flowBox, frame, l, len, len1, m, ref, ref1, toSave;
+            toSave = [];
+            ref = _this.flowBoxes;
+            for (l = 0, len = ref.length; l < len; l++) {
+              flowBox = ref[l];
+              box = {
+                active: flowBox.active,
+                frames: [],
+                pinned: flowBox.pinned
+              };
+              ref1 = flowBox.flowFrames;
+              for (m = 0, len1 = ref1.length; m < len1; m++) {
+                frame = ref1[m];
+                box.frames.push({
+                  active: frame.active,
+                  data: frame.data,
+                  params: frame.params,
+                  pinned: frame.pinned
+                });
+              }
+              toSave.push(box);
+            }
+            return toSave;
+          };
+        })(this),
+        load: (function(_this) {
+          return function(data) {
+            var box, flowBox, frame, l, lastFrame, len, m, ref;
+            for (l = data.length - 1; l >= 0; l += -1) {
+              box = data[l];
+              flowBox = _this.addFlowBox({
+                active: box.active
+              }, true);
+              flowBox.pinned = box.pinned;
+              flowBox.active = box.active;
+              lastFrame = null;
+              ref = box.frames;
+              for (m = 0, len = ref.length; m < len; m++) {
+                frame = ref[m];
+                lastFrame = flowBox.addFlowFrame(frame.params, lastFrame);
+                lastFrame.pinned = frame.pinned;
+                lastFrame.active = frame.active;
+              }
+            }
+            return _this.recountFrames(true);
+          };
+        })(this)
+      });
+    }
+
+    novaFlow.prototype.saveState = function() {
+      return this.scope.stateSaver.save('flow');
+    };
+
+    novaFlow.prototype.activate = function(frame, box) {
+      var flowBox, l, len, ref;
+      ref = this.flowBoxes;
+      for (l = 0, len = ref.length; l < len; l++) {
+        flowBox = ref[l];
+        if (flowBox !== box) {
+          flowBox.deactivate();
+        }
+      }
+      box.activate(frame);
+      this.currentCode = box.code;
+      return this.saveState();
+    };
+
+    novaFlow.prototype.closeFlowBox = function(box) {
+      box.destroy();
+      removeElementFromArray(box, this.flowBoxes);
+      this.currentCode = null;
+      this.saveState();
+      return this.recountFrames(true);
+    };
+
+    novaFlow.prototype.addFlowBox = function(params, start) {
+      var box, flowBox, i, l, lastId, len, ref;
+      if (start == null) {
+        start = false;
+      }
+      if (start) {
+        box = new novaFlowBox(this, params);
+        this.flowBoxes.unshift(box);
+      } else {
+        lastId = 0;
+        if (params != null ? params.pinned : void 0) {
+          if (params.position == null) {
+            params.position = this.flowBoxes.length - 1;
+            ref = this.flowBoxes;
+            for (i = l = 0, len = ref.length; l < len; i = ++l) {
+              flowBox = ref[i];
+              if (flowBox.pinned === true) {
+                params.position = i - 1;
+                break;
+              }
+            }
+          }
+          box = new novaFlowBox(this, params);
+          this.flowBoxes.splice(params.position + 1, 0, box);
+        } else {
+          box = new novaFlowBox(this, params);
+          this.flowBoxes.push(box);
+        }
+      }
+      this.saveState();
+      return box;
+    };
+
+    novaFlow.prototype.addFrame = function(frame, after, noFlush) {
+      var flowBox, l, len, ref;
+      if (noFlush == null) {
+        noFlush = false;
+      }
+      if (frame.code != null) {
+        ref = this.flowBoxes;
+        for (l = 0, len = ref.length; l < len; l++) {
+          flowBox = ref[l];
+          if (flowBox.code === frame.code) {
+            this.activate(flowBox.flowFrames[0], flowBox);
+            return;
+          }
+        }
+      }
+      if (this.flowBoxes.length < 1) {
+        this.addFlowBox({
+          code: frame.code
+        });
+      }
+      if (this.flowBoxes[0].pinned || noFlush) {
+        this.addFlowBox({
+          code: frame.code
+        }, true);
+      }
+      frame = this.flowBoxes[0].addFlowFrame(frame);
+      this.saveState();
+      return this.recountFrames();
+    };
+
+    novaFlow.prototype.addFrameBoxes = function(frames, after) {
+      var box, frame, l, len, len1, len2, m, n, ref, toRemove;
+      if (this.flowBoxes.length < 1) {
+        this.addFlowBox();
+      }
+      toRemove = [];
+      ref = this.flowBoxes;
+      for (l = 0, len = ref.length; l < len; l++) {
+        box = ref[l];
+        if (!box.pinned) {
+          toRemove.push(box);
+        }
+      }
+      for (m = 0, len1 = toRemove.length; m < len1; m++) {
+        box = toRemove[m];
+        box.destroy();
+        removeElementFromArray(box, this.flowBoxes);
+      }
+      for (n = 0, len2 = frames.length; n < len2; n++) {
+        frame = frames[n];
+        this.addFlowBox({}, true);
+        this.flowBoxes[0].addFlowFrame(frame);
+      }
+      this.saveState();
+      return this.recountFrames();
+    };
+
+    novaFlow.prototype.recountFrames = function(final) {
+      var activeId, areaWid, backWid, bigWid, cnt, data, flowBox, flowBoxWid, flowBoxes, flowFrame, foundActive, i, j, l, left, len, len1, len2, len3, len4, m, n, ntWid, o, p, q, r, realFlowBoxWidth, ref, ref1, ref2, ref3, ref4, ref5, ref6, remain, setWid, spaceRemain, tabLast, tabLeft, tabWid, wid, zIndex;
+      if (final == null) {
+        final = false;
+      }
+      this.width = areaWid = this.element.width();
+      flowBoxes = this.flowBoxes.length;
+      spaceRemain = areaWid;
+      data = {
+        totalWeight: 0,
+        minBefore: 0,
+        minAfter: 0,
+        maxBefore: 0,
+        maxAfter: 0,
+        active: null,
+        beforeCnt: {},
+        afterCnt: {}
+      };
+      foundActive = false;
+      activeId = null;
+      ref = this.flowBoxes;
+      for (i = l = 0, len = ref.length; l < len; i = ++l) {
+        flowBox = ref[i];
+        data.totalWeight += flowBox.flowFrames.length;
+        for (cnt = m = 0, ref1 = this.flowBoxes.length; 0 <= ref1 ? m < ref1 : m > ref1; cnt = 0 <= ref1 ? ++m : --m) {
+          if (cnt <= i) {
+            if (data.afterCnt[cnt] == null) {
+              data.afterCnt[cnt] = 0;
+            }
+            data.afterCnt[cnt] += flowBox.flowFrames.length;
+          }
+          if (cnt >= i) {
+            if (data.beforeCnt[cnt] == null) {
+              data.beforeCnt[cnt] = 0;
+            }
+            data.beforeCnt[cnt] += flowBox.flowFrames.length;
+          }
+        }
+        if (flowBox.active === true) {
+          foundActive = true;
+          activeId = i;
+          data.active = flowBox;
+        }
+        if (foundActive || (!foundActive && i === this.flowBoxes.length - 1)) {
+          data.minAfter += _minFrameWid;
+          if (data.maxAfter !== -1) {
+            data.maxAfter += flowBox.maxWidth;
+          }
+          if (!(flowBox.maxWidth > 0)) {
+            data.maxAfter = -1;
+          }
+        } else {
+          data.minBefore += _minFrameWid;
+          if (data.maxBefore !== -1) {
+            data.maxBefore += flowBox.maxWidth;
+          }
+          if (!(flowBox.maxWidth > 0)) {
+            data.maxBefore = -1;
+          }
+        }
+      }
+      if (!data.active) {
+        activeId = this.flowBoxes.length - 1;
+        data.active = this.flowBoxes[activeId];
+      }
+      flowBoxWid = areaWid / this.flowBoxes.length;
+      flowBoxWid = Math.floor(flowBoxWid);
+      realFlowBoxWidth = flowBoxWid;
+      if (flowBoxWid < _minFrameWid) {
+        flowBoxWid = _minFrameWid;
+      }
+      tabWid = (areaWid - 70) / this.flowBoxes.length;
+      remain = areaWid;
+      left = 0;
+      tabLast = 0;
+      if (data.minAfter > remain) {
+        ref2 = this.flowBoxes;
+        for (i = n = 0, len1 = ref2.length; n < len1; i = ++n) {
+          flowBox = ref2[i];
+          if (i >= activeId) {
+            if (i === this.flowBoxes.length - 1) {
+              flowBoxWid = areaWid - (flowBoxWid * (this.flowBoxes.length - 1));
+              if (flowBoxWid < _minFrameWid) {
+                flowBoxWid = _minFrameWid;
+              }
+            }
+            wid = flowBox.setWidth(flowBoxWid);
+            remain -= wid;
+            flowBox.setLeft(left);
+            left += wid;
+          } else {
+            flowBox.hide();
+          }
+          flowBox.recountFrames(false, tabLast, tabWid);
+          tabLast += tabWid;
+        }
+      } else {
+        if (data.minBefore + data.minAfter > remain) {
+          left = remain;
+          tabLast = areaWid - 70 - tabWid;
+          ref3 = this.flowBoxes;
+          for (i = o = ref3.length - 1; o >= 0; i = o += -1) {
+            flowBox = ref3[i];
+            if (remain > 0) {
+              if (i === 0) {
+                flowBoxWid = areaWid - (flowBoxWid * (this.flowBoxes.length - 1));
+                if (flowBoxWid < _minFrameWid) {
+                  flowBoxWid = _minFrameWid;
+                }
+              }
+              wid = flowBox.setWidth(flowBoxWid);
+              remain -= wid;
+              left -= wid;
+              if (left < 0) {
+                left = 0;
+              }
+              flowBox.setRight(left);
+            } else {
+              flowBox.hide();
+            }
+            flowBox.recountFrames(false, tabLast, tabWid);
+            tabLast -= tabWid;
+          }
+        } else {
+          ref4 = this.flowBoxes;
+          for (i = p = 0, len2 = ref4.length; p < len2; i = ++p) {
+            flowBox = ref4[i];
+            if (i === this.flowBoxes.length - 1) {
+              flowBoxWid = areaWid - left;
+              if (flowBoxWid < _minFrameWid) {
+                flowBoxWid = _minFrameWid;
+              }
+            }
+            setWid = flowBoxWid;
+            wid = flowBox.setWidth(setWid);
+            if (wid < areaWid - left && i === this.flowBoxes.length - 1) {
+              flowBox._last = true;
+              flowBox.element.addClass('last');
+            } else if (flowBox._last) {
+              flowBox._last = false;
+              flowBox.element.removeClass('last');
+            }
+            remain -= wid;
+            flowBox.setLeft(left);
+            left += wid;
+            flowBox.recountFrames(false, tabLast, tabWid);
+            tabLast += tabWid;
+          }
+        }
+      }
+      tabLeft = 0;
+      tabWid = Math.floor(tabWid);
+      ref5 = this.flowBoxes;
+      for (i = q = 0, len3 = ref5.length; q < len3; i = ++q) {
+        flowBox = ref5[i];
+        if (flowBox.flowFrames.length === 1) {
+          flowFrame = flowBox.flowFrames[0];
+          wid = 180;
+          if (wid > tabWid) {
+            wid = tabWid;
+          }
+          if (tabLeft < flowBox.left + flowFrame.left) {
+            tabLeft = flowBox.left + flowFrame.left;
+          }
+          if (tabLeft + wid > tabWid * (i + 1)) {
+            tabLeft = tabWid * (i + 1) - wid;
+          }
+          if (tabLeft < 0) {
+            tabLeft = 0;
+          }
+          flowFrame.setTabParams(tabLeft, wid);
+          tabLeft += wid;
+        } else {
+          bigWid = 180;
+          backWid = 180;
+          ntWid = tabWid;
+          if (tabLeft < flowBox.left && tabWid - flowBox.left + (tabWid * i) > bigWid + 20) {
+            tabLeft = flowBox.left;
+            ntWid = tabWid - flowBox.left + tabLeft;
+          }
+          if (bigWid > ntWid - 20) {
+            bigWid = ntWid - 20;
+          }
+          if (bigWid * flowBox.flowFrames.length > ntWid) {
+            backWid = (ntWid - bigWid) / (flowBox.flowFrames.length - 1);
+          }
+          foundActive = false;
+          ref6 = flowBox.flowFrames;
+          for (j = r = 0, len4 = ref6.length; r < len4; j = ++r) {
+            flowFrame = ref6[j];
+            wid = backWid;
+            if (flowFrame.active === true) {
+              wid = bigWid;
+              foundActive = true;
+            }
+            zIndex = null;
+            if (foundActive) {
+              zIndex = flowBox.flowFrames.length - j;
+            }
+            if (bigWid === backWid && tabLeft < flowBox.left + flowFrame.left) {
+              tabLeft = flowBox.left + flowFrame.left;
+            }
+            if (tabLeft + wid > ntWid * (i + 1)) {
+              tabLeft = ntWid * (i + 1) - wid;
+            }
+            if (tabLeft < 0) {
+              tabLeft = 0;
+            }
+            flowFrame.setTabParams(tabLeft, wid, zIndex);
+            tabLeft += wid;
+            if (bigWid !== backWid && flowFrame.active === true && j !== flowBox.flowFrames.length - 1) {
+              tabLeft -= 20;
+            }
+          }
+        }
+      }
+      if (final) {
+        return this.recountFramesFinal();
+      }
+    };
+
+    novaFlow.prototype.recountFramesFinal = function() {
+      var flowBox, l, len, ref, results;
+      ref = this.flowBoxes;
+      results = [];
+      for (l = 0, len = ref.length; l < len; l++) {
+        flowBox = ref[l];
+        results.push(flowBox.recountFramesFinal());
+      }
+      return results;
+    };
+
+    return novaFlow;
+
+  })();
+  novaFlowBox = (function() {
+    function novaFlowBox(flow, params) {
+      var k, v;
+      this.flow = flow;
+      for (k in params) {
+        v = params[k];
+        this[k] = v;
+      }
+      this.width = _minFrameWid;
+      this.flowFrames = [];
+      this.element = $('<div>', {
+        "class": 'novaFlowBox'
+      });
+      if ((params != null ? params.pinned : void 0) === true) {
+        $(this.flow.flowBoxesContainer.children()[params.position]).after(this.element);
+      } else {
+        this.flow.flowBoxesContainer.prepend(this.element);
+      }
+      this.scope = this.flow.scope.$new();
+      this.scope.flowBox = this;
+      $compile(this.element)(this.scope);
+    }
+
+    novaFlowBox.prototype.activate = function(frame) {
+      var flowFrame, l, len, ref;
+      this.active = true;
+      ref = this.flowFrames;
+      for (l = 0, len = ref.length; l < len; l++) {
+        flowFrame = ref[l];
+        if (frame !== flowFrame) {
+          flowFrame.deactivate();
+        } else {
+          flowFrame.activate();
+        }
+      }
+      this.flow.recountFrames(true);
+      return this.flow.saveState();
+    };
+
+    novaFlowBox.prototype.deactivate = function() {
+      return this.active = false;
+    };
+
+    novaFlowBox.prototype.pin = function(frame) {
+      var boxIndex, flowFrame, i, index, l, newBox, ref, ref1;
+      frame.pinned = true;
+      index = this.flowFrames.indexOf(frame);
+      if (index === 0) {
+        this.pinned = true;
+      } else {
+        boxIndex = this.flow.flowBoxes.indexOf(this);
+        newBox = this.flow.addFlowBox({
+          pinned: true,
+          position: boxIndex
+        });
+        for (i = l = ref = index, ref1 = this.flowFrames.length; ref <= ref1 ? l < ref1 : l > ref1; i = ref <= ref1 ? ++l : --l) {
+          flowFrame = this.flowFrames[i];
+          newBox.putFlowFrame(flowFrame);
+        }
+        this.flowFrames.length = index;
+      }
+      if (this.flowFrames.length === 0) {
+        this.flow.closeFlowBox(this);
+      }
+      this.flow.recountFrames(true);
+      return this.flow.saveState();
+    };
+
+    novaFlowBox.prototype.recountMaxWid = function() {
+      var frame, l, len, ref, results;
+      this.maxWidth = 0;
+      ref = this.flowFrames;
+      results = [];
+      for (l = 0, len = ref.length; l < len; l++) {
+        frame = ref[l];
+        if (frame.maxWidth != null) {
+          results.push(this.maxWidth += frame.maxWidth);
+        } else {
+          this.maxWidth = 0;
+          break;
+        }
+      }
+      return results;
+    };
+
+    novaFlowBox.prototype.setLeft = function(left1) {
+      this.left = left1;
+      this.element.css('transform', "translate3d(" + this.left + "px, 0,0)").removeClass('back');
+      if (this.right) {
+        this.element.removeClass('right').css('right', 'auto');
+        return this.right = false;
+      }
+    };
+
+    novaFlowBox.prototype.setRight = function(left1) {
+      this.left = left1;
+      if (this.right !== true) {
+        this.right = true;
+        this.element.addClass('right');
+      }
+      return this.element.css('transform', "translate3d(" + this.left + "px, 0,0)").removeClass('back');
+    };
+
+    novaFlowBox.prototype.hide = function() {
+      return this.element.addClass('back');
+    };
+
+    novaFlowBox.prototype.setWidth = function(width) {
+      this.width = width;
+      this.recountMaxWid();
+      if (this.maxWidth > 0 && this.width > this.maxWidth) {
+        this.width = this.maxWidth;
+      }
+      this.element.css('width', this.width);
+      return this.width;
+    };
+
+    novaFlowBox.prototype.destroy = function() {
+      var frame, l, len, ref;
+      ref = this.flowFrames;
+      for (l = 0, len = ref.length; l < len; l++) {
+        frame = ref[l];
+        frame.destroy();
+      }
+      this.flowFrames.length = 0;
+      this.scope.$destroy();
+      return this.element.remove();
+    };
+
+    novaFlowBox.prototype.closeFlowFrame = function(frame) {
+      var i, index, l, ref, ref1;
+      index = this.flowFrames.indexOf(frame);
+      console.log(index, this.flowFrames, frame);
+      for (i = l = ref = index, ref1 = this.flowFrames.length; ref <= ref1 ? l < ref1 : l > ref1; i = ref <= ref1 ? ++l : --l) {
+        console.log(i, this.flowFrames[i]);
+        this.flowFrames[i].destroy();
+      }
+      this.flowFrames.length = index;
+      if (this.flowFrames.length === 0) {
+        this.flow.closeFlowBox(this);
+      } else {
+        if (frame.active === true) {
+          if (index > 0) {
+            this.activate(this.flowFrames[index - 1]);
+          }
+        }
+      }
+      this.recountMaxWid();
+      this.flow.recountFrames(true);
+      return this.flow.saveState();
+    };
+
+    novaFlowBox.prototype.putFlowFrame = function(frame) {
+      this.flowFrames.push(frame);
+      this.recountMaxWid();
+      frame.flowBox = this;
+      frame.scope.flowBox = this;
+      frame.element.appendTo(this.element);
+      this.flow.saveState();
+      return frame;
+    };
+
+    novaFlowBox.prototype.addFlowFrame = function(frame, afterFrame) {
+      var _frame, i, id, l, len, len1, m, n, newFrame, ref, ref1, ref2, toDelete;
+      newFrame = new novaFlowFrame(this, frame);
+      if (afterFrame != null) {
+        id = this.flowFrames.indexOf(afterFrame);
+        if (id + 1 < this.flowFrames.length) {
+          for (i = l = ref = id + 1, ref1 = this.flowFrames.length; ref <= ref1 ? l < ref1 : l > ref1; i = ref <= ref1 ? ++l : --l) {
+            this.flowFrames[i].destroy();
+          }
+          this.flowFrames.length = id + 1;
+        }
+      } else {
+        toDelete = [];
+        ref2 = this.flowFrames;
+        for (m = 0, len = ref2.length; m < len; m++) {
+          _frame = ref2[m];
+          if (_frame.pinned !== true) {
+            _frame.destroy();
+            toDelete.push(_frame);
+          }
+        }
+        for (n = 0, len1 = toDelete.length; n < len1; n++) {
+          _frame = toDelete[n];
+          removeElementFromArray(_frame, this.flowFrames);
+        }
+        this.code = newFrame.code || null;
+      }
+      this.flowFrames.push(newFrame);
+      this.recountMaxWid();
+      this.flow.activate(newFrame, this);
+      this.flow.saveState();
+      return newFrame;
+    };
+
+    novaFlowBox.prototype.recountFrames = function(final, tabLast, tabWid) {
+      var activeId, boxLeft, data, flowFrame, flowFrameWid, foundActive, frames, i, l, left, len, len1, len2, len3, m, n, o, p, ref, ref1, ref2, ref3, ref4, remain, setWid, spaceRemain, tabRight, tabsHeadersWidth, wid;
+      if (final == null) {
+        final = false;
+      }
+      frames = this.flowFrames.length;
+      flowFrameWid = this.width / frames | 0;
+      flowFrameWid = Math.floor(flowFrameWid);
+      if (flowFrameWid < _minFrameWid) {
+        flowFrameWid = _minFrameWid;
+      }
+      spaceRemain = this.width;
+      data = {
+        minBefore: 0,
+        maxBefore: 0,
+        minAfter: 0,
+        maxAfter: 0,
+        active: null
+      };
+      foundActive = false;
+      activeId = 0;
+      ref = this.flowFrames;
+      for (i = l = 0, len = ref.length; l < len; i = ++l) {
+        flowFrame = ref[i];
+        if (flowFrame.active === true) {
+          foundActive = true;
+          activeId = i;
+          data.active = flowFrame;
+        }
+        if (foundActive || (!foundActive && i === this.flowFrames.length - 1)) {
+          data.minAfter += _minFrameWid;
+          if (data.maxAfter !== -1) {
+            data.maxAfter += flowFrame.maxWidth;
+          }
+          if (!(flowFrame.maxWidth > 0)) {
+            data.maxAfter = -1;
+          }
+        } else {
+          data.minBefore += _minFrameWid;
+          if (data.maxBefore !== -1) {
+            data.maxBefore += flowFrame.maxWidth;
+          }
+          if (!(flowFrame.maxWidth > 0)) {
+            data.maxBefore = -1;
+          }
+        }
+      }
+      if (!data.active) {
+        activeId = this.flowFrames.length - 1;
+        data.active = this.flowFrames[activeId];
+      }
+      tabsHeadersWidth = 0;
+      remain = this.width;
+      left = 0;
+      boxLeft = this.left | 0;
+      if (this.right) {
+        boxLeft = this.flow.width - this.width - this.rightCoord;
+      }
+      if ((data.active.maxWidth == null) || data.active.maxWidth >= this.width) {
+        ref1 = this.flowFrames;
+        for (m = 0, len1 = ref1.length; m < len1; m++) {
+          flowFrame = ref1[m];
+          if (flowFrame.active) {
+            flowFrame.setWidth(this.width);
+            flowFrame.setLeft(0);
+          } else {
+            flowFrame.hide();
+          }
+        }
+      } else {
+        if (data.minAfter > remain) {
+          ref2 = this.flowFrames;
+          for (i = n = 0, len2 = ref2.length; n < len2; i = ++n) {
+            flowFrame = ref2[i];
+            if (i >= activeId) {
+              if (i === this.flowFrames.length - 1) {
+                flowFrameWid = this.width - (flowFrameWid * (this.flowFrames.length - 1));
+                if (flowFrameWid < _minFrameWid) {
+                  flowFrameWid = _minFrameWid;
+                }
+              }
+              wid = flowFrame.setWidth(flowFrameWid);
+              remain -= wid;
+              flowFrame.setLeft(left);
+              left += wid;
+            } else {
+              flowFrame.hide();
+            }
+          }
+        } else {
+          if (data.minBefore + data.minAfter > remain) {
+            left = remain;
+            ref3 = this.flowFrames;
+            for (i = o = ref3.length - 1; o >= 0; i = o += -1) {
+              flowFrame = ref3[i];
+              if (remain > 0) {
+                if (i === 0) {
+                  flowFrameWid = this.width - (flowFrameWid * (this.flowFrames.length - 1));
+                  if (flowFrameWid < _minFrameWid) {
+                    flowFrameWid = _minFrameWid;
+                  }
+                }
+                wid = flowFrame.setWidth(flowFrameWid);
+                remain -= wid;
+                left -= wid;
+                if (left < 0) {
+                  left = 0;
+                }
+                if (left > 0) {
+                  flowFrame.setRight(left);
+                } else {
+                  flowFrame.setLeft(left);
+                }
+              } else {
+                flowFrame.hide();
+              }
+            }
+          } else {
+            tabRight = tabWid + tabLast;
+            ref4 = this.flowFrames;
+            for (i = p = 0, len3 = ref4.length; p < len3; i = ++p) {
+              flowFrame = ref4[i];
+              if (i === this.flowFrames.length - 1) {
+                flowFrameWid = this.width - (flowFrameWid * (this.flowFrames.length - 1));
+                if (flowFrameWid < _minFrameWid) {
+                  flowFrameWid = _minFrameWid;
+                }
+              }
+              setWid = flowFrameWid;
+              if (i === this.flowFrames.length - 2) {
+                setWid = remain - flowFrameWid;
+              }
+              wid = flowFrame.setWidth(setWid);
+              remain -= wid;
+              flowFrame.setLeft(left);
+              left += wid;
+            }
+          }
+        }
+      }
+      if (final) {
+        this.recountFramesFinal();
+      }
+      return tabsHeadersWidth;
+    };
+
+    novaFlowBox.prototype.recountFramesFinal = function() {
+      var base, flowFrame, l, len, ref, results;
+      ref = this.flowFrames;
+      results = [];
+      for (l = 0, len = ref.length; l < len; l++) {
+        flowFrame = ref[l];
+        results.push(typeof (base = flowFrame.scope).handleResizeEnd === "function" ? base.handleResizeEnd() : void 0);
+      }
+      return results;
+    };
+
+    return novaFlowBox;
+
+  })();
+  novaFlowFrame = (function() {
+    function novaFlowFrame(flowBox1, params1) {
+      var k, ref, v;
+      this.flowBox = flowBox1;
+      this.params = params1;
+      ref = this.params;
+      for (k in ref) {
+        v = ref[k];
+        this[k] = v;
+      }
+      this.element = $('<div>', {
+        "class": 'novaFlowFrame noDrag ' + this.directive
+      });
+      this.flowBox.element.append(this.element);
+      this.scope = this.flowBox.flow.scope.$new();
+      this.scope.flowFrame = this;
+      this.scope.flowBox = this.flowBox;
+      this.scope.stateTree = new novaStateTree();
+      this.flowBox.flow.applyStateTree(this.scope.stateTree);
+      this.element = $($compile(this.element)(this.scope));
+      this.element.on('mousedown', (function(_this) {
+        return function() {
+          return _this.flowBox.flow.activate(_this, _this.flowBox);
+        };
+      })(this));
+      this.tabElement = $('<div>', {
+        "class": 'novaFlowFrameTab'
+      });
+      this.flowBox.flow.flowTabsContainer.append(this.tabElement);
+      this.tabElement = $($compile(this.tabElement)(this.scope));
+      this.tabElement.on('mousedown', (function(_this) {
+        return function() {
+          return _this.flowBox.flow.activate(_this, _this.flowBox);
+        };
+      })(this));
+    }
+
+    novaFlowFrame.prototype.activate = function() {
+      var ref;
+      this.active = true;
+      this.element.addClass('active');
+      this.flowBox.flow.applyStateTree(this.scope.stateTree);
+      return (ref = this.scope) != null ? typeof ref.onActivate === "function" ? ref.onActivate() : void 0 : void 0;
+    };
+
+    novaFlowFrame.prototype.deactivate = function() {
+      this.active = false;
+      return this.element.removeClass('active');
+    };
+
+    novaFlowFrame.prototype.setWidth = function(width) {
+      var base;
+      this.width = width;
+      if (this.width > this.maxWidth) {
+        this.width = this.maxWidth;
+      }
+      this.element.css('width', this.width);
+      if (typeof (base = this.scope).handleResize === "function") {
+        base.handleResize();
+      }
+      return this.width;
+    };
+
+    novaFlowFrame.prototype.setTabParams = function(tabLeft1, tabWid1, zIndex1) {
+      this.tabLeft = tabLeft1;
+      this.tabWid = tabWid1;
+      this.zIndex = zIndex1 != null ? zIndex1 : 'auto';
+      this.tabElement.css({
+        'transform': "translate3d(" + this.tabLeft + "px, 0,0)",
+        'width': this.tabWid + 'px',
+        'z-index': this.zIndex
+      });
+      if (this.tabWid < 130) {
+        return this.tabElement.addClass('noActions');
+      } else {
+        return this.tabElement.removeClass('noActions');
+      }
+    };
+
+    novaFlowFrame.prototype.setLeft = function(left1) {
+      this.left = left1;
+      this.element.css('transform', "translate3d(" + this.left + "px, 0,0)");
+      if (this.back === true) {
+        this.back = false;
+        this.element.removeClass('back');
+      }
+      if (this.right === true) {
+        this.right = false;
+        return this.element.removeClass('right');
+      }
+    };
+
+    novaFlowFrame.prototype.hide = function() {
+      this.back = true;
+      return this.element.addClass('back');
+    };
+
+    novaFlowFrame.prototype.putBackRight = function(right) {
+      if (right == null) {
+        right = 0;
+      }
+      this.back = true;
+      this.element.addClass('back');
+      return this.setRight(right);
+    };
+
+    novaFlowFrame.prototype.setRight = function(left1) {
+      this.left = left1;
+      if (this.right !== true) {
+        this.right = true;
+        this.element.addClass('right');
+      }
+      if (this.back === true) {
+        this.back = false;
+        this.element.removeClass('back');
+      }
+      return this.element.css({
+        'transform': "translate3d(" + this.left + "px, 0,0)"
+      });
+    };
+
+    novaFlowFrame.prototype.destroy = function() {
+      this.scope.$destroy();
+      this.element.remove();
+      return this.tabElement.remove();
+    };
+
+    return novaFlowFrame;
+
+  })();
+  return novaFlow;
+});
+
+buzzlike.directive('novaFlow', function(novaFlow, stateManager) {
+  return {
+    restrict: 'C',
+    template: tC['/novaFlow/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.flow = new novaFlow(elem, scope);
+      scope.onResizeProgress(function() {
+        return scope.flow.recountFrames();
+      }, false);
+      scope.onResize(function() {
+        return scope.flow.recountFramesFinal();
+      }, false);
+      return scope.onFocus(function() {
+        if (scope.flow.currentStateTree != null) {
+          return stateManager.setTree(scope.flow.currentStateTree);
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaFlow', ".novaFlow .frameTabs {\n  position: absolute;\n  top: 8px;\n  left: 0;\n  right: 0;\n  height: 31px;\n  z-index: 1;\n}\n.novaFlow .frameTabs .novaFlowFrameTab {\n  position: absolute;\n}\n.novaFlow .frameTabs .novaFlowFrameTab .active {\n  z-index: 2;\n}\n.novaFlow .frameTabs .novaFlowBoxTabs {\n  margin-top: 8px;\n  float: left;\n  height: 32px;\n  bottom: 0;\n}\n.novaFlow .flowBoxes {\n  position: absolute;\n  top: 40px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n");

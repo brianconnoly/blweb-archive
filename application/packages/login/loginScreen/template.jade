@@ -1,0 +1,37 @@
+div.colorRotator
+
+    div.background
+        img(src="/resources/images/login/bg128blur.png")
+        div.colorOverlay
+
+    div.buzzLogo.logo
+        img.dark(src="/resources/images/login/dark.svg", width="40px", height="45px")
+        img.light(src="/resources/images/login/light.svg", width="40px", height="45px")
+        div.text buzzlike
+
+    div.modeFrame.default
+        div.loginButton(ng-repeat="item in networks") 
+        br
+        div.buzz
+            div.buzzRuLogo(ng-click="goBuzz()") Buzz!
+            div.buzzHelper Test helper
+
+    div.modeFrame.blLogin 
+    
+    div.modeFrame.newSocial
+        div.panel.loginNewSocial
+        div.panel.blLogin
+
+    div.modeFrame.loginRules
+
+    div.modeFrame.loginBuzzRu
+
+    div.bottomLinks
+
+        //- a.bottomLink {{localization.translate('about_buzz_project')}}
+        //- span |
+        //- a.bottomLink {{localization.translate('about_buzz_team')}}
+        //- span |
+        a.bottomLink(ng-click="showRules()", translate="'about_buzz_rules'")
+
+    div.version(style="color: black; font-size: 10px") Buzzlike FE version {{::fVersion}}

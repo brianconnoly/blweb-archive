@@ -1,0 +1,17 @@
+table
+    tr.head
+        td.arrow.left.flushMousedown(ng-click="goLeft()", colspan=2)
+        td.center(colspan=3) {{localization.translate(154 + current.month)[0]}} {{current.year}}
+        td.arrow.right.flushMousedown(ng-click="goRight()", colspan=2)
+    tr.week
+        td.day.dayname(translate="148", index="1")
+        td.day.dayname(translate="149", index="1")
+        td.day.dayname(translate="150", index="1")
+        td.day.dayname(translate="151", index="1")
+        td.day.dayname(translate="152", index="1")
+        td.day.dayname(translate="153", index="1")
+        td.day.dayname(translate="147", index="1")
+    tr.body(ng-repeat="week in days")
+        td.day.flushMousedown(ng-repeat="day in week", ng-class="{'active':day.active, 'selected':day.selected}", data-date="{{day.date}}", ng-click="pickDate(day, $event)") {{day.date}}
+
+div.removeBox(ng-click="hide()")

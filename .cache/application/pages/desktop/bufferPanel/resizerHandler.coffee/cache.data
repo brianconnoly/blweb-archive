@@ -1,0 +1,98 @@
+buzzlike.directive('resizerHandler', function(buffer, appsService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var body, bodyWid, dragInProgress, elem, setWidth;
+      scope.resizeHandler = elem = $(element);
+      body = $('body');
+      bodyWid = body.width();
+      scope.$watch(function() {
+        return buffer.width;
+      }, function(nVal) {
+        if (buffer.showed) {
+          scope.workarea.css('right', nVal);
+          scope.buffer.css('width', nVal);
+          if (!dragInProgress) {
+            scope.resizeHandler.css('right', nVal);
+            return scope.resizeHelper.css('width', nVal);
+          }
+        }
+      });
+      scope.$watch(function() {
+        return buffer.showed;
+      }, function(nVal) {
+        if (nVal) {
+          scope.workarea.css('right', buffer.width);
+          scope.buffer.css('width', buffer.width);
+          scope.resizeHandler.css('right', buffer.width);
+          return scope.resizeHelper.css('width', buffer.width);
+        } else {
+          scope.workarea.css('right', 0);
+          scope.buffer.css('width', 0);
+          scope.resizeHandler.css('right', 0);
+          return scope.resizeHelper.css('width', 0);
+        }
+      });
+      setWidth = function(width) {
+        if (buffer.showed === false) {
+          buffer.showed = true;
+        }
+        buffer.setWidth(width);
+        return scope.$apply();
+      };
+      dragInProgress = false;
+      elem.on('mousedown.bufferResize', function(e) {
+        dragInProgress = true;
+        scope.resizeHelper.addClass('visible');
+        body.on('mousemove.bufferResize', function(e) {
+          var currentWidth, rawWidth;
+          currentWidth = bodyWid - e.clientX;
+          rawWidth = currentWidth;
+          if (currentWidth >= 430) {
+            currentWidth = 430;
+          }
+          if (currentWidth <= 112) {
+            currentWidth = 112;
+          }
+          scope.resizeHelper.css('width', currentWidth);
+          elem.css('right', currentWidth);
+          if (currentWidth < 155) {
+            if (scope.bufferWidth !== 112) {
+              scope.bufferWidth = 112;
+              setWidth(scope.bufferWidth);
+            }
+            return;
+          }
+          if (currentWidth < 270) {
+            if (scope.bufferWidth !== 220) {
+              scope.bufferWidth = 220;
+              setWidth(scope.bufferWidth);
+            }
+            return;
+          }
+          if (currentWidth < 375) {
+            if (scope.bufferWidth !== 324) {
+              scope.bufferWidth = 324;
+              setWidth(scope.bufferWidth);
+            }
+            return;
+          }
+          if (scope.bufferWidth !== 430) {
+            scope.bufferWidth = 430;
+            setWidth(scope.bufferWidth);
+          }
+        });
+        return body.on('mouseup.bufferResize', function(e) {
+          dragInProgress = false;
+          body.off('mousemove.bufferResize');
+          body.off('mouseup.bufferResize');
+          scope.resizeHelper.removeClass('visible');
+          scope.resizeHelper.css('width', scope.bufferWidth);
+          scope.resizeHandler.css('right', scope.bufferWidth);
+          return appsService.desktopResized();
+        });
+      });
+      return true;
+    }
+  };
+});

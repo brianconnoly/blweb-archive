@@ -1,0 +1,6 @@
+div.actionsContainer
+    div.action(ng-repeat="action in actions", translate="action.phrase", ng-click="fireAction(action, $event)")
+
+div.dragItemsContainer(class="itemsCount_{{dragItems.length}}")
+    div.dragItem.novaItem.novaItemPreview(ng-repeat="item in dragItems")
+    div.helperText {{helperText}}

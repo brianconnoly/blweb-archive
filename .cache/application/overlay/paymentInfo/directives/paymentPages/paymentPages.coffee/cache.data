@@ -1,0 +1,34 @@
+buzzlike.directive("paymentPages", function(paymentInfoService, $compile) {
+  return {
+    restrict: "C",
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      scope.showPage = function(page) {
+        var newPage, newScope, prevPage;
+        prevPage = elem.find(".page");
+        paymentInfoService.showStep(page);
+        newScope = scope.$new();
+        newPage = $('<div>').addClass("page").addClass(page).append($compile(scope[page])(newScope)).css({
+          display: 'none'
+        }).appendTo(elem);
+        prevPage.fadeOut(function() {
+          var prevScope;
+          prevScope = angular.element(prevPage[0]).scope();
+          prevPage.remove();
+          if (prevScope != null) {
+            prevScope.$destroy();
+          }
+          return newPage.fadeIn();
+        });
+        if (!prevPage.length) {
+          return newPage.fadeIn();
+        }
+      };
+      setTimeout(function() {
+        return scope.showPage('introPage');
+      }, 0);
+      return true;
+    }
+  };
+});

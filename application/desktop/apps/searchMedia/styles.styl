@@ -1,0 +1,97 @@
+.appContainer.searchMedia
+    background: #75A843
+    color: #494949
+    
+    .scroll-bottom, .scroll-right
+        background: rgba(117,168,67,0.8) !important
+    
+    .body
+        overflow-y: auto
+        
+        .stepView
+            top 50px
+    
+    .paginator
+        .page
+            border-color: #75A843
+            &.active
+                background: #75A843
+    
+    .searchPanel
+        overflow: hidden
+        width 100%
+        padding-bottom 10px
+        
+        .searchBox
+            margin: 13px auto
+            
+            width 225px
+            height 23px
+
+            border 1px solid #494949
+            border-radius 3px
+            
+            transition width 0.2s ease
+            
+            &.long
+                width 400px
+            
+            .inputContainer
+                position: absolute
+                left 0
+                top 0
+                bottom 0
+                right 45px
+                border-right 1px solid #494949
+                
+                input
+                    width 100%
+                    height 100%
+                    
+                    padding: 0 8px
+                    
+                    box-modex border-box
+                    
+                    font-size 12px
+                    line-height 23px
+                    
+                    color: #494949
+                    set-placeholder-style color #999
+                    
+            .button
+                position absolute
+                right 0
+                bottom 0
+                top 0
+                width 44px
+                
+                text-align center
+                font-size 12px
+                line-height 23px
+                
+                cursor: pointer
+        
+        .helper
+            position: absolute
+            
+            left 0
+            right 0
+            bottom 5px
+            
+            text-align: center
+            font-size 10px
+            color #999999
+            
+            opacity: 0
+            transition opacity 0.2s ease
+            
+            &.active
+                opacity 1
+        
+        
+    .importActions
+        position: absolute
+        bottom 0
+        left 0
+        right 0
+        height 60px

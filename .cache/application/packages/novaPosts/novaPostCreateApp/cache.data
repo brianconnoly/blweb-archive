@@ -1,0 +1,21 @@
+tC['/novaPostCreateApp/template.jade'] = "<div class=\"novaPostCreate\"></div>";
+
+buzzlike.directive('novaPostCreateApp', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostCreateApp/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.session.noItem = true;
+      scope.session.maxWidth = 320;
+      scope.session.minWidth = 320;
+      scope.session.minHeight = 300;
+      scope.session.size.width = 320;
+      scope.session.size.height = 500;
+      scope.session.noMaximize = true;
+      scope.session.noAppControls = true;
+      return scope.fullView = true;
+    }
+  };
+});
+
+registerStyles('novaPostCreateApp', ".novaPostCreateApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: #fff;\n}\n.novaPostCreateApp .novaPostCreate {\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  overflow: hidden;\n}\n");

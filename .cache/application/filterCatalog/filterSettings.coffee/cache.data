@@ -1,0 +1,15 @@
+buzzlike.service('filterSettings', function(localStorageService) {
+  var get, save;
+  save = function(state, settings) {
+    var text;
+    text = JSON.stringify(settings);
+    return localStorageService.add('filterSettings_' + state, text);
+  };
+  get = function(state) {
+    return JSON.parse(localStorageService.get('filterSettings_' + state));
+  };
+  return {
+    save: save,
+    get: get
+  };
+});

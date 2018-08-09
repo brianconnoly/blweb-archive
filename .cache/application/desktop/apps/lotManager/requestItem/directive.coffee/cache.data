@@ -1,0 +1,154 @@
+buzzlike.directive('requestItem', function(desktopService, communityService, account, requestService, confirmBox, complexMenu) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var commProc, initAction;
+      commProc = scope.progress.add();
+      scope.communityItem = communityService.getById(scope.item.communityId, function() {
+        return scope.progress.finish(commProc);
+      });
+      scope.hasActions = function() {
+        var ref;
+        return (ref = scope.item.requestStatus) === 'returned' || ref === 'created';
+      };
+      initAction = function() {
+        scope.action = null;
+        if (scope.item.fromUserId === account.user.id && scope.item.requestStatus === 'returned') {
+          return scope.action = 'accept';
+        } else if (scope.item.fromUserId === account.user.id && scope.item.requestStatus === 'created') {
+          return scope.action = 'cancel';
+        } else if (scope.item.toUserId === account.user.id && scope.item.requestStatus === 'created') {
+          return scope.action = 'accept';
+        } else if (scope.item.toUserId === account.user.id && scope.item.requestStatus === 'returned') {
+          return scope.action = 'cancel';
+        }
+      };
+      initAction();
+      scope.cancel = function() {
+        return confirmBox.init({
+          phrase: 'lotManagerApp_confirm_cancel',
+          description: 'lotManagerApp_confirm_cancel_description'
+        }, function() {
+          var process;
+          process = scope.progress.add();
+          return requestService.cancel(scope.item.id, function() {
+            scope.progress.finish(process);
+            return initAction();
+          });
+        });
+      };
+      scope.reject = function() {
+        return confirmBox.init({
+          phrase: 'lotManagerApp_confirm_reject',
+          description: 'lotManagerApp_confirm_reject_description'
+        }, function() {
+          var process;
+          process = scope.progress.add();
+          return requestService.reject(scope.item.id, function() {
+            scope.progress.finish(process);
+            return initAction();
+          });
+        });
+      };
+      scope.accept = function() {
+        return confirmBox.init({
+          phrase: 'lotManagerApp_confirm_accept',
+          description: 'lotManagerApp_confirm_accept_description'
+        }, function() {
+          var process;
+          process = scope.progress.add();
+          return requestService.accept(scope.item.id, function() {
+            scope.progress.finish(process);
+            return initAction();
+          });
+        });
+      };
+      scope.rejectFromUser = function() {
+        return confirmBox.init({
+          phrase: 'lotManagerApp_confirm_rejectFromUser',
+          description: 'lotManagerApp_confirm_rejectFromUser_description'
+        }, function() {
+          var process;
+          process = scope.progress.add();
+          return requestService.rejectByUserId({
+            userId: scope.item.fromUserId,
+            lotId: scope.item.lotId
+          }, function(request) {
+            scope.progress.finish(process);
+            return initAction();
+          });
+        });
+      };
+      scope["return"] = function() {
+        return desktopService.launchApp('requestMaster', {
+          requestId: scope.item.id
+        });
+      };
+      return scope.showMenu = function(e) {
+        var actions;
+        actions = [];
+        if (scope.item.toUserId === account.user.id) {
+          switch (scope.item.requestStatus) {
+            case 'created':
+              actions.push({
+                phrase: 'request_accept',
+                action: scope.accept
+              });
+              actions.push({
+                phrase: 'request_reject',
+                action: scope.reject
+              });
+              actions.push({
+                phrase: 'request_return',
+                action: scope["return"]
+              });
+              actions.push({
+                phrase: 'request_rejectFromUser',
+                action: scope.rejectFromUser
+              });
+              break;
+            case 'returned':
+              actions.push({
+                phrase: 'request_cancel',
+                action: scope.cancel
+              });
+          }
+        } else if (scope.item.fromUserId === account.user.id) {
+          switch (scope.item.requestStatus) {
+            case 'returned':
+              actions.push({
+                phrase: 'request_accept',
+                action: scope.accept
+              });
+              actions.push({
+                phrase: 'request_reject',
+                action: scope.reject
+              });
+              actions.push({
+                phrase: 'request_return',
+                action: scope["return"]
+              });
+              break;
+            case 'created':
+              actions.push({
+                phrase: 'request_cancel',
+                action: scope.cancel
+              });
+          }
+        }
+        if (actions.length < 1) {
+          return;
+        }
+        return complexMenu.show([
+          {
+            type: 'actions',
+            items: actions
+          }
+        ], {
+          top: $(e.target).offset().top + 20,
+          left: $(e.target).offset().left - 180
+        });
+      };
+    }
+  };
+});

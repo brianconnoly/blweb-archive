@@ -1,0 +1,25 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaScreenPickerCommunityIds/template.jade'] = "<div class=\"screenBar\"> <div translate=\"'novaScreen_back'\" ng-click=\"backScreen()\" class=\"backScreen\"></div> <div translate=\"'novaScreenPickerCommunityIds_helper'\" class=\"novaScreenTextHelper\"></div> </div> <div class=\"projectsList\"> <div ng-repeat=\"item in communities\" nova-item-preview-type=\"list\" ng-click=\"pick(item.id)\" ng-class=\"{'active':picked(item.id)}\" class=\"novaItem novaItemPreview\"></div> </div>";
+
+buzzlike.directive('novaScreenPickerCommunityIds', function(communityService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaScreenPickerCommunityIds/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.communities = communityService.getByIds(scope.communityIds);
+      scope.pick = function(id) {
+        if (indexOf.call(scope.postParams.pickedCommunities, id) < 0) {
+          return scope.postParams.pickedCommunities.push(id);
+        } else {
+          return removeElementFromArray(id, scope.postParams.pickedCommunities);
+        }
+      };
+      return scope.picked = function(id) {
+        return indexOf.call(scope.postParams.pickedCommunities, id) >= 0;
+      };
+    }
+  };
+});
+
+registerStyles('novaScreenPickerCommunityIds', ".novaScreenPickerCommunityIds {\n  overflow-y: auto;\n  padding-top: 80px;\n}\n.novaScreenPickerCommunityIds.picked {\n  padding-top: 140px;\n}\n.novaScreenPickerCommunityIds .projectsList .novaItem {\n  cursor: pointer;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n}\n.novaScreenPickerCommunityIds .projectsList .novaItem.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaScreenPickerCommunityIds .projectsList .novaItemPreview * {\n  pointer-events: none;\n}\n");

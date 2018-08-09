@@ -1,0 +1,164 @@
+position: absolute
+transform translate3d(0,0,0) scale(1)
+min-width: 100px
+min-height: 50px
+
+border-radius 11px
+background: #e0e0e0 //#f2f2f2
+border 1px solid rgba(0,0,0,0.15)
+
+transition box-shadow 0.2s ease
+box-shadow 0 0 10px 0px rgba(0,0,0,0.5)
+opacity 1
+
+&.maximized
+    border-radius 0
+
+.novaAppFrame
+    border-radius: 10px;
+    overflow: hidden;
+    transform: translate3d(0,0,0);
+
+&.styleWhite
+    color: #fff
+    .bg06
+        background: rgba(255, 255, 255, 0.6)
+    .bg03
+        background: rgba(255, 255, 255, 0.6)
+    .bg01
+        background: rgba(255, 255, 255, 0.1)
+    .bgHover02:hover
+        background: rgba(255, 255, 255, 0.2)
+    .border03
+        border-color rgba(255, 255, 255, 0.3)
+    .borderHover035:hover
+        border-color rgba(255, 255, 255, 0.35)
+
+&.styleBlack
+    color: #000
+    .bg06
+        background: rgba(0, 0, 0, 0.3)
+    .bg03
+        background: rgba(0, 0, 0, 0.6)
+    .bg01
+        background: rgba(0, 0, 0, 0.1)
+    .bgHover02:hover
+        background: rgba(0, 0, 0, 0.2)
+    .border03
+        border-color rgba(0, 0, 0, 0.3)
+    .borderHover035:hover
+        border-color rgba(0, 0, 0, 0.35)
+
+&.justCreated
+    pointer-events none
+    opacity 0
+    transition all 0.2s ease
+
+    &.created
+        opacity 1
+
+&.active
+    box-shadow 0 0 15px 0px rgba(0,0,0,0.7)
+
+&.hideAnimationStart
+    pointer-events none
+    transition all 0.2s ease
+    opacity 1
+
+    &.hideAnimation
+        opacity 0
+
+&.withLeftPanel
+    .novaAppItem
+        left 25px
+
+.novaAppLeftPanel
+    position absolute
+    width 210px
+    top 0px
+    bottom 0
+    left 0
+    transition all 0.2s ease
+
+.workarea
+    position: absolute
+    left 210px
+    right 0
+    bottom 0
+    top 0
+    transition all 0.2s ease
+
+&.noLeftPanel
+    .novaAppLeftPanel
+        width 50px
+
+    .workarea
+        left 50px
+
+.novaAppResize
+    position: absolute
+    z-index 10
+
+    &.top
+        top -5px
+        height 10px
+        left 0
+        right 0
+
+        cursor: ns-resize
+
+    &.bottom
+        bottom -5px
+        height 10px
+        left 0
+        right 0
+
+        cursor: ns-resize
+
+    &.left
+        left -5px
+        width 10px
+        top 0
+        bottom 0
+
+        cursor: ew-resize
+
+    &.right
+        right -5px
+        width 10px
+        top 0
+        bottom 0
+
+        cursor ew-resize
+
+    &.topleft
+        width 20px
+        height 20px
+        top -10px
+        left -10px
+
+        cursor: nwse-resize
+
+    &.topright
+        width 20px
+        height 20px
+        top -10px
+        right -10px
+
+        cursor: nesw-resize
+
+    &.bottomright
+        width 20px
+        height 20px
+        right -10px
+        bottom -10px
+
+        cursor: nwse-resize
+
+    &.bottomleft
+        width 20px
+        height 20px
+        left -10px
+        bottom -10px
+
+        cursor: nesw-resize

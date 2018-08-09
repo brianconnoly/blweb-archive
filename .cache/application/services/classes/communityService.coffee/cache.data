@@ -1,0 +1,81 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('communityService', function(itemService, $rootScope, account, actionsService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'community';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      actionsService.registerParser('community', function(item) {
+        var acc, i, len, ref, ref1, types;
+        types = [];
+        ref = account.user.accounts;
+        for (i = 0, len = ref.length; i < len; i++) {
+          acc = ref[i];
+          if (acc.writableCommunities == null) {
+            continue;
+          }
+          if (ref1 = item.id, indexOf.call(acc.writableCommunities, ref1) >= 0) {
+            types.push('myCommunity');
+            break;
+          }
+        }
+        if (types.length === 0) {
+          types.push('notMyCommunity');
+        }
+        return types;
+      });
+    }
+
+    classEntity.prototype.getByPublicId = function(data, cb) {
+      return this.call('getByPublicId', data, (function(_this) {
+        return function(result) {
+          if (result != null) {
+            return typeof cb === "function" ? cb(_this.handleItem(result)) : void 0;
+          }
+        };
+      })(this));
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var ref;
+      if (!item.photo || ((ref = item.photo) === 'http://vk.com/resources/images/community_200.gif')) {
+        item.photo = $rootScope.defaultCommunityImage;
+      }
+      item.photo = $rootScope.proxyImage(item.photo);
+      return classEntity.__super__.handleItem.call(this, item);
+    };
+
+    classEntity.prototype.loadCommunities = function(cb) {
+      return rpc.call('user.refreshCommunities', (function(_this) {
+        return function(user) {
+          if (user.err != null) {
+            if (typeof cb === "function") {
+              cb(user);
+            }
+            return;
+          }
+          return account.update(user, function() {
+            var acc, i, len, ref, toUpdate;
+            toUpdate = [];
+            ref = user.accounts;
+            for (i = 0, len = ref.length; i < len; i++) {
+              acc = ref[i];
+              toUpdate = toUpdate.concat(acc.writableCommunities);
+            }
+            return _this.getByIds(toUpdate, cb);
+          });
+        };
+      })(this));
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

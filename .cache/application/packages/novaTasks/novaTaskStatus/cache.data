@@ -1,0 +1,157 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaTaskStatus/template.jade'] = "<div class=\"analogStatus\"></div> <div class=\"novaLoader\"></div>";
+
+buzzlike.directive('novaTaskStatus', function(account, taskService, localization, rpc) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTaskStatus/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var analogStatus, elem, exStatus, exStatusElem, loaderPlaced, newButton, novaLoader, recountButtons, userEditor;
+      elem = $(element);
+      analogStatus = $(elem.find('.analogStatus')[0]);
+      novaLoader = $(elem.find('.novaLoader')[0]);
+      novaLoader.detach();
+      scope.state = 'status';
+      scope.actions = [];
+      scope.inProgress = false;
+      exStatus = null;
+      exStatusElem = null;
+      loaderPlaced = false;
+      newButton = function(id) {
+        var button;
+        button = $('<div>', {
+          "class": 'novaButton ' + id,
+          html: localization.translate('task_' + id)
+        });
+        button.on('click', function(e) {
+          scope.fireAction(id);
+          return scope.$apply();
+        });
+        return button;
+      };
+      userEditor = function(user, project) {
+        var i, len, member, ref, ref1;
+        if (!((project != null ? project.type : void 0) === 'project')) {
+          return false;
+        }
+        if (project.userId === user.id) {
+          return true;
+        }
+        ref = project.members;
+        for (i = 0, len = ref.length; i < len; i++) {
+          member = ref[i];
+          if (member.userId === user.id) {
+            if ((ref1 = member.role) === 'mainEditor' || ref1 === 'editor') {
+              return true;
+            }
+            break;
+          }
+        }
+        return false;
+      };
+      recountButtons = function(loader) {
+        var hasButtons, newStatus, ref, ref1, ref2;
+        if (loader == null) {
+          loader = false;
+        }
+        scope.actions.length = 0;
+        if (exStatus === scope.item.status && !loader) {
+          return;
+        }
+        if (loaderPlaced) {
+          novaLoader.detach();
+          loaderPlaced = false;
+        }
+        newStatus = $('<div>', {
+          "class": 'statusBlock ' + (exStatus == null ? '' : 'right')
+        });
+        hasButtons = false;
+        if (!loader) {
+          switch (scope.item.status) {
+            case 'created':
+            case null:
+              if (scope.item.users.length === 0) {
+                newStatus.append(newButton('start'));
+                hasButtons = true;
+              } else if (ref = account.user.id, indexOf.call(scope.item.users, ref) >= 0) {
+                newStatus.append(newButton('start'));
+                hasButtons = true;
+              }
+              break;
+            case 'started':
+              if (ref1 = account.user.id, indexOf.call(scope.item.users, ref1) >= 0) {
+                newStatus.append(newButton('finish'));
+                hasButtons = true;
+              }
+              break;
+            case 'finished':
+              if (account.user.id === scope.item.userId || userEditor(account.user, scope.appItem)) {
+                newStatus.append(newButton('reject'));
+                newStatus.append(newButton('accept'));
+                hasButtons = true;
+              }
+              break;
+            case 'rejected':
+              if (ref2 = account.user.id, indexOf.call(scope.item.users, ref2) >= 0) {
+                newStatus.append(newButton('restart'));
+                hasButtons = true;
+              }
+          }
+        }
+        if (loader) {
+          loaderPlaced = true;
+          hasButtons = true;
+          newStatus.append(novaLoader);
+        }
+        if (!hasButtons) {
+          newStatus.append($('<div>', {
+            "class": 'taskStatus',
+            html: localization.translate('taskItem_status_' + scope.item.status)
+          }));
+        }
+        analogStatus.append(newStatus);
+        if (exStatusElem != null) {
+          (function(exElm) {
+            exElm.addClass('left');
+            return setTimeout(function() {
+              return exElm.remove();
+            }, 200);
+          })(exStatusElem);
+        }
+        exStatusElem = newStatus;
+        exStatus = scope.item.status;
+        return setTimeout(function() {
+          return newStatus.removeClass('right');
+        }, 0);
+      };
+      scope.$watch('item.status', function() {
+        return recountButtons();
+      });
+      scope.$watch('item.users', function() {
+        return recountButtons();
+      }, true);
+      return scope.fireAction = function(action) {
+        scope.actions.length = 0;
+        recountButtons(true);
+        if (action === 'restart') {
+          action = 'start';
+        }
+        action += 'ed';
+        rpc.call({
+          method: 'task.setStatus',
+          data: {
+            taskId: scope.item.id,
+            status: action
+          },
+          error: function() {
+            return recountButtons(true);
+          }
+        });
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaTaskStatus', ".novaTaskStatus .novaButton {\n  margin: 4px;\n  float: right;\n}\n.novaTaskStatus .novaButton.start {\n  background: #69c74f;\n}\n.novaTaskStatus .novaButton.accept {\n  background: #46b029;\n}\n.novaTaskStatus .novaButton.reject {\n  background: #bd4f4f;\n}\n.novaTaskStatus .novaButton.restart {\n  background: #bd4f4f;\n}\n.novaTaskStatus .taskStatus {\n  line-height: 30px;\n  padding: 0 10px;\n  font-size: 14px;\n  color: #454545;\n}\n.novaTaskStatus .novaLoader {\n  display: block;\n  float: right;\n}\n.novaTaskStatus.inProgress .analogStatus {\n  left: -100%;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaTaskStatus.inProgress .status {\n  display: none;\n}\n.novaTaskStatus.inProgress .novaLoader {\n  display: block;\n}\n.novaTaskStatus .analogStatus {\n  padding: 0 10px;\n  font-size: 14px;\n  color: #454545;\n}\n.novaTaskStatus .analogStatus .statusBlock {\n  position: relative;\n  right: 0;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTaskStatus .analogStatus .statusBlock.right {\n  position: absolute;\n  width: 250px;\n  right: -100%;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaTaskStatus .analogStatus .statusBlock.left {\n  position: absolute;\n  width: 250px;\n  right: 100%;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n");

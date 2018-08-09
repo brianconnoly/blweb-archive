@@ -1,0 +1,32 @@
+height 30px
+width 90px
+border-radius 5px
+
+&:after
+    content: ""
+    position absolute
+    border-bottom 1px solid #eee
+    width 70px
+    left 10px
+    top 15px
+
+.pickerHandler
+    position: absolute
+    top 10px
+    width 10px
+    height 10px
+    border-radius 10px
+    background: #999
+    cursor: pointer
+    z-index 1
+
+    box-shadow 0 0 0px 0 rgba(0,0,0,0.3)
+    transition background 0.1s ease
+
+    &:hover
+        box-shadow 0 0 3px 0 rgba(0,0,0,0.3)
+        background #545454
+
+    &:active
+        box-shadow 0 0 1px 0 rgba(0,0,0,0.3)
+        background: #666

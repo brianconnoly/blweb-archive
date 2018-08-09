@@ -1,0 +1,42 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('userGroupService', function(itemService, account, rpc, novaWizard, localization, novaDesktop) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'userGroup';
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      return novaWizard.register('userGroup', {
+        type: 'simple',
+        action: (function(_this) {
+          return function() {
+            return _this.create({
+              type: 'userGroup',
+              name: localization.translate('userGroup_defaultTitle')
+            }, function(userGroup) {
+              return novaDesktop.launchApp({
+                app: 'novaStreamsApp',
+                item: {
+                  type: 'streams',
+                  id: account.user.id
+                }
+              });
+            });
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

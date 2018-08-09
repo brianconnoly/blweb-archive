@@ -1,0 +1,60 @@
+.novaScrollerPage
+    & > .novaItem
+        position relative
+        top auto
+        left auto
+        bottom auto
+        right auto
+
+        & > .backFace
+            display none
+
+.novaFrameContents.novaMultiselect.active > .novaItem.selected
+    box-shadow: 10px 0 0 -5px #3496F2 inset
+
+.novaFrameContents.novaMultiselect > .novaItem.selected
+    box-shadow: 10px 0 0 -5px #eee inset
+
+.novaMultiselect.active .novaMultiselect > .novaItem.selected
+    box-shadow: 0 0 0 4px #eee
+
+.novaFrameTopBar
+    .addTask
+        cursor pointer
+        float right
+        width 30px
+        height 30px
+        text-align center
+        line-height 30px
+        font-size 25px
+        z-index 2
+
+        transform rotateZ(0deg)
+        transition transform 0.2s ease
+
+        &.active
+            transform rotateZ(45deg)
+
+    .showAccepted
+        float right
+        cursor pointer
+        line-height 30px
+        font-size 14px
+        z-index 2
+        opacity 0.5
+        transition all 0.2s ease
+
+        &.active
+            opacity 1
+
+.novaFrameContents
+    overflow-y auto
+.novaTaskEdit
+    position absolute
+    top 0px
+    left 0
+    right 0
+    z-index 1
+    background #fff
+
+    box-shadow 0 5px 5px 0px rgba(0,0,0,0.15);

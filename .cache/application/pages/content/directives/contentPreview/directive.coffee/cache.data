@@ -1,0 +1,326 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive("contentPreview", function(lotSettings, operationsService, $compile, $filter, contentService, localization, requestService, $rootScope) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var makeContentIds, render;
+      render = function() {
+        var containerParentType, containerTypes, ctx, duration, el, elem, i, ids, img, info, item, items, len, newScope, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, sellableTypes, template, textContent, titleCenter, url, urlCenter, views;
+        $(element).empty();
+        element.addClass(scope.item.type);
+        if (scope.item.albumType) {
+          element.addClass(scope.item.albumType);
+        }
+        switch (scope.item.type) {
+          case 'folder':
+            ids = [];
+            items = contentService.getContentByIdList(scope.item.contentIds);
+            for (i = 0, len = items.length; i < len; i++) {
+              item = items[i];
+              ids.push(item.id);
+            }
+            scope.ctx = ctx = ids != null ? ids.slice(-4) : void 0;
+            ctx.reverse();
+            el = $compile('<div class="mini preloadItem" ng-repeat="id in ctx"><div class="contentPreview"></div></div><div class="status" ng-show="item.importInProgress"></div>')(scope);
+            element.append(el);
+            break;
+          case 'image':
+            element.append("<img src='" + proxyPrefix + scope.item.thumbnail + "'/>");
+            break;
+          case 'url':
+            url = urlCropper(scope.item.value, 39, 'middle');
+            urlCenter = '';
+            titleCenter = '';
+            if (url.length < 13) {
+              urlCenter = 'center';
+            }
+            if (scope.item.title.length < 13) {
+              titleCenter = 'center';
+            }
+            template = '<div class="site-urlcontainer"> <div class="site-title"> <div class="site-icon"></div><div class="content" speed="30">' + url + '</div> </div> <div class="site-description">' + scope.item.title + '</div> </div>';
+            element.append($compile(template)(scope));
+            break;
+          case 'text':
+            textContent = '';
+            if (scope.item.value) {
+              textContent = scope.item.value.substr(0, 200).replace(/\n/g, "<br>");
+              if (scope.item.value.length > 200) {
+                textContent += "...";
+              }
+            } else {
+              textContent = localization.translate("contentPreview_newText");
+            }
+            element.append('<div class="text-preview">' + textContent + '</div>');
+            if ($(element).parents('.postEntity').length < 5) {
+              element.append('<div class="text-footer"><div class="counter">' + localization.translate("textEditor_symbols") + ': ' + scope.item.value.length + '</div><div class="triangle"></div></div>');
+            }
+            if (scope.item.locked && !$(element).parents('.postEntity').length) {
+              element.append('<div class="locked"></div>');
+            }
+            break;
+          case 'video':
+            views = scope.item.views * 1;
+            if (views > 10000000) {
+              views = views / 1000000 | 0;
+              views = $filter("formatNumber")(views);
+              views += 'M';
+            } else if (views > 100000) {
+              views = views / 1000 | 0;
+              views = $filter("formatNumber")(views);
+              views += 'k';
+            } else {
+              views = $filter("formatNumber")(scope.item.views) || "-";
+            }
+            duration = $filter("secondsToHumanTime")(scope.item.duration);
+            template = "<div class='top views'>" + views + "</div> <div class=duration>" + duration + "</div> <div class='title bottom videoName'> <span class='videoNameSpan marquee' speed=30>" + scope.item.title + "</span> </div> <img src='" + proxyPrefix + scope.item.thumbnail + "'/> <div class='play_button'></div>";
+            element.append($compile(template)(scope));
+            break;
+          case 'audio':
+            element.append("<img class='sign' src='/resources/images/icons/whiteNote.png'> <div class='track-name'> <p class='head'>" + ((ref = scope.item.title) != null ? ref.slice(0, 45) : void 0) + "</p> <p class='body'>" + ((ref1 = scope.item.artist) != null ? ref1.slice(0, 45) : void 0) + "</p> </div>");
+            break;
+          case 'album':
+            element.removeClass("album");
+            element.css("transition-duration", "0");
+            if (scope.item.albumType === 'video') {
+              element.append('<div class="play_button"></div>');
+            }
+            element.append('<div class="album_label">' + scope.item.title + '</div>');
+            if (scope.item.thumbnail && scope.item.thumbnail !== "https://vk.com/resources/images/x_noalbum.png") {
+              elem = $(element);
+              img = new Image();
+              img.src = $rootScope.proxyPrefix + scope.item.thumbnail;
+              img.onload = function() {
+                var css, dest, hei_diff, nhei, nwid, pr2, prop, wid_diff;
+                prop = img.width / img.height;
+                dest = elem.width() / elem.height();
+                if (prop >= dest) {
+                  pr2 = elem.height() / img.height;
+                  nwid = img.width * pr2;
+                  wid_diff = nwid - elem.width();
+                  css = {
+                    'height': '100%',
+                    'width': 'auto',
+                    'left': '-' + (Math.floor(wid_diff / 2) + 1) + 'px',
+                    'top': ''
+                  };
+                }
+                if (prop < dest) {
+                  pr2 = elem.width() / img.width;
+                  nhei = img.height * pr2;
+                  hei_diff = nhei - elem.height();
+                  css = {
+                    'width': '100%',
+                    'height': 'auto',
+                    'top': '-' + (Math.floor(hei_diff / 2) + 1) + 'px',
+                    'left': ''
+                  };
+                }
+                return element.css({
+                  "background-image": "url(" + proxyPrefix + scope.item.thumbnail + ")",
+                  "background-size": css.width + " " + css.height,
+                  "background-position": css.left + " " + css.top
+                });
+              };
+            } else {
+              element.addClass("album");
+            }
+            break;
+          case 'comb':
+            makeContentIds(scope.item.contentIds);
+            break;
+          case 'post':
+            if (((ref2 = scope.post) != null ? ref2.contentIds : void 0) != null) {
+              makeContentIds(scope.post.contentIds);
+              if (scope.post.readyToSchedule === false) {
+                scope.error = true;
+              }
+            }
+            if (scope.post.scheduled) {
+              if ($(element).parents(".selectedPanel").length) {
+                info = $compile('<div schedule-info="' + scope.post.id + '" class="schedule-info"></div>')(scope.$new());
+                element.append(info);
+              }
+            }
+            if (scope.post.onSale || scope.post.requestStatus || scope.lot) {
+              element.append('<div class="requestStatus"> <div class="corner"></div> <div class="icon"></div> </div>');
+              info = $compile('<div request-info="' + scope.post.id + '" class="schedule-info"></div>')(scope.$new());
+              element.append(info);
+            }
+            break;
+          case 'schedule':
+            if (((ref3 = scope.post) != null ? ref3.contentIds : void 0) != null) {
+              makeContentIds(scope.post.contentIds);
+              if (scope.post.readyToSchedule === false) {
+                scope.error = true;
+              }
+            }
+            if (scope.item.scheduleType === 'request' || scope.item.scheduleType === 'requestRepost') {
+              scope.item.remove = function() {
+                return true;
+              };
+              if (scope.item.requestStatus === 'rejected') {
+                scope.item.remove = function() {
+                  operationsService.requestOperation({
+                    action: "remove",
+                    entities: [scope.item]
+                  });
+                  return true;
+                };
+              }
+            }
+            break;
+          case 'lot':
+            if (((ref4 = scope.post) != null ? ref4.contentIds : void 0) != null) {
+              makeContentIds(scope.post.contentIds);
+              if (scope.post.readyToSchedule === false) {
+                scope.error = true;
+              }
+            }
+            if (scope.post) {
+              element.append('<div class="requestStatus"> <div class="corner"></div> <div class="icon"></div> </div>');
+              if (scope.post.requestStatus || scope.post.requestsTotal) {
+                info = $compile('<div request-info="' + scope.post.id + '" class="schedule-info"></div>')(scope.$new());
+                element.append(info);
+              } else if (scope.post.scheduled) {
+                info = $compile('<div schedule-info="' + scope.post.id + '" class="schedule-info"></div>')(scope.$new());
+                element.append(info);
+              }
+            } else if (scope.item.lotType === 'content') {
+              newScope = scope.$new();
+              newScope.item = operationsService.get(scope.item.entityType, scope.item.entityId);
+              element.append($compile('<div class="contentPreview"></div>')(newScope));
+            }
+        }
+        if (scope.item.deleted) {
+          template = '<img class="deleted-mark restoreDeleted" src="https://cdn3.iconfinder.com/data/icons/streamline-icon-set-free-pack/48/Streamline-70-256.png"/>';
+          el = $compile(template)(scope);
+          element.append(el);
+          return false;
+        }
+        sellableTypes = ['folder', 'image', 'text', 'video', 'audio', 'comb', 'post'];
+        containerTypes = ['folder', 'schedule', 'comb', 'post', 'lot'];
+        containerParentType = (ref5 = (ref6 = scope.$parent.item) != null ? ref6.type : void 0, indexOf.call(containerTypes, ref5) >= 0);
+        if (((ref7 = scope.$parent.item) != null ? ref7.lotType : void 0) === 'content') {
+          containerParentType = false;
+        }
+        if (scope.item.onSale && scope.item.lotId && !containerParentType && (ref8 = scope.item.type, indexOf.call(sellableTypes, ref8) >= 0)) {
+          scope.lot = operationsService.get('lot', scope.item.lotId);
+          template = '<div sale-info="' + scope.item.lotId + '" class="sale-info"></div>';
+          return element.append($compile(template)(scope));
+        }
+      };
+      makeContentIds = function(collection) {
+        var cat, cnt, el, i, item, itemId, len, name, newscope, preview, ref, single, template;
+        scope.preview = preview = [];
+        cnt = 0;
+        for (name in collection) {
+          cat = collection[name];
+          if (cnt > 4) {
+            break;
+          }
+          if (cat.length > 0) {
+            ref = cat.slice().reverse();
+            for (i = 0, len = ref.length; i < len; i++) {
+              itemId = ref[i];
+              item = contentService.getContentById(itemId);
+              if (cnt > 3) {
+                break;
+              }
+              preview.push(itemId);
+              cnt++;
+            }
+          }
+        }
+        template = '';
+        if (collection.image.length > 0) {
+          scope.shield = collection.image[0];
+          newscope = scope.$new();
+          newscope.id = scope.shield;
+          template = '<div class="shield preloadItem" type="content"> <div class="contentPreview"></div> </div>';
+          el = $compile(template)(newscope);
+          element.append(el);
+        }
+        if (cnt > 0) {
+          single = '';
+          if (scope.preview.length === 1) {
+            single = 'single ';
+          }
+          template = '<div class="mini preloadItem" ng-repeat="id in preview" type="content" ng-class="{\'single\':preview.length == 1}"> <div class="contentPreview"></div> </div>';
+          el = $compile(template)(scope);
+          return element.append(el);
+        }
+      };
+      scope.$watch('item', function() {
+        var ref;
+        if (((ref = scope.item) != null ? ref.type : void 0) != null) {
+          return render();
+        }
+      }, true);
+      scope.$watch('post', function() {
+        var ref;
+        if (((ref = scope.item) != null ? ref.type : void 0) != null) {
+          return render();
+        }
+      }, true);
+      return true;
+    }
+  };
+}).directive('isolatedItem', function(contentService) {
+  return {
+    scope: true,
+    link: function(scope, element, attrs) {
+      return true;
+    }
+  };
+}).directive('preloadItem', function(contentService, combService, postService, lotService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var makePreview;
+      makePreview = function() {
+        var id, type;
+        id = scope.id != null ? scope.id : scope.iterator.id;
+        type = 'content';
+        if (attrs.type != null) {
+          type = attrs.type;
+        }
+        switch (type) {
+          case 'lot':
+            scope.item = lotService.lotsById[id];
+            return scope.post = postService.getById(scope.item.postId);
+          case 'comb':
+            return scope.item = combService.getCombById(id);
+          case 'post':
+            scope.post = postService.getById(id);
+            return scope.item = scope.post;
+          default:
+            return scope.item = contentService.getContentById(id);
+        }
+      };
+      makePreview();
+      return scope.$watch('id', function(nVal, oldVal) {
+        if (nVal !== oldVal) {
+          return makePreview();
+        }
+      });
+    }
+  };
+}).directive("itemSelector", function($rootScope) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      return element.bind('click', function(e) {
+        if ($rootScope.selected.indexOf(scope.item) < 0) {
+          $rootScope.selected.push(scope.item);
+          scope.$apply();
+        } else {
+          $rootScope.removeSel(scope.item);
+          scope.$apply();
+        }
+        e.stopPropagation();
+        return false;
+      });
+    }
+  };
+});

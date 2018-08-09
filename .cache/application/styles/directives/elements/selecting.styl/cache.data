@@ -1,0 +1,55 @@
+.starcraft {
+  position: absolute;
+  display: none;
+  border: 1px solid rgba(242,242,242,0.8);
+  background: rgba(230,230,230,0.5);
+  pointer-events: none;
+}
+.starcraft.visible {
+  display: block;
+}
+.selectableItem {
+  -webkit-box-shadow: 0 0 0 0px #fcee21;
+  box-shadow: 0 0 0 0px #fcee21;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+.selectableItem:hover {
+  cursor: pointer;
+}
+.selectableItem:hover .shield,
+.selectableItem:hover .status {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.selectableItem:hover .removeBox {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.selectableItem.transparent {
+  opacity: 0.2;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+  filter: alpha(opacity=20);
+}
+.selectableItem.selected {
+  -webkit-box-shadow: 0 0 0 4px #fcee21;
+  box-shadow: 0 0 0 4px #fcee21;
+}
+.selectableItem.selected > div {
+  opacity: 0.7;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+  filter: alpha(opacity=70);
+}
+.selectableItem.selected .shield {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.selectableItem.selected .status {
+  display: none;
+}
+.timeline .selectableItem.selected {
+  z-index: 999 !important;
+}

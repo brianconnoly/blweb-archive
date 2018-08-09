@@ -1,0 +1,80 @@
+buzzlike.directive("asyncUpload", function(env, $rootScope, uploadService) {
+  return {
+    restrict: 'C',
+    link: function($scope, element, attrs) {
+      var elem, fader, getFileList, rFader;
+      elem = $(element[0]);
+      fader = elem.find('.uploadFader');
+      rFader = fader.children('.realFader');
+      if (window.FileReader == null) {
+        return false;
+      }
+      elem.bind('dragenter', function(e) {
+        var types;
+        if (e.dataTransfer.types.indexOf("Files") < 0) {
+          return false;
+        }
+        fader.removeClass("wrong-files");
+        types = getFileList(e.dataTransfer);
+        if (types !== false) {
+          fader.find('.block.active').removeClass('active');
+          if (types.png) {
+            fader.find('.block.png').addClass('active');
+          }
+          if (types.jpg) {
+            fader.find('.block.jpg').addClass('active');
+          }
+          if (types.gif) {
+            fader.find('.block.gif').addClass('active');
+          }
+          if (types.text) {
+            fader.find('.block.text').addClass('active');
+          }
+        }
+        return $(this).addClass("uploadActive");
+      });
+      rFader.bind('dragleave', function(e) {
+        return elem.removeClass("uploadActive");
+      }).bind('dragover', function(e) {
+        e.stopPropagation();
+        return e.preventDefault();
+      }).bind('drop', function(e) {
+        elem.removeClass("uploadActive");
+        if (e.dataTransfer.types.indexOf("Files") < 0 || fader.hasClass("wrong-files")) {
+          return false;
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        uploadService.upload(e.dataTransfer);
+        return $scope.$apply();
+      });
+      return getFileList = function(transferObject) {
+        var i, item, len, ref, result;
+        if (transferObject.items) {
+          result = {};
+          ref = transferObject.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            if (item.type === '') {
+              result.folder = true;
+            }
+            if (item.type === 'image/png') {
+              result.png = true;
+            }
+            if (item.type === 'image/jpeg') {
+              result.jpg = true;
+            }
+            if (item.type === 'image/gif') {
+              result.gif = true;
+            }
+            if (item.type === 'text/plain') {
+              result.text = true;
+            }
+          }
+          return result;
+        }
+        return false;
+      };
+    }
+  };
+});

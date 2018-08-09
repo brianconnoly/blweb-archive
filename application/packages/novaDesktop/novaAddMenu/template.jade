@@ -1,0 +1,7 @@
+div(ng-click="hideAddMenu($event)")
+    div.novaAddMenuWindow
+        div.menuItem(
+            ng-repeat="wizard in ::wizards", 
+            translate="'wizardTitle_' + wizard", 
+            translate-title="'wizardDescription_' + wizard", 
+            ng-click="fire(wizard)")

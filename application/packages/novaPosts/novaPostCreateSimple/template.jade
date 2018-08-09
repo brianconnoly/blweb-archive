@@ -1,0 +1,40 @@
+div.novaPostEditor
+    
+    div.postHelper.novaItemScope.novaItem.novaItemDroppable(
+        nova-item-object="postParams.newPost")
+        div.newPostText.novaEditableDiv(
+            ng-if="postParams.newPost.contentIds.text.length < 1"
+            ng-model="postParams.newPostText", 
+            placeholder-text="'novaPostCreate_new_post_text'",
+            pasted-items="handlePastedItems")
+        div.novaItem(
+            ng-repeat="id in postParams.newPost.contentIds.text"
+            nova-item-id="id"
+            nova-item-type="text")
+            div.newPostText.novaEditableDiv(
+                ng-model="item.value"
+                ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }"
+                ng-change="saveText(item)"
+                pasted-items="handlePastedItems")
+            
+        div.novaPostContent
+    
+    div.postPreview(ng-if="postParams.postId")
+        div.novaItemScope.novaItem.novaItemPreview(
+            nova-item-id="postParams.postId"
+            nova-item-type="post"
+            nova-item-preview-type="timeline")
+    
+    div.addMenu
+        div.addItems(ng-click="addItems($event)") +
+        div.addItemsDoubler(ng-click="addItems($event)", translate="'novaPostCreate_addItems'")
+        div.addItemsShortcut.addItemsUpload(ng-click="addItemsUpload()") U
+        div.addItemsShortcut.addItemsStorage(ng-click="addItemsStorage()") S
+    div.spacer
+        
+div.actions
+    div.action(ng-click="doCancel()", translate="'novaPostCreate_cancel'")
+    div.action.blue(
+        ng-click="doCreate()", 
+        translate="'novaPostCreate_create'",
+        ng-class="{'inactive':createBlocked()}")

@@ -1,0 +1,9 @@
+buzzlike.directive('bufferResizer', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      scope.buffer = $(element);
+      return true;
+    }
+  };
+});

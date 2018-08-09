@@ -1,0 +1,45 @@
+.appContainer.paymentOffer {
+  background: #fff;
+}
+.appContainer.paymentOffer .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.appContainer.paymentOffer .body_offer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 60px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 20px;
+}
+.appContainer.paymentOffer .body_footer {
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  text-align: center;
+}
+.appContainer.paymentOffer .body_footer .confirmButton {
+  margin: auto;
+  width: 200px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 18px;
+  color: #fff;
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+  background: #008000;
+}
+.appContainer.paymentOffer .body_footer .confirmButton.agreed {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  cursor: pointer;
+}

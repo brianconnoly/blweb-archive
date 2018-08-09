@@ -1,0 +1,13 @@
+tC['/novaWizardWelcomePersonal/template.jade'] = "<true></true>";
+
+buzzlike.directive('novaWizardWelcomePersonal', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardWelcomePersonal/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return true;
+    }
+  };
+});
+
+registerStyles('novaWizardWelcomePersonal', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardWelcomePersonal\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

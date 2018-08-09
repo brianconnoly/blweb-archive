@@ -1,0 +1,193 @@
+.paymentInfo {
+  padding: 0 50px;
+}
+.paymentInfo .piWindowWrapper {
+  position: relative;
+  margin: 0 auto;
+  background: #fff;
+  height: 100%;
+  width: 920px;
+  max-height: 700px;
+}
+.paymentInfo .piWindowWrapper .leftArrow,
+.paymentInfo .piWindowWrapper .rightArrow {
+  position: absolute;
+  top: 300px;
+  width: 52px;
+  height: 34px;
+  margin-top: -17px;
+  cursor: pointer;
+  z-index: 10;
+}
+.paymentInfo .piWindowWrapper .leftArrow {
+  left: 20px;
+  background-image: url("/resources/images/icons/paymentinfo/arrow_left.png");
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .paymentInfo .piWindowWrapper .leftArrow {
+    background-image: url("/resources/images/icons/paymentinfo/arrow_left@2x.png");
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.paymentInfo .piWindowWrapper .rightArrow {
+  right: 20px;
+  background-image: url("/resources/images/icons/paymentinfo/arrow_right.png");
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .paymentInfo .piWindowWrapper .rightArrow {
+    background-image: url("/resources/images/icons/paymentinfo/arrow_right@2x.png");
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.paymentInfo .piWindowWrapper .rightArrow.disabled {
+  display: none;
+}
+.paymentInfo .piWindowWrapper .head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+.paymentInfo .piWindowWrapper .head .buzzlikeLogo {
+  float: left;
+  margin: 20px 0 0 40px;
+}
+.paymentInfo .piWindowWrapper .head .menu {
+  position: relative;
+  float: right;
+  margin: 40px 70px 0 0;
+}
+.paymentInfo .piWindowWrapper .head .menu span {
+  margin-left: 35px;
+  font-size: 16px;
+  color: #444;
+  cursor: pointer;
+}
+.paymentInfo .piWindowWrapper .scrollLayer {
+  position: absolute;
+  top: 96px;
+  left: 0;
+  right: 0;
+  bottom: 70px;
+  overflow: auto;
+  text-align: center;
+}
+.paymentInfo .piWindowWrapper .scrollLayer .sequence,
+.paymentInfo .piWindowWrapper .scrollLayer .page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.paymentInfo .piWindowWrapper .scrollLayer .sequence .centerTitle,
+.paymentInfo .piWindowWrapper .scrollLayer .page .centerTitle {
+  font-size: 40px;
+  margin: 0 0 50px 0;
+}
+.paymentInfo .piWindowWrapper .scrollLayer .text h4 {
+  font-size: 24px;
+  padding-bottom: 15px;
+}
+.paymentInfo .piWindowWrapper .scrollLayer .text span {
+  display: block;
+  font-size: 17px;
+  line-height: 1.2em;
+}
+.paymentInfo .piWindowWrapper .directPanel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 70px;
+  text-align: center;
+}
+.paymentInfo .piWindowWrapper .directPanel .circles {
+  display: inline-block;
+  padding-top: 15px;
+}
+.paymentInfo .piWindowWrapper .directPanel .circles .circle {
+  border: 2px solid #eee;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  margin-left: 5px;
+  float: left;
+}
+.paymentInfo .piWindowWrapper .directPanel .circles .circle.last {
+  background-image: url("/resources/images/icons/paymentinfo/offer-mini.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 14px 18px;
+  -moz-background-size: 14px 18px;
+  background-size: 14px 18px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .paymentInfo .piWindowWrapper .directPanel .circles .circle.last {
+    background-image: url("/resources/images/icons/paymentinfo/offer-mini@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 14px 18px;
+    -moz-background-size: 14px 18px;
+    background-size: 14px 18px;
+  }
+}
+.paymentInfo .piWindowWrapper .directPanel .circles .circle:first-child {
+  margin-left: 0;
+}
+.paymentInfo .piWindowWrapper .directPanel button.next {
+  position: absolute;
+  right: 15px;
+  bottom: 10px;
+  width: 200px;
+  height: 50px;
+  background: #7bc688;
+  color: #fff;
+  font-size: 22px;
+}
+.paymentInfo .piWindowWrapper .directPanel button.next.disabled {
+  background: #bebebe;
+}
+.paymentInfo .piWindowWrapper .directPanel.postPage .circle.active {
+  background-color: #f8ed9a;
+  border-color: #f8ed9a;
+}
+.paymentInfo .piWindowWrapper .directPanel.moneyPage .circle.active {
+  background-color: #b8debf;
+  border-color: #b8debf;
+}
+.paymentInfo .piWindowWrapper .directPanel.offer .circle.active {
+  background-color: #bebebe;
+  border-color: #bebebe;
+}
+@media screen and (min-height: 700px) {
+  .paymentInfo .piWindowWrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 700px;
+    width: 920px;
+    margin-top: -350px;
+    margin-left: -460px;
+  }
+}

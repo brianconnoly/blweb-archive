@@ -1,0 +1,11 @@
+div.novaSettingsLayout
+    div.settingsBlock
+        div.settingsTitle(translate="'novaCollectorSettings_name'")
+        div.novaEditableDiv(
+            ng-model="ugc.name", 
+            placeholder-text="'novaCollectorSettings_name_placeholder'",
+            ng-change="save()", 
+            ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }")
+    
+    div.settingsBlock
+        div.settingsButton.textButton.caution(translate="'novaCollectorSettings_delete'", ng-click="deleteGroup()")

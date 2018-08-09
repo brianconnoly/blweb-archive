@@ -1,0 +1,66 @@
+.novaTimelineMenu
+    position absolute
+    top 0
+    left 0
+    right 0
+    height 50px
+    transition all 0.2s ease
+.scroller
+    overflow hidden
+    position absolute
+    top 50px
+    left 0
+    right 0
+    bottom 0
+    transition all 0.2s ease
+
+.novaTimelineCalendar
+    position absolute
+    top 0
+    height 0
+    left 0
+    right 0
+    transition all 0.2s ease
+
+&.calendar
+    .novaTimelineCalendar
+        position absolute
+        top 0
+        height 180px
+        left 0
+        right 0
+
+    .novaTimelineMenu
+        top 180px
+
+    .scroller
+        top 230px
+
+.novaPostCreateContainer
+    position absolute
+    top 0
+    left 0
+    right 0
+    max-height 100%
+    // height 400px
+    background #fff
+    overflow hidden
+    z-index 2
+    box-shadow 0 0 4px 0 rgba(0,0,0,0.4)
+    .novaTimelineCalendar
+        height 180px
+    .novaPostCreate
+        position relative
+        height 400px
+    .novaTimelineMenu
+        position relative
+        top auto
+        height auto
+    // .novaPostCreate
+    //     position relative
+    //     height auto
+    //     .novaScreen
+    //         // position relative
+    //         background #fff
+    //         height auto
+    //         min-height 100%

@@ -1,0 +1,18 @@
+div.dragHandler.topBar.black.noMaximize.noSettings
+    process-bar
+    div.appControls
+    div.title(translate="'notificationViewerApp_title'")
+
+div.body.dragHandler
+
+    div.list
+        div.notificationItem(ng-repeat="notification in notificationsList")
+            div.notificationPreview
+
+    div.paginator
+        div.activator.right(ng-click="pageRight()", ng-show="currentPage < totalPages-1")
+            img(src="/resources/images/elements/arrow-right.svg", width="11px", height="20px")
+        div.activator.left(ng-click="pageLeft()", ng-show="currentPage > 0")
+            img(src="/resources/images/elements/arrow-left.svg", width="11px", height="20px")
+        div.activator.goPage(ng-repeat="page in makePaginatorFromPages(totalPages, currentPage, 5)", ng-class="{'active':currentPage==page}", ng-click="goPage(page)") {{page+1}}
+        

@@ -1,0 +1,327 @@
+.appContainer.ruleInspector
+    
+    background: #f2f2f2
+    
+    .body
+        box-shadow none
+        
+        .remove
+            position: absolute
+            bottom 0px
+            right 30px
+            
+        .focusDay
+            margin-top 15px
+            
+            .capture
+                cursor: pointer
+                text-decoration: underline
+                width 150px  
+                
+        .selectedCounter
+            
+            .value
+                line-height 25px
+                font-weight: bolder          
+        
+        .blockTitle
+            font-weight: bolder
+            margin-top 20px
+            margin-bottom 15px
+            
+            width 130px
+            
+            text-align: right
+            font-size 16px
+            line-height 17px
+            
+        .desctiprionBlock
+            font-size 11px
+            line-height 13px
+            
+            height 70px
+            
+            .text
+                margin-top 10px
+                margin-left 130px
+                width 230px
+        
+        .settingsBlock
+            height 35px
+            margin-top 5px
+
+        .bl-checkbox
+            margin-top 5px
+            
+            width 25px
+            height 13px
+            
+            background: #ccc
+            
+            .tumbler
+                right 11px
+            
+            .button
+                top 2px
+                right 2px
+                
+                width 11px
+                height 11px
+                
+    .daySelector
+        margin-top -1px
+        
+        .day
+            width 25px
+            height 25px
+            
+            margin-right 5px
+            float: left
+            
+            border-radius 3px
+            border 1px solid #ccc
+            color #ccc
+            
+            font-size 12px
+            line-height 24px
+            text-align: center
+            
+            cursor: pointer
+            
+            &.active
+                background: #494949
+                border-color #494949
+
+    .line
+        position relative
+        clear both
+        height 25px
+        margin 5px 0
+        opacity 1
+        transition opacity 0.2s ease
+        
+        &.hidden
+            opacity 0.3
+            pointer-events none
+
+        .capture
+            position relative
+            top 4px
+            font-size 16px
+            line-height 17px
+            height 17px
+            
+            color #000
+            float left
+            min-width 40px
+            padding-right 10px
+            
+            width 120px
+            text-align: right
+
+        .wideCapture
+            width 120px
+
+        .selectDay
+            text-decoration underline
+            cursor pointer
+
+        .value
+            float left
+            color #000
+
+            .time
+                margin-right 5px
+
+                .sep
+                    font-size 26px
+                    color #fff
+                    float left
+                    width 10px
+
+                input
+                    position relative
+                    background none
+                    border 0
+                    font-size 25px
+                    color #fff
+                    width 30px
+                    height 29px
+                    float left
+                    margin 0
+                    padding 0 0 2px 0
+
+            .timePicker, .date
+                position relative
+                float left
+                
+                padding 0px 5px
+                
+                color #494949
+                background none
+                border 1px #CCCCCC solid
+
+                font-size 16px
+                line-height 23px
+                
+                input
+                    width 23px
+                    height: auto
+                    
+                    padding: 0
+                    
+                    font-size 16px
+                    line-height 23px
+                    color #494949
+                    
+                span
+                    width 4px
+                    padding: 0
+                    font-size 16px
+                    line-height 23px
+                    color #494949
+            
+            .timePicker
+                padding 0px 3px
+            
+            .date
+                margin-right: 7px
+                
+            .repeatIcon
+                position relative
+                display inline-block
+                
+                width 25px
+                height 25px
+                
+                border-radius 3px
+                border 1px solid #CCCCCC
+                margin-right: 10px
+                margin-top -1px
+                cursor: pointer
+                
+                *
+                    cursor: pointer
+                
+                div
+                    top 0
+                    width 25px
+                    height 25px
+                    
+                &.cur
+                    padding 1px
+                    border 0
+                    background: #494949
+                    cursor: default
+
+                    *
+                        cursor: default
+
+            .single
+                div
+                    background: url(/resources/images/desktop/mediaplanInspector/white/single.svg)
+
+            .daily
+                div
+                    background: url(/resources/images/desktop/mediaplanInspector/white/repeat.svg)
+
+            .chain
+                div
+                    background: url(/resources/images/desktop/mediaplanInspector/white/series.svg)
+
+    .remove
+        color rgb(255, 105, 105)
+        position absolute
+        bottom 0
+        right 0
+
+        &:hover
+            cursor pointer
+
+    .selected
+        height 20px
+
+    .repeat
+        margin-top 15px
+
+        .wideCapture
+            margin-top 2px
+
+    .interval
+        margin-bottom 15px
+
+        .slider
+            position relative
+            margin-top 20px
+            width 100%
+            height 2px
+            background #415764
+            clear both
+
+            .ui-slider-range
+                position absolute
+                left 0
+                top 0
+                height 2px
+                background #a0abb2
+
+            .ui-slider-handle
+                position absolute
+                top -6px
+                margin-left -6px
+                height 14px
+                width 14px
+                background #ccc
+                cursor pointer
+                border-radius 100px
+                outline none
+
+            .decorStart
+            .decorEnd
+                position absolute
+                top -3px
+                width 8px
+                height 8px
+                background #ccc
+                border-radius 100px
+                z-index 10
+
+            .decorStart
+                left -2px
+
+            .decorEnd
+                right -4px
+
+        .sliderLegend
+            position relative
+            margin-top 9px
+
+            .start
+            .end
+                font-size 14px
+                color #b8c0c5
+
+            .start
+                float left
+
+            .end
+                float right
+
+.time-picker
+    position absolute
+    z-index 11111
+    top -10px
+    bottom -10px
+    width 30px
+    background #ffffff
+    opacity 0.9
+    sprite "/resources/images/icons/inspector-handler.png" 0px 69px 90px 30px
+
+    &.right
+        background-position-x -60px
+
+    &:hover
+        cursor ew-resize
+
+    &.active
+        pointer-events none

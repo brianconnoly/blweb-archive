@@ -1,0 +1,12 @@
+buzzlike.directive('zoomSwitch', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/desktop/appLauncher/zoomSwitch'],
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return true;
+    }
+  };
+});

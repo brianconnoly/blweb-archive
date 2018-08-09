@@ -1,0 +1,186 @@
+div.novaWallpaper(params="user.settings.wallpaperSettings")
+div#workarea.flushMultiselect.asyncUpload
+    div.progressBar#topProgressBar
+        div.value
+    div#desktop.workareaResizer.activeDesktop
+        div#applications.contextMenu(item="desktopService.activeDesktop")
+
+        div.notificationPanel.notificationFader.shader(ng-if="notificationStatus.panelShown")
+            div.panel
+                div.nothingToShow(ng-show="makeArray(unread).length == 0", translate="'no_unread_notifications'")
+                div.notificationsContainer
+                    div.notificationItem(ng-repeat="notification in makeArray(unread) | orderBy:'created':true | limitTo:5")
+                        div.notificationPreview
+                ul.options
+                    li.option.hoverActive(ng-click="showAll()", translate="'show_all_notifications'")
+                    li.option.hoverActive.cancel(ng-if="makeArray(unread).length > 0", ng-click="hideAll($event)", translate="'mark_all_read'")
+
+
+    div#menu.blMenu.flushMousedown(ng-if="desktopService.showMenu")
+        div.mainMenu(ng-if="!user.settings.simpleMode")
+            div.menuHead
+                div.settings(ng-click="launchApp('settings')")
+                div.name(ng-click="launchApp('settings')") {{user.name}}
+                div.logout(ng-click="logout()")
+
+            div.appButton.timeline(ng-click="launchApp('timeline')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_timeline'")
+            div.appButton.combs(ng-click="launchApp('combs')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_combs'")
+            div.appButton.content(ng-click="launchApp('content')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_content'")
+            div.appButton.market(ng-click="launchApp('market')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_market'")
+            div.appButton.lotManager(ng-click="launchApp('lotManager')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_lotManager'")
+
+            div.appButton.teamManager(ng-click="launchApp('teamManager')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_teamManager'")
+            
+            div.appButton.notificationViewer(ng-click="launchApp('notificationViewer')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_notificationViewer'")
+
+            div.appButton.textEditor(ng-click="launchApp('textEditor')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_textEditor'")
+
+            div.appButton.help(ng-click="launchApp('help')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_help'")
+            
+            div.appButton.shortcuts(ng-mouseover="desktopService.subMenu = 'shortcuts'", ng-class="{'active':desktopService.subMenu == 'shortcuts'}")
+                div.icon
+                div.title(translate="'appName_shortcuts'")
+
+        div.mainMenu(ng-if="user.settings.simpleMode")
+            div.menuHead
+                div.settings(ng-click="launchApp('settings')")
+                div.name(ng-click="launchApp('settings')") {{user.name}}
+                div.logout(ng-click="logout()")
+
+            div.appButton.timeline(ng-click="launchApp('timeline')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_timeline'")
+            div.appButton.combs(ng-click="launchApp('combs')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_combs'")
+
+            div.appButton.teamManager(ng-click="launchApp('teamManager')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_teamManager'")
+
+            div.appButton.help(ng-click="launchApp('help')", ng-mouseover="desktopService.subMenu = null")
+                div.icon
+                div.title(translate="'appName_help'")
+
+        div.popupMenu.shortcuts(ng-if="desktopService.subMenu == 'shortcuts'")
+            div.actionButton.search.withHotkey(ng-click="launchApp('searchMedia')")
+                div.icon
+                div.title(translate="'appAction_content_search'")
+                div.hotkey Ctrl+f
+            div.actionButton.import.withHotkey(ng-click="launchApp('socialImport')")
+                div.icon
+                div.title(translate="'appAction_content_import'")
+                div.hotkey Ctrl+i
+            div.actionButton.xls(ng-click="launchApp('importXLS')")
+                div.icon
+                div.title(translate="'appAction_content_xls'")
+
+            div.actionButton.addCommunity(ng-click="launchApp('addFeed')")
+                div.icon
+                div.title(translate="'appAction_combs_addCommunity'")
+
+            div.actionButton.textEditor(ng-click="launchApp('textEditor')")
+                div.icon
+                div.title(translate="'appName_textEditor'")
+
+            div.actionButton.moderation.services(ng-click="launchApp('ugcManager')", ng-if="isTiger() || user.roles.Morpheus || user.roles.ugcUser")
+                div.icon
+                div.title(translate="'appName_ugcManager'")
+
+            div.actionButton.moderation.services(ng-click="launchApp('moderation')", ng-if="user.roles.Morpheus")
+                div.icon
+                div.title(translate="'appName_moderation'")
+            div.actionButton.moderation.services(ng-click="launchApp('callApi')", ng-if="user.roles.apiUser")
+                div.icon
+                div.title(translate="'appName_callApi'")
+
+    div#dock
+        div.button.droppableItem#showRight(ng-click="showRight()", dropable-item="buffed.currentPocket") 
+            div.panelIcon
+
+        div.hotAction.flushMousedown.upload(ng-click="hotUpload()")
+        div.hotAction.flushMousedown.text(ng-click="hotText()")
+
+        div.dockClock
+
+        div.dockNotify
+            div.notificationCenter.ios-nodelay(ng-click="triggerPanel()", ng-class="{'error':notificationStatus.error, 'new':makeArray(unread).length>0, 'spinner': spinnerShow}")
+                //- img.icon.switch.white(src="/resources/images/topbar/notify.svg", width="30px", height="30px")
+                img.icon.switch.black(src="/resources/images/topbar/notify.svg", width="30px", height="30px")
+                div.counter {{makeArray(unread).length}}
+                div.error(ng-click="refresh()")
+
+        div.button#blMenu(ng-mousedown="menuClick($event)")
+            img(src="/resources/images/login/dark.svg")
+        
+        div.desktopSessions(ng-repeat="desktop in desktopService.desktops")
+            //- div.button.contextMenu(item="desktop", ng-click="activate(desktop)", ng-class="{'active':desktopService.activeDesktop == desktop}") []
+
+            div.button.contextMenu(ng-if="session.hideFromDock != true", item="session", ng-repeat="session in desktop.sessions | orderBy:'id'", style="background:url({{::session.icon}}) center center no-repeat", ng-click="activate(desktop, session)", ng-class="{'active':appsService.activeSession == session}")
+                //- img.size32(ng-src="{{::session.icon}}", ng-show="session.icon")
+                span.title(ng-hide="session.icon") {{::session.name || session.app}}
+
+    div#buffer.bufferResizer.droppableItem.flushMultiselect(no-effects, dropable-item="buffed.currentPocket")
+        div.bufferPanel(ng-if="buffed.showed")
+
+    div#bufferResizeHelper.bufferResizeHelper
+    div#resizer.resizerHandler.coffee
+
+    div.uploadFader
+        div.window
+            div.caption.top(translate="'import_dropcontent1'")
+            div.line-blocks
+                div.block.png .png
+                div.block.jpg .jpg
+                div.block.gif .gif
+            div.caption.middle 
+                span ... 
+                span(translate="'import_dropcontent2'")
+            div.line-blocks
+                div.block.text .txt
+            div.caption.bottom(translate="'import_dropcontent3'")
+        div.window.wrong
+            div.caption(translate="'import_dropcontent4'")
+
+        div.realFader
+
+div#dropHelper.dropHelper
+
+div#graphHelper
+    div.plate
+    div.corner
+    
+div.combobox-list
+
+div#complexMenu.complexMenu
+
+div#menuWindow.menuWindow
+
+div#windowDragHelper
+
+form.uploadHelper
+    input.tutorialCourseTagForce(type="file", multiple, ng-model="files", style="opacity: 0; top: -55px")
+
+form.importHelper
+    input#importFullHelper(type="file", accept="application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="opacity: 0; top: -55px")
+
+form.importHelper
+    input#importCommunityHelper(type="file", accept="application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="opacity: 0; top: -55px")

@@ -1,0 +1,11 @@
+div.dragHandler.topBar.black.noSettings
+    process-bar
+    div.appControls
+    //- item-title(type="content", id="text.name", placeholderText="textEditorApp_enterTextName")
+    input.title(ng-model="text.name", translate="", translate-placeholder="'textEditorApp_enterTextName'", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }", ng-change="textChanged()")
+
+div.body.dragHandler(ignore-textarea)
+    div.text(antiscroll)
+        //- iframe.textarea
+        textarea.textEditorFocus(ng-model="params.editedText", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }", ng-change="textChanged()")
+    div.counter {{text.value.length}}

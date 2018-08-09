@@ -1,0 +1,67 @@
+tC['/novaScreenPicker/template.jade'] = "<div ng-click=\"pickValue()\"> <div ng-if=\"value &amp;&amp; !customValue\" nova-item-object=\"value\" nova-item-watch=\"nova-item-watch\" nova-item-preview-type=\"line\" class=\"value novaItemScope novaItem novaItemPreview\"></div> <div ng-if=\"!value &amp;&amp; !customValue\" translate=\"'novaScreenPicker_placeholder_'+phrase\" class=\"value placeholder\"></div> <div ng-if=\"customValue\" class=\"value customValue\">{{customValue()}}</div> <div class=\"activator\"></div> </div>";
+
+buzzlike.directive('novaScreenPicker', function($compile, operationsService, $parse) {
+  return {
+    restrict: 'C',
+    template: tC['/novaScreenPicker/template.jade'],
+    replace: true,
+    require: '?ngModel',
+    scope: true,
+    link: function(scope, element, attrs, ngModel) {
+      var container, elem, newScreen, rootScreen, unreg;
+      if (!ngModel) {
+        return;
+      }
+      scope.phrase = attrs.phrase;
+      if (attrs.customValue != null) {
+        unreg = scope.$watch(attrs.customValue, function(nVal) {
+          scope.customValue = nVal;
+          return unreg();
+        });
+      }
+      elem = $(element);
+      rootScreen = $(elem.parents('.novaScreen')[0]);
+      container = rootScreen.parent();
+      newScreen = null;
+      scope.backScreen = function() {
+        if (newScreen != null) {
+          newScreen.addClass('hideRight');
+          rootScreen.removeClass('hideLeft');
+          return setTimeout(function() {
+            newScreen.remove();
+            return newScreen = null;
+          }, 200);
+        }
+      };
+      scope.setNewValue = function(value) {
+        ngModel.$setViewValue(value);
+        scope.value = operationsService.get(attrs.itemType, ngModel.$viewValue);
+        elem.removeClass('placeholder');
+        return scope.backScreen();
+      };
+      ngModel.$render = function() {
+        if (ngModel.$viewValue != null) {
+          elem.removeClass('placeholder');
+          return scope.value = operationsService.get(attrs.itemType, ngModel.$viewValue);
+        } else {
+          elem.addClass('placeholder');
+          return scope.value = null;
+        }
+      };
+      return scope.pickValue = function() {
+        newScreen = $('<div>', {
+          "class": 'novaScreen hideRight novaScreenPicker' + attrs.itemType.capitalizeFirstLetter()
+        });
+        newScreen = $($compile(newScreen)(scope));
+        container.append(newScreen);
+        setTimeout(function() {
+          rootScreen.addClass('hideLeft');
+          return newScreen.removeClass('hideRight');
+        }, 100);
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaScreenPicker', ".novaScreenPicker {\n  cursor: pointer;\n}\n.novaScreenPicker.placeholder .value {\n  color: rgba(0,0,0,0.5);\n}\n.novaScreenPicker .value {\n  display: inline-block;\n  font-size: 14px;\n  cursor: pointer;\n}\n.novaScreenPicker .value * {\n  pointer-events: none;\n}\n.novaScreenPicker .value.placeholder {\n  color: rgba(0,0,0,0.5);\n}\n.novaScreenPicker .activator {\n  display: inline-block;\n  width: 4px;\n  height: 4px;\n  top: -2px;\n  border-top: 1px solid #555454;\n  border-right: 1px solid #555454;\n  -webkit-transform: rotate(45deg);\n  -moz-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  transform: rotate(45deg);\n  cursor: pointer;\n}\n");

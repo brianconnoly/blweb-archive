@@ -1,0 +1,40 @@
+.bigPicture
+    position absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    pointer-events none
+
+.pictureSelector
+    position absolute
+    bottom 0
+    left 0
+    right 0
+    background rgba(0,0,0,0.6)
+    text-align center
+
+    .postImageItem
+        display inline-block
+        cursor pointer
+
+        &.active
+            cursor default
+            .selector
+                opacity 1
+
+        .novaItem
+            width 28px
+            height 21px
+            margin 8px 2px
+            pointer-events none
+
+        .selector
+            position absolute
+            bottom 0
+            left 2px
+            right 2px
+            height 3px
+            background #fff
+            opacity 0
+            transition opacity 0.2s ease

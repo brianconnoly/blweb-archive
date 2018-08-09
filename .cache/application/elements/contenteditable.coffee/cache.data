@@ -1,0 +1,57 @@
+buzzlike.directive("mediaSearch", function() {
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    link: function(scope, element, attrs, ngModel) {
+      var placeholderRemoved, readViewText;
+      placeholderRemoved = false;
+      if (!ngModel) {
+        return false;
+      }
+      ngModel.$render = function() {
+        var placeholderText;
+        if (attrs.placeholder) {
+          placeholderText = '';
+          if (ngModel.$viewValue === '' && attrs.placeholder !== '') {
+            placeholderText = '<span class="placeholder">' + attrs.placeholder + '</span>';
+          }
+          return element.html(ngModel.$viewValue || placeholderText);
+        }
+      };
+      element.on('blur keyup', function() {
+        return readViewText();
+      });
+      element.on('keydown', function() {
+        if (placeholderRemoved === false) {
+          placeholderRemoved = true;
+          return element.html('');
+        }
+      });
+      element.on('click', function() {
+        if (element.text() === attrs.placeholder) {
+          return $(element).caret(0);
+        }
+      });
+      return readViewText = function() {
+        var html, placeholderText, safari;
+        html = element.html();
+        placeholderText = '';
+        if (html === '' && attrs.placeholder !== '') {
+          placeholderRemoved = false;
+          placeholderText = '<span class="placeholder">' + attrs.placeholder + '</span>';
+          safari = false;
+          if (/Safari/gi.test(navigator.userAgent) && !/Chrome/gi.test(navigator.userAgent)) {
+            safari = true;
+          }
+          if (!safari) {
+            element.html(placeholderText);
+          }
+          $(element).caret(0);
+        }
+        if (html !== attrs.placeholder) {
+          return ngModel.$setViewValue(html);
+        }
+      };
+    }
+  };
+});

@@ -1,0 +1,12 @@
+div.parameter
+    div.title
+        div.titleText(translate="'novaWizardChannelPicker_channel'")
+        div.edit(translate="'novaWizardAction_edit'", ng-click="flush()", ng-if="picked")
+    div.value.pickItems(ng-if="!picked")
+        div.pickerItem.novaItem(ng-repeat="item in items", ng-click="pick(item)", ng-class="{'active':isPicked(item)}")
+            div.novaItemPreview(nova-item-preview-type="square")
+    div.value(ng-if="picked")
+        div.pickedItem.novaItemScope.novaItem.novaItemPreview(
+            nova-item-id="wizard.data[step.variable]",
+            nova-item-type="group",
+            nova-item-preview-type="square")

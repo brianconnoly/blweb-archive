@@ -1,0 +1,216 @@
+.noBigLoading
+    .nwflw_nav
+        opacity 1
+
+.nwflw_nav
+    position absolute
+    top 0
+    right 0
+    left 0
+    height 42px
+    color white
+    font-size: 16px
+    z-index 4
+    transition background ease 0.3s
+    transition top ease 0.2s
+    opacity 0.01
+    //text-shadow rgba(0,0,0,0.35) 0 0 0.5em;
+        
+    img.icon
+        margin: 6px
+
+    .counter
+        cursor pointer
+        position absolute
+        // bottom 4px
+        right 2px
+        top: 6px
+
+        width 18px
+        height 18px
+
+        font-size 12px
+        text-align center
+        line-height 18px
+
+        color #fff
+        font-weight bolder
+        background #f00
+
+        border-radius 18px
+
+    .navigationIcon
+        width 42px
+        float left
+        height 100%
+        cursor pointer
+        
+        img
+            cursor: pointer
+        
+    .switch
+        position: absolute
+        top 0px
+        left 0px
+        
+        &.black
+            display: none
+        &.white
+            display: block
+            
+    div.counter
+        //top: 50%;
+        //left: 50%;
+        //margin-top: -9px;
+        //margin-left: -9px;
+        transition all 0.2s ease
+
+
+    &.paymentRequired
+        background rgba(222,47,47,0.9) !important
+
+        &:hover
+            cursor help
+
+    &.paymentWarn
+        background rgba(242,123,47,0.9) !important
+
+        &:hover
+            cursor help
+
+    .accountInfo
+        position relative
+        width 40px
+        height 40px
+        float left
+        line-height 40px
+
+    &.hiddenUp
+        top: -44px
+
+    .item
+        float left
+        height 100%
+        line-height: 41px;
+        padding: 0px 15px //21px;
+        font-size: 1.46em;
+        user-select none
+        opacity 0.7
+
+        &:hover, span
+            cursor pointer
+            opacity 1
+
+        &.active
+            opacity 1
+            //span
+            //    border-bottom 1px solid white
+            //    font-weight: normal;
+
+    .plus
+        margin-left 10px
+
+    .up
+        .touch &
+            display: none
+
+    .login
+        position absolute
+        bottom 0
+        right 0
+        margin-right 8px
+        text-align center
+        padding 0 11px
+        sprite "../resources/images/icons/faces.png" 0 3px 33px 50px no-repeat 33px 25px
+        transition 0
+
+        &:hover
+            cursor pointer
+            background-position-y bottom
+
+            .container
+                display block
+
+            .arrow-bottom
+                border-top-color white
+
+
+    div.menu
+        text-transform none
+        size 'abs' 0 10px 0 auto
+
+        div.name
+            float left
+            font-size: 1.46em;
+            margin: 0 19px;
+            line-height: 41px;
+            height 100%
+
+            &:hover
+                cursor pointer
+
+    div.sprite
+        sprite "/resources/images/icons/nav/white-sprite.png" 0 0 300px 42px
+        float left
+        height 100%
+        width 42px
+        cursor pointer
+
+        $spriteY = 0px
+        &.plus
+            background-position 0 $spriteY
+
+        &.up
+            background-position -50px $spriteY
+
+        &.help
+            background-position -100px $spriteY
+
+        &.showMarketOverlay
+            background-position -150px $spriteY
+
+        &.options
+            background-position -200px $spriteY
+
+        &.logout
+            background-position -250px $spriteY
+
+    // ---- scroll-top mode ----
+
+    &.blackText
+        color black
+        //text-shadow rgba(255,255,255,0.35) 0 0 0.5em;
+
+    &.grey
+        background rgba(0, 0, 0, 0.2)
+        color: #fff
+
+    &.white, .permanentRight &
+        background rgba(255, 255, 255, 0.6)
+        color black
+        //text-shadow none
+            
+        .switch.white
+            display: none
+        
+        .switch.black
+            display: block
+
+        &:hover
+            background rgba(255, 255, 255, 0.9)
+
+        &.perm
+            background rgba(255, 255, 255, 0.9)
+
+            .turbo &
+                background: #fff
+
+    &.white, &.blackText, .permanentRight &
+        .sprite
+            sprite-url "/resources/images/icons/nav/black-sprite.png"
+
+
+@media all and (max-width: 1000px)
+    .menu .name
+        display none
+

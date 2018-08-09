@@ -1,0 +1,34 @@
+div.fullScreenOverlay.overlayLayout.closer.shader.paymentInfo(ng-controller="PaymentInfoCtrl")
+    div.closer.close
+    div.piWindow.piWindowWrapper
+        div.leftArrow(ng-click="prevStep()", ng-show="map[status.sequence].allowArrows || map[status.sequence].allowBack")
+        div.rightArrow(ng-click="nextStep()", ng-show="map[status.sequence].allowArrows|| map[status.sequence].allowForward", ng-class="{'disabled': !allowNext()}")
+        div.head
+            div.buzzlikeLogo
+            div.menu
+                span(ng-click="showPage('postPage')") {{localization.translate('paymentinfo_paypost')}}
+                //-span(ng-click="showPage('moneyPage')") {{localization.translate('paymentinfo_paymoney')}}
+                span(ng-click="showPage('offer')") {{localization.translate('paymentinfo_offer')}}
+                span(ng-click="showPage('contactsPage')") {{localization.translate('paymentinfo_contacts')}}
+        div.scrollLayer(antiscroll, ng-switch="status.sequence")
+            div.page.introPage(ng-switch-when="introPage")
+
+            div.sequence(ng-switch-when="postPage",  ng-class="status.sequence", ng-switch="status.step")
+                div.page(ng-switch-when="1", ng-class="status.sequence+status.step", ng-bind-html="{{status.sequence+status.step}}")
+                //-div.page(ng-switch-when="2", ng-class="status.sequence+status.step", ng-bind-html="{{status.sequence+status.step}}")
+                div.page.offer(ng-switch-when="2")
+
+            div.sequence(ng-switch-when="moneyPage",  ng-class="status.sequence", ng-switch="status.step")
+                div.page.moneyPage1(ng-switch-when="1", ng-class="status.sequence+status.step", ng-bind-html="{{status.sequence+status.step}}")
+                //-div.page.moneyPage2(ng-switch-when="2", ng-class="status.sequence+status.step", ng-bind-html="{{status.sequence+status.step}}")
+                div.page.offer(ng-switch-when="2")
+
+            div.page.offer(ng-switch-when="offer")
+            div.page.contactsPage(ng-switch-when="contactsPage", ng-bind-html="contactsPage")
+
+        div.directPanel(ng-class="status.sequence")
+            div.circles(ng-show="map[status.sequence].steps")
+                div.circle(ng-repeat="c in makeArrayByFromTo(1, map[status.sequence].steps)", ng-click="showPage(status.sequence, c)", ng-class="{'active':c==status.step, 'last':c==map[status.sequence].steps}")
+            button.next(ng-show="map[status.sequence].allowArrows || map[status.sequence].allowForward", ng-click="nextStep()", ng-class="{'disabled': !allowNext()}")
+                span(ng-if="status.step==map[status.sequence].steps") {{localization.translate('paymentinfo_next_'+status.sequence)}}
+                span(ng-if="status.step<map[status.sequence].steps") {{localization.translate('paymentinfo_next')}}

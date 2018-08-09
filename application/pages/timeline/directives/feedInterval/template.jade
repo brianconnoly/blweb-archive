@@ -1,0 +1,8 @@
+div.contextMenu.contents.liveInterval.droppableItem(timeline-dropable, item="getTimeItem()", ng-dblclick="intervalDblClick($event)")
+    div.dayStat(ng-if="startDay")
+    div.contextMenu.feedItem.selectableItem.ios-nodelay.droppableItem.editableItem.tl_feeditem(
+    dropable-item="sched",
+    ng-repeat="sched in schedular", ng-class="'sched_'+sched.id", type="post")
+        div.itemPreview(type="post", id="sched.postId", overlay="timeline", ng-if="sched.type=='schedule'")
+        div.sendNowButton.flushMousedown(ng-if="sched.status == 'error'", ng-click="sendNow($event)", title="Отправить сейчас")
+        div.watchStatButton.flushMousedown(ng-if="sched.stats.length > 0", ng-click="showGraph($event)", title="Хронология")

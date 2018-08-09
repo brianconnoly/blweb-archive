@@ -1,0 +1,44 @@
+.filterWidget li.item {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.filterWidget ul.list {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.filterWidget.empty {
+  display: none;
+}
+.filterWidget.singlePage .pagination {
+  display: none;
+}
+.filterWidget .arrow {
+  bottom: 64px !important;
+}
+.filterWidget .pagination {
+  position: absolute;
+  height: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+.filterWidget .pagination .center {
+  width: auto;
+}
+.filterWidget .pagination .marker {
+  color: #fff;
+  font-size: 30px;
+  display: inline-block;
+  cursor: pointer;
+}
+.filterWidget .pagination .marker.active {
+  cursor: default;
+  color: rgba(255,222,47,0.9);
+}

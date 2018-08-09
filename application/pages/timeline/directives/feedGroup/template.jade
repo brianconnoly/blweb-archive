@@ -1,0 +1,24 @@
+div.feedGroup.layout_item.droppableItem(no-effects, dropable-item="group", ng-class="{'glued':group.glued}", class="feedGroup_{{group.id}}")
+    
+    div.teamTitleContainer(ng-if="group.teamId")
+        div.teamTitle(team-id="group.teamId")
+        //- div.removeTeam(ng-click="unbindTeam()", ng-if="canRemove()") 
+        //-     span.x
+        //-         img(src="/resources/images/elements/roundCross.svg", width="16px", height="16px")
+        //-     span.text(translate="feedGroup_remove_team")
+    
+    div
+        ul.stripes
+            li.stripe(ng-repeat="feed in group.feeds", stripe-color)
+
+        ul.eternity
+
+        ul.timelines
+
+        div.timeCursor
+
+        div.left-arrow.flushMousedown.tl_scrolltimelinebutton(ng-mousedown="stepLeft($event)", ng-mouseup="stopStep()", ng-mouseleave="stopStep()", ng-mouseenter="stepLeft($event, 500)")
+        div.right-arrow.flushMousedown.tl_scrolltimelinebutton(ng-mousedown="stepRight($event)", ng-mouseup= "stopStep()", ng-mouseleave="stopStep()", ng-mouseenter="stepRight($event, 500)")
+
+        div.timeline-scroller.tl_elasticscrolltimeline.flushMousedown
+            div.timeline-scroll

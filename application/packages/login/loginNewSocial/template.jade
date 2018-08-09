@@ -1,0 +1,15 @@
+div.headText(translate="'login_form_register_create_account'")
+
+div.loginRegisterRules
+
+    div.registerCheckbox(ng-class="{'checked':state.rulesAccepted}", ng-click="state.rulesAccepted = !state.rulesAccepted")
+        img.check(src="/resources/images/login/check.svg", width="19px", height="17px")
+
+    div.registerText 
+        span(translate="'login_form_register_text_start'") 
+        span  
+        a(translate="'login_form_register_text_link'", ng-click="showRules()") 
+        span  
+        span(translate="'login_form_register_text_end'")  
+
+div.loginRegisterButton(ng-click="doLogin()", ng-class="{'inactive':!state.rulesAccepted}", translate="'login_form_register_register'")  

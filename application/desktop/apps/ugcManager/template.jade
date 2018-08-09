@@ -1,0 +1,482 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    process-bar
+    div.appControls
+
+    //- div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+    
+    div.title(ng-if="currentStep.translateTitle", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle") {{currentStep.title}}
+
+    div.centerButtons(ng-if="currentCollector.id")
+        div.tabSwitch(translate="'ugcManagerApp_tabSwitch_new'", ng-click="setFilter('created')", ng-class="{'active':currentFilter=='created'}")
+        div.tabSwitch(translate="'ugcManagerApp_tabSwitch_avail'", ng-click="setFilter('accepted')", ng-class="{'active':currentFilter=='accepted'}")
+        div.tabSwitch(translate="'ugcManagerApp_tabSwitch_used'", ng-click="setFilter('published')", ng-class="{'active':currentFilter=='published'}")
+        div.tabSwitch(translate="'ugcManagerApp_tabSwitch_rating'", ng-click="setFilter('rating')", ng-class="{'active':currentFilter=='rating'}")
+
+    div.actionsPanel
+        div.action(ng-click="createCollector($event)")
+            div.icon
+                img(src="/resources/images/desktop/actions/black/header-button-plus.svg")
+            div.settingsText(translate="'ugcManagerApp_createCollector'")
+
+        div.action.flushMousedown(ng-click="acceptPosts($event)", ng-class="{'disabled':selectState.focusedHash.length == 0}")
+            div.icon
+                img(src="/resources/images/desktop/filters/black/kreezh.svg")
+            div.settingsText(translate="'ugcManagerApp_acceptPost'")
+
+        div.action.flushMousedown(ng-click="rejectPosts($event)", ng-class="{'disabled':selectState.focusedHash.length == 0}")
+            div.icon
+                img(src="/resources/images/desktop/actions/black/header-button-cross.svg")
+            div.settingsText(translate="'ugcManagerApp_rejectPost'")
+
+div.body.panelWide.calendarHider
+    div.leftPanel.itemsContainer.zoom_min(antiscroll)
+        div.collectorItem.contextMenu(ng-repeat="item in collectors", ng-class="{'active': item == currentCollector}", ng-click="selectCollector(item)")
+            div.communityPreview
+                img.picPreload(src="{{::community.photo}}")
+            div.collectorInfo
+                div.title {{::community.name}}
+                div.counters
+                    span(translate="'ugcManagerApp_counterNew'")
+                    span  {{item.newCounter}}; 
+                    span(translate="'ugcManagerApp_counterAvail'")
+                    span  {{item.availableCounter}}
+    
+    div.rightContent.itemsContainer.appSettingsLayout(ng-class="{'showSettings':showSettings, 'appSettingsLayout_showed':currentCollector}")
+        div.appSettingsLayout_topBar.currentCollector
+            div.params
+                div.settings.gearIcon.flushMousedown.appSettingsLayout_activator(ng-click="showSettings = !showSettings")
+                
+            div.smallPreview(ng-if="ugcCommunity")
+                img.picPreload(src="{{ugcCommunity.photo}}")
+            div.title(ng-if="currentFilter != 'rating'") {{ugcCommunity.name}}
+            div.filterBlock(ng-if="currentFilter == 'rating'")
+                input(ng-model="proposedParams.usersFilter", translate="", translate-placeholder="'ugcManagerApp_users_filter'", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }", ng-change="userFilterUpdated()")
+
+        div.appSettingsLayout_settings.ugcSettings
+            div.settingsMenu
+                div.settingsItem(translate="'ugcManagerApp_settings_general'", ng-class="{'active':'general' == currentSettingsItem}", ng-click="currentSettingsItem = 'general'")
+                div.settingsItem(translate="'ugcManagerApp_settings_post'", ng-class="{'active':'post' == currentSettingsItem}", ng-click="currentSettingsItem = 'post'")
+                div.settingsItem(translate="'ugcManagerApp_settings_leaders'", ng-class="{'active':'leaders' == currentSettingsItem}", ng-click="currentSettingsItem = 'leaders'")
+                div.settingsItem(translate="'ugcManagerApp_settings_misc'", ng-class="{'active':'misc' == currentSettingsItem}", ng-click="currentSettingsItem = 'misc'")
+            
+            div.settingsFrame.generalSettings(ng-if="currentSettingsItem == 'general'")
+                div.dropSetting
+                    div.dropArea.ugcDropBack
+                        div.helper(translate="'ugcManagerApp_drop_background_helper'", ng-if="!currentCollector.background")
+                        div.value(ng-if="currentCollector.background")
+                            div.itemPreview(type="content", id="currentCollector.background", ng-if="currentCollector.background")
+                            div.remove(ng-click="removeBack()")
+                    div.title(translate="'ugcManagerApp_drop_back'")
+
+                div.dropSetting
+                    div.dropArea.ugcDropLogo
+                        div.helper(translate="'ugcManagerApp_drop_logo_helper'", ng-if="!currentCollector.logo")
+                        div.value(ng-if="currentCollector.logo")
+                            div.itemPreview(type="content", id="currentCollector.logo")
+                            div.remove(ng-click="removeLogo()")
+                    div.title(translate="'ugcManagerApp_drop_logo'")
+
+                div.dropSetting
+                    div.dropArea.ugcDropTeam
+                        div.helper(translate="'ugcManagerApp_drop_team_helper'", ng-if="!currentCollector.teamId")
+                        div.value(ng-if="currentCollector.teamId")
+                            div.itemPreview(type="team", id="currentCollector.teamId")
+                            div.remove(ng-click="removeTeam()")
+                    div.title(translate="'ugcManagerApp_drop_team'")
+
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_blurBg'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.blurBg", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.blurBg")
+                        div.title(translate="'ugcManagerApp_param_blurRadius'")
+                        div.value
+                            input.short(ng-model="currentCollector.settings.blurRadius", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_bgOverlay'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.bgOverlay", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.bgOverlay")
+                        div.title(translate="'ugcManagerApp_param_bgOverlay_color'")
+                        div.value
+                            color-picker(ng-model="currentCollector.settings.bgOverlayColor", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.bgOverlay")
+                        div.title(translate="'ugcManagerApp_param_bgOverlay_opacity'")
+                        div.value
+                            input.short(ng-model="currentCollector.settings.bgOverlayOpacity", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_color1'")
+                        div.value
+                            color-picker(ng-model="currentCollector.settings.color1", ng-change="saveSettings()")
+
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_color2'")
+                        div.value
+                            color-picker(ng-model="currentCollector.settings.color2", ng-change="saveSettings()")
+
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_color3'")
+                        div.value
+                            color-picker(ng-model="currentCollector.settings.color3", ng-change="saveSettings()")
+                
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_link'")
+
+                    div.parameter
+                        div.value
+                            input(value="https://buzz.ru/{{currentCollector.link}}", disabled)
+
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_logoLink'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.logoLinkSwitch", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.logoLinkSwitch")
+                        div.value
+                            input(ng-model="currentCollector.settings.logoLink", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                    div.parameter(ng-if="currentCollector.settings.scheduleInterval")
+                        div.title(translate="'ugcManagerApp_param_schedule_interval'")
+                        div.value
+                            input.short(ng-model="currentCollector.settings.scheduleInterval", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+
+            div.settingsFrame.postSettings(ng-if="currentSettingsItem == 'post'")
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_editorBack'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.editorBack", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.editorBack")
+                        div.title(translate="'ugcManagerApp_param_editorBack_color'")
+                        div.value
+                            color-picker(ng-model="currentCollector.settings.editorBackColor", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.editorBack")
+                        div.title(translate="'ugcManagerApp_param_editorBack_opacity'")
+                        div.value
+                            input.short(ng-model="currentCollector.settings.editorBackOpacity", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_logoSubtitle'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.logoSubtitle", ng-change="saveSettings()")
+                    
+                    div.parameter(ng-if="currentCollector.settings.logoSubtitle")
+                        textarea(ng-model="currentCollector.settings.logoSubtitleText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                    div.parameter(ng-if="currentCollector.settings.logoSubtitle")
+                        div.title(translate="'ugcManagerApp_param_logoSubtitle_color'")
+                        div.value
+                            color-picker(ng-model="currentCollector.settings.logoSubtitleColor", ng-change="saveSettings()")
+
+                    div.parameter(ng-if="currentCollector.settings.logoSubtitle")
+                        div.title(translate="'ugcManagerApp_param_logoSubtitle_font'")
+                        div.value
+                            input.short(ng-model="currentCollector.settings.logoSubtitleFont", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                div.settingsColumn
+                    div.parameter
+                        div.title.single(translate="'ugcManagerApp_param_textareaPlaceholder'")
+
+                    div.parameter
+                        div.value
+                            input(ng-model="currentCollector.settings.textareaPlaceholder", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.parameter
+                        div.title.single(translate="'ugcManagerApp_param_uploadButtonText'")
+
+                    div.parameter
+                        div.value
+                            input(ng-model="currentCollector.settings.uploadButtonText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_popupHeader'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.popupHeader", ng-change="saveSettings()")
+                    
+                    div.parameter(ng-if="currentCollector.settings.popupHeader")
+                        div.value
+                            input(ng-model="currentCollector.settings.popupHeaderText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_popupMessage'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.popupMessage", ng-change="saveSettings()")
+                        
+                    div.parameter(ng-if="currentCollector.settings.popupMessage")
+                        textarea(ng-model="currentCollector.settings.popupMessageText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                div.settingsColumn
+                    div.parameter
+                        div.title.single(translate="'ugcManagerApp_param_popupButtonText'")
+                    
+                    div.parameter
+                        div.value
+                            input(ng-model="currentCollector.settings.popupButtonText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_popupImage'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.popupImage", ng-change="saveSettings()")
+                    
+                    div.dropSetting(ng-if="currentCollector.settings.popupImage")
+                        div.dropArea.ugcDropPopupImage
+                            div.helper(translate="'ugcManagerApp_drop_background_helper'", ng-if="!currentCollector.settings.popupImageId")
+                            div.value(ng-if="currentCollector.settings.popupImageId")
+                                div.itemPreview(type="content", id="currentCollector.settings.popupImageId", ng-if="currentCollector.settings.popupImageId")
+                                div.remove(ng-click="removePopupImage()")
+                        div.title(translate="'ugcManagerApp_drop_popup_image'")
+
+            div.settingsFrame.leadersSettings(ng-if="currentSettingsItem == 'leaders'")
+                //- div.settingsColumn
+                //-     div.parameter
+                //-         div.title(translate="'ugcManagerApp_param_ratingHeader'")
+                //-         div.value
+                //-             checkbox.long(ng-model="currentCollector.settings.ratingHeaderSwitch", ng-change="saveSettings()")
+                    
+                //-     div.parameter(ng-if="currentCollector.settings.ratingHeaderSwitch")
+                //-         div.value
+                //-             input(ng-model="currentCollector.settings.ratingHeader", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                //-     div.parameter
+                //-         div.title(translate="'ugcManagerApp_param_ratingHeaderImage'")
+                //-         div.value
+                //-             checkbox.long(ng-model="currentCollector.settings.ratingHeaderImage", ng-change="saveSettings()")
+                    
+                //-     div.dropSetting(ng-if="currentCollector.settings.ratingHeaderImage")
+                //-         div.dropArea.ugcDropRatingHeaderImage
+                //-             div.helper(translate="'ugcManagerApp_drop_background_helper'", ng-if="!currentCollector.settings.ratingHeaderImageId")
+                //-             div.value(ng-if="currentCollector.settings.ratingHeaderImageId")
+                //-                 div.itemPreview(type="content", id="currentCollector.settings.ratingHeaderImageId", ng-if="currentCollector.settings.ratingHeaderImageId")
+                //-                 div.remove(ng-click="removeRatingImage()")
+                //-         div.title(translate="'ugcManagerApp_drop_rating_header_image'")
+                    
+                    
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_ratingHeaderText'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.ratingHeaderText", ng-change="saveSettings()")
+                    
+                    div.parameter(ng-if="currentCollector.settings.ratingHeaderText")
+                        textarea(ng-model="currentCollector.settings.ratingHeaderTextValue", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    //- div.parameter(ng-if="currentCollector.settings.ratingHeaderText")
+                    //-     div.title(translate="'ugcManagerApp_param_ratingHeaderText_color'")
+                    //-     div.value
+                    //-         color-picker(ng-model="currentCollector.settings.ratingHeaderTextColor", ng-change="saveSettings()")
+
+                    //- div.parameter(ng-if="currentCollector.settings.ratingHeaderText")
+                    //-     div.title(translate="'ugcManagerApp_param_ratingHeaderText_font'")
+                    //-     div.value
+                    //-         input.short(ng-model="currentCollector.settings.ratingHeaderTextFont", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.parameter
+                        div.title.single(translate="'ugcManagerApp_param_ratingItemName'")
+                    
+                    div.parameter
+                        div.value
+                            input(ng-model="currentCollector.settings.ratingItemName", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_finalRatingPost'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.finalRatingPost", ng-change="saveSettings()")
+                    
+                    //- div.parameter(ng-if="currentCollector.settings.finalRatingPost")
+                    //-     div.title.single(translate="'ugcManagerApp_param_finalRatingPostText'")
+                    
+                    div.parameter(ng-if="currentCollector.settings.finalRatingPost")
+                        div.value
+                            input(ng-model="currentCollector.settings.finalRatingPostText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.parameter(ng-if="currentCollector.settings.finalRatingPost")
+                        div.title.single(translate="'ugcManagerApp_param_finalRatingPostFirstDate'")
+
+                    div.parameter(ng-if="currentCollector.settings.finalRatingPost")
+                        div.title
+                            div.datePicker(ng-model="currentCollector.settings.finalRatingPostDate", dateonly="true", ng-change="saveSettings()") {{date | timestampMask: "DD.MM.YYYY"}}
+                        div.value
+                            div.timePicker(ng-model="currentCollector.settings.finalRatingPostDate", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+
+                    div.parameter(ng-if="currentCollector.settings.finalRatingPost")
+                        div.title(translate="'ugcManagerApp_param_finalRatingPost_interval'")
+                        div.value
+                            input.short(ng-model="currentCollector.settings.finalRatingPostInterval", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+                    div.dropSetting(ng-if="currentCollector.settings.finalRatingPost")
+                        div.dropArea.ugcDropRatingPostImage
+                            div.helper(translate="'ugcManagerApp_drop_background_helper'", ng-if="!currentCollector.settings.finalRatingPostImageId")
+                            div.value(ng-if="currentCollector.settings.finalRatingPostImageId")
+                                div.itemPreview(type="content", id="currentCollector.settings.finalRatingPostImageId", ng-if="currentCollector.settings.finalRatingPostImageId")
+                                div.remove(ng-click="removeFinalImage()")
+                        div.title(translate="'ugcManagerApp_drop_rating_post_image'")
+
+            div.settingsFrame.leadersSettings(ng-if="currentSettingsItem == 'misc'")
+                div.settingsColumn
+                    div.parameter(ng-if="canOverrideLoader()")
+                        div.title(translate="'ugcManagerApp_param_override_loader'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.overrideLoader", ng-change="saveSettings()")
+                    
+                    div.dropSetting(ng-if="currentCollector.settings.overrideLoader")
+                        div.dropArea.ugcDropLoaderImage
+                            div.helper(translate="'ugcManagerApp_drop_background_helper'", ng-if="!currentCollector.settings.loaderImageId")
+                            div.value(ng-if="currentCollector.settings.loaderImageId")
+                                div.itemPreview(type="content", id="currentCollector.settings.loaderImageId", ng-if="currentCollector.settings.loaderImageId")
+                                div.remove(ng-click="removeLoaderImage()")
+                        div.title(translate="'ugcManagerApp_drop_loader_image'")
+
+                div.settingsColumn
+                    div.parameter
+                        div.title(translate="'ugcManagerApp_param_override_faq'")
+                        div.value
+                            checkbox.long(ng-model="currentCollector.settings.overrideFaq", ng-change="saveSettings()")
+                    
+                    div.dropSetting(ng-if="currentCollector.settings.overrideFaq")
+                        div.dropArea.ugcDropFaqText
+                            div.helper(translate="'ugcManagerApp_drop_faq_helper'", ng-if="!currentCollector.settings.faqTextId")
+                            div.value(ng-if="currentCollector.settings.faqTextId")
+                                div.itemPreview.editableItem(type="content", id="currentCollector.settings.faqTextId", ng-if="currentCollector.settings.faqTextId")
+                                div.remove(ng-click="removeFaqText()")
+                        div.title(translate="'ugcManagerApp_drop_faq_text'")
+
+                    //- div.parameter(ng-if="currentCollector.settings.overrideFaq")
+                    //-     textarea.tall(ng-model="currentCollector.settings.faqText", ng-change="saveSettings()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }")
+                    
+
+        div.proposedList.appSettingsLayout_body.blTable.multiselect(ng-if="currentFilter != 'rating'")
+            div.head
+                div.cell.user(translate="'ugcManagerApp_column_user'")
+                div.cell.text(translate="'ugcManagerApp_column_text'")
+                div.cell.attach(translate="'ugcManagerApp_column_attach'")
+                //- div.cell.date(translate="'ugcManagerApp_column_date'")
+                div.cell.actions(translate="'ugcManagerApp_column_action'")
+
+            div.list.lazyProposed.rememberScroll(scroll-value="proposedScrollValue", antiscroll)
+
+                div.tableLine.proposedItem.selectableItem(ng-repeat="item in proposed | filter:proposedFilter")
+                    div.cell.user(ng-dblclick="goOwnerPage()")
+                        div.userPic
+                            img.picPreload(src="{{::user.photo}}")
+                        div.userName 
+                            div {{::user.firstName}}
+                            div {{::user.lastName}}
+                        div.date
+                            div {{::getFormatedDate(item.created)}} 
+                            //- div(ng-if="item.proposeStatus == 'published'") {{::getFormatedDate(schedDate)}}
+                        div.vk(ng-if="item.vkSuggestId")
+                    div.cell.text(ng-dblclick="previewText($event,item)")
+                        div {{text}}
+                        div.fader
+                    div.cell.attach(class="attachCount_{{attaches.length}}")
+                        div.attachment(ng-repeat="attach in attaches", ng-dblclick="previewPic($event, attach)")
+                            div.itemPreview(id="attach", type="content")
+                            div.removeCross.flushMousedown(ng-click="removeAttach(attach)")
+                    
+                    div.cell.actions(ng-switch="actionsMode")
+                        div.mode.mediaplanner(ng-switch-when="used")
+
+                            div.timeBlock(ng-if="schedDate")
+                                div.timeBox {{schedDate | timestampMask: 'hh:mm'}}
+                                div.dateBox
+                                    div.dateLine {{schedDate | timestampMask: "DD"}}
+                                    div.dateLine {{schedDate | timestampMask: "MMM"}}
+                                    div.dateLine {{schedDate | timestampMask: "YYYY"}}
+
+                            div.buttons.single
+                                div.action.flushMousedown(ng-click="takeToRight(item)")
+                                    p(translate="'ugcManagerApp_action_toRight'")
+
+                        div.mode(ng-switch-when="default")
+                            div.buttons
+                                div.action.flushMousedown(ng-if="item.proposeStatus != 'created'", ng-click="takeToRight(item)")
+                                    p(translate="'ugcManagerApp_action_toRight'")
+                                div.action.flushMousedown(ng-if="item.proposeStatus == 'created'", ng-click="acceptPost(item)")
+                                    p(translate="'ugcManagerApp_action_accept'")
+                                div.action.flushMousedown(ng-click="switchMode('planner')")
+                                    p(translate="'ugcManagerApp_action_plan_on_time'")
+                                div.action.flushMousedown(ng-click="switchMode('mediaplanner')")
+                                    p(translate="'ugcManagerApp_action_plan_on_rule'")
+                            div.bottom
+                                span.textAction.flushMousedown(ng-if="item.proposeStatus == 'created'", translate="'ugcManagerApp_action_reject'", ng-click="rejectPost(item)")
+
+                        div.mode(ng-switch-when="planner")
+
+                            div.timeBlock
+                                div.timeBox.timePicker.flushMousedown(ng-model="schedParams.scheduleTimestamp")
+                                div.dateBox.datePicker.flushMousedown(ng-model="schedParams.scheduleTimestamp", dateonly="true", options="rightSide") 
+                                    div.dateLine {{date | timestampMask: "DD"}}
+                                    div.dateLine {{date | timestampMask: "MMM"}}
+                                    div.dateLine {{date | timestampMask: "YYYY"}}
+
+                            div.bottom
+                                span.textAction.flushMousedown(translate="'ugcManagerApp_action_back'", ng-click="switchMode('default')")
+                                span.action.blueButton.flushMousedown(translate="'ugcManagerApp_action_do_schedule'", ng-click="schedulePost()")
+                        
+                        div.mode.mediaplanner(ng-switch-when="mediaplanner")
+                            
+                            div.timeScroller.paginator
+                                div.flushMousedown.doubleArrow.right.scrollerButton.nextRule(ng-if="schedParams.data.jumpRight[schedParams.scheduleTimestamp]", ng-click="jumpTime(schedParams.data.jumpRight[schedParams.scheduleTimestamp])")
+                                div.flushMousedown.arrow.right.scrollerButton.nextTime(ng-if="schedParams.canGoRight", ng-click="nextTime()")
+
+                                div.flushMousedown.doubleArrow.left.scrollerButton.prevRule(ng-if="schedParams.data.jumpLeft[schedParams.scheduleTimestamp]", ng-click="jumpTime(schedParams.data.jumpLeft[schedParams.scheduleTimestamp])")
+                                div.flushMousedown.arrow.left.scrollerButton.prevTime(ng-if="schedParams.canGoLeft", ng-click="prevTime()")                              
+
+                            div.timeBlock
+                                div.timeBox {{schedParams.scheduleTimestamp | timestampMask: 'hh:mm'}}
+                                div.dateBox
+                                    div.dateLine {{schedParams.scheduleTimestamp | timestampMask: "DD"}}
+                                    div.dateLine {{schedParams.scheduleTimestamp | timestampMask: "MMM"}}
+                                    div.dateLine {{schedParams.scheduleTimestamp | timestampMask: "YYYY"}}
+
+                            div.bottom
+                                span.textAction.flushMousedown(translate="'ugcManagerApp_action_back'", ng-click="switchMode('default')")
+                                span.action.blueButton.flushMousedown(translate="'ugcManagerApp_action_do_schedule'", ng-click="schedulePost()")
+
+                    //- div.cell.actions(ng-if="item.proposeStatus == 'created'")
+                    //-     div.action.no.flushMousedown(translate="'ugcManagerApp_action_reject'", ng-click="rejectPost(item)")
+                    //-     div.action.yes.flushMousedown(translate="'ugcManagerApp_action_accept'", ng-click="acceptPost(item)")
+                    //- div.cell.actions(ng-if="item.proposeStatus == 'accepted' || item.proposeStatus == 'published'")
+                    //-     div.action.toRight.flushMousedown(translate="'ugcManagerApp_action_toRight'", ng-click="takeToRight(item)")
+
+        div.proposedList.ratingList.appSettingsLayout_body.blTable(ng-if="currentFilter == 'rating'")
+            div.head
+                div.cell.userPlace
+                div.cell.userAvatar(translate="'ugcManagerApp_column_userAvatar'")
+                div.cell.userName(translate="'ugcManagerApp_column_userName'")
+                div.cell.userRating(translate="'ugcManagerApp_column_userRating'")
+
+                div.cell.userProposed(translate="'ugcManagerApp_column_userProposed'")
+                div.cell.userAccepted(translate="'ugcManagerApp_column_userAccepted'")
+                div.cell.userPublished(translate="'ugcManagerApp_column_userPublished'")
+                div.cell.userRejected(translate="'ugcManagerApp_column_userRejected'")
+
+            div.list.lazyProposed.rememberScroll(scroll-value="proposedScrollValue", antiscroll)
+
+                div.tableLine.proposedItem.ratingLine(ng-repeat="item in proposed | orderBy:'ugc.rating':true")
+                    div.cell.userPlace {{::item.ugc.place}}
+                    div.cell.userAvatar(ng-dblclick="goOwnerPage()")
+                        div.userPic
+                            img.picPreload(src="{{::item.photo}}")
+                    div.cell.userName {{::item.firstName}} {{::item.lastName}}
+                    div.cell.userRating {{::item.ugc.rating}}
+
+                    div.cell.userProposed {{::item.ugc.proposed}}
+                    div.cell.userAccepted {{::item.ugc.accepted}}
+                    div.cell.userPublished {{::item.ugc.published}}
+                    div.cell.userRejected {{::item.ugc.rejected}}
+
+bread-crombs

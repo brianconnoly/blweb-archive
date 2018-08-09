@@ -1,0 +1,107 @@
+#editor
+    position absolute
+    z-index 10000
+
+    top 45px
+    left 338px
+
+    width 560px
+    height 550px
+
+    background #fff
+
+    .posttext
+        display block
+        position absolute
+
+        top 0px
+        left 0px
+        right 0px
+        height 170px
+
+        padding 5px
+        margin 0
+
+        border none
+        border-bottom 1px solid #ccc
+
+        outline none
+        resize none
+
+    .tags
+        display block
+        position absolute
+
+        top 180px
+        right 0
+        left 0
+        min-height 30px
+
+        border-bottom 1px solid #ccc
+        overflow hidden
+
+        ul
+            li.tag
+                float left
+
+    .uploads
+        position absolute
+        display: block
+
+        top 210px
+        bottom 60px
+        left 0
+        right 0
+
+        .dropupload
+            width 100%
+            height 100%
+            background: rgba(200,50,50,0.4)
+
+            &.active
+                background yellow
+
+            .progress
+                position absolute
+                top 0
+                bottom 0
+                left 0
+                width 0
+
+                background green
+
+            .value
+                position absolute
+                top 0
+                bottom 0
+                right 0
+                left 0
+                text-align: center
+                padding-top 30%
+                z-index -1
+
+    .bottom
+        display block
+        position absolute
+
+        bottom 0
+        right 0
+        left 0
+        height 60px
+
+        background #e2e3ea
+
+
+    .uploaded-image
+        float left
+        padding 10px 10px 0 0
+
+        img
+            max-width 140px
+        p
+            margin 0
+            padding 0 5px
+            height 16px
+
+        button
+            float right

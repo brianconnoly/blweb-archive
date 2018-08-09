@@ -1,0 +1,14 @@
+div.arrow.arrow_box_top
+div.arrow.arrow_box_bottom
+div.arrow.arrow_box_left
+div.arrow.arrow_box_right
+//- div.close(ng-click="cancelLesson()")
+div.wrapper
+    div.step Шаг {{status.selectedStep}} из {{status.allSteps}}
+    div.text(ng-bind-html="status.currentLesson.text")
+    div.controls
+        span.prev.flushMousedown(ng-click="prevLesson()", ng-show="!status.first", ng-class="{'lock': status.currentLesson.prevbutton=='lock'}") Назад
+        span.next.flushMousedown(ng-click="nextLesson(true)", ng-class="{'lock': status.currentLesson.nextbutton=='lock'}", ng-show="!status.last") Вперед
+        span.whitespace &#160;
+        div.finBlock
+            span.fin(ng-click="passCourse()", ng-show="status.last") Завершить

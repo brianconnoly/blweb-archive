@@ -1,0 +1,174 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.directive('taskStatusAction', function(teamService, taskService, userService, account, complexMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/desktop/apps/teamManager/taskStatus'],
+    link: function(scope, element, attrs) {
+      var getTeam, initAction;
+      scope.statusActionTask = scope.item || scope.currentTask;
+      scope.action = null;
+      scope.hasMoreActions = false;
+      scope.bigDaddy = false;
+      initAction = function() {
+        var i, len, ref, ref1, ref2, ref3, ref4, user;
+        scope.action = null;
+        scope.hasMoreActions = false;
+        if (((ref = scope.taskTeam) != null ? ref.id : void 0) == null) {
+          return;
+        }
+        if (ref1 = account.user.id, indexOf.call(scope.statusActionTask.users, ref1) >= 0) {
+          switch (scope.statusActionTask.status) {
+            case 'created':
+              scope.action = 'started';
+              break;
+            case 'started':
+              scope.action = 'finished';
+              scope.hasMoreActions = true;
+              break;
+            case 'rejected':
+              scope.action = 'restarted';
+              break;
+            case 'finished':
+              scope.hasMoreActions = true;
+          }
+        }
+        scope.bigDaddy = false;
+        if (account.user.id === scope.statusActionTask.userId || account.user.id === scope.taskTeam.userId) {
+          scope.bigDaddy = true;
+        } else {
+          ref2 = scope.taskTeam.members;
+          for (i = 0, len = ref2.length; i < len; i++) {
+            user = ref2[i];
+            if (user.userId === account.user.id) {
+              if (((ref3 = user.roles) != null ? ref3.editor : void 0) === true || ((ref4 = user.roles) != null ? ref4.mainEditor : void 0) === true) {
+                scope.bigDaddy = true;
+              }
+              break;
+            }
+          }
+        }
+        if (scope.bigDaddy) {
+          switch (scope.statusActionTask.status) {
+            case 'created':
+            case 'started':
+              break;
+            case 'finished':
+              scope.hasMoreActions = true;
+              scope.action = 'accepted';
+              break;
+            case 'accepted':
+            case 'rejected':
+              scope.hasMoreActions = true;
+          }
+        }
+      };
+      getTeam = function() {
+        var ref, taskProcess;
+        if (((ref = scope.statusActionTask) != null ? ref.teamId : void 0) != null) {
+          taskProcess = scope.progress.add();
+          return scope.taskTeam = teamService.getById(scope.statusActionTask.teamId, function(item) {
+            scope.progress.finish(taskProcess);
+            return scope.taskTeam = item;
+          });
+        }
+      };
+      scope.$watch('statusActionTask.status', function(nVal) {
+        return initAction();
+      });
+      scope.$watch('statusActionTask.users', function(nVal) {
+        return initAction();
+      }, true);
+      if (scope.item == null) {
+        scope.$watch('currentTask', function(nVal) {
+          if ((nVal != null ? nVal.id : void 0) != null) {
+            scope.statusActionTask = nVal;
+            getTeam();
+            return initAction();
+          }
+        });
+      } else {
+        getTeam();
+        initAction();
+      }
+      scope.setStatus = function(status) {
+        var statusProcess;
+        if (status === 'restarted') {
+          status = 'started';
+        }
+        statusProcess = scope.progress.add();
+        return taskService.call('setStatus', {
+          taskId: scope.statusActionTask.id,
+          status: status
+        }, function() {
+          return scope.progress.finish(statusProcess);
+        });
+      };
+      scope.showMenu = function(e) {
+        var actions, ref;
+        actions = [];
+        if (!scope.bigDaddy && (ref = account.user.id, indexOf.call(scope.statusActionTask.users, ref) >= 0)) {
+          if (scope.statusActionTask.status === 'finished') {
+            actions.push({
+              phrase: 'task_restart',
+              action: function() {
+                return scope.setStatus('started');
+              }
+            });
+          }
+          if (scope.statusActionTask.status === 'started') {
+            actions.push({
+              phrase: 'task_revert',
+              action: function() {
+                return scope.setStatus('created');
+              }
+            });
+          }
+        }
+        if (scope.bigDaddy) {
+          if (scope.statusActionTask.status !== 'accepted') {
+            actions.push({
+              phrase: 'task_accept',
+              action: function() {
+                return scope.setStatus('accepted');
+              }
+            });
+          }
+          if (scope.statusActionTask.status !== 'rejected') {
+            actions.push({
+              phrase: 'task_reject',
+              action: function() {
+                return scope.setStatus('rejected');
+              }
+            });
+          }
+          actions.push({
+            phrase: 'task_start',
+            action: function() {
+              return scope.setStatus('started');
+            }
+          });
+          actions.push({
+            phrase: 'task_finish',
+            action: function() {
+              return scope.setStatus('finished');
+            }
+          });
+        }
+        if (actions.length < 1) {
+          return;
+        }
+        return complexMenu.show([
+          {
+            type: 'actions',
+            items: actions
+          }
+        ], {
+          top: $(e.target).offset().top + 20,
+          left: $(e.target).offset().left - 180
+        });
+      };
+      return true;
+    }
+  };
+});

@@ -1,0 +1,44 @@
+position: absolute
+top 0
+bottom 0
+left 0
+right 0
+overflow hidden
+padding 2%
+
+& > .novaItem
+    margin 2% !important
+    width 46% !important
+    height 46% !important
+    box-shadow 0 0 1px 0 rgba(0,0,0,0.4)
+    float left
+
+    // .name, .bottomShield
+    //     opacity 0
+
+    .novaInfoActivator
+        display none !important
+
+& > .name
+    position absolute
+    display table
+    bottom 0
+    left 0
+    right 0
+    width 100%
+    height 33%
+    min-height 25px
+    font-size 10px
+
+    background rgba(0,0,0,0.7)
+    opacity 1
+    transition opacity 0.2s ease
+
+    .noItemNames &
+        opacity 0
+
+    .inner
+        display table-cell
+        vertical-align middle
+        text-align center
+        color #fff

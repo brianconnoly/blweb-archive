@@ -1,0 +1,16 @@
+tC['/novaBufferActivator/template.jade'] = "<div ng-click=\"triggerBuffer()\"></div>";
+
+buzzlike.directive('novaBufferActivator', function(novaBuffer) {
+  return {
+    restrict: 'C',
+    template: tC['/novaBufferActivator/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      return scope.triggerBuffer = function() {
+        return novaBuffer.trigger();
+      };
+    }
+  };
+});
+
+registerStyles('novaBufferActivator', ".novaBufferActivator {\n  width: 14px;\n  height: 24px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  border: 1px solid rgba(255,255,255,0.5);\n  background: rgba(255,255,255,0.3);\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  margin: 8px 4px;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaBufferActivator:hover {\n  border: 1px solid rgba(255,255,255,0.6);\n  background: rgba(255,255,255,0.4);\n  cursor: pointer;\n}\n");

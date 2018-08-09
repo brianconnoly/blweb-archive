@@ -1,0 +1,97 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('streamService', function(itemService, account, rpc, novaWizard, localization, novaDesktop, actionsService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'stream';
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      actionsService.registerAction({
+        sourceType: 'userNotMe',
+        phrase: 'start_chat',
+        category: "A",
+        action: (function(_this) {
+          return function(data) {
+            return _this.call('getUserChat', {
+              userIds: data.ids
+            }, function(stream) {
+              return novaDesktop.launchApp({
+                app: 'novaStreamsApp',
+                stream: stream,
+                item: {
+                  type: 'streams',
+                  id: account.user.id
+                }
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'streamMessageBox',
+        phrase: 'add_to_message',
+        action: function(data) {
+          var i, item, len, ref, results;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            results.push(data.target.items.push(item));
+          }
+          return results;
+        }
+      });
+      actionsService.registerAction({
+        sourceType: 'stream',
+        phrase: 'delete',
+        action: (function(_this) {
+          return function(data) {
+            var i, id, len, ref, results;
+            ref = data.ids;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              results.push(_this["delete"]({
+                id: id,
+                type: 'stream'
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      return novaWizard.register('stream', {
+        type: 'simple',
+        action: (function(_this) {
+          return function() {
+            return _this.create({
+              type: 'stream',
+              name: localization.translate('stream_defaultTitle')
+            }, function(stream) {
+              return novaDesktop.launchApp({
+                app: 'novaStreamsApp',
+                item: {
+                  type: 'streams',
+                  id: account.user.id
+                }
+              });
+            });
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

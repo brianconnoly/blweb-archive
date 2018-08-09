@@ -1,0 +1,23 @@
+tC['/novaThemeStoragePost/template.jade'] = "<div nova-item-preview-type=\"timeline\" class=\"novaItemPreview\"></div> <div nova-stream-item=\"item\" class=\"postStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> <div class=\"proposedActions\"> <div ng-click=\"schedule()\" translate=\"'novaCollectorProposedPost_schedule'\" class=\"novaButton\"></div> </div>";
+
+buzzlike.directive('novaThemeStoragePost', function(scheduleService, ugcService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaThemeStoragePost/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.schedule = function() {
+        return true;
+      };
+      scope["delete"] = function() {
+        ugcService.call('rejectPost', scope.item.id);
+        return true;
+      };
+      return scope.store = function() {
+        ugcService.call('acceptPost', scope.item.id);
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaThemeStoragePost', ".novaThemeStoragePost .proposedActions {\n  overflow: hidden;\n  padding: 3px;\n}\n.novaThemeStoragePost .proposedActions .novaButton {\n  float: left;\n  margin: 2px;\n}\n");

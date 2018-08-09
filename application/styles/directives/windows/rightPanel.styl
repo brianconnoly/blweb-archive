@@ -1,0 +1,411 @@
+.nwfl_viewport
+    
+    &.showRight
+
+        &.staticRight .viewport3d
+                height 100%
+                transform none
+                //right 200px
+
+        .selectedPanel
+            //right 0
+            transform translateX(-200px)
+    
+.selectedPanel
+    transition all 0.2s ease
+
+    .scroller
+        display: none
+        position: absolute
+        left 0
+        right 0
+        height 40px
+        z-index 1000
+        background: #fff
+        opacity 0
+
+        transition opacity 0.2s ease
+
+        &.visible
+            opacity 0.4
+
+    .scrollUp
+        top 0
+
+    .scrollDown
+        bottom 0
+
+    &.showScrollers
+
+        .scrollUp
+            display: block
+
+        .scrollDown
+            display: block
+
+    .selectFocused
+        position: absolute
+        display: none
+
+        sprite "/resources/images/icons/toRightPanel-black.png" 0 0 60px 60px no-repeat 50px 60px
+
+        top 50%
+        left -50px
+        margin-top -25px
+        cursor: pointer
+        opacity 0.8
+
+        &:hover
+            opacity 1
+
+        &.active
+            display: block
+
+.selectedPanel
+    position: absolute
+
+    top 42px
+    width 200px
+    bottom 0
+    right -200px
+
+    z-index 10000
+
+    //background rgba(255,255,255,0.9)
+
+    &.hideAnyway
+        transform translateX(0) !important
+
+    div.dropZone
+        position: absolute
+        width 100px
+        height 100%
+        opacity: 0
+
+        background: white
+
+        left 200px
+
+        transition all 0.2s ease
+
+        &.visible
+            opacity: 0.2
+        &.active
+            left: -80px
+            
+    div.context
+        height 40px
+        
+        position: absolute
+        top 0
+        left 0
+        right 0
+
+        background: #fff
+        
+        .back
+            width 40px
+            height 40px
+            float: left
+            
+            font-size 20px
+            line-height: 40px
+            text-align center
+            
+            cursor: pointer
+            
+            transition all 0.2s ease
+
+            &:hover
+                background: #777
+                color: #fff 
+            
+        .contextPreview
+            width 40px
+            height 40px
+            float: left
+            
+        .name
+            position: absolute
+            right 0
+            top 0
+            bottom 0
+            left 85px
+            
+            input
+                width 100%
+                height 100%
+                
+                box-sizing border-box
+                
+                set-placeholder-style color #666
+                
+    .contextView
+        position: absolute
+        top 0
+        bottom 0
+        left 0
+        right 0
+        
+        padding-top 40px
+
+    ul.typeSwitcher
+        height 34px
+        position: absolute
+
+        top 0
+        right 0
+        left 0
+
+        background: rgba(255,255,255,0.9)
+
+        &.two
+            li.type
+                width 50%
+
+        &.three
+            li.type
+                width 33.33%
+
+        &.four, &.five
+            li.type
+                color: rgba(0,0,0,0)
+                
+                &.type_lot
+                    background rgba(65,70,70,0.5)
+
+                &.type_post
+                    background rgba(95,158,195,0.5)
+
+                &.type_comb
+                    background rgba(252,205,97,0.5)
+
+                &.type_content
+                    background rgba(139,179,83,0.5)
+
+                &.type_team
+                    background: rgb(0,85,133) //rgba(255,153,30,1)
+
+                &.active
+                    width 40%
+                    color: #000
+
+                    &.type_team
+                        color: #fff
+
+        &.five
+            li.type
+                width 15%
+        &.four
+            li.type
+                width: 20%                    
+                
+
+        li.type
+            float: left
+            display: block
+            height 34px
+
+            text-align: center
+            line-height 34px
+
+
+            color black
+
+            cursor: pointer
+
+            &.type_lot:hover, &.type_lot.active
+                background rgba(65,70,70,0.5)
+
+            &.type_post:hover, &.type_post.active
+                background rgba(95,158,195,0.5)
+                //color #fff
+
+            &.type_comb:hover, &.type_comb.active
+                background rgba(252,205,97,0.5)
+                //color #fff
+
+            &.type_content:hover, &.type_content.active
+                background rgba(139,179,83,0.5)
+                //color #fff
+                    
+            &.type_team:hover, &.type_team.active
+                background: rgb(0,85,133)
+                color: #fff
+
+    div.selectedContents
+        position: absolute
+
+        top 0
+        left 0
+        right 0
+        bottom 0
+
+        overflow: hidden
+
+        .selected
+            width 100%
+            height 100%
+            position: absolute
+            top 0
+            bottom 0
+            overflow-y: auto
+
+            background rgba(0,0,0,0.8)
+
+            transition all 0.4s ease
+
+            .turbo &
+                background #222
+
+            &.top
+                z-index 100
+
+            &.hideLeft
+                left: -200px
+                right: auto
+
+            &.hideRight
+                right: -200px
+                left: auto
+
+
+            &.single
+                li
+                    height 190px
+                    width 190px
+
+                    &.contentType_text
+                        .locked
+                            sprite "/resources/images/icons/locks/lock-M.png" center center 55px 81px
+                            bottom 26px
+
+                        .text-preview
+                            padding 8px
+                            font-size 14px
+
+                    &.contentType_audio
+                        background: #b1d381
+
+                        .track-name
+                            top 35px
+                            font-size 15px
+
+                            p
+                                max-height: 45px;
+
+                            .head
+                                margin-bottom 6px
+
+                    .shield .communityIcon
+                        display none
+
+            li
+                margin 5px 0px 0px 5px
+
+                height 93px
+                width 93px
+
+                position: relative
+
+                transition all 0.2s ease
+
+                &.contentType_text
+                    .locked
+                        sprite "/resources/images/icons/locks/lock-S.png" center center 23px 34px
+                        bottom 26px
+
+                    .text-preview
+                        padding 6px 8px 8px 8px
+                        font-size 12px
+
+                    .text-footer
+                        height 26px
+
+                    .counter
+                        font-size 10px
+                        top 7px
+                        left 10px
+
+                &.contentType_comb
+                    background: #fcdc89
+
+                &.contentType_post
+                    background: #9cc5dd
+
+                &.contentType_audio
+                    background: #b1d381
+
+                    .track-name
+                        top 20px
+                        left 5px
+                        right 5px
+                        font-size 12px
+
+                        p
+                            max-height 36px
+
+                        .head
+                            margin-bottom 3px
+                            max-height 24px
+
+                &.contentType_folder
+                    background: #b1d381
+
+                &.deleting
+                    opacity: 0.5
+
+                //.shield .communityIcon
+                //    width 100%
+                //    height auto
+
+                &:hover
+                    .remove-circle-button
+                        display: block
+
+                    .schedule-info
+                        bottom -100%
+
+
+
+
+    ul.actions
+        position: absolute
+
+        white-space nowrap
+        background black
+        color rgba(0, 0, 0, 1)
+        background rgba(255,255,255, 1)
+
+        bottom 0px
+        right 0px
+        left 0px
+
+        li
+            line-height 24px
+            padding 5px 10px
+
+            cursor: pointer
+            position: relative
+
+            &:hover
+                color white
+                background rgba(150,150,150, 1)
+
+            .stickyAction
+                position: absolute
+                right 0
+                top 0
+                bottom 0
+                width 34px
+
+                &:hover
+                    background #ccc
+
+
+    .remove-circle-button
+        position: absolute
+        top -2px
+        left -2px
+
+        display: none

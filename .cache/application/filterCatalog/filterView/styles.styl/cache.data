@@ -1,0 +1,12 @@
+Error: Error: stylus:105:14
+   101|     &::-moz-input-placeholder
+   102|             {prop} value
+   103| $LW = $leftPanelWidth
+   104| $RW = $rightPanelWidth
+   105| $LW2 = $LW / 2
+---------------------^
+   106| $RW2 = $RW / 2
+   107| 
+   108| .filterView
+
+cannot perform $leftPanelWidth / 2

@@ -1,0 +1,266 @@
+.appContainer.lotPreview
+    background: #fff
+    margin: 0
+    
+    width 100%
+    position: relative
+    
+    .ownerLink
+        cursor: pointer
+        
+    .body
+        top 0
+        margin-top 30px
+        box-shadow none
+        position: relative
+        overflow: hidden
+        
+        .leftPart
+            width 215px
+            float: left
+            margin-top 20px
+            
+            .bigPreview
+                padding: 0
+                margin-left 48px
+                overflow hidden
+                
+                .previewContainer
+                    margin: 0
+                    
+                    .itemPreview.post
+                        border none !important
+                        margin 1px
+                        
+            .doRepostButton
+                margin-left: 48px
+                margin-top 15px
+                margin-bottom 50px
+                
+                border-radius 3px
+                border 1px solid #494949
+                
+                height 25px
+                line-height 25px
+                
+                text-align center
+                font-size 11px
+                color #494949
+                
+                cursor: pointer
+                
+                span
+                    cursor: pointer
+                
+        
+        .rightPart
+            float: left
+            color #494949
+            width 290px
+            margin-top 20px
+            margin-left: 40px
+            
+            .blockTitle
+                font-size 16px
+                line-height: 19px
+                font-weight: bolder
+                
+                margin-bottom 15px
+                
+            .list
+                margin-bottom 15px
+                overflow: hidden
+                
+                .line
+                    overflow: hidden
+                    font-size 14px
+                    line-height 19px
+                    
+                    .title
+                        color #999999
+                        width 120px
+                        float: left
+                        
+                    .value
+                        text-overflow: ellipsis
+                        overflow: hidden
+                        white-space nowrap 
+                
+            .smallText
+                font-size 11px
+                line-height 12px
+                margin-bottom 40px
+    
+    .appWindow
+        position: absolute
+        top 80px
+        bottom 0
+        left 0
+        right 0
+        overflow-y: auto
+    
+    .info-block
+        position: fixed
+        top 30px
+        height: $H
+
+        left 8px
+        right 20px
+
+        color #ffffff
+        background rgba(0, 0, 0, 0.8)
+
+        .lotTitle
+            font-size 14px
+            font-weight: bolder
+            margin 10px 0px 8px
+
+        .counters
+            width 100%
+
+            .right
+                float: right
+                margin-right 10px
+                margin-top 10px
+
+            .left
+                float: left
+                margin-left 10px
+
+            .param
+                overflow: hidden
+                display: block
+                margin-bottom 5px
+                .title
+                    float: left
+                    margin-right 10px
+                .value
+                    float: left
+
+    .repost-block
+        position fixed
+        top 130px
+        left 8px
+        right 20px
+        height $H
+        z-index 1
+
+        color #ffffff
+        background rgba(0, 0, 0, 0.8)
+
+        .R
+            size 'abs' 0 auto auto -50px
+            line-height 78px
+            font-size 36px
+            font-weight bolder
+
+
+        .icon
+            float left
+            width $H
+            height $H
+            background-size 100%
+            overflow hidden
+            
+            cursor: pointer
+
+            .sn
+                height 100%
+                width 100%
+                opacity 1
+
+                text-transform uppercase
+                text-align center
+                color #ffffff
+                line-height $H
+                font-size 30px
+                
+                cursor pointer
+
+                transition all ease 0.2s
+                transform translateX(-72px)
+
+            &:hover .sn
+                transform translateX(0)
+                opacity 0.8
+
+        div.info
+            size 'abs' 0 0 0 $H
+            overflow hidden
+            padding-left 10px
+            font-weight bolder
+            white-space nowrap
+
+            .time
+                line-height 50px
+                font-size 32px
+
+            .name
+                line-height 17px
+                font-size 24px
+
+        .makeFavourite
+            size 'abs' 12px 10px auto auto
+            cursor: pointer
+
+            &.active
+                color #fccb2b
+                &:hover
+                    opacity 1
+
+            &:hover
+                color #f9df9d
+                opacity 0.7
+
+    .window
+        size 'abs' 130px 0 0 0
+        //color #fff
+        overflow auto
+
+        .fullText
+            display: block;
+            padding: 10px 20px 20px
+            margin 8px 20px 8px 8px
+            overflow hidden
+            background #eee
+
+            &.short
+                max-height 294px
+
+            p
+                margin-top 10px
+                line-height 1.6em
+
+        .bigPreview
+            display none
+            height auto
+            margin: 8px 20px 0 8px;
+            box-sizing border-box
+
+            .item
+                margin 0 auto
+                max-width 100%
+
+        ul.items
+            li.item
+                margin 8px
+
+        // states
+        &.repost
+            top 130px
+            padding-top 100px
+
+        &.bigPreview
+            .bigPreview
+                display block
+
+        &.noText
+            .fullText
+                display none
+
+        &.noImage
+            .images
+                display none
+
+        .contentPreview.audio
+            background #b1d381

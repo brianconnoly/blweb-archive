@@ -1,0 +1,68 @@
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+buzzlike.service('complexMenu', function(stateManager) {
+  var itemClass;
+  itemClass = (function() {
+    function itemClass() {
+      this.hide = bind(this.hide, this);
+      this.showed = false;
+      this.workarea = null;
+      true;
+    }
+
+    itemClass.prototype.show = function(sections, position, object) {
+      var i, keys, len, len1, ref, section, workarea, workareaHei, workareaWid;
+      this.sections = sections;
+      this.position = position;
+      this.object = object;
+      if (this.state === true) {
+        hide();
+      }
+      if (typeof workarea === "undefined" || workarea === null) {
+        workarea = $('#workarea');
+      }
+      workareaWid = workarea.width();
+      workareaHei = workarea.height();
+      len = 0;
+      keys = this.sections.length;
+      ref = this.sections;
+      for (i = 0, len1 = ref.length; i < len1; i++) {
+        section = ref[i];
+        len += 10 + section.items.length * (18 + 6);
+      }
+      if (keys > 1) {
+        len += (keys - 1) * 1;
+      }
+      if (len > workareaHei) {
+        this.position.top = 0;
+        this.position.height = workareaHei - 10;
+        len = workareaHei;
+      }
+      if (this.position.top + len > workareaHei) {
+        this.position.top = workareaHei - len;
+      }
+      if (this.position.left + 200 > workareaWid) {
+        this.position.left = 'auto';
+        this.position.right = 0;
+      }
+      this.showed = true;
+      stateManager.applyState({
+        'escape': this.hide
+      });
+      return true;
+    };
+
+    itemClass.prototype.hide = function() {
+      if (this.showed !== true) {
+        return;
+      }
+      this.showed = false;
+      stateManager.goBack(true);
+      return true;
+    };
+
+    return itemClass;
+
+  })();
+  return new itemClass();
+});

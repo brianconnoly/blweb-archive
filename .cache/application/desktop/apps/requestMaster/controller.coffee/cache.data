@@ -1,0 +1,100 @@
+buzzlike.controller('requestMasterCtrl', function($scope, account, smartDate, lotService, communityService, requestService, localization) {
+  var process1, process2, ref;
+  $scope.session.expandedHeader = false;
+  if ($scope.session.requestId != null) {
+    $scope.request = requestService.getById($scope.session.requestId);
+  }
+  if (((ref = $scope.request) != null ? ref.id : void 0) != null) {
+    $scope.session.lotId = $scope.request.lotId;
+    $scope.session.communityId = $scope.request.communityId;
+    $scope.session.timestamp = $scope.request.timestamp;
+    $scope.session.request = $scope.request;
+  }
+  $scope.stateTree.applyState({
+    escape: $scope.closeApp,
+    enter: function() {
+      return $scope.createRequest();
+    }
+  });
+  $scope.onEscape = $scope.closeApp;
+  $scope.request = {
+    lotId: $scope.session.lotId,
+    communityId: $scope.session.communityId,
+    timestamp: $scope.session.timestamp
+  };
+  $scope.conclusionVars = {};
+  process1 = $scope.progress.add();
+  $scope.lot = lotService.getById($scope.session.lotId, function() {
+    return $scope.progress.finish(process1);
+  });
+  process2 = $scope.progress.add();
+  lotService.fetchById($scope.session.lotId, function(lotItem) {
+    var emptyDate, process3, process4;
+    $scope.progress.finish(process2);
+    $scope.loaded = true;
+    $scope.lot = lotItem;
+    $scope.conclusionVars.summ = $scope.lot.price + ' ' + localization.declensionPhrase($scope.lot.price, 'roubles');
+    $scope.conclusionVars.check = $scope.getCheckAfter($scope.lot.checkAfter);
+    $scope.request.cost = $scope.lot.price;
+    $scope.request.postId = $scope.lot.postId;
+    process3 = $scope.progress.add();
+    $scope.fromCommunity = communityService.getById($scope.lot.communityId, function(item) {
+      $scope.progress.finish(process3);
+      return $scope.conclusionVars.comm1 = item.name;
+    });
+    process4 = $scope.progress.add();
+    $scope.toCommunity = communityService.getById($scope.session.communityId, function(item) {
+      $scope.progress.finish(process4);
+      return $scope.conclusionVars.comm2 = item.name;
+    });
+    $scope.dateFrom = $scope.lot.dateFrom ? smartDate.getShiftTimeBar($scope.lot.dateFrom) : 0;
+    $scope.dateTo = $scope.lot.dateTo ? smartDate.getShiftTimeBar($scope.lot.dateTo) : 0;
+    emptyDate = new Date(2012, 1, 1).getTime();
+    $scope.timeFrom = emptyDate + $scope.lot.timeFrom;
+    $scope.timeTo = emptyDate + $scope.lot.timeTo;
+    if ($scope.session.request != null) {
+      return $scope.request = $scope.session.request;
+    }
+  });
+  $scope.myRequest = function() {
+    return ($scope.request.fromUserId == null) || $scope.request.fromUserId === account.user.id;
+  };
+  $scope.editRequest = function() {
+    return $scope.request.id != null;
+  };
+  $scope.createRequest = function() {
+    if (!$scope.checkTime() || !$scope.checkAudience()) {
+      return false;
+    }
+    if ($scope.request.id != null) {
+      requestService.makeBet({
+        id: $scope.request.id,
+        timestamp: $scope.request.timestamp,
+        cost: $scope.request.cost
+      });
+    } else {
+      requestService.create($scope.request);
+    }
+    return $scope.closeApp();
+  };
+  $scope.checkTime = function() {
+    var dateObj, justDate, justTime, ref1;
+    if (((ref1 = $scope.request) != null ? ref1.timestamp : void 0) == null) {
+      return;
+    }
+    dateObj = new Date(smartDate.getShiftTimeBar($scope.request.timestamp));
+    justDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+    justTime = dateObj.getHours() * HOUR + dateObj.getMinutes() * MIN;
+    if (justDate < $scope.dateFrom || justDate > $scope.dateTo) {
+      return false;
+    }
+    if (justTime < $scope.lot.timeFrom || justTime > $scope.lot.timeTo) {
+      return false;
+    }
+    return true;
+  };
+  return $scope.checkAudience = function() {
+    var ref1, ref2;
+    return ((ref1 = $scope.lot) != null ? ref1.minSubscribers : void 0) < ((ref2 = $scope.toCommunity) != null ? ref2.membersCount : void 0);
+  };
+});

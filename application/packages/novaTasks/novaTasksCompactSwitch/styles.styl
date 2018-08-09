@@ -1,0 +1,61 @@
+
+height 17px
+margin 6px 5px 6px
+
+opacity 0.5
+cursor pointer
+
+transition all 0.2s ease
+
+&:hover
+    opacity 0.9
+    cursor pointer
+
+&, &:after //, &:before
+    width 20px
+    border 1px solid #454545
+    border-radius 5px
+    content: ""
+
+&:after //, &:before
+    height 7px
+    position absolute
+    opacity 0
+    transition all 0.2s ease
+    top 50px
+    left -1px
+
+&.active
+    height 7px
+    margin-top 6px
+
+    &:after, &:before
+        opacity 1
+
+    &:after
+        top 10px
+
+    &:before
+        top 16px
+
+    .subLines
+        opacity 0
+
+.subLines
+    pointer-events none
+    top 4px
+    left 3px
+    opacity 1
+    transition opacity 0.2s ease
+
+    &, &:after, &:before
+        position absolute
+        border-bottom 1px solid #454545
+        width 14px
+        content: ""
+
+    &:after
+        top 4px
+
+    &:before
+        top 8px

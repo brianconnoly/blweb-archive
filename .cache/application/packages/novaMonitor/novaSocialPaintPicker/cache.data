@@ -1,0 +1,17 @@
+tC['/novaSocialPaintPicker/template.jade'] = "<div class=\"pickerBar\"> <div ng-repeat=\"paintType in paintTypes\" translate=\"'novaSocialPaintPicker_paint_'+paintType\" ng-class=\"{'active':paintType==wizard.data.paintData.type}\" ng-click=\"wizard.data.paintData.type=paintType\" class=\"pickerOption\"></div> </div> <div ng-switch=\"wizard.data.paintData.type\" class=\"pickerBody\"> <div ng-switch-when=\"vkUsers\" ng-model=\"wizard.data.paintData.value\" class=\"pickerSwitchedBody usersList novaEditableDiv\"></div> <div ng-switch-when=\"vkGroups\" ng-model=\"wizard.data.paintData.value\" class=\"pickerSwitchedBody usersList novaEditableDiv\"></div> </div>";
+
+buzzlike.directive('novaSocialPaintPicker', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaSocialPaintPicker/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.paintTypes = ['vkUsers', 'vkGroups'];
+      return scope.wizard.data.paintData = {
+        type: scope.paintTypes[0],
+        value: ""
+      };
+    }
+  };
+});
+
+registerStyles('novaSocialPaintPicker', ".novaSocialPaintPicker {\n  position: absolute;\n  top: 90px;\n  bottom: 60px;\n  left: 0;\n  right: 0;\n}\n.novaSocialPaintPicker .pickerBar {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 60px;\n  text-align: center;\n}\n.novaSocialPaintPicker .pickerBar .pickerOption {\n  margin: 9px;\n  display: inline-block;\n  padding: 10px 20px;\n  font-size: 12px;\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n}\n.novaSocialPaintPicker .pickerBar .pickerOption:hover {\n  -webkit-box-shadow: 0 0 2px 0 rgba(0,0,0,0.5);\n  box-shadow: 0 0 2px 0 rgba(0,0,0,0.5);\n}\n.novaSocialPaintPicker .pickerBar .pickerOption.active {\n  -webkit-box-shadow: 0 0 4px 0 rgba(0,0,0,0.8);\n  box-shadow: 0 0 4px 0 rgba(0,0,0,0.8);\n}\n.novaSocialPaintPicker .pickerBody {\n  position: absolute;\n  top: 60px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaSocialPaintPicker .pickerBody .pickerSwitchedBody {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.novaSocialPaintPicker .pickerBody .usersList {\n  padding: 10px;\n}\n");

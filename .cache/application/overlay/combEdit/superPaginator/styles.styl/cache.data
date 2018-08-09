@@ -1,0 +1,80 @@
+.superPaginator {
+  height: 30px;
+}
+.superPaginator .page {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  text-align: center;
+  width: 20px;
+  height: 30px;
+  vertical-align: middle;
+  cursor: pointer;
+  font-size: 11px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.superPaginator .page.type {
+  width: 30px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0 5px;
+}
+.superPaginator .page.active {
+  background-color: #494949;
+  color: #fff;
+  cursor: default;
+}
+.superPaginator .page.active .type {
+  background-color: none;
+}
+.superPaginator .page.typeFinal {
+  padding-left: 1px;
+  border-right: 1px solid #494949;
+}
+.superPaginator .page.typeFinal:last-child {
+  border-right: none;
+}
+.superPaginator .page.icon_image {
+  background: url("/resources/images/desktop/types/black/filter-image.svg") center center;
+}
+.superPaginator .page.icon_image.active {
+  background-image: url("/resources/images/desktop/types/black/filter-image-active.svg");
+}
+.superPaginator .page.icon_audio {
+  background: url("/resources/images/desktop/types/black/filter-audio.svg") center center;
+}
+.superPaginator .page.icon_audio.active {
+  background-image: url("/resources/images/desktop/types/black/filter-audio-active.svg");
+}
+.superPaginator .page.icon_text {
+  background: url("/resources/images/desktop/types/black/filter-text.svg") center center;
+}
+.superPaginator .page.icon_text.active {
+  background-image: url("/resources/images/desktop/types/black/filter-text-active.svg");
+}
+.superPaginator .page.icon_url {
+  background: url("/resources/images/desktop/types/black/filter-url.svg") center center;
+}
+.superPaginator .page.icon_url.active {
+  background-image: url("/resources/images/desktop/types/black/filter-url-active.svg");
+}
+.superPaginator .page.icon_video {
+  background: url("/resources/images/desktop/types/black/filter-video.svg") center center;
+}
+.superPaginator .page.icon_video.active {
+  background-image: url("/resources/images/desktop/types/black/filter-video-active.svg");
+}
+.superPaginator .pages {
+  float: left;
+  text-align: center;
+  cursor: pointer;
+}
+.superPaginator .pages div.page,
+.superPaginator .pages div.type {
+  display: inline-block;
+}
+.superPaginator .hidden {
+  visibility: hidden;
+}

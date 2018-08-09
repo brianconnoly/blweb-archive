@@ -1,0 +1,186 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaTasksFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div ng-click=\"addTask()\" ng-class=\"{'active':addTaskActive}\" class=\"addTask\">+</div> <div ng-class=\"{'active':showAccepted}\" ng-click=\"showAccepted = !showAccepted\" class=\"showAccepted\">Kryzh</div> <div ng-class=\"{'active':compact}\" ng-click=\"triggerCompact()\" class=\"novaTasksCompactSwitch\"> <div class=\"subLines\"></div> </div> <div class=\"novaTaskFilterInput\"> <input ng-model=\"taskFilterString\" translate=\"\" translate-placeholder=\"'novaTasks_filter_placeholder'\"/> </div> </div> <div ng-class=\"{'novaTasksCompact':compact}\" class=\"novaFrameContents novaMultiselect\"> <div ng-repeat=\"item in tasks | filter:taskFilter | orderBy:taskService.taskOrder:true\" nova-item-preview-type=\"list\" nova-item-context=\"project\" class=\"novaItem novaItemPreview novaItemDraggable novaItemDroppable novaItemSelectable novaItemMenu\"></div> </div> <div nova-task-create=\"nova-task-create\" nova-item-object=\"newTask\" ng-if=\"addTaskActive\" class=\"novaItem novaItemDroppable novaTaskEdit\"></div> </div>";
+
+buzzlike.directive('novaTasksFrame', function(novaListScroller, dynamicStyle, taskService, updateService, account, projectService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTasksFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var currentPage, elem, getPage, loadingInProgress, scrollerElem, updateId;
+      scope.stateTree.applyState({
+        'N alt': function() {
+          scope.addTask();
+          return true;
+        },
+        'escape': function() {
+          scope.addTaskActive = false;
+          return true;
+        }
+      });
+      elem = $(element);
+      scope.taskService = taskService;
+      if (scope.session.item.type === 'project') {
+        scope.project = projectService.getById(scope.session.item.id);
+      }
+      scope.compact = scope.stateSaver.register('tasks_compact_' + scope.flowFrame.data.mode, {
+        save: function() {
+          return scope.compact;
+        },
+        load: function(data) {
+          return scope.compact = !!data;
+        }
+      });
+      scope.triggerCompact = function() {
+        scope.compact = !scope.compact;
+        return scope.stateSaver.save('tasks_compact_' + scope.flowFrame.data.mode);
+      };
+      scope.flowFrame.maxWidth = 516;
+      scrollerElem = elem.find('.novaFrameContents');
+      scope.taskFilter = function(item) {
+        var lowText, ref, ref1, ref2;
+        if (item.deleted) {
+          return false;
+        }
+        if (!scope.showAccepted && item.status === 'accepted') {
+          return false;
+        }
+        if (((ref = scope.taskFilterString) != null ? ref.length : void 0) > 0) {
+          lowText = scope.taskFilterString.toLowerCase();
+          if (((ref1 = item.name) != null ? ref1.toLowerCase().indexOf(lowText) : void 0) > -1 || ((ref2 = item.description) != null ? ref2.toLowerCase().indexOf(lowText) : void 0) > -1) {
+            return true;
+          }
+          return false;
+        }
+        return true;
+      };
+      scope.tasks = [];
+      currentPage = 0;
+      loadingInProgress = false;
+      getPage = function() {
+        var query;
+        if (loadingInProgress) {
+          return;
+        }
+        loadingInProgress = true;
+        query = {
+          limit: 60,
+          page: currentPage,
+          entityId: scope.flowFrame.data.entityId,
+          projectId: scope.flowFrame.data.projectId,
+          status: {
+            $ne: 'accepted'
+          },
+          parent: null
+        };
+        currentPage++;
+        if (scope.flowFrame.data.mode === 'mine') {
+          query.users = account.user.id;
+          query.mode = 'current';
+          delete query.parent;
+        } else {
+          query.mode = scope.flowFrame.data.mode;
+        }
+        if (scope.showAccepted) {
+          delete query.status;
+        }
+        if (query.page === 0) {
+          scope.tasks.length = 0;
+        }
+        return taskService.query(query, function(items) {
+          var i, ids, item, j, len, len1, ref;
+          ids = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            ids.push(item.id);
+          }
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            if (ref = item.parent, indexOf.call(ids, ref) < 0) {
+              scope.tasks.push(item);
+            }
+          }
+          return loadingInProgress = false;
+        });
+      };
+      getPage();
+      scope.showAccepted = false;
+      scope.$watch('showAccepted', function(nVal, oVal) {
+        if (nVal !== oVal) {
+          currentPage = 0;
+          return getPage();
+        }
+      });
+      scope.addTaskActive = false;
+      scope.newTask = {
+        type: 'task',
+        name: "",
+        description: "",
+        entities: [],
+        projectId: scope.flowFrame.data.projectId != null ? scope.flowFrame.data.projectId : null,
+        mode: scope.flowFrame.data.mode
+      };
+      if (scope.session.item.type !== 'project') {
+        scope.newTask.entities.push({
+          id: scope.session.item.id,
+          type: scope.session.item.type
+        });
+      }
+      scope.addTask = function() {
+        return scope.addTaskActive = !scope.addTaskActive;
+      };
+      updateId = updateService.registerUpdateHandler(function(data, action, items) {
+        var affected, entity, i, item, j, k, len, len1, len2, ref;
+        if (action === 'update' || action === 'create' || action === 'delete') {
+          if (data['task'] != null) {
+            affected = [];
+            for (i = 0, len = items.length; i < len; i++) {
+              item = items[i];
+              if ((item.parent == null) && item.type === 'task') {
+                if (scope.session.item.type !== 'project') {
+                  ref = item.entities;
+                  for (j = 0, len1 = ref.length; j < len1; j++) {
+                    entity = ref[j];
+                    if (entity.id === scope.session.item.id) {
+                      affected.push(item);
+                      continue;
+                    }
+                  }
+                } else {
+                  if (scope.flowFrame.data.projectId != null) {
+                    if (item.projectId !== scope.flowFrame.data.projectId) {
+                      continue;
+                    }
+                  }
+                  affected.push(item);
+                }
+              }
+              if (indexOf.call(scope.tasks, item) >= 0) {
+                affected.push(item);
+              }
+            }
+            if (affected.length > 0) {
+              for (k = 0, len2 = affected.length; k < len2; k++) {
+                item = affected[k];
+                if (item.deleted === true || (item.parent != null)) {
+                  removeElementFromArray(item, scope.tasks);
+                } else {
+                  if (indexOf.call(scope.tasks, item) < 0) {
+                    scope.tasks.push(item);
+                  }
+                }
+              }
+              return scope.$apply();
+            }
+          }
+        }
+      });
+      return scope.$on('$destroy', function() {
+        return updateService.unRegisterUpdateHandler(updateId);
+      });
+    }
+  };
+});
+
+registerStyles('novaTasksFrame', ".novaTasksFrame .novaScrollerPage > .novaItem {\n  position: relative;\n  top: auto;\n  left: auto;\n  bottom: auto;\n  right: auto;\n}\n.novaTasksFrame .novaScrollerPage > .novaItem > .backFace {\n  display: none;\n}\n.novaTasksFrame .novaFrameContents.novaMultiselect.active > .novaItem.selected {\n  -webkit-box-shadow: 10px 0 0 -5px #3496f2 inset;\n  box-shadow: 10px 0 0 -5px #3496f2 inset;\n}\n.novaTasksFrame .novaFrameContents.novaMultiselect > .novaItem.selected {\n  -webkit-box-shadow: 10px 0 0 -5px #eee inset;\n  box-shadow: 10px 0 0 -5px #eee inset;\n}\n.novaTasksFrame .novaMultiselect.active .novaMultiselect > .novaItem.selected {\n  -webkit-box-shadow: 0 0 0 4px #eee;\n  box-shadow: 0 0 0 4px #eee;\n}\n.novaTasksFrame .novaFrameTopBar .addTask {\n  cursor: pointer;\n  float: right;\n  width: 30px;\n  height: 30px;\n  text-align: center;\n  line-height: 30px;\n  font-size: 25px;\n  z-index: 2;\n  -webkit-transform: rotateZ(0deg);\n  -moz-transform: rotateZ(0deg);\n  -o-transform: rotateZ(0deg);\n  -ms-transform: rotateZ(0deg);\n  transform: rotateZ(0deg);\n  -webkit-transition: -webkit-transform 0.2s ease;\n  -moz-transition: -moz-transform 0.2s ease;\n  -o-transition: -o-transform 0.2s ease;\n  -ms-transition: -ms-transform 0.2s ease;\n  transition: transform 0.2s ease;\n}\n.novaTasksFrame .novaFrameTopBar .addTask.active {\n  -webkit-transform: rotateZ(45deg);\n  -moz-transform: rotateZ(45deg);\n  -o-transform: rotateZ(45deg);\n  -ms-transform: rotateZ(45deg);\n  transform: rotateZ(45deg);\n}\n.novaTasksFrame .novaFrameTopBar .showAccepted {\n  float: right;\n  cursor: pointer;\n  line-height: 30px;\n  font-size: 14px;\n  z-index: 2;\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTasksFrame .novaFrameTopBar .showAccepted.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaTasksFrame .novaFrameContents {\n  overflow-y: auto;\n}\n.novaTasksFrame .novaTaskEdit {\n  position: absolute;\n  top: 0px;\n  left: 0;\n  right: 0;\n  z-index: 1;\n  background: #fff;\n  -webkit-box-shadow: 0 5px 5px 0px rgba(0,0,0,0.15);\n  box-shadow: 0 5px 5px 0px rgba(0,0,0,0.15);\n}\n");

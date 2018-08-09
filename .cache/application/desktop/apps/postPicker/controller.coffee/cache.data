@@ -1,0 +1,128 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.controller('postPickerCtrl', function(inspectorService, ruleService, scheduleService, communityService, account, $scope, combService, favouriteService, lotService, postService, httpWrapped, env, stateManager) {
+  $scope.session.expandedHeader = false;
+  $scope.state = $scope.session;
+  $scope.posts = postService.storage;
+  if ($scope.session.combId != null) {
+    $scope.comb = combService.getById($scope.session.comb);
+  }
+  if ($scope.session.communityId != null) {
+    $scope.community = communityService.getById($scope.session.communityId);
+  }
+  postService.fetchMy();
+  stateManager.applyState({
+    escape: $scope.closeApp
+  });
+  $scope.onEscape = $scope.closeApp;
+  $scope.favourites = favouriteService.storage;
+  $scope.placeholder = {
+    type: 'mediaplan'
+  };
+  $scope.newpost = {
+    type: 'new'
+  };
+  $scope.newcomb = {
+    type: 'comb'
+  };
+  $scope.unFavourite = function(id, e) {
+    e.stopPropagation();
+    e.preventDefault();
+    return favouriteService["delete"]({
+      id: id,
+      type: 'favourite'
+    });
+  };
+  $scope.pick = function(choice, type, e) {
+    var lot;
+    if (type === 'lot') {
+      lot = lotService.storage[choice];
+      if (lot == null) {
+        return false;
+      }
+      $scope.makeChoice(lot, e);
+    } else if (type === 'post') {
+      $scope.makeChoice(postService.getById(choice), e);
+    } else {
+      if (choice != null) {
+        $scope.makeChoice(choice, e);
+      }
+    }
+    return true;
+  };
+  $scope.pickerFilter = function(post) {
+    var ref, ref1;
+    if (post.scheduled === true || post.onSale === true || post.userId !== account.user.id) {
+      return false;
+    }
+    if (((ref = $scope.comb) != null ? ref.id : void 0) != null) {
+      return ref1 = post.id, indexOf.call($scope.comb.postIds, ref1) >= 0;
+    }
+    return true;
+  };
+  return $scope.makeChoice = function(result, e) {
+    var item;
+    switch (result.type) {
+      case 'mediaplan':
+        item = {
+          type: 'rule',
+          ruleType: 'single',
+          timestampStart: $scope.session.timestamp,
+          timestampEnd: $scope.session.timestamp + DAY,
+          ad: false,
+          interval: 30,
+          dayMask: [true, true, true, true, true, true, true],
+          communityId: $scope.session.communityId,
+          groupId: $scope.session.groupId || null,
+          end: true
+        };
+        ruleService.create(item, function(created) {
+          inspectorService.initInspector(ruleService.getPlaceholder(0, created.id, $scope.session.communityId), e);
+          return true;
+        });
+        break;
+      case 'new':
+        scheduleService.create({
+          communityId: $scope.session.communityId,
+          scheduleType: 'post',
+          timestamp: $scope.session.timestamp,
+          combId: $scope.session.combId
+        });
+        break;
+      case 'post':
+        if (result.onSale) {
+          desktopService.launchApp('requestMaster', {
+            lotId: result.lotId,
+            timestamp: $scope.session.timestamp,
+            communityId: $scope.session.communityId
+          });
+        } else {
+          scheduleService.create({
+            communityId: $scope.session.communityId,
+            scheduleType: 'post',
+            timestamp: $scope.session.timestamp,
+            postId: result.id
+          });
+        }
+        break;
+      case 'lot':
+        desktopService.launchApp('requestMaster', {
+          lotId: result.id,
+          timestamp: $scope.session.timestamp,
+          communityId: $scope.session.communityId
+        });
+        break;
+      case 'comb':
+        scheduleService.create({
+          communityId: $scope.session.communityId,
+          scheduleType: 'post',
+          timestamp: $scope.session.timestamp,
+          combId: $scope.session.combId,
+          groupId: $scope.session.groupId
+        });
+        break;
+    }
+    $scope.closeApp();
+    return true;
+  };
+});

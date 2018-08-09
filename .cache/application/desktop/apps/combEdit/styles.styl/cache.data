@@ -1,0 +1,157 @@
+.appContainer.combEdit {
+  background: #fcc223;
+  color: #494949;
+}
+.appContainer.combEdit .scroll-bottom,
+.appContainer.combEdit .scroll-right {
+  background: rgba(252,194,35,0.8) !important;
+}
+.appContainer.combEdit .rightContent {
+  bottom: 0;
+  border-left: none;
+  left: 0;
+}
+.appContainer.combEdit .rightPanel {
+  bottom: 0;
+}
+.appContainer.combEdit .actionsPanel .moveLeft {
+  margin-right: 60px;
+}
+.appContainer.combEdit .singlePostView {
+  overflow-y: auto !important;
+}
+.appContainer.combEdit .combContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 350px;
+  overflow: hidden;
+}
+.appContainer.combEdit .combContent .pagesContainer {
+  padding-left: 20px;
+}
+.appContainer.combEdit .combContent .contentMode {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+.appContainer.combEdit .combContent .contentPaginatorView ul {
+  margin: 0 auto;
+}
+.appContainer.combEdit .combContent .paginator,
+.appContainer.combEdit .combContent .superPaginator {
+  position: absolute;
+  bottom: 15px;
+  height: 24px;
+  left: 0;
+  right: 0;
+  max-width: 610px;
+  text-align: center;
+}
+.appContainer.combEdit .combContent .paginator .centered,
+.appContainer.combEdit .combContent .superPaginator .centered {
+  display: inline-block;
+  border: 1px solid #494949;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  height: 22px;
+  overflow: hidden;
+}
+.appContainer.combEdit .combContent .paginator .page,
+.appContainer.combEdit .combContent .superPaginator .page {
+  display: inline-block;
+  margin: 0;
+  cursor: pointer;
+  line-height: 22px;
+  height: 22px;
+}
+.appContainer.combEdit .combContent .paginator .arrow.left,
+.appContainer.combEdit .combContent .superPaginator .arrow.left {
+  left: 10px;
+}
+.appContainer.combEdit .combPosts {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 350px;
+  overflow: hidden;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-top: 10px;
+}
+.appContainer.combEdit .combeditor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  -webkit-transition: all ease 0.4s;
+  -moz-transition: all ease 0.4s;
+  -o-transition: all ease 0.4s;
+  -ms-transition: all ease 0.4s;
+  transition: all ease 0.4s;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.appContainer.combEdit .combeditor.alone {
+  width: 430px;
+  overflow: hidden;
+}
+.appContainer.combEdit .combeditor.alone .content {
+  left: -100% !important;
+  width: 0;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.appContainer.combEdit .combeditor.teamShown .column {
+  bottom: 110px;
+}
+.appContainer.combEdit .combeditor .column {
+  -webkit-transition: all ease 0.3s;
+  -moz-transition: all ease 0.3s;
+  -o-transition: all ease 0.3s;
+  -ms-transition: all ease 0.3s;
+  transition: all ease 0.3s;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  min-width: 100px;
+  overflow: hidden;
+}
+.appContainer.combEdit .combeditor .column.content {
+  background: #fff;
+  left: 0;
+  right: 430px;
+}
+.appContainer.combEdit .combeditor .column.content .contentMode {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 8px;
+}
+.appContainer.combEdit .combeditor .column.content .contentMode ul.list {
+  margin: 0 auto;
+}
+.appContainer.combEdit .combeditor .column.posts {
+  width: 430px;
+  right: 0;
+}
+.appContainer.combEdit .combeditor .boundedTeamMembers {
+  background: #fff;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100px;
+  box-model: border-box;
+  padding: 5px;
+  overflow: auto;
+}

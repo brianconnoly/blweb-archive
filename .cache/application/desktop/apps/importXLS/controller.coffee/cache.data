@@ -1,0 +1,22 @@
+buzzlike.controller('importXLSCtrl', function($scope, tableImport) {
+  $scope.stateTree.applyState({
+    'escape': $scope.closeApp
+  });
+  $scope.session.expandedHeader = false;
+  $scope.download = function(url) {
+    if (url) {
+      return window.location = url;
+    }
+  };
+  $scope.doImport = function() {
+    return tableImport.initiateUpload($scope.session.communityId);
+  };
+  $scope.getExampleHref = function() {
+    if ($scope.session.communityId != null) {
+      return 'https://drive.google.com/a/buzzlike.ru/uc?id=0B1elezTkrbKVTktkV0ctZUY5SWs&export=download';
+    } else {
+      return 'https://docs.google.com/spreadsheets/d/1hWpxHYmKhmPpv5rQJa1-jI9HiNBWnhvz_DQX7FXM_fw/export?format=xlsx';
+    }
+  };
+  return $scope.onEscape = $scope.closeApp;
+});

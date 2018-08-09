@@ -1,0 +1,12 @@
+tC['/novaProfileOverview/template.jade'] = "<div class=\"novaAppLeftPanelOverview\"> <div class=\"overviewBar\"> <div class=\"overviewCover border03\"><img src=\"{{user.photo}}\" class=\"picPreload\"/></div> <div class=\"overviewText\"> <div class=\"mainTitle\">{{user.firstName}}</div> <div class=\"activity\">{{user.lastName}}</div> </div> </div> <div nova-stream-item=\"appItem\" class=\"projectStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> </div>";
+
+buzzlike.directive('novaProfileOverview', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaProfileOverview/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {}
+  };
+});
+
+registerStyles('novaProfileOverview', ".novaProfileOverview .projectStream {\n  overflow: hidden;\n  padding: 0 15px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  height: 40px;\n}\n");

@@ -1,0 +1,13 @@
+tC['/novaSchedulePreviewTimeline/template.jade'] = "<div class=\"head\"> <div class=\"time\">{{::item.timestamp | timestampMask:'hh:mm'}}</div> <div nova-stream-item=\"post\" class=\"postStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> </div> <div ng-if=\"!(currentZoom &gt; 0)\" nova-item-object=\"post\" nova-item-preview-type=\"timeline\" class=\"post novaItemScope novaItem novaItemPreview\"></div>";
+
+buzzlike.directive('novaSchedulePreviewTimeline', function(postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaSchedulePreviewTimeline/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return scope.post = postService.getById(scope.item.postId);
+    }
+  };
+});
+
+registerStyles('novaSchedulePreviewTimeline', ".novaSchedulePreviewTimeline {\n  min-height: 40px;\n}\n.novaSchedulePreviewTimeline .head {\n  overflow: hidden;\n}\n.novaSchedulePreviewTimeline .time {\n  float: left;\n  height: 40px;\n  width: 60px;\n  text-align: center;\n  line-height: 40px;\n  font-size: 14px;\n}\n.novaSchedulePreviewTimeline .postStream {\n  float: left;\n  height: 40px;\n  width: 150px;\n  background: none;\n}\n.novaSchedulePreviewTimeline .postStream .novaStreamIndicatorLastMessage {\n  height: 40px;\n}\n.novaSchedulePreviewTimeline .postStream .novaStreamIndicatorLastMessage .userName {\n  width: 92px;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n");

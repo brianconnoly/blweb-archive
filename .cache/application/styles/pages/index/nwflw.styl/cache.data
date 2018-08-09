@@ -1,0 +1,172 @@
+.option-blur-on .liveBackground .container {
+  -webkit-filter: blur(3px);
+  -moz-filter: blur(3px);
+  -o-filter: blur(3px);
+  -ms-filter: blur(3px);
+  filter: blur(3px);
+}
+.option-blur-on .liveBackground.settingsShowed .container,
+.option-blur-on .liveBackground.overlayShowed .container {
+  -webkit-filter: blur(20px);
+  -moz-filter: blur(20px);
+  -o-filter: blur(20px);
+  -ms-filter: blur(20px);
+  filter: blur(20px);
+}
+.nwflw_view {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  -webkit-transition: filter 0.2s ease;
+  -moz-transition: filter 0.2s ease;
+  -o-transition: filter 0.2s ease;
+  -ms-transition: filter 0.2s ease;
+  transition: filter 0.2s ease;
+}
+.option-blur-on .nwflw_view.settingsShowed,
+.option-blur-on .nwflw_view.overlayShowed {
+  -webkit-filter: blur(20px);
+  -moz-filter: blur(20px);
+  -o-filter: blur(20px);
+  -ms-filter: blur(20px);
+  filter: blur(20px);
+}
+.nwflw_view .workarea {
+  -webkit-perspective(): 800px;
+  -moz-perspective(): 800px;
+  -o-perspective(): 800px;
+  -ms-perspective(): 800px;
+  -webkit-perspective: 800px;
+  -moz-perspective: 800px;
+  -ms-perspective: 800px;
+  perspective: 800px;
+  -webkit-transform-style(): preserve-3d;
+  -moz-transform-style(): preserve-3d;
+  -o-transform-style(): preserve-3d;
+  -ms-transform-style(): preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -o-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.nwflw_view .rpON {
+  right: 200px;
+}
+.nwflw_view .fader {
+  background: rgba(0,0,0,0.7);
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  width: 0;
+  bottom: 0;
+  z-index: 20000;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.5s ease;
+  -moz-transition: opacity 0.5s ease;
+  -o-transition: opacity 0.5s ease;
+  -ms-transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease;
+}
+.turbo .nwflw_view .fader {
+  background: none !important;
+}
+.nwflw_view .viewport3d {
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  height: 100%;
+}
+.option-blur-on .nwflw_view .viewport3d {
+  -webkit-filter: blur(0px);
+  -moz-filter: blur(0px);
+  -o-filter: blur(0px);
+  -ms-filter: blur(0px);
+  filter: blur(0px);
+}
+.nwflw_view.faded .viewport3d {
+  opacity: 0.6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: alpha(opacity=60);
+}
+.option-blur-on .nwflw_view.faded .viewport3d {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  -webkit-filter: blur(20px);
+  -moz-filter: blur(20px);
+  -o-filter: blur(20px);
+  -ms-filter: blur(20px);
+  filter: blur(20px);
+}
+.nwflw_view.faded .fader {
+  display: block;
+  left: 0;
+  width: auto;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.helper-transparent {
+  opacity: 0.9;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+  filter: alpha(opacity=90);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.helper-transparent * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.content-drop {
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -o-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  transform: scale(1.1);
+  -webkit-transition: -webkit-transform 0.2s ease;
+  -moz-transition: -moz-transform 0.2s ease;
+  -o-transition: -o-transform 0.2s ease;
+  -ms-transition: -ms-transform 0.2s ease;
+  transition: transform 0.2s ease;
+}
+.content-drop .shield {
+  opacity: 0 !important;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)" !important;
+  filter: alpha(opacity=0) !important;
+}
+.tutorialsShowed {
+  -webkit-filter: blur(20px);
+  -moz-filter: blur(20px);
+  -o-filter: blur(20px);
+  -ms-filter: blur(20px);
+  filter: blur(20px);
+}

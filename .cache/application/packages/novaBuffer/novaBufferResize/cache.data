@@ -1,0 +1,51 @@
+buzzlike.directive('novaBufferResize', function(novaBuffer) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var body, elem;
+      elem = $(element);
+      body = $('body');
+      return elem.on('mousedown.novaBuffer', function(e) {
+        var bodyWid, fixSize, maxWid, nuWid, ref, start, startWid;
+        bodyWid = body.width();
+        start = e.clientX;
+        startWid = novaBuffer.element.width();
+        fixSize = bodyWid - startWid - start;
+        maxWid = bodyWid / 2 | 0;
+        nuWid = 0;
+        if (!novaBuffer.showed) {
+          fixSize = 0;
+          novaBuffer.trigger();
+          scope.$apply();
+          setTimeout(function() {
+            var ref;
+            return (ref = novaBuffer.element) != null ? ref.addClass('noAnim') : void 0;
+          }, 200);
+        } else {
+          if ((ref = novaBuffer.element) != null) {
+            ref.addClass('noAnim');
+          }
+        }
+        body.on('mousemove.novaBuffer', function(e) {
+          nuWid = bodyWid - e.clientX - fixSize;
+          if (nuWid > maxWid) {
+            nuWid = maxWid;
+          }
+          if (nuWid < 100) {
+            nuWid = 100;
+          }
+          novaBuffer.setWidth(nuWid);
+          return scope.$apply();
+        });
+        return body.on('mouseup.novaBuffer', function(e) {
+          var ref1;
+          body.off('mousemove.novaBuffer');
+          body.off('mouseup.novaBuffer');
+          return (ref1 = novaBuffer.element) != null ? ref1.removeClass('noAnim') : void 0;
+        });
+      });
+    }
+  };
+});
+
+registerStyles('novaBufferResize', ".novaBufferResize {\n  position: absolute;\n  width: 10px;\n  top: 0;\n  bottom: 0;\n  left: -5px;\n  z-index: 100;\n}\n.novaBufferResize:hover {\n  cursor: col-resize;\n}\n");

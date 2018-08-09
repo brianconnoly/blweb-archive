@@ -1,0 +1,76 @@
+div.postEditor.droppableItem.contextMenu(no-effects, dropable-item="post", type="post", id="{{id}}", ng-class="{'warn':post.readyToSchedule == false}")    
+    div.postSettings
+
+        div.postActions
+            div.actionIcon.flushMousedown.deletePost(ng-click="deletePost()")
+            div.actionIcon.flushMousedown.moreActions(ng-click="postActions($event)")
+            div.flushMousedown.needWorkMark(ng-class="post.needWork", ng-if="post.needWork")
+
+        div.postNetwork(ng-click="showNetworkList($event)", ng-style="{'background-color': networksData[post.socialNetwork].background}") {{post.socialNetwork.toUpperCase()}}
+
+        div.postShortcuts
+            div.actionIcon.flushMousedown.newText(ng-click="newText()")
+            div.actionIcon.flushMousedown.upload(ng-click="hotUpload()")
+            div.actionIcon.flushMousedown.moveUp(ng-click="changeOrder(1)", ng-if="filterSettings.sortBy=='order'")
+            div.actionIcon.flushMousedown.moveDown(ng-click="changeOrder(-1)", ng-if="filterSettings.sortBy=='order'")
+            //- div.actionIcon.flushMousedown.uploadHere(ng-click="postUpload()")
+
+    div.postContent.zoom_min.multiselect
+        div.itemsContainer.typeContainer(ng-repeat="block in postContent | orderBy:'order'", ng-class="{'fullSized':isFullSized(block)}", ng-if="block.list.length > 0", class="{{block.type}}")
+            div.previewContainer.contextMenu.selectableItem.editableItem.droppableItem(ng-repeat="id in block.list", id="{{id}}", context="post", type="content")
+                div.itemPreview(type="content", id="id")
+                div.flushMousedown.removeFromPost(ng-click="removeFromPost(id)")
+
+                div.flushMousedown.contentComment(ng-if="block.type == 'image' && post.picComments[id]", ng-dblclick="openEditor(post.picComments[id], $event)")
+                    | {{commentText}}
+                    a.flushMousedown.removeFromPost(ng-click="removeContentDescription(id)", ng-hide="post.locked")
+
+        div.emptyPost(ng-if="emptyPost", translate="'combEditApp_empty_post_notice'")
+
+    div.postSchedules
+        div.postSchedule(ng-repeat="schedule in schedules | orderBy:'scheduleType'")
+
+            div.postActions
+                div.actionIcon.flushMousedown.deletePost(ng-click="removeSchedule()")
+                div.actionIcon.flushMousedown.moreActions(ng-click="scheduleAction($event)")
+
+            div.communityIcon
+                img.picPreload(src="{{::community.photo}}")
+
+            div.scheduleDetails
+                div.title {{::community.name}}
+                div.scheduleTime
+                    div.timePicker.tl_postpickertime(ng-model="schedule.timestamp", ng-change="saveTime()")
+                    div.datePicker(ng-model="schedule.timestamp", dateonly="true", options="rightSide", ng-change="saveTime()") 
+                        div {{date | timestampMask: "DD"}}
+                        div {{date | timestampMask: "MMM"}}
+                        div {{date | timestampMask: "YYYY"}}
+
+            div.sendNowButton.flushMousedown(ng-click="sendNow($event)", title="Отправить сейчас")
+
+            div.statsBlock(ng-if="schedule.scheduleType == 'post'", ng-click="$parent.graphShown = true")
+                div.statsLabel.likes(ng-if="schedule.lastStats.likes > 0", ng-class="{'inactive':showGhaph['likes']==false}", ng-click="triggerStat('likes')")
+                    div.statsIcon
+                    div.statsValue {{schedule.lastStats.likes | formatNumber}}
+
+                div.statsLabel.reposts(ng-if="schedule.lastStats.reposts > 0", ng-class="{'inactive':showGhaph['reposts']==false}", ng-click="triggerStat('reposts')")
+                    div.statsIcon
+                    div.statsValue {{schedule.lastStats.reposts | formatNumber}}
+
+                div.statsLabel.comments(ng-if="schedule.lastStats.comments > 0", ng-class="{'inactive':showGhaph['comments']==false}", ng-click="triggerStat('comments')")
+                    div.statsIcon
+                    div.statsValue {{schedule.lastStats.comments | formatNumber}}
+
+                div.statsLabel.commentsLikes(ng-if="schedule.lastStats.commLikes > 0", ng-class="{'inactive':showGhaph['commLikes']==false}", ng-click="triggerStat('commLikes')")
+                    div.statsIcon
+                    div.statsValue {{schedule.lastStats.commLikes | formatNumber}}
+
+            div.statsGraph(ng-if="graphShown")
+                canvas(width="308" height="160")
+                div.values
+                div.helper
+                div.hideButton(ng-click="hideGraph()") Скрыть
+                div.graphSwitcher(ng-click="switchScale(!scale)")
+                    div.value(ng-if="scale == true", translate="'postEdit_graph_display_real'")
+                    div.value(ng-if="scale != true", translate="'postEdit_graph_scale_to_height'")
+

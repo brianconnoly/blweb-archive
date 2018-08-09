@@ -1,0 +1,212 @@
+tC['/novaTimelineCalendar/template.jade'] = "<div class=\"calendar\"> <div class=\"monthSwitcher\"> <div ng-click=\"nextMonth()\" class=\"rightArrow\">></div> <div ng-click=\"prevMonth()\" class=\"leftArrow\"><</div> <div class=\"monthBar\">{{currentMonthTime | timestampMask:'MMMM'}}</div> </div> <div class=\"weekDays\"> <div translate=\"'148'\" index=\"1\" class=\"day\"></div> <div translate=\"'149'\" index=\"1\" class=\"day\"></div> <div translate=\"'150'\" index=\"1\" class=\"day\"></div> <div translate=\"'151'\" index=\"1\" class=\"day\"></div> <div translate=\"'152'\" index=\"1\" class=\"day\"></div> <div translate=\"'153'\" index=\"1\" class=\"day\"></div> <div translate=\"'147'\" index=\"1\" class=\"day\"></div> </div> <div ng-repeat=\"week in weeks track by week.timestamp\" class=\"weekLine\"> <div ng-class=\"{'current':week.current, 'grey':week.grey}\" class=\"weekNumber\">{{::week.timestamp | timestampMask:'wk'}}</div> <div ng-repeat=\"day in week.days track by day.timestamp\" ng-class=\"{'current':day.current,'grey':day.grey}\" ng-click=\"clickDay(day)\" class=\"calendarDay\">{{::day.date}}</div> </div> </div> <div class=\"stats\"> <div translate=\"'novaTimelineCalendar_statsHead'\" class=\"header\"></div> <div class=\"statBlock\"> <div class=\"statHead cap\">{{scrollerParams.cursor | timestampMask:'MMMM'}}</div> <div class=\"statsValue\"> <div class=\"percent\">{{monthPerc}}%</div> <div class=\"value\">{{monthVal | formatNumber}}</div> </div> </div> <div class=\"statBlock\"> <div class=\"statHead\">{{scrollerParams.cursor | timestampMask:'wk неделя'}}</div> <div class=\"statsValue\"> <div class=\"percent\">{{weekPerc}}%</div> <div class=\"value\">{{weekVal | formatNumber}}</div> </div> </div> <div class=\"statBlock\"> <div class=\"statHead\">{{scrollerParams.cursor | timestampMask:'D ofMMMM'}}</div> <div class=\"statsValue\"> <div class=\"percent\">{{dayPerc}}%</div> <div class=\"value\">{{dayVal | formatNumber}}</div> </div> </div> </div>";
+
+buzzlike.directive('novaTimelineCalendar', function(statsCutService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelineCalendar/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var buildCalendar, dateObj, monthEnd, monthEndTs, monthStart, monthStartTs;
+      if (scope.scrollerParams.cursor == null) {
+        dateObj = new Date();
+        scope.scrollerParams.cursor = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+      }
+      dateObj = new Date(scope.scrollerParams.cursor);
+      monthStart = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
+      monthEnd = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
+      monthStartTs = monthStart.getTime();
+      monthEndTs = monthEnd.getTime();
+      scope.weeks = [];
+      scope.currentMonthTime = monthStart;
+      scope.nextMonth = function() {
+        scope.currentMonthTime = new Date(scope.currentMonthTime.getFullYear(), scope.currentMonthTime.getMonth() + 1, 1);
+        monthStart = scope.currentMonthTime;
+        monthEnd = new Date(scope.currentMonthTime.getFullYear(), scope.currentMonthTime.getMonth() + 1, 0);
+        monthStartTs = monthStart.getTime();
+        monthEndTs = monthEnd.getTime();
+        return buildCalendar();
+      };
+      scope.prevMonth = function() {
+        scope.currentMonthTime = new Date(scope.currentMonthTime.getFullYear(), scope.currentMonthTime.getMonth() - 1, 1);
+        monthStart = scope.currentMonthTime;
+        monthEnd = new Date(scope.currentMonthTime.getFullYear(), scope.currentMonthTime.getMonth() + 1, 0);
+        monthStartTs = monthStart.getTime();
+        monthEndTs = monthEnd.getTime();
+        return buildCalendar();
+      };
+      scope.$watch('scrollerParams.cursor', function(nVal) {
+        var ref;
+        if (!((monthStartTs < (ref = scope.scrollerParams.cursor) && ref < monthEndTs))) {
+          dateObj = new Date(nVal);
+          scope.currentMonthTime = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
+          monthStart = scope.currentMonthTime;
+          monthEnd = new Date(scope.currentMonthTime.getFullYear(), scope.currentMonthTime.getMonth() + 1, 0);
+          monthStartTs = monthStart.getTime();
+          monthEndTs = monthEnd.getTime();
+        }
+        return buildCalendar();
+      });
+      scope.clickDay = function(day) {
+        scope.scrollerParams.cursor = day.timestamp;
+        dateObj = new Date(scope.scrollerParams.cursor);
+        monthStart = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
+        monthEnd = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
+        monthStartTs = monthStart.getTime();
+        monthEndTs = monthEnd.getTime();
+        scope.currentMonthTime = monthStart;
+        return typeof scope.cursorChanged === "function" ? scope.cursorChanged() : void 0;
+      };
+      scope.monthStats = [];
+      scope.weekStats = [];
+      scope.dayStats = [];
+      buildCalendar = function() {
+        var communityId, cursor, i, j, k, l, len, m, ref, ref1, results, week, weekDay;
+        scope.weeks.length = 0;
+        weekDay = monthStart.getDay();
+        weekDay--;
+        if (weekDay < 0) {
+          weekDay = 6;
+        }
+        cursor = monthStartTs - DAY * weekDay;
+        if (weekDay === 0) {
+          week = {
+            timestamp: cursor - WEEK,
+            days: [],
+            grey: true
+          };
+          for (i = j = 0; j < 7; i = ++j) {
+            week.days.push({
+              timestamp: cursor - WEEK + i * DAY,
+              date: new Date(cursor - WEEK + i * DAY).getDate(),
+              grey: true
+            });
+          }
+          scope.weeks.push(week);
+        }
+        while (cursor <= monthEndTs) {
+          week = {
+            timestamp: cursor,
+            days: []
+          };
+          if ((cursor < (ref = scope.scrollerParams.cursor) && ref < cursor + WEEK)) {
+            week.current = true;
+          }
+          for (i = k = 0; k < 7; i = ++k) {
+            week.days.push({
+              timestamp: cursor + i * DAY,
+              date: new Date(cursor + i * DAY).getDate(),
+              current: scope.scrollerParams.cursor === cursor + i * DAY,
+              grey: cursor + i * DAY > monthEndTs || monthStartTs > cursor + i * DAY
+            });
+          }
+          scope.weeks.push(week);
+          cursor += WEEK;
+        }
+        if (scope.weeks.length < 6) {
+          week = {
+            timestamp: cursor,
+            days: [],
+            grey: true
+          };
+          for (i = l = 0; l < 7; i = ++l) {
+            week.days.push({
+              timestamp: cursor + i * DAY,
+              date: new Date(cursor + i * DAY).getDate(),
+              grey: true
+            });
+          }
+          scope.weeks.push(week);
+        }
+        dateObj = new Date(scope.scrollerParams.cursor);
+        weekDay = dateObj.getDay();
+        weekDay--;
+        if (weekDay < 0) {
+          weekDay = 6;
+        }
+        scope.monthStats.length = 0;
+        scope.weekStats.length = 0;
+        scope.dayStats.length = 0;
+        ref1 = scope.communityIds;
+        results = [];
+        for (m = 0, len = ref1.length; m < len; m++) {
+          communityId = ref1[m];
+          scope.monthStats.push(statsCutService.get({
+            communityId: communityId,
+            timestamp: monthEndTs,
+            statsCutType: 'month'
+          }));
+          scope.weekStats.push(statsCutService.get({
+            communityId: communityId,
+            timestamp: new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate() - weekDay + 7).getTime(),
+            statsCutType: 'week'
+          }));
+          results.push(scope.dayStats.push(statsCutService.get({
+            communityId: communityId,
+            timestamp: scope.scrollerParams.cursor + DAY,
+            statsCutType: 'day'
+          })));
+        }
+        return results;
+      };
+      scope.monthPerc = 0;
+      scope.monthVal = 0;
+      scope.$watch('monthStats', function(nVal) {
+        var j, len, ref, stat;
+        scope.monthPerc = 0;
+        scope.monthVal = 0;
+        ref = scope.monthStats;
+        for (j = 0, len = ref.length; j < len; j++) {
+          stat = ref[j];
+          if (!stat.month) {
+            continue;
+          }
+          stat = stat.month;
+          scope.monthPerc += (stat.stats.activity / stat.delta.activity) * 100;
+          scope.monthVal += stat.stats.activity;
+        }
+        scope.monthPerc /= scope.monthStats.length;
+        return scope.monthPerc = scope.monthPerc | 0;
+      }, true);
+      scope.weekPerc = 0;
+      scope.weekVal = 0;
+      scope.$watch('weekStats', function(nVal) {
+        var j, len, ref, stat;
+        scope.weekPerc = 0;
+        scope.weekVal = 0;
+        ref = scope.weekStats;
+        for (j = 0, len = ref.length; j < len; j++) {
+          stat = ref[j];
+          if (!stat.week) {
+            continue;
+          }
+          stat = stat.week;
+          scope.weekPerc += (stat.stats.activity / stat.delta.activity) * 100;
+          scope.weekVal += stat.stats.activity;
+        }
+        scope.weekPerc /= scope.weekStats.length;
+        return scope.weekPerc = scope.weekPerc | 0;
+      }, true);
+      scope.dayPerc = 0;
+      scope.dayVal = 0;
+      scope.$watch('dayStats', function(nVal) {
+        var j, len, ref, stat;
+        scope.dayPerc = 0;
+        scope.dayVal = 0;
+        ref = scope.dayStats;
+        for (j = 0, len = ref.length; j < len; j++) {
+          stat = ref[j];
+          if (!stat.day) {
+            continue;
+          }
+          stat = stat.day;
+          scope.dayPerc += (stat.stats.activity / stat.delta.activity) * 100;
+          scope.dayVal += stat.stats.activity;
+        }
+        scope.dayPerc /= scope.dayStats.length;
+        return scope.dayPerc = scope.dayPerc | 0;
+      }, true);
+      return buildCalendar();
+    }
+  };
+});
+
+registerStyles('novaTimelineCalendar', ".novaTimelineCalendar {\n  overflow: hidden;\n}\n.novaTimelineCalendar .calendar {\n  position: absolute;\n  width: 180px;\n  top: 5px;\n  left: 5px;\n  bottom: 0;\n}\n.novaTimelineCalendar .calendar .monthSwitcher {\n  padding-left: 40px;\n  height: 30px;\n}\n.novaTimelineCalendar .calendar .monthSwitcher .monthBar {\n  line-height: 30px;\n  font-size: 13px;\n  text-align: center;\n  text-transform: capitalize;\n  color: #000;\n  font-weight: 400;\n}\n.novaTimelineCalendar .calendar .monthSwitcher .rightArrow,\n.novaTimelineCalendar .calendar .monthSwitcher .leftArrow {\n  line-height: 30px;\n  z-index: 1;\n  cursor: pointer;\n}\n.novaTimelineCalendar .calendar .monthSwitcher .rightArrow {\n  float: right;\n}\n.novaTimelineCalendar .calendar .monthSwitcher .leftArrow {\n  float: left;\n}\n.novaTimelineCalendar .calendar .weekDays {\n  overflow: hidden;\n  width: 100%;\n  padding-left: 40px;\n}\n.novaTimelineCalendar .calendar .weekDays .day {\n  font-size: 11px;\n  color: #999;\n  text-transform: uppercase;\n  float: left;\n  width: 20px;\n  height: 20px;\n  line-height: 20px;\n  text-align: center;\n}\n.novaTimelineCalendar .calendar .weekLine {\n  overflow: hidden;\n  width: 100%;\n}\n.novaTimelineCalendar .calendar .weekLine .weekNumber {\n  float: left;\n  width: 18px;\n  height: 14px;\n  margin: 3px 11px;\n  font-size: 11px;\n  text-align: center;\n  line-height: 15px;\n  color: #000;\n}\n.novaTimelineCalendar .calendar .weekLine .weekNumber.current {\n  background: #ccc;\n  color: #fff;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n}\n.novaTimelineCalendar .calendar .weekLine .weekNumber.grey {\n  color: #ccc;\n}\n.novaTimelineCalendar .calendar .weekLine .calendarDay {\n  float: left;\n  width: 18px;\n  height: 18px;\n  margin: 1px;\n  text-align: center;\n  font-size: 11px;\n  line-height: 19px;\n  font-weight: 400;\n  cursor: pointer;\n}\n.novaTimelineCalendar .calendar .weekLine .calendarDay.current {\n  background: #f00;\n  color: #fff;\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n  cursor: default;\n}\n.novaTimelineCalendar .calendar .weekLine .calendarDay.grey {\n  color: #999;\n  font-weight: 300;\n}\n.novaTimelineCalendar .stats {\n  position: absolute;\n  right: 19px;\n  bottom: 0;\n  top: 0;\n  left: 185px;\n}\n.novaTimelineCalendar .stats .header {\n  text-align: right;\n  font-size: 13px;\n  color: #000;\n  font-weight: 400;\n  margin: 10px 0;\n  margin-top: 13px;\n  height: 16px;\n  line-height: 16px;\n}\n.novaTimelineCalendar .stats .statBlock {\n  margin-bottom: 10px;\n}\n.novaTimelineCalendar .stats .statBlock .statHead {\n  font-size: 10px;\n  line-height: 15px;\n  height: 15px;\n  text-align: right;\n  font-weight: 400;\n}\n.novaTimelineCalendar .stats .statBlock .statHead.cap {\n  text-transform: capitalize;\n}\n.novaTimelineCalendar .stats .statBlock .statsValue {\n  line-height: 15px;\n  height: 15px;\n  font-size: 12px;\n}\n.novaTimelineCalendar .stats .statBlock .statsValue .percent {\n  float: left;\n  width: 50px;\n  text-align: right;\n  font-weight: 400;\n}\n.novaTimelineCalendar .stats .statBlock .statsValue .value {\n  text-align: right;\n  font-weight: 400;\n}\n");

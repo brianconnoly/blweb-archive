@@ -1,0 +1,25 @@
+position absolute
+top 5px
+right 5px
+pointer-events none
+opacity 0
+z-index 1
+
+transition all 0.2s ease
+
+width 14px
+height 14px
+border-radius 10px
+border 1px solid #545454
+background #fff
+text-align center
+line-height 14px
+
+&:hover
+    cursor pointer
+
+.showNovaInfo &
+    pointer-events auto
+    
+.showNovaInfo .novaItem:hover &
+    opacity 1

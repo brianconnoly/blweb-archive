@@ -1,0 +1,45 @@
+tC['/novaPostContent/template.jade'] = "<div ng-if=\"postImages.length &gt; 0\"> <div nova-item-object=\"previewData.activeImage\" nova-item-watch=\"nova-item-watch\" class=\"bigPicture novaItem novaItemPreview\"></div> <div ng-if=\"postImages.length &gt; 1\" class=\"pictureSelector\"> <div ng-repeat=\"item in postImages track by item.id\" ng-click=\"setBigPicture(item)\" ng-class=\"{'active':previewData.activeImage==item}\" class=\"postImageItem\"> <div class=\"novaItem novaItemPreview\"></div> <div class=\"selector\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaPostContent', function(contentService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostContent/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.postImages = [];
+      scope.previewData = {
+        activeImage: null
+      };
+      scope.setBigPicture = function(item) {
+        return scope.previewData.activeImage = item;
+      };
+      return scope.$watch('item.contentIds', function(nVal) {
+        var i, id, imageIds, j, len, len1, ref, ref1;
+        if (nVal != null) {
+          scope.postImages.length = 0;
+          imageIds = [];
+          if (nVal.image != null) {
+            ref = nVal.image;
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              imageIds.push(id);
+            }
+          }
+          if (nVal.file != null) {
+            ref1 = nVal.file;
+            for (j = 0, len1 = ref1.length; j < len1; j++) {
+              id = ref1[j];
+              imageIds.push(id);
+            }
+          }
+          if (imageIds.length > 0) {
+            scope.postImages = contentService.getByIdsOptimized(imageIds);
+            return scope.previewData.activeImage = scope.postImages[0];
+          }
+        }
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaPostContent', ".novaPostContent .bigPicture {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  pointer-events: none;\n}\n.novaPostContent .pictureSelector {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  background: rgba(0,0,0,0.6);\n  text-align: center;\n}\n.novaPostContent .pictureSelector .postImageItem {\n  display: inline-block;\n  cursor: pointer;\n}\n.novaPostContent .pictureSelector .postImageItem.active {\n  cursor: default;\n}\n.novaPostContent .pictureSelector .postImageItem.active .selector {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaPostContent .pictureSelector .postImageItem .novaItem {\n  width: 28px;\n  height: 21px;\n  margin: 8px 2px;\n  pointer-events: none;\n}\n.novaPostContent .pictureSelector .postImageItem .selector {\n  position: absolute;\n  bottom: 0;\n  left: 2px;\n  right: 2px;\n  height: 3px;\n  background: #fff;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n");

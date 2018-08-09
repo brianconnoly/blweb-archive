@@ -1,0 +1,7 @@
+div.dragHandler.topBar.noSettings
+    process-bar
+    div.appControls
+    div.title(translate="'sendLogViewerApp_title'")
+
+div.body
+    div.novaLog(ng-repeat="log in schedule.sendLog | orderBy:logOrder")

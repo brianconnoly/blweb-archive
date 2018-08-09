@@ -1,0 +1,39 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('channelMonitorService', function(itemService, account, novaWizard) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'channelMonitor';
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      return novaWizard.register('socialPaintPicker', {
+        type: 'sequence',
+        steps: [
+          {
+            id: 'picker',
+            directive: 'novaSocialPaintPicker',
+            provide: 'paintData',
+            customNext: 'novaWizardAction_create'
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            return typeof data.cb === "function" ? data.cb(data.paintData) : void 0;
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

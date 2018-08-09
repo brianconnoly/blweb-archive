@@ -1,0 +1,15 @@
+tC['/novaWizardProjectCreate/template.jade'] = "<div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardProjectCreate_title'\" translate-placeholder=\"'novaWizardProjectCreate_title_placeholder'\" class=\"titleText\"></div> </div> <div class=\"value\"> <input ng-model=\"wizard.data.name\"/> </div> </div> <div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardProjectCreate_communities'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"wizard.goStep('communities')\" class=\"edit\"></div> </div> <div class=\"value\"> <div ng-repeat=\"id in wizard.data.communityIds\" nova-item-id=\"id\" nova-item-type=\"community\" nova-item-preview-type=\"square\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div> <div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardProjectCreate_members'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"wizard.goStep('members')\" class=\"edit\"></div> </div> <div class=\"value\"> <div ng-repeat=\"id in wizard.data.members\" nova-item-id=\"id\" nova-item-type=\"user\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaWizardProjectCreate', function(communityService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardProjectCreate/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      if (scope.wizard.data.name == null) {
+        return communityService.getById(scope.wizard.data.communityIds[scope.wizard.data.communityIds.length - 1], function(commItem) {
+          return scope.wizard.data.name = commItem.name;
+        });
+      }
+    }
+  };
+});

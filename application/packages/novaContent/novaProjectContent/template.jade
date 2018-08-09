@@ -1,0 +1,3 @@
+div.title(translate="moduleName", ng-click="activateAll()", ng-class="{'active':flow.currentCode == 'projectContent'}")
+div.subItem(ng-repeat="folder in pinned", ng-click="activatePinned(folder)")
+    div.subTitle {{folder.name}}

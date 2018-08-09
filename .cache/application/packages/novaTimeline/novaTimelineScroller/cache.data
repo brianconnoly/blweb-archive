@@ -1,0 +1,940 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('novaTimelineScroller', function(novaVirtualScroller, scheduleService, lazyLoading, $compile) {
+  var novaTimelineScroller, separatorType, sortInt;
+  separatorType = {
+    0: 'day',
+    1: 'day',
+    2: 'week',
+    3: 'month'
+  };
+  sortInt = function(a, b) {
+    if (a * 1 > b * 1) {
+      return 1;
+    }
+    if (a * 1 < b * 1) {
+      return -1;
+    }
+    return 0;
+  };
+  novaTimelineScroller = (function(superClass) {
+    extend(novaTimelineScroller, superClass);
+
+    function novaTimelineScroller(params, scope, elem1) {
+      this.scope = scope;
+      this.elem = elem1;
+      this.fetched = {
+        from: 0,
+        to: 0
+      };
+      this.separators = {};
+      this.currepntSeparator = null;
+      this.placeholders = {};
+      this.rules = params.rules;
+      novaTimelineScroller.__super__.constructor.call(this, params);
+    }
+
+    novaTimelineScroller.prototype.requestSeparator = function(data, cb) {
+      var ref, ref1, ref2, ref3, ref4, ref5, sep;
+      sep = this.separators[data.block.timestamp];
+      sep.scrollerElem = data.elem;
+      sep.page = data.page;
+      sep.pos = data.pos;
+      if (data.page.anchor === 'top') {
+        if (data.page.top + data.pos.top < 0 && ((((ref = this.currepntSeparator) != null ? ref.page : void 0) == null) || (((ref1 = this.currepntSeparator) != null ? ref1.pos : void 0) == null) || (this.currepntSeparator.page.top + this.currepntSeparator.pos.top > data.page.top + data.pos.top))) {
+          if (this.currepntSeparator != null) {
+            if ((ref2 = this.currepntSeparator.scrollerElem) != null) {
+              ref2.append(this.currepntSeparator.elem);
+            }
+            this.currepntSeparator.elem.css('top', 0);
+          }
+          this.currepntSeparator = sep;
+          this.currepntSeparator.hei = data.page.top + data.pos.top;
+          this.elem.append(this.currepntSeparator.elem);
+        } else {
+          cb(sep.elem);
+        }
+      } else {
+        if (data.page.top - data.page.height + data.pos.top < 0 && ((((ref3 = this.currepntSeparator) != null ? ref3.page : void 0) == null) || (((ref4 = this.currepntSeparator) != null ? ref4.pos : void 0) == null) || (this.currepntSeparator.page.top + this.currepntSeparator.pos.top > data.page.top - data.page.height + data.pos.top))) {
+          if (this.currepntSeparator != null) {
+            if ((ref5 = this.currepntSeparator.scrollerElem) != null) {
+              ref5.append(this.currepntSeparator.elem);
+            }
+            this.currepntSeparator.elem.css('top', 0);
+          }
+          this.currepntSeparator = sep;
+          this.currepntSeparator.hei = data.page.top + data.pos.top;
+          this.elem.append(this.currepntSeparator.elem);
+        } else {
+          cb(sep.elem);
+        }
+      }
+      return this.updateSeparator();
+    };
+
+    novaTimelineScroller.prototype.scroll = function(data, fuck) {
+      var _scroller, blocks, found, keyIndex, keyTop, ref, searchPage;
+      novaTimelineScroller.__super__.scroll.call(this, data, fuck);
+      this.updateSeparator();
+      searchPage = null;
+      keyTop = this.keypage.anchor === 'top' ? keyTop = this.keypage.top : keyTop = this.keypage.top - bottom;
+      if (keyTop <= 140) {
+        searchPage = this.keypage;
+      } else {
+        keyIndex = this.pages.indexOf(this.keypage);
+        if (keyIndex < 1) {
+          keyIndex = 1;
+        }
+        searchPage = this.pages[keyIndex - 1];
+      }
+      this.scope.minDiff = 9999999;
+      _scroller = this;
+      if ((searchPage != null ? searchPage.element : void 0) != null) {
+        blocks = searchPage.element.children('.novaTimelineFrameBlock');
+        found = null;
+        blocks.each(function() {
+          var diff, jBlock;
+          jBlock = $(this);
+          if (searchPage.anchor === 'top') {
+            diff = searchPage.top + jBlock.position().top;
+          } else {
+            diff = searchPage.top - searchPage.height + jBlock.position().top;
+          }
+          if ((0 <= diff && diff < _scroller.scope.minDiff)) {
+            _scroller.scope.minDiff = diff;
+            return found = this;
+          }
+        });
+        if (found != null) {
+          if (_scroller.scope.scrollerParams.cursor !== ((ref = angular.element(found).scope().block) != null ? ref.timestamp : void 0)) {
+            _scroller.scope.scrollerParams.cursor = angular.element(found).scope().block.timestamp;
+            return _scroller.scope.$applyAsync();
+          }
+        }
+      }
+    };
+
+    novaTimelineScroller.prototype.getSepTop = function(sep) {
+      var ref;
+      if (((ref = sep.pos) != null ? ref.top : void 0) == null) {
+        return null;
+      }
+      if (sep.page.anchor === 'top') {
+        return sep.page.top + sep.pos.top;
+      } else {
+        return sep.page.top - sep.page.height + sep.pos.top;
+      }
+    };
+
+    novaTimelineScroller.prototype.updateSeparator = function() {
+      var block, currentId, cursor, found, keys, lastTimeObj, newSep, nextDay, ref, ref1, ref2, ref3, ref4, ref5, ref6, sep, sepKeys, sepTop, top, weekDay;
+      if (this.currepntSeparator == null) {
+        keys = Object.keys(this.separators);
+        if (keys.length > 0) {
+          this.currepntSeparator = this.separators[keys[0]];
+        } else {
+          lastTimeObj = new Date(this.params.startFrom);
+          switch (this.scope.currentZoom) {
+            case 3:
+              nextDay = new Date(lastTimeObj.getFullYear(), lastTimeObj.getMonth(), 1).getTime();
+              break;
+            case 2:
+              weekDay = lastTimeObj.getDay();
+              weekDay--;
+              if (weekDay < 0) {
+                weekDay = 6;
+              }
+              nextDay = new Date(lastTimeObj.getFullYear(), lastTimeObj.getMonth(), lastTimeObj.getDate() - weekDay).getTime();
+              break;
+            default:
+              nextDay = new Date(lastTimeObj.getFullYear(), lastTimeObj.getMonth(), lastTimeObj.getDate()).getTime();
+          }
+          block = {
+            type: 'dayBreak',
+            id: nextDay,
+            timestamp: nextDay,
+            dayBreakType: separatorType[this.scope.currentZoom]
+          };
+          newSep = this.generateSeparator(block);
+          this.currepntSeparator = newSep;
+          currentId = cursor;
+          this.elem.append(this.currepntSeparator.elem);
+          setTimeout(function() {
+            return newSep.scope.$applyAsync();
+          }, 0);
+          return;
+        }
+      }
+      sepKeys = Object.keys(this.separators);
+      sepKeys.sort();
+      currentId = sepKeys.indexOf(this.currepntSeparator.block.timestamp + '');
+      if (this.getSepTop(this.currepntSeparator) > 0) {
+        cursor = currentId - 1;
+        found = false;
+        while (cursor >= 0) {
+          sep = this.separators[sepKeys[cursor]];
+          sep.pos = (ref = sep.scrollerElem) != null ? ref.parent().position() : void 0;
+          if ((((ref1 = sep.pos) != null ? ref1.top : void 0) == null) && cursor > 0) {
+            cursor--;
+            continue;
+          }
+          sepTop = this.getSepTop(sep);
+          if (sepTop < 0 || (sepTop === null && cursor === 0)) {
+            found = true;
+            if (this.currepntSeparator.scrollerElem != null) {
+              if ((ref2 = this.currepntSeparator) != null) {
+                ref2.elem.appendTo(this.currepntSeparator.scrollerElem);
+              }
+            } else {
+              this.currepntSeparator.elem.detach();
+            }
+            this.currepntSeparator.elem.css('top', 0);
+            this.currepntSeparator = sep;
+            currentId = cursor;
+            this.elem.append(this.currepntSeparator.elem);
+            cursor = -1;
+          }
+          cursor--;
+        }
+        if (!found) {
+          switch (this.scope.currentZoom) {
+            case 3:
+              lastTimeObj = new Date(this.separators[sepKeys[0]].block.timestamp);
+              nextDay = new Date(lastTimeObj.getFullYear(), lastTimeObj.getMonth() - 1).getTime();
+              break;
+            case 2:
+              nextDay = this.separators[sepKeys[0]].block.timestamp - WEEK;
+              break;
+            default:
+              nextDay = this.separators[sepKeys[0]].block.timestamp - DAY;
+          }
+          block = {
+            type: 'dayBreak',
+            id: nextDay,
+            timestamp: nextDay,
+            dayBreakType: separatorType[this.scope.currentZoom]
+          };
+          newSep = this.generateSeparator(block);
+          if ((ref3 = this.currepntSeparator) != null) {
+            ref3.elem.appendTo(this.currepntSeparator.scrollerElem);
+          }
+          this.currepntSeparator.elem.css('top', 0);
+          this.currepntSeparator = newSep;
+          currentId = cursor;
+          this.elem.append(this.currepntSeparator.elem);
+          setTimeout(function() {
+            return newSep.scope.$applyAsync();
+          }, 0);
+        }
+      } else {
+        cursor = currentId + 1;
+        while (cursor < sepKeys.length) {
+          sep = this.separators[sepKeys[cursor]];
+          sep.pos = (ref4 = sep.scrollerElem) != null ? ref4.parent().position() : void 0;
+          if (((ref5 = sep.pos) != null ? ref5.top : void 0) == null) {
+            cursor++;
+            continue;
+          }
+          if (this.getSepTop(sep) < 0) {
+            if (this.currepntSeparator.scrollerElem != null) {
+              if ((ref6 = this.currepntSeparator) != null) {
+                ref6.elem.appendTo(this.currepntSeparator.scrollerElem);
+              }
+            } else {
+              this.currepntSeparator.elem.detach();
+            }
+            this.currepntSeparator.elem.css('top', 0);
+            this.currepntSeparator = sep;
+            currentId = cursor;
+            this.elem.append(this.currepntSeparator.elem);
+          }
+          cursor++;
+        }
+      }
+      if (this.separators[sepKeys[currentId + 1]] != null) {
+        sep = this.separators[sepKeys[currentId + 1]];
+        top = this.getSepTop(sep);
+        if ((top != null) && top < 140) {
+          return this.currepntSeparator.elem.css('top', top - 140);
+        } else {
+          return this.currepntSeparator.elem.css('top', 0);
+        }
+      }
+    };
+
+    novaTimelineScroller.prototype.switchWithCurrent = function(separator) {
+      return true;
+    };
+
+    novaTimelineScroller.prototype.generateSeparator = function(block, page) {
+      var elem, sepScope;
+      if (this.separators[block.timestamp] == null) {
+        elem = $('<div>', {
+          "class": 'novaTimelineDayView'
+        });
+        sepScope = this.scope.$new();
+        sepScope.block = block;
+        sepScope.debug = [];
+        elem = $($compile(elem)(sepScope));
+        this.separators[block.timestamp] = {};
+        this.separators[block.timestamp].elem = elem;
+        this.separators[block.timestamp].scope = sepScope;
+      }
+      this.separators[block.timestamp].block = block;
+      this.separators[block.timestamp].page = page;
+      return this.separators[block.timestamp];
+    };
+
+    novaTimelineScroller.prototype.buildPage = function(page) {
+      var aa, ab, block, curMon, curYear, currentWeekDay, fromObj, i, incDay, j, k, key, l, lastDayStart, lastDayTs, lastTime, lastTs, len, len1, len10, len11, len12, len2, len3, len4, len5, len6, len7, len8, len9, m, n, nextDay, nextSub, o, p, pHolderTimestamp, pholderRules, pocketKeys, q, r, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, rule, ruleKey, ruleKeys, s, t, toObj, u, v, w, weekDay, x, y, z;
+      page.blocks.length = 0;
+      page.height = 0;
+      pocketKeys = Object.keys(this.pockets);
+      pocketKeys.sort();
+      ruleKeys = (function() {
+        var ref, results;
+        ref = this.placeholders;
+        results = [];
+        for (k in ref) {
+          v = ref[k];
+          results.push(k * 1);
+        }
+        return results;
+      }).call(this);
+      ruleKeys.sort(sortInt);
+      if (((page != null ? (ref = page.query) != null ? ref.from : void 0 : void 0) != null) && page.anchor !== 'bottom') {
+        fromObj = new Date(page.query.from);
+        switch (this.scope.currentZoom) {
+          case 3:
+            curYear = fromObj.getFullYear();
+            curMon = fromObj.getMonth() + 1;
+            nextDay = new Date(curYear, curMon).getTime();
+            incDay = MONTH;
+            nextSub = new Date(fromObj.getFullYear(), fromObj.getMonth(), fromObj.getDate() + 1).getTime();
+            break;
+          case 2:
+            weekDay = fromObj.getDay();
+            weekDay--;
+            if (weekDay < 0) {
+              weekDay = 6;
+            }
+            nextSub = new Date(fromObj.getFullYear(), fromObj.getMonth(), fromObj.getDate() + 1).getTime();
+            nextDay = nextSub + (6 - weekDay) * DAY;
+            incDay = WEEK;
+            break;
+          default:
+            nextDay = new Date(fromObj.getFullYear(), fromObj.getMonth(), fromObj.getDate() + 1).getTime();
+            incDay = DAY;
+            nextSub = nextDay;
+        }
+        lastTs = page.query.from;
+        if (this.scope.currentZoom < 2) {
+          for (i = 0, len = pocketKeys.length; i < len; i++) {
+            key = pocketKeys[i];
+            if (key * 1 > page.query.from) {
+              while (key * 1 > nextDay && page.height < this.params.pageHeight) {
+                lastTime = new Date(lastTs);
+                lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+                lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate()).getTime();
+                currentWeekDay = lastTime.getDay();
+                for (j = 0, len1 = ruleKeys.length; j < len1; j++) {
+                  ruleKey = ruleKeys[j];
+                  pHolderTimestamp = lastDayStart + ruleKey;
+                  if (pHolderTimestamp < lastTs) {
+                    continue;
+                  }
+                  if (pHolderTimestamp >= nextDay) {
+                    break;
+                  }
+                  if (page.height > this.params.pageHeight) {
+                    break;
+                  }
+                  pholderRules = [];
+                  ref1 = this.placeholders[ruleKey];
+                  for (l = 0, len2 = ref1.length; l < len2; l++) {
+                    rule = ref1[l];
+                    if (rule.dayMask[currentWeekDay]) {
+                      pholderRules.push(rule.rule);
+                    }
+                  }
+                  if (pholderRules.length > 0) {
+                    page.blocks.push({
+                      type: 'placeholder',
+                      rules: pholderRules,
+                      id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                      timestamp: pHolderTimestamp
+                    });
+                    page.height += 40;
+                    lastTs = pHolderTimestamp;
+                  }
+                  lastTs = pHolderTimestamp;
+                }
+                if (page.height > this.params.pageHeight) {
+                  break;
+                }
+                block = {
+                  type: 'dayBreak',
+                  id: nextDay + '_' + this.scope.currentZoom,
+                  timestamp: nextDay,
+                  dayBreakType: separatorType[this.scope.currentZoom]
+                };
+                this.generateSeparator(block, page);
+                page.blocks.push(block);
+                page.height += 140;
+                lastTs = nextDay;
+                if (this.scope.currentZoom === 3) {
+                  curMon++;
+                  nextDay = new Date(curYear, curMon).getTime();
+                } else {
+                  nextDay += incDay;
+                }
+              }
+              if (page.height > this.params.pageHeight) {
+                break;
+              }
+              lastTime = new Date(lastTs);
+              lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+              lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate()).getTime();
+              currentWeekDay = lastTime.getDay();
+              for (m = 0, len3 = ruleKeys.length; m < len3; m++) {
+                ruleKey = ruleKeys[m];
+                pHolderTimestamp = lastDayStart + ruleKey;
+                if (pHolderTimestamp < lastTs) {
+                  continue;
+                }
+                if (pHolderTimestamp >= key * 1 || pHolderTimestamp >= nextDay) {
+                  break;
+                }
+                if (page.height > this.params.pageHeight) {
+                  break;
+                }
+                pholderRules = [];
+                ref2 = this.placeholders[ruleKey];
+                for (n = 0, len4 = ref2.length; n < len4; n++) {
+                  rule = ref2[n];
+                  if (rule.dayMask[currentWeekDay]) {
+                    pholderRules.push(rule.rule);
+                  }
+                }
+                if (pholderRules.length > 0) {
+                  page.blocks.push({
+                    type: 'placeholder',
+                    rules: pholderRules,
+                    id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                    timestamp: pHolderTimestamp
+                  });
+                  page.height += 40;
+                  lastTs = pHolderTimestamp;
+                }
+                lastTs = pHolderTimestamp;
+              }
+              page.blocks.push({
+                type: 'schedule',
+                schedules: this.pockets[key],
+                id: key * 1 + 'schedule' + '_' + this.scope.currentZoom,
+                timestamp: key * 1
+              });
+              page.height += 40;
+              lastTs = key * 1;
+            }
+            nextSub = nextDay;
+          }
+        }
+        if (this.scope.currentZoom < 2 && page.height < this.params.pageHeight) {
+          lastTime = new Date(lastTs);
+          lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+          lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate()).getTime();
+          currentWeekDay = lastTime.getDay();
+          for (o = 0, len5 = ruleKeys.length; o < len5; o++) {
+            ruleKey = ruleKeys[o];
+            pHolderTimestamp = lastDayStart + ruleKey;
+            if (pHolderTimestamp <= lastTs) {
+              continue;
+            }
+            if (pHolderTimestamp >= nextDay || pHolderTimestamp >= nextDay) {
+              break;
+            }
+            if (page.height > this.params.pageHeight) {
+              break;
+            }
+            pholderRules = [];
+            ref3 = this.placeholders[ruleKey];
+            for (p = 0, len6 = ref3.length; p < len6; p++) {
+              rule = ref3[p];
+              if (rule.dayMask[currentWeekDay]) {
+                pholderRules.push(rule.rule);
+              }
+            }
+            if (pholderRules.length > 0) {
+              page.blocks.push({
+                type: 'placeholder',
+                rules: pholderRules,
+                id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                timestamp: pHolderTimestamp
+              });
+              page.height += 40;
+              lastTs = pHolderTimestamp;
+            }
+            lastTs = pHolderTimestamp;
+          }
+        }
+        while (page.height < this.params.pageHeight) {
+          if (nextSub === nextDay || this.scope.currentZoom < 2) {
+            block = {
+              type: 'dayBreak',
+              "static": false,
+              id: nextSub + '_' + this.scope.currentZoom,
+              timestamp: nextSub,
+              dayBreakType: separatorType[this.scope.currentZoom]
+            };
+            this.generateSeparator(block, page);
+            page.blocks.push(block);
+          }
+          if (this.scope.currentZoom > 1) {
+            block = {
+              type: 'dayBreak',
+              "static": true,
+              id: nextSub + 'static' + '_' + this.scope.currentZoom,
+              timestamp: nextSub,
+              dayBreakType: 'day'
+            };
+            page.blocks.push(block);
+          }
+          page.height += 140;
+          lastTs = nextSub;
+          if (nextSub === nextDay) {
+            if (this.scope.currentZoom === 3) {
+              curMon++;
+              nextDay = new Date(curYear, curMon).getTime();
+            } else {
+              nextDay += incDay;
+            }
+          }
+          nextSub += DAY;
+          if (this.scope.currentZoom < 2 && page.height < this.params.pageHeight) {
+            lastTime = new Date(lastTs);
+            lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+            lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate()).getTime();
+            currentWeekDay = lastTime.getDay();
+            for (q = 0, len7 = ruleKeys.length; q < len7; q++) {
+              ruleKey = ruleKeys[q];
+              pHolderTimestamp = lastDayStart + ruleKey;
+              if (pHolderTimestamp < lastTs) {
+                continue;
+              }
+              if (pHolderTimestamp >= nextDay || pHolderTimestamp >= nextDay) {
+                break;
+              }
+              if (page.height > this.params.pageHeight) {
+                break;
+              }
+              pholderRules = [];
+              ref4 = this.placeholders[ruleKey];
+              for (r = 0, len8 = ref4.length; r < len8; r++) {
+                rule = ref4[r];
+                if (rule.dayMask[currentWeekDay]) {
+                  pholderRules.push(rule.rule);
+                }
+              }
+              if (pholderRules.length > 0) {
+                page.blocks.push({
+                  type: 'placeholder',
+                  rules: pholderRules,
+                  id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                  timestamp: pHolderTimestamp
+                });
+                page.height += 40;
+                lastTs = pHolderTimestamp;
+              }
+              lastTs = pHolderTimestamp;
+            }
+          }
+        }
+        page.query.to = lastTs + MIN;
+      } else {
+        toObj = new Date(page.query.to);
+        switch (this.scope.currentZoom) {
+          case 3:
+            curYear = toObj.getFullYear();
+            curMon = toObj.getMonth();
+            nextDay = new Date(curYear, curMon).getTime();
+            incDay = MONTH;
+            nextSub = new Date(toObj.getFullYear(), toObj.getMonth(), toObj.getDate()).getTime();
+            break;
+          case 2:
+            weekDay = toObj.getDay();
+            weekDay--;
+            if (weekDay < 0) {
+              weekDay = 6;
+            }
+            nextSub = new Date(toObj.getFullYear(), toObj.getMonth(), toObj.getDate()).getTime();
+            nextDay = nextSub - weekDay * DAY;
+            incDay = WEEK;
+            break;
+          default:
+            nextDay = new Date(toObj.getFullYear(), toObj.getMonth(), toObj.getDate()).getTime();
+            incDay = DAY;
+            nextSub = nextDay;
+        }
+        lastTs = page.query.to;
+        if (this.scope.currentZoom < 2) {
+          for (s = pocketKeys.length - 1; s >= 0; s += -1) {
+            key = pocketKeys[s];
+            if (key * 1 < page.query.to) {
+              while (key * 1 < nextDay && page.height < this.params.pageHeight) {
+                lastTime = new Date(lastTs);
+                lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+                lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate()).getTime();
+                currentWeekDay = lastTime.getDay();
+                for (t = ruleKeys.length - 1; t >= 0; t += -1) {
+                  ruleKey = ruleKeys[t];
+                  pHolderTimestamp = lastDayStart + ruleKey;
+                  if (pHolderTimestamp >= lastTs) {
+                    continue;
+                  }
+                  if (pHolderTimestamp < nextDay) {
+                    break;
+                  }
+                  if (page.height > this.params.pageHeight) {
+                    break;
+                  }
+                  pholderRules = [];
+                  ref5 = this.placeholders[ruleKey];
+                  for (u = 0, len9 = ref5.length; u < len9; u++) {
+                    rule = ref5[u];
+                    if (rule.dayMask[currentWeekDay]) {
+                      pholderRules.push(rule.rule);
+                    }
+                  }
+                  if (pholderRules.length > 0) {
+                    page.blocks.unshift({
+                      type: 'placeholder',
+                      rules: pholderRules,
+                      id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                      timestamp: pHolderTimestamp
+                    });
+                    page.height += 40;
+                    lastTs = pHolderTimestamp;
+                  }
+                  lastTs = pHolderTimestamp;
+                }
+                if (page.height > this.params.pageHeight) {
+                  break;
+                }
+                block = {
+                  type: 'dayBreak',
+                  id: nextDay + '_' + this.scope.currentZoom,
+                  timestamp: nextDay,
+                  dayBreakType: separatorType[this.scope.currentZoom]
+                };
+                this.generateSeparator(block, page);
+                page.blocks.unshift(block);
+                page.height += 140;
+                lastTs = nextDay;
+                if (this.scope.currentZoom === 3) {
+                  curMon--;
+                  nextDay = new Date(curYear, curMon).getTime();
+                } else {
+                  nextDay -= incDay;
+                }
+              }
+              if (page.height > this.params.pageHeight) {
+                break;
+              }
+              lastTime = new Date(lastTs);
+              lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+              lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate() - 1).getTime();
+              currentWeekDay = lastTime.getDay();
+              for (w = ruleKeys.length - 1; w >= 0; w += -1) {
+                ruleKey = ruleKeys[w];
+                pHolderTimestamp = lastDayStart + ruleKey;
+                if (pHolderTimestamp > lastTs) {
+                  continue;
+                }
+                if (pHolderTimestamp < key * 1 || pHolderTimestamp < nextDay) {
+                  break;
+                }
+                if (page.height > this.params.pageHeight) {
+                  break;
+                }
+                pholderRules = [];
+                ref6 = this.placeholders[ruleKey];
+                for (x = 0, len10 = ref6.length; x < len10; x++) {
+                  rule = ref6[x];
+                  if (rule.dayMask[currentWeekDay]) {
+                    pholderRules.push(rule.rule);
+                  }
+                }
+                if (pholderRules.length > 0) {
+                  page.blocks.unshift({
+                    type: 'placeholder',
+                    rules: pholderRules,
+                    id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                    timestamp: pHolderTimestamp
+                  });
+                  page.height += 40;
+                  lastTs = pHolderTimestamp;
+                }
+                lastTs = pHolderTimestamp;
+              }
+              page.blocks.unshift({
+                type: 'schedule',
+                schedules: this.pockets[key],
+                timestamp: key * 1,
+                id: key * 1 + 'schedule' + '_' + this.scope.currentZoom
+              });
+              page.height += 40;
+              lastTs = key * 1;
+              nextSub = nextDay;
+            }
+          }
+        }
+        if (this.scope.currentZoom < 2 && page.height < this.params.pageHeight) {
+          lastTime = new Date(lastTs);
+          lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+          lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate()).getTime();
+          currentWeekDay = lastTime.getDay();
+          for (y = ruleKeys.length - 1; y >= 0; y += -1) {
+            ruleKey = ruleKeys[y];
+            pHolderTimestamp = lastDayStart + ruleKey;
+            if (pHolderTimestamp >= lastTs) {
+              continue;
+            }
+            if (pHolderTimestamp < nextDay || pHolderTimestamp < nextDay) {
+              break;
+            }
+            if (page.height > this.params.pageHeight) {
+              break;
+            }
+            pholderRules = [];
+            ref7 = this.placeholders[ruleKey];
+            for (z = 0, len11 = ref7.length; z < len11; z++) {
+              rule = ref7[z];
+              if (rule.dayMask[currentWeekDay]) {
+                pholderRules.push(rule.rule);
+              }
+            }
+            if (pholderRules.length > 0) {
+              page.blocks.unshift({
+                type: 'placeholder',
+                rules: pholderRules,
+                id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                timestamp: pHolderTimestamp
+              });
+              page.height += 40;
+              lastTs = pHolderTimestamp;
+            }
+            lastTs = pHolderTimestamp;
+          }
+        }
+        while (page.height < this.params.pageHeight) {
+          if (this.scope.currentZoom > 1) {
+            block = {
+              type: 'dayBreak',
+              "static": true,
+              id: nextSub + 'static' + '_' + this.scope.currentZoom,
+              timestamp: nextSub,
+              dayBreakType: 'day'
+            };
+            page.blocks.unshift(block);
+          }
+          if (nextSub === nextDay || this.scope.currentZoom < 2) {
+            block = {
+              type: 'dayBreak',
+              "static": false,
+              id: nextSub + '_' + this.scope.currentZoom,
+              timestamp: nextSub,
+              dayBreakType: separatorType[this.scope.currentZoom]
+            };
+            this.generateSeparator(block, page);
+            page.blocks.unshift(block);
+          }
+          page.height += 140;
+          lastTs = nextSub;
+          if (nextSub === nextDay) {
+            if (this.scope.currentZoom === 3) {
+              curMon--;
+              nextDay = new Date(curYear, curMon).getTime();
+            } else {
+              nextDay -= incDay;
+            }
+          }
+          nextSub -= DAY;
+          if (this.scope.currentZoom < 2 && page.height < this.params.pageHeight) {
+            lastTime = new Date(lastTs);
+            lastDayTs = lastTime.getHours() * HOUR + lastTime.getMinutes() * MIN;
+            lastDayStart = new Date(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate() - 1).getTime();
+            currentWeekDay = lastTime.getDay();
+            for (aa = ruleKeys.length - 1; aa >= 0; aa += -1) {
+              ruleKey = ruleKeys[aa];
+              pHolderTimestamp = lastDayStart + ruleKey;
+              if (pHolderTimestamp >= lastTs) {
+                continue;
+              }
+              if (pHolderTimestamp < nextDay) {
+                break;
+              }
+              if (page.height > this.params.pageHeight) {
+                break;
+              }
+              pholderRules = [];
+              ref8 = this.placeholders[ruleKey];
+              for (ab = 0, len12 = ref8.length; ab < len12; ab++) {
+                rule = ref8[ab];
+                if (rule.dayMask[currentWeekDay]) {
+                  pholderRules.push(rule.rule);
+                }
+              }
+              if (pholderRules.length > 0) {
+                page.blocks.unshift({
+                  type: 'placeholder',
+                  rules: pholderRules,
+                  id: pHolderTimestamp * 1 + 'placeholder' + '_' + this.scope.currentZoom,
+                  timestamp: pHolderTimestamp
+                });
+                page.height += 40;
+                lastTs = pHolderTimestamp;
+              }
+              lastTs = pHolderTimestamp;
+            }
+          }
+        }
+        page.query.from = lastTs - MIN;
+      }
+      return page;
+    };
+
+    novaTimelineScroller.prototype.isPageAffected = function(page, pocketId) {
+      var ref;
+      return (page.query.from < (ref = pocketId * 1) && ref < page.query.to);
+    };
+
+    novaTimelineScroller.prototype.pickPocket = function(item) {
+      return item.timestamp;
+    };
+
+    novaTimelineScroller.prototype.doFetch = function(query, cb) {
+      var doQuery, finalQuery;
+      finalQuery = {};
+      updateObject(finalQuery, this.query);
+      doQuery = false;
+      if (query.to > this.fetched.to) {
+        this.fetched.to = query.to;
+        doQuery = true;
+      }
+      if (query.from < this.fetched.from || this.fetched.from === 0) {
+        this.fetched.from = query.from;
+        doQuery = true;
+      }
+      if (doQuery) {
+        return lazyLoading.callLazyLoad(finalQuery.communityIds, query.from, query.to, cb);
+      }
+    };
+
+    novaTimelineScroller.prototype.processAffected = function(affectedPockets) {
+      var i, keyIndex, len, pocketId, ref, updateFlags;
+      if ((this.keypage != null) && affectedPockets.length > 0) {
+        updateFlags = {
+          update: false,
+          updPrev: false,
+          updNext: false,
+          updCur: false
+        };
+        for (i = 0, len = affectedPockets.length; i < len; i++) {
+          pocketId = affectedPockets[i];
+          if (pocketId * 1 < this.keypage.query.from) {
+            updateFlags.update = true;
+            updateFlags.updPrev = true;
+            continue;
+          }
+          if (pocketId * 1 > this.keypage.query.to) {
+            updateFlags.update = true;
+            updateFlags.updNext = true;
+            continue;
+          }
+          if ((this.keypage.query.to >= (ref = pocketId * 1) && ref >= this.keypage.query.from)) {
+            updateFlags.update = true;
+            updateFlags.updCur = true;
+            continue;
+          }
+        }
+        if (updateFlags.update === false) {
+          return;
+        }
+        if (updateFlags.updPrev) {
+          keyIndex = this.pages.indexOf(this.keypage);
+          if (keyIndex > 1) {
+            this.pages.splice(0, keyIndex - 1);
+          }
+          this.buildPage(this.pages[0]);
+        }
+        if (updateFlags.updCur) {
+          keyIndex = this.pages.indexOf(this.keypage);
+          if (this.pages.length > keyIndex + 1) {
+            this.pages.length = keyIndex + 1;
+          }
+          this.buildPage(this.keypage);
+        } else if (updateFlags.updNext) {
+          keyIndex = this.pages.indexOf(this.keypage);
+          if (this.pages.length > keyIndex + 2) {
+            this.pages.length = keyIndex + 2;
+          }
+          if (this.pages[keyIndex + 1] != null) {
+            this.buildPage(this.pages[keyIndex + 1]);
+          }
+        }
+      }
+      this.scroll(0, 'fuck');
+      return this.apply();
+    };
+
+    novaTimelineScroller.prototype.rebuild = function(full) {
+      var k, ref, ref1, ref2, sep;
+      if (full == null) {
+        full = false;
+      }
+      ref = this.separators;
+      for (k in ref) {
+        sep = ref[k];
+        sep.scope.$destroy();
+        sep.elem.remove();
+      }
+      emptyObject(this.separators);
+      if ((ref1 = this.currepntSeparator) != null) {
+        if ((ref2 = ref1.elem) != null) {
+          ref2.detach();
+        }
+      }
+      this.currepntSeparator = null;
+      return novaTimelineScroller.__super__.rebuild.call(this, full);
+    };
+
+    novaTimelineScroller.prototype.updatePlaceholders = function(rules) {
+      var code, dO, i, len, ref, rule;
+      this.rules = rules;
+      emptyObject(this.placeholder);
+      ref = this.rules;
+      for (i = 0, len = ref.length; i < len; i++) {
+        rule = ref[i];
+        dO = new Date(rule.timestampStart);
+        code = dO.getHours() * HOUR + dO.getMinutes() * MIN;
+        if (this.placeholders[code] == null) {
+          this.placeholders[code] = [];
+        }
+        this.placeholders[code].push({
+          dayMask: rule.dayMask,
+          start: rule.timestampStart,
+          end: rule.end ? rule.timestampEnd : false,
+          combId: rule.combId,
+          rule: rule
+        });
+      }
+      return this.rebuild(true);
+    };
+
+    return novaTimelineScroller;
+
+  })(novaVirtualScroller);
+  return novaTimelineScroller;
+});

@@ -1,0 +1,30 @@
+buzzlike.directive('picPreload', function($rootScope) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      attrs.$observe('src', function(v) {
+        if (v) {
+          return scope.processImage(v);
+        }
+      });
+      scope.processImage = function(src) {
+        var img, parent;
+        parent = elem.parent();
+        img = new Image();
+        img.onload = function() {
+          if (attrs.previewBox != null) {
+            elem.css(imageInRatio(this, 54 / 70));
+          } else {
+            elem.css(imageIn(this, parent.width(), parent.height(), attrs.fullView != null, true));
+          }
+          return elem.addClass('visible');
+        };
+        return img.src = $rootScope.proxyImage(src);
+      };
+      scope.processImage(attrs.src);
+      return true;
+    }
+  };
+});

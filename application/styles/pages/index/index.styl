@@ -1,0 +1,206 @@
+.hintMessage
+    position: absolute
+    background: #eceb6f
+
+    left 20px
+    bottom 20px
+
+    width 250px
+
+    padding 20px
+
+    z-index: 9999
+
+    display: none
+
+    div.contents
+        display: block
+        margin-bottom 10px
+        margin-top: 10px
+
+    a.more
+        float: right
+        color #000
+
+    a.noMore
+        color: #000
+        font-size 12px
+
+    a.close
+        position: absolute
+        top 2px
+        left 5px
+        text-decoration: none
+        width 20px
+        height 20px
+        sprite "/resources/images/icons/square-cross.png"
+        opacity 0.3
+
+        &:hover
+            opacity 0.7
+            cursor pointer
+
+.progressBar
+    position: absolute
+
+    top 0
+    right 0
+    left 0
+    height 2px
+
+    pointer-events none
+
+    z-index 9999
+
+    opacity 0
+
+    transition all 0.2s ease
+
+    .value
+        height 100%
+        background rgba(255,30,49,0.90) //rgba(0,195,0,0.7)
+        transition width 0.2s ease
+
+    &.active
+        opacity 1
+
+.background
+    position absolute
+
+    top 0
+    bottom 0
+    left 0
+    right 0
+    //background #088
+
+    transition background 0.5s ease
+
+    .gradient
+        position: absolute
+        top 0
+        bottom 0
+        left 0
+        right 0
+
+        opacity 0
+
+        transition opacity 0.5s ease
+
+        .turbo &
+            opacity: 1 !important
+            display: none
+
+        &.queue
+            background: rgb(39,39,34)
+
+        &.content
+            background: linear-gradient(to bottom, #6D9F28 0%, #9EDA4E 50%, #6D9F28 100%)
+
+            .turbo &
+                background: #6D9F28
+
+        &.timeline
+            background: linear-gradient(to bottom, #3786B4 0%, #67B9E8 50%, #3786B4 100%)
+
+            .turbo &
+                background: #3786B4
+
+        &.combs
+            background: linear-gradient(to bottom, #FBC13A 0%, #F9D158 50%, #FBC13A 100%)
+
+            .turbo &
+                background: #FBC13A
+
+        &.login
+            background: linear-gradient(to bottom, rgb( 70, 70, 70 ) 0%, rgb( 208, 208, 208 ) 50%, rgb( 70, 70, 70 ) 100%)
+
+            .turbo &
+                background: rgb( 208, 208, 208 )
+
+        &.market
+            background: linear-gradient(to bottom, #231F20 0%, #231F20 50%, #231F20 100%)
+
+            .turbo &
+                background: #231F20
+
+        &.classic
+            background: #fff
+
+        &.active
+            opacity: 0.8
+
+            .turbo &
+                opacity 1
+                display: block
+
+    div.container
+        opacity 1
+        transition all 0.2s ease
+    div
+        position: absolute
+
+.main-wrapper
+    top 0
+    bottom 0
+    right 0
+    left 0
+    position: absolute
+
+    opacity: 0.01
+    transform: scale(0.9)
+
+    transition all ease 0.5s
+
+    .noBigLoading &
+        opacity: 1
+        transform scale(1)
+
+    &.permanentRight
+        
+        .nwflw_view
+            right 200px
+        
+        .selectedPanel
+            right 0
+            transform none !important
+            transition none !important
+
+    &.touch
+        bottom 40px
+
+    .combs_view
+        position absolute !important
+        height auto !important
+        top 0
+        bottom 0
+        right 0
+        left 0
+
+        vendor perspective, 800px
+        vendor transform-style, preserve-3d
+        transition transform 1s ease
+
+        font-family Helvetica
+
+        .content
+            position absolute
+            float: left
+            padding 20px
+            border-radius 20px
+
+            background rgba(255,255,255,0.95)
+
+            min-width 300px
+            min-height 200px
+
+            transition all 0.2s ease
+
+            margin-bottom 20px
+
+            &.back
+                transform translateZ(-1000px)
+
+                cursor: pointer
+
+                &:hover
+                    transform translateZ(-950px)

@@ -1,0 +1,52 @@
+tC['/novaInfoFrame/template.jade'] = "<div> <div ng-model=\"infoItem.name\" placeholder-text=\"'novaInfoFrame_itemName'\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }\" ng-change=\"updateName()\" auto-focus=\"auto-focus\" on-enter=\"updateName\" class=\"itemName novaEditableDiv\"></div> <div nova-item-object=\"infoItem\" nova-item-preview-type=\"detailed\" ng-class=\"{'big':bigPreview()}\" class=\"detailedItemPreview novaItemScope novaItem novaItemPreview\"></div> <div class=\"itemDetails\"> <div ng-if=\"infoItem.type == 'audio'\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_songArtist'\" class=\"caption\"></div> <div class=\"value\">{{::infoItem.artist}}</div> </div> <div ng-if=\"infoItem.type == 'audio'\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_songTitle'\" class=\"caption\"></div> <div class=\"value\">{{::infoItem.title}}</div> </div> <div ng-if=\"infoItem.type == 'text'\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_textLength'\" class=\"caption\"></div> <div class=\"value\">{{infoItem.value.length}}</div> </div> <div ng-if=\"infoItem.duration\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_contentLength'\" class=\"caption\"></div> <div class=\"value\">{{::infoItem.duration | secondsToHumanTime}}</div> </div> <div ng-if=\"infoItem.type == 'post'\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_attachmentsNumber'\" class=\"caption\"></div> <div class=\"value\">{{getAttachments()}}</div> </div> <div ng-if=\"infoItem.type == 'comb'\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_postsNumber'\" class=\"caption\"></div> <div class=\"value\">{{infoItem.postIds.length}}</div> </div> <div ng-if=\"infoItem.type == 'poll'\" class=\"detailLine\"> <div translate=\"'novaInfoFrame_answersNumber'\" class=\"caption\"></div> <div class=\"value\">{{infoItem.answers.length}}</div> </div> <div class=\"detailLine\"> <div translate=\"'novaInfoFrame_sentCount'\" class=\"caption\"></div> <div class=\"value\">{{infoItem.useInSentPosts}}</div> </div> <div class=\"detailLine\"> <div translate=\"'novaInfoFrame_activity'\" class=\"caption\"></div> <div class=\"value\">{{getActivity()}}</div> </div> <div class=\"detailLine\"> <div translate=\"'novaInfoFrame_created'\" class=\"caption\"></div> <div class=\"value\">{{::item.created | timestampMask: \"DD MMM 'YY\"}}</div> </div> <div class=\"detailLine\"> <div translate=\"'novaInfoFrame_owner'\" class=\"caption\"></div> <div class=\"value\"> <div nova-item-object=\"owner\" nova-item-preview-type=\"name\" class=\"novaItemScope novaItem novaItemPreview novaItemDraggable novaItemDroppable\"></div> </div> </div> </div> </div>";
+
+buzzlike.directive('novaInfoFrame', function(operationsService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaInfoFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.flowFrame.maxWidth = 320;
+      scope.infoItem = operationsService.get(scope.flowFrame.item.type, scope.flowFrame.item.id, function(item) {
+        return scope.owner = operationsService.get('user', item.userId);
+      });
+      scope.getAttachments = function() {
+        var cnt, k, ref, ref1, v;
+        if (((ref = scope.infoItem) != null ? ref.type : void 0) == null) {
+          return;
+        }
+        cnt = 0;
+        ref1 = scope.infoItem.contentIds;
+        for (k in ref1) {
+          v = ref1[k];
+          cnt += v.length;
+        }
+        return cnt;
+      };
+      scope.getActivity = function() {
+        var cnt, k, ref, ref1, v;
+        if (((ref = scope.infoItem) != null ? ref.type : void 0) == null) {
+          return;
+        }
+        cnt = 0;
+        ref1 = scope.infoItem.lastStats;
+        for (k in ref1) {
+          v = ref1[k];
+          if (k !== 'activity') {
+            cnt += v;
+          }
+        }
+        if (cnt === 0) {
+          cnt = '—';
+        }
+        return cnt;
+      };
+      return scope.bigPreview = function() {
+        var ref;
+        return (ref = scope.infoItem.type) === 'image' || ref === 'file';
+      };
+    }
+  };
+});
+
+registerStyles('novaInfoFrame', ".novaInfoFrame .itemName {\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 3px 10px;\n  outline: none;\n  font-weight: bolder;\n  font-size: 16px;\n  margin-top: 4px;\n  line-height: 20px;\n}\n.novaInfoFrame .itemName.placeholder {\n  color: #999;\n}\n.novaInfoFrame .detailedItemPreview {\n  margin: 10px;\n  height: 240px;\n}\n.novaInfoFrame .detailedItemPreview.big {\n  min-height: 400px;\n}\n.novaInfoFrame .itemDetails {\n  margin: 20px;\n}\n.novaInfoFrame .itemDetails .detailLine {\n  height: 26px;\n  line-height: 26px;\n  font-size: 14px;\n  border-bottom: 1px solid rgba(0,0,0,0.03);\n  overflow: hidden;\n}\n.novaInfoFrame .itemDetails .detailLine:last-child {\n  border-bottom: none;\n}\n.novaInfoFrame .itemDetails .detailLine .caption {\n  float: left;\n  width: 50%;\n}\n.novaInfoFrame .itemDetails .detailLine .value {\n  float: left;\n  width: 50%;\n  text-align: right;\n}\n");

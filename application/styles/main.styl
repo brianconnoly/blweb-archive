@@ -1,0 +1,371 @@
+//const
+$rightPanelWidth = 200px
+$leftPanelWidth = 250px
+
+*[contenteditable]
+    user-select: auto !important;
+
+body
+    padding 0
+    margin 0
+
+    overflow hidden
+    position: absolute !important
+
+    top 0
+    right 0
+    left 0
+    bottom:0
+
+    &.ipad
+        @media (orientation:landscape)
+            position fixed
+            top: auto
+            height: 672px !important;
+
+        @media (orientation:portrait)
+            position absolute
+            top: 0
+            //height: 672px !important;
+
+.main-wrapper
+    padding 0
+    margin 0
+
+    overflow hidden
+    position: absolute
+
+    top 0
+    bottom 0
+    left 0
+    right 0
+
+
+#viewport
+    overflow: hidden
+    position: absolute
+
+    top 0
+    bottom 0
+    left 0
+    right 0
+
+.deleting
+    opacity: 0.5
+
+*:not(html) {
+    // transform translate3d(0, 0, 0)
+    position relative
+}
+
+.option-blur-on .blur-here
+    vendor filter blur(0px)
+    transition filter ease 0.3s
+
+.option-blur-on.blur-active .blur-here
+    vendor filter blur(20px)
+
+.defaultCheckboxText
+    background none
+    color #fff
+    opacity 0.2
+    font-size 16px
+
+    &[disabled]
+        background none
+        color #fff
+        opacity 1
+        &:hover
+            cursor default
+
+.defaultButtons
+    background none
+    color #fff
+    opacity 1
+    font-size 16px
+
+    &[disabled]
+        background none
+        color #fff
+        opacity 0.2
+        &:hover
+            cursor default
+
+// OVERLAY
+.overlays
+    display none
+    position fixed
+    top 0
+    bottom 0
+    left 0
+    right 0
+
+    &.withTop
+        top 44px
+
+    &.active
+        display block
+
+    .overlay
+        position absolute
+        top 0
+        bottom 0
+        left 0
+        right 0
+
+        .close
+            position absolute
+            top 0px
+            left 0px
+            width 80px
+            height 80px
+
+            cursor pointer
+            sprite "/resources/images/icons/closers/big-white.png"
+
+        .center
+            position relative
+            width 480px
+            height 100%
+            margin auto
+            overflow hidden
+
+
+
+// BUZZLIKE Turbo
+.turbo 
+    *
+        transition none !important
+
+// WAIT!!!
+.wait *
+    cursor: wait !important
+
+.ios-nodelay.pushed
+    opacity: 0.5
+
+//Just floats
+.float-left
+    float: left
+
+.float-right
+    float: right
+
+//-----------
+.requestStatus
+    position absolute
+    top 0
+    left 0
+    right 0
+    bottom 0
+    transition all ease 0.2s
+    z-index 666
+
+    $borderColor = rgba(255, 222, 47, 0.9)
+
+    //.corner, .icon
+    //    transform-origin right bottom;
+    //    transform scale(0.66);
+
+    .title
+        position absolute
+        left 0
+        right 0
+        bottom 7px
+        height 25px
+        font-weight: normal
+        text-align: center
+        color: white
+        font-size: 21px
+
+    .corner
+        position absolute
+        right 0
+        bottom 0
+        width 0
+        height 0
+        border-left 75px solid transparent
+        border-bottom 75px solid $borderColor
+    .icon
+        position absolute
+        right 0
+        bottom 0
+        width 75px
+        height 75px
+        sprite "/resources/images/icons/requestStatus/adcorner.png" 75px 0 225px 75px
+
+        &.invisible
+            display none
+
+    &:hover
+        opacity 0
+
+    &.accepted, &.inProgress
+        .icon
+            background-position 0 0
+
+    &.rejected
+        &:hover
+            opacity 1!important
+        .icon
+            background-position -75px 0
+        .corner
+            border-bottom-color rgba(222, 47, 47, 0.9)
+            cursor pointer
+
+    &.created
+        .icon
+            background-position -150px 0
+
+    &.completed
+        .icon
+            border 0
+            top 0
+            left 0
+            width 100%
+            height 100%
+            sprite "/resources/images/icons/requestStatus/accepted.png"
+            background-color $borderColor
+        .corner
+            display none
+
+    &.error
+        background #008000
+
+    .smallRequest &
+        .corner
+            border-left 45px solid transparent
+            border-bottom 45px solid $borderColor
+        .icon
+            width 50px
+            height 50px
+            sprite "/resources/images/icons/requestStatus/adcorner.png" 75px 0 150px 50px
+
+        &.rejected .icon
+            background-position -50px 0
+        &.created .icon
+            background-position -100px 0
+
+
+
+$imgsize = 60px
+
+//li[class*="contentType"], div[class*="contentType"]
+.itemPreview
+.contentPreview
+    &:hover .schedule-info
+        bottom -100%
+
+    .schedule-info //mini
+        height 100%
+        position absolute
+        overflow hidden
+        left 0
+        right 0
+        bottom 0
+
+        background rgba(0, 0, 0, 0.35)
+        transition all ease 0.3s
+        z-index 600
+
+        &.invisible
+            display none
+
+        //img
+        .picWrapper
+            width 100% //$imgsize
+            height auto
+            float left
+            //display none
+
+        .info
+            position absolute
+            top 0
+            left 0
+            right 0
+            bottom 0
+            color white
+            text-align center
+
+            .time
+                margin-top 20px
+                font-size 30px
+            .requests
+                margin-top 35px
+                font-size 18px
+                text-align center
+
+    .single & .schedule-info //single
+        height $imgsize
+
+        //img
+        .picWrapper
+            display block
+
+        .info
+            left $imgsize
+            text-align center
+
+            .time
+                font-size 36px
+                margin-top 0
+            .date
+                font-size 18px
+            .requests
+                margin-top 16px
+                font-size 25px
+
+
+    .previewContainer & .schedule-info
+    .postSelectorItem & .schedule-info //single in picker
+        $imgsize = 45px
+        height $imgsize
+
+        //img
+        .picWrapper
+            display block
+            width $imgsize
+
+        .info
+            left ($imgsize)+10
+            text-align left
+
+            .time
+                font-size 30px
+                margin-top 0
+            .date
+                font-size 15px
+            .requests
+                margin-top 10px
+                font-size 23px
+
+.no-schedule-info .schedule-info
+.no-sale-info .sale-info
+.no-requestStatus .requestStatus
+    display none
+
+
+.postSelectorItem, .previewContainer.single
+    .requestStatus
+        .corner
+            transform-origin right bottom;
+            transform scale(0.66);
+        .icon
+            display none
+
+.buzzlikeLogo
+    sprite "/resources/images/icons/paymentinfo/buzzlike_logo-2.png" 0px 0px 100% 100% no-repeat 124px 56px
+
+#devInspector
+    position absolute
+    left 5px
+    bottom 5px
+    font-size 12px
+    color #ffff00
+    font-family "Courier New", Courier, monospace
+    z-index 100500
+    user-select initial
+    background: rgba(0, 0, 0, 0.6);
+
+    &:hover
+        cursor text

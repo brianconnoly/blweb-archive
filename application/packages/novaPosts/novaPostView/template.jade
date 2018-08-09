@@ -1,0 +1,8 @@
+div.postText
+    div.textItem.novaItem.novaItemDraggable.novaItemDroppable.novaItemSelectable.novaItemPreview(
+        ng-repeat="textId in item.contentIds.text",
+        nova-item-id="textId",
+        nova-item-type="text",
+        nova-item-preview-type="editor")
+    div.addText(ng-click="addText()", ng-if="!(item.contentIds.text.length > 0)", translate="'novaPostView_addText'")
+div.novaPostContent

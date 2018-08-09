@@ -1,0 +1,281 @@
+.itemPreview {
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.itemPreview.mini .name {
+  padding: 3px 0px 4px 5px;
+  font-size: 11px;
+  line-height: 12px;
+}
+.itemPreview.empty {
+  background: none;
+  border: 1px dotted #ddd;
+}
+.itemPreview>.name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  padding: 9px 3px 10px 5px;
+  line-height: 16px;
+  font-size: 13px;
+  color: #eee;
+  background: rgba(0,0,0,0.8);
+  word-wrap: break-word;
+}
+.itemPreview>.name.top {
+  top: 0;
+}
+.itemPreview>.name.bottom {
+  bottom: 0;
+}
+.itemPreview>.name.nowrap {
+  word-wrap: normal;
+  white-space: nowrap;
+}
+.itemPreview .counterStack {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(77,197,74,0.9);
+  color: #fff;
+  height: 15px;
+  width: 15px;
+  text-align: center;
+  line-height: 15px;
+  font-size: 10px;
+  font-weight: bolder;
+  z-index: 10;
+}
+.itemPreview div.text-preview {
+  background: #fff;
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  word-wrap: break-word;
+  overflow: hidden;
+  color: #000;
+}
+.itemPreview .locked {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: alpha(opacity=60);
+  background-image: url("/resources/images/icons/locks/lock-M.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 55px 81px;
+  -moz-background-size: 55px 81px;
+  background-size: 55px 81px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .itemPreview .locked {
+    background-image: url("/resources/images/icons/locks/lock-M@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 55px 81px;
+    -moz-background-size: 55px 81px;
+    background-size: 55px 81px;
+  }
+}
+.itemPreview.mini {
+  float: left;
+  display: block;
+  width: 44%;
+  height: 44%;
+  margin: 4% 0 0 4%;
+  overflow: hidden;
+  position: relative;
+}
+.itemPreview.mini .locked {
+  background-image: url("/resources/images/icons/locks/lock-S.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 23px 34px;
+  -moz-background-size: 23px 34px;
+  background-size: 23px 34px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .itemPreview.mini .locked {
+    background-image: url("/resources/images/icons/locks/lock-S@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 23px 34px;
+    -moz-background-size: 23px 34px;
+    background-size: 23px 34px;
+  }
+}
+.itemPreview.mini.text div.text-preview {
+  font-size: 10px;
+  padding: 2px 5px 5px 5px;
+}
+.itemPreview.mini.text .locked {
+  bottom: 0;
+}
+.itemPreview.transparent {
+  background: rgba(255,255,255,0.15);
+}
+.itemPreview .shield {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.itemPreview:hover .shield {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.itemPreview img {
+  display: block;
+  width: 100%;
+}
+.itemPreview.single {
+  margin: 5%;
+  width: 90%;
+  height: 87%;
+}
+.itemPreview.single .text-preview {
+  font-size: 14px;
+}
+.itemPreview.text .text-footer {
+  height: 26px;
+}
+.itemPreview.text .text-footer .counter {
+  font-size: 10px;
+  top: 7px;
+  left: 10px;
+}
+.itemPreview.video .views,
+.itemPreview.importContent .views {
+  position: absolute;
+  padding: 3%;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  font-size: 12px;
+  text-align: right;
+  z-index: 20;
+}
+.itemPreview.video .duration,
+.itemPreview.importContent .duration {
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  padding: 3px 0;
+  font-size: 12px;
+  text-align: right;
+  color: #fff;
+}
+.itemPreview.video .duration span,
+.itemPreview.importContent .duration span {
+  font-size: 12px;
+  padding-right: 3px;
+}
+.itemPreview.community .name {
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #fff;
+  font-size: 15px;
+  overflow: hidden;
+  padding: 4px;
+  background: rgba(0,0,0,0.3);
+}
+.itemPreview div.importInProgress {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -40px 0 0 -40px;
+  width: 80px;
+  height: 80px;
+  background-image: url("/resources/images/icons/timelineStatus/pending.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .itemPreview div.importInProgress {
+    background-image: url("/resources/images/icons/timelineStatus/pending@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.small_view .itemPreview>.name {
+  line-height: 14px;
+  font-size: 12px;
+  padding-top: 5px;
+  padding-bottom: 6px;
+}
+.item.size75,
+.size75 .item {
+  margin: 5px;
+  width: 75px;
+  height: 75px;
+}
+.item.size75 .track-name,
+.size75 .item .track-name {
+  top: 20px;
+  font-size: 10px;
+}
+.item.size75 .text-preview,
+.size75 .item .text-preview {
+  font-size: 12px;
+}
+.item.size75 .locked,
+.size75 .item .locked {
+  background-image: url("/resources/images/icons/locks/lock-S.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 23px 34px;
+  -moz-background-size: 23px 34px;
+  background-size: 23px 34px;
+  bottom: 0;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .item.size75 .locked,
+  .size75 .item .locked {
+    background-image: url("/resources/images/icons/locks/lock-S@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 23px 34px;
+    -moz-background-size: 23px 34px;
+    background-size: 23px 34px;
+  }
+}

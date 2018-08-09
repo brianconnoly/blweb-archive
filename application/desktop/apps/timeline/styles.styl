@@ -1,0 +1,496 @@
+.needWorkMark
+    position: absolute
+    bottom 5px
+    right 5px
+    width 18px
+    height 18px
+    z-index 650
+    
+    border-radius 9px
+    
+    &.inprogress
+        background: #fd462b
+        cursor: pointer
+        
+    &.ready
+        background: #75a843
+        cursor: pointer
+        
+.sendNowButton
+    position: absolute
+    bottom 6px
+    right 6px
+    width 18px
+    height 18px
+    z-index 650
+    
+    border-radius 9px
+    background: #396db3 url(/resources/images/desktop/arrowRight.svg) center center no-repeat
+
+    cursor: pointer !important
+    
+.watchStatButton
+    position: absolute
+    bottom 6px
+    right 6px
+    width 18px
+    height 18px
+    z-index 650
+    
+    // border-radius 9px
+    background: url(/resources/images/desktop/stats/graph.svg) center center no-repeat
+
+    cursor: pointer !important
+
+.appContainer.timeline
+    background: #3285b6
+    
+    color: #494949
+    
+    // .statsBlock
+    //     z-index 556
+    
+    &.customColor
+        .stripes
+            opacity 0.7
+            
+    .pHolderTime
+        color #000 !important
+        background: rgba(240,240,240,0.8) !important
+    
+    // .eternity
+    //     border-top 1px solid #3285b6
+    //     border-bottom 1px solid #3285b6
+    
+    .scroll-bottom, .scroll-right
+        background: rgba(50,133,182,0.8) !important
+
+    // .feedTimeLine
+        
+    //     &:nth-child(2n-1)
+    //         .circle
+    //             display: none
+        
+    .switcher
+        .statsType
+            width 49px
+            
+    .stripes
+        position: absolute
+        top 0
+        left 0
+        right 0
+        bottom 0
+        .stripe
+            width 100%
+            
+            &:nth-child(2n)
+                background: #EFF4F9 //#DDEAF8
+
+    .timeCursor
+        position: absolute
+        top 0
+        bottom 0
+        width 1px
+        background url(/resources/images/desktop/timeline/dividerSingleFat2.svg) top left repeat-y
+        pointer-events none
+        display: none
+        
+        &.showed
+            display: block
+        &.hidden
+            opacity: 0 !important
+    
+    .feedGroupList
+        overflow: hidden
+        
+    .feedGroup
+        &:hover
+            div.timeCursor
+                display: block
+                
+        &:last-child
+            margin-bottom 20px
+    
+    .itemPreview
+        .shield
+            top -1px
+            bottom -1px
+            left -1px
+            right -1px
+            
+        .priceTag
+            right -1px
+            bottom -1px
+            
+        &:hover
+            .timeInfo
+                bottom: -30px
+            
+    .timeInfo
+        position: absolute
+        bottom -1px
+        left -1px
+        right -1px
+        padding: 0 4px
+        
+        background: rgba(0,0,0,0.8)
+        z-index 600
+        
+        font-size 13px
+        color #fff
+        
+        transition bottom 0.2s ease
+    
+    .ratingApp
+        background: #fff
+            
+    .zoom_min
+        
+        // .statsLabel
+        //     width 35px
+        //     height 19px
+        //     float: left
+            
+        //     .statsIcon
+        //         position: absolute
+        //         top 0
+        //         left 0
+                
+        //         width 35px
+        //         height 18px
+
+        //         transition opacity 0.2s ease
+        //         opacity 0
+                
+        //     .statsValue
+        //         position: absolute
+        //         top 0
+        //         left 0
+                
+        //         line-height 18px
+        //         text-align: center
+        //         width 35px
+                
+        //         transition opacity 0.2s ease
+        //         opacity 1
+            
+        //     &:hover
+        //         .statsIcon
+        //             opacity 1
+
+        //         .statsValue
+        //             opacity: 0
+            
+        .ratingAppSchedule
+            position: absolute
+            
+            width 33px
+            height 31px
+
+            top 4px
+            
+            left 50%
+            margin-left: -16px
+            
+            cursor: default
+            
+        .itemPreview
+                
+            .priceTag
+                padding: 0 2px
+                
+            &:hover
+                .timeInfo
+                    bottom: -16px
+        .headButton
+            display: none
+            
+        .timeInfo
+            height 16px
+            line-height 16px
+            
+    .zoom_mid, .zoom_max
+        .timeInfo
+            height 30px
+            line-height 30px
+            font-size 23px
+                
+        .timebar
+            .time
+                height 30px
+                line-height 30px
+                font-size 23px
+                width 65px
+    
+    .zoom_mid 
+        
+        // .statsBlock
+        //     position: absolute
+        //     right 0
+        //     top 0
+        
+        // .statsLabel
+        //     width 50px
+        //     height 18px
+            
+        //     .statsIcon
+        //         width 18px
+        //         height 18px
+        //         margin-left 4px
+                
+        //     .statsValue
+        //         line-height 18px
+        //         text-align: right
+        //         width 22px
+            
+        //     &:last-child
+        //         height 19px
+        
+        .ratingAppSchedule
+            position: absolute
+            
+            width 65px
+            height 60px
+
+            top 8px
+            
+            left 50%
+            margin-left: -32px
+            
+            cursor: default
+            
+        .head
+            .headButton
+                height 24px
+                line-height 24px
+                
+                &:last-child
+                    height 23px
+                    line-height 23px
+                    
+    .zoom_max
+        
+        // .statsBlock
+        //     position: absolute
+        //     right 0
+        //     top 0
+        
+        // .statsLabel
+        //     width 55px
+        //     height 25px
+            
+        //     .statsIcon
+        //         width 18px
+        //         height 25px
+        //         margin-left 4px
+                
+        //     .statsValue
+        //         line-height 25px
+        //         text-align: right
+        //         width 26px
+        //         font-size 12px
+            
+        //     &:last-child
+        //         height 26px
+        
+        .ratingAppSchedule
+            position: absolute
+            
+            width 75px
+            height 70px
+
+            top 15px
+            
+            left 50%
+            margin-left: -37px
+            
+            cursor: default
+            
+        .head
+            .headButton
+                height 38px
+                line-height 38px
+                
+
+    .body
+        padding: 0
+        
+        .feedTimeline
+            &:hover
+                .head
+                    .headButton
+                        opacity 1
+        
+        .head
+            width: 54px
+            background: #494949
+            z-index 6000
+            
+            .headButton
+                transition all 0.2s ease
+                // transition line-height 0.2s ease
+                font-size 10px
+                color #000
+                text-align: center
+                cursor: pointer
+                opacity 0
+
+                span
+                    cursor: pointer
+            
+            .showCalendar
+                pointer-events none
+                opacity 0
+            
+            .photoContainer
+                width 54px
+                height 54px
+                
+            .photoOverlay
+                position: absolute
+                top 0
+                left 0
+                bottom 0
+                width 5px
+                
+                transition width 0.2s ease
+                
+                .sn
+                    position: absolute
+                    top 4px
+                    right 4px
+                    
+                    text-transform: uppercase
+                    color: #fff
+                    font-size 8px
+                    opacity: 0
+                    transition opacity 0.2s ease
+                    
+                .menuTrigger
+                    position: absolute
+                    width 54px
+                    height 54px
+                    background: url(/resources/images/desktop/actions/white/header-button-settings.svg) center center no-repeat
+                    cursor: pointer
+                    
+                    opacity: 0
+                    transition opacity 0.2s ease
+                
+            &:hover
+                .photoOverlay
+                    width 100%
+                    
+                    .sn
+                        opacity 1
+                        
+                    .menuTrigger
+                        opacity 1
+                        
+            
+        // .feedTimeline:after
+        //     left 54px
+            
+        .left-arrow
+            left 54px
+        
+        &.zoom_min
+            
+            div.freePlace
+                &.freeMarks
+                    background: url(/resources/images/desktop/timeline/dividerMulti.svg) top left repeat-y !important
+                    
+            .feedTimeline, .stripe
+                height 54px
+                
+            .feedItem
+                height 54px
+                width 70px
+                    
+            .timebar
+                height 54px
+
+            .hourMark
+                font-size 20px !important
+            
+            .dayBreak
+                .weekDay
+                    font-size 12px
+                    line-height 20px
+                    
+                .date
+                    line-height 54px
+                    font-size 16px
+                    text-align: center
+                    
+                .month
+                    font-size 10px
+                    line-height 15px
+                    top 3px
+                    
+                .year
+                    display: none
+                
+        &.zoom_mid
+            .feedTimeline, .stripe
+                height 103px
+            
+            .feedItem
+                height 103px
+                width 139px
+            
+            .timebar
+                height 103px
+                
+            .dayBreak
+                height 103px
+                margin-top -51px
+
+                .weekDay
+                    font-size 14px
+                    line-height 20px
+                    bottom 15px  
+                    
+                .date
+                    height 100%
+                    line-height 95px                  
+                    font-size 40px
+                    
+                .month
+                    font-size 16px
+                    line-height 16px
+                    top 5px
+                    
+                .year
+                    font-size 10px
+                    bottom 6px
+                
+        &.zoom_max
+            .feedTimeline, .stripe
+                height 131px
+                
+            .feedItem
+                height 131px
+                width 167px
+            
+            .timebar
+                height 131px
+                
+            .dayBreak
+                height 131px
+                margin-top -65px
+
+                .weekDay
+                    bottom 14px  
+                    
+                .date
+                    height 100%
+                    line-height 110px
+                    
+                .month
+                    top 5px
+                    
+                .year
+                    bottom 6px
+                                
+

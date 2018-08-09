@@ -1,0 +1,20 @@
+div#loginPage.colorRotator(ng-class="mode")
+    
+    //- div.statusLayer
+    
+    div.version(style="color: black; font-size: 10px") Buzzlike FE version {{::fVersion}}
+
+    div.mainWindow(ng-class="screen")
+
+        div.buzzLogo.logo
+            img.dark(src="/resources/images/login/dark.svg", width="40px", height="45px")
+            img.light(src="/resources/images/login/light.svg", width="40px", height="45px")
+            div.text buzzlike
+
+
+        div.textMode
+            div.shade.top
+            div.shade.bottom
+            div.text(load-html="agreementsUrl", antiscroll)
+                
+

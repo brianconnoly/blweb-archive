@@ -1,0 +1,51 @@
+form(ng-submit="doLogin()", ng-class="{'compact':state.canLogin}")
+
+    div.loginBackButton.transparentText(ng-click="backToSocial()")
+        img.corner(src="/resources/images/login/back-round-corner.svg", width="72px", height="72px")
+        img.full(src="/resources/images/login/back-round-full.svg", width="72px", height="72px")
+        div.white(translate="'login_form_back'") 
+        div.color.transparentText(translate="'login_form_back'") 
+
+    div.headText(translate="'login_form_register_merge_account'")
+
+    div.loginInput
+        input.login(ng-model="state.login", ng-change="loginChanged()", ng-model-options="{ updateOn: 'default blur', debounce: {'default': 800, 'blur': 0} }", translate="", translate-placeholder="'login_enter_login'")
+
+    div.loginHelpers(ng-if="showHelperLogins && !state.canForget")
+        div.item(ng-repeat="helperLogin in helperLogins | filter:state.login track by $index", ng-click="setHelperLogin(helperLogin)")
+            div.value {{helperLogin}}
+            div.closer(ng-click="removeHelperLogin(helperLogin, $event)")
+    
+    div.passwordContainer(ng-if="state.canLogin")
+        div.loginInput
+            input.pass(type="password", ng-model="state.password", translate="", translate-placeholder="'login_enter_password'")
+        button.doLogin
+            img(src="/resources/images/login/forward.svg", width="10px", height="18px")
+
+    //- div.registerButton(ng-if="!noUser")
+    //-     span(ng-click="goRegistration()", translate="'login_form_register'") 
+
+    div.forgotPassword(ng-if="state.canForget")
+        span(ng-click="forgetPassword()", translate="'login_form_forget'") 
+
+    div.loginInput(ng-class="{'passHidden':passHidden}", ng-if="!state.canLogin")
+        input.pass.hiddenPass(type="password", ng-model="state.password", translate="", translate-placeholder="'login_enter_new_password'")
+        input.pass.visiblePass(type="text", ng-model="state.password", translate="", translate-placeholder="'login_enter_new_password'")
+
+        div.switcher(ng-click="passHidden = !passHidden")
+            img.visiblePass(src="/resources/images/login/eyeOpen.svg", width="30px", height="15px")
+            img.hiddenPass(src="/resources/images/login/eyeClosed.svg", width="30px", height="15px")
+
+    div.loginRegisterRules(ng-if="!state.canLogin")
+
+        div.registerCheckbox(ng-class="{'checked':state.rulesAccepted}", ng-click="state.rulesAccepted = !state.rulesAccepted")
+            img.check(src="/resources/images/login/check.svg", width="19px", height="17px")
+
+        div.registerText 
+            span(translate="'login_form_register_text_start'") 
+            span  
+            a(translate="'login_form_register_text_link'", ng-click="showRules()") 
+            span  
+            span(translate="'login_form_register_text_end'")  
+
+    button.loginRegisterButton(ng-if="!state.canLogin", ng-class="{'inactive':state.password.length<6 || !state.rulesAccepted}", translate="'login_form_register_register'")  

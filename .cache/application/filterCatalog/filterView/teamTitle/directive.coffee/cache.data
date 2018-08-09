@@ -1,0 +1,18 @@
+buzzlike.directive('teamTitle', function(teamService) {
+  return {
+    restrict: 'C',
+    scope: {
+      teamId: '='
+    },
+    template: tC['/filterCatalog/filterView/teamTitle'],
+    link: function(scope, element, attrs) {
+      scope.teamData = {};
+      scope.$watch('teamId', function(nVal, oVal) {
+        return teamService.getById(scope.teamId, function(data) {
+          return scope.teamData = data;
+        });
+      });
+      return true;
+    }
+  };
+});

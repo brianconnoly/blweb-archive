@@ -1,0 +1,116 @@
+buzzlike.service('tableImport', function(env, operationsService, notificationCenter, $rootScope) {
+  var close, doAjax, initiateUpload, open, state, uploadCommunity, uploadFull;
+  state = {
+    communityId: null
+  };
+  open = function(cId) {
+    if (cId != null) {
+      return state.communityId = cId;
+    } else {
+      return state.communityId = null;
+    }
+  };
+  close = function() {
+    return true;
+  };
+  doAjax = function(formData, progress, community) {
+    var reqParams;
+    reqParams = {
+      count: 1
+    };
+    if (community === true) {
+      reqParams.where = {
+        communityId: state.communityId
+      };
+    }
+    return rpc.call('tableImport.request', reqParams, function(result) {
+      return $.ajax({
+        cache: false,
+        contentType: false,
+        data: formData,
+        processData: false,
+        crossDomain: true,
+        url: result.url,
+        type: 'POST',
+        xhr: function() {
+          var xhr;
+          xhr = jQuery.ajaxSettings.xhr();
+          if (xhr.upload) {
+            xhr.upload.addEventListener('progress', function(e) {
+              var p;
+              p = Math.floor(e.loaded / e.total * 100);
+              progress.value = p;
+              notificationCenter.updateStatus(progress);
+              return $rootScope.$apply();
+            }, false);
+          }
+          return xhr;
+        },
+        beforeSend: function() {
+          progress.value = 0;
+          return notificationCenter.updateStatus(progress);
+        },
+        success: function(res) {
+          if ((res.operations != null) && res.operations.length > 0) {
+            operationsService.parseOperations(res.operations);
+          }
+          close();
+          notificationCenter.addMessage({
+            text: 'import_csv_ok'
+          });
+          return $rootScope.$apply();
+        },
+        error: function() {
+          close();
+          notificationCenter.addMessage({
+            text: 'import_csv_error'
+          });
+          return $rootScope.$apply();
+        }
+      });
+    });
+  };
+  uploadFull = function(input) {
+    var file, formData, i, len, progress, ref;
+    ref = input.files;
+    for (i = 0, len = ref.length; i < len; i++) {
+      file = ref[i];
+      formData = new FormData();
+      formData.append('uploadedFile', file);
+    }
+    progress = notificationCenter.registerProgress();
+    return doAjax(formData, progress, false);
+  };
+  uploadCommunity = function(input) {
+    var file, formData, i, len, progress, ref;
+    if (state.communityId === null) {
+      return;
+    }
+    ref = input.files;
+    for (i = 0, len = ref.length; i < len; i++) {
+      file = ref[i];
+      formData = new FormData();
+      formData.append('uploadedFile', file);
+    }
+    progress = notificationCenter.registerProgress();
+    return doAjax(formData, progress, true);
+  };
+  initiateUpload = function(commId) {
+    if (commId != null) {
+      state.communityId = commId;
+      $('#importCommunityHelper').click();
+    } else {
+      state.communityId = null;
+      $('#importFullHelper').click();
+    }
+    return true;
+  };
+  return {
+    state: state,
+    open: open,
+    close: close,
+    uploadFull: uploadFull,
+    uploadCommunity: uploadCommunity,
+    initiateUpload: initiateUpload
+  };
+});

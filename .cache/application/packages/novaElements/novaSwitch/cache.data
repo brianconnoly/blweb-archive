@@ -1,0 +1,52 @@
+buzzlike.directive('novaSwitch', function($parse, novaMenu) {
+  return {
+    restrict: 'C',
+    require: '?ngModel',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      if (!ngModel) {
+        return;
+      }
+      elem = $(element);
+      ngModel.$render = function() {
+        elem.addClass(ngModel.$viewValue);
+        return true;
+      };
+      return elem.on('click', function(e) {
+        var fn, i, item, len, offset, ref, section, sections;
+        e.stopPropagation();
+        e.preventDefault();
+        sections = [];
+        section = {
+          type: 'actions',
+          items: []
+        };
+        ref = $parse(attrs.novaSwitchOptions)(scope);
+        fn = function(item) {
+          return section.items.push({
+            phrase: 'novaSwitch_option_title_' + item,
+            description: attrs.novaSwitchView === 'full' ? 'novaSwitch_option_description_' + item : void 0,
+            action: function() {
+              return ngModel.$setViewValue(item);
+            }
+          });
+        };
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          fn(item);
+        }
+        sections.push(section);
+        offset = elem.offset();
+        return novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(elem.width() / 2),
+            y: offset.top + elem.height() + 5
+          },
+          sections: sections,
+          context: scope.itemContext,
+          menuStyle: 'center'
+        });
+      });
+    }
+  };
+});

@@ -1,0 +1,24 @@
+div.timeBox(ng-switch="block.dayBreakType")
+    div(ng-switch-when="day")
+        div.monthLine {{::block.timestamp | timestampMask:'MMMM'}}
+        div.dayLine {{::block.timestamp | timestampMask:'D'}}
+        div.weekDayLine {{::block.timestamp | timestampMask:'ddd'}}
+    div(ng-switch-when="month")
+        div.monthLine.big {{::block.timestamp | timestampMask:'MMMM'}}
+        div.yearLine {{::block.timestamp | timestampMask:'optYYYY'}}
+    div(ng-switch-when="week")
+        div.weekCaption(translate="'novaTimelineDayView_week'")
+        div.dayLine {{::block.timestamp | timestampMask:'wk'}}
+        div.weekRange {{::block.timestamp | timestampMask:'DD MMM'}}
+        div.weekRange {{::weekEnd | timestampMask:'DD MMM'}}
+
+div.statsBox
+    span.delta {{delta}}%
+    span.total {{total}}
+
+div.newPostActivator(ng-click="newPost()") +
+
+div.graph
+    canvas
+
+//- div.debug(ng-mousedown="logDebug()")

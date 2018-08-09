@@ -1,0 +1,365 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('contentService', function(rpc, itemService, buffer, notificationCenter, $injector, actionsService, desktopService, operationsService, $filter, novaWizard, novaDesktop) {
+  var classEntity, combService, contextMenu, importContentService;
+  contextMenu = null;
+  combService = null;
+  importContentService = null;
+  classEntity = (function(superClass) {
+    var contentTypes;
+
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'content';
+
+    classEntity.prototype.typeMarker = 'text/image/video/audio/folder/url/content/poll/file';
+
+    contentTypes = ['text', 'image', 'audio', 'video', 'url', 'folder', 'poll', 'file'];
+
+    operationsService.setContentTypes(contentTypes);
+
+    classEntity.prototype.getContentTypes = function() {
+      return contentTypes;
+    };
+
+    classEntity.prototype.isContent = function(item) {
+      var ref;
+      return ref = item != null ? item.type : void 0, indexOf.call(contentTypes, ref) >= 0;
+    };
+
+    classEntity.prototype.initDeps = function() {
+      contextMenu = $injector.get('contextMenu');
+      combService = $injector.get('combService');
+      return importContentService = $injector.get('importContentService');
+    };
+
+    classEntity.prototype.hasContentIds = function(entity, ids) {
+      var i, id, itemId, len, storedEntity;
+      id = this.getId(entity);
+      storedEntity = this.storage[id];
+      for (i = 0, len = ids.length; i < len; i++) {
+        itemId = ids[i];
+        if (indexOf.call(storedEntity.contentIds, itemId) >= 0) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      novaWizard.register('text', {
+        type: 'simple',
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({
+              type: 'text',
+              value: "",
+              name: $filter('timestampMask')(Date.now(), 'DD ofMMMM, hh:mm'),
+              projectId: data.projectId,
+              combIds: data.combId ? [data.combId] : void 0,
+              parent: data.parent
+            }, function(textItem) {
+              return novaDesktop.launchApp({
+                app: 'novaTextEditApp',
+                item: {
+                  type: 'text',
+                  id: textItem.id
+                }
+              });
+            });
+          };
+        })(this)
+      });
+      novaWizard.register('folder', {
+        type: 'simple',
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({
+              type: 'folder',
+              name: $filter('timestampMask')(Date.now(), 'DD ofMMMM, hh:mm'),
+              projectId: data.projectId,
+              combIds: data.combId ? [data.combId] : void 0,
+              parent: data.parent
+            }, function(folderItem) {
+              return true;
+            });
+          };
+        })(this)
+      });
+      actionsService.registerParser(this.typeMarker, function(item) {
+        var types;
+        types = ['content'];
+        return types;
+      });
+      actionsService.registerAction({
+        sourceNumber: 1,
+        sourceType: 'content',
+        phrase: 'show_novaInfo',
+        check2: (function(_this) {
+          return function(data) {
+            return data.scope.flowBox != null;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            return data.scope.flowBox.addFlowFrame({
+              title: 'info',
+              directive: 'novaInfoFrame',
+              item: {
+                id: data.item.id,
+                type: data.item.type
+              }
+            }, data.scope.flowFrame);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'content',
+        targetType: 'project',
+        phrase: 'move_to_project',
+        priority: 511,
+        check2: (function(_this) {
+          return function(data) {
+            var i, item, len, ref;
+            ref = data.items;
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              if (item.projectId !== data.target.id) {
+                return true;
+              }
+            }
+            return false;
+          };
+        })(this),
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              if (item.projectId !== data.target.id) {
+                results.push(_this.call('moveToProject', {
+                  itemId: item.id,
+                  projectId: data.target.id
+                }));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'folder',
+        sourceNumber: 'many',
+        phrase: 'merge',
+        action: (function(_this) {
+          return function(data) {
+            return _this.call('mergeFolders', data.ids, function(folder) {
+              return buffer.addItem(_this.handleItem(folder));
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        phrase: 'new_poll',
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({
+              type: 'poll'
+            }, function(pollItem) {
+              buffer.addItem(pollItem);
+              return desktopService.launchApp('pollEdit', {
+                pollId: pollItem.id,
+                center: true
+              });
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        category: "B",
+        sourceType: "folder",
+        phrase: "new_poll",
+        priority: "66",
+        restrict: "rightPanel",
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({
+              type: 'poll'
+            }, function(poll) {
+              var i, item, len, ref;
+              ref = data.items;
+              for (i = 0, len = ref.length; i < len; i++) {
+                item = ref[i];
+                _this.addContentIds(item, [poll.id]);
+              }
+              desktopService.launchApp('pollEdit', {
+                pollId: poll.id
+              });
+              return buffer.addItems([poll]);
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        phrase: 'poll_from_text',
+        sourceType: 'text',
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              results.push(_this.create({
+                type: 'poll',
+                value: item.value
+              }, function(pollItem) {
+                return desktopService.launchApp('pollEdit', {
+                  pollId: pollItem.id,
+                  center: true
+                });
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        phrase: 'url_from_text',
+        sourceType: 'text',
+        action: (function(_this) {
+          return function(data) {
+            var i, item, len, ref, results, urlre, urls;
+            urlre = /(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/ig;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              item = ref[i];
+              urls = item.value.match(urlre);
+              results.push(rpc.call('import.query', {
+                provider: 'picUrl',
+                forceUrl: true,
+                urls: urls
+              }, function(urlItems) {
+                var j, len1, results1, url;
+                results1 = [];
+                for (j = 0, len1 = urlItems.length; j < len1; j++) {
+                  url = urlItems[j];
+                  delete url.id;
+                  results1.push(_this.create(url, function(readyItem) {
+                    return buffer.addItem(readyItem);
+                  }));
+                }
+                return results1;
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      novaWizard.register('contentBrowser', {
+        type: 'sequence',
+        steps: [
+          {
+            id: 'project',
+            directive: 'novaWizardProjectPicker',
+            provide: 'projectId'
+          }, {
+            id: 'picker',
+            directive: 'novaWizardContentPicker',
+            provide: 'contentIds',
+            previewType: 'content',
+            noSkip: true,
+            multi: true,
+            customPrev: 'novaWizardApp_change_project'
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            return _this.getByIds(data.contentIds, function(items) {
+              return typeof data.cb === "function" ? data.cb(items, data.contentIds) : void 0;
+            });
+          };
+        })(this)
+      });
+      return novaWizard.register('importContent', {
+        type: 'sequence',
+        steps: [
+          {
+            id: 'import',
+            series: [
+              {
+                id: 'account',
+                directive: 'novaWizardAccountPicker',
+                variable: 'accountPublicId',
+                multi: false
+              }, {
+                id: 'community',
+                directive: 'novaWizardCommunityPicker',
+                variable: 'communityId'
+              }, {
+                id: 'importAlbum',
+                directive: 'novaWizardImportAlbumPicker',
+                variable: 'albumId'
+              }, {
+                id: 'importContent',
+                directive: 'novaWizardImportContentPicker',
+                variable: 'importIds',
+                multi: true
+              }
+            ],
+            provide: 'importIds',
+            previewType: 'importContent',
+            multi: true
+          }, {
+            id: 'project',
+            directive: 'novaWizardProjectPicker',
+            provide: 'projectId'
+          }, {
+            id: 'final',
+            directive: 'novaWizardImportFinal',
+            customNext: 'novaWizardAction_import'
+          }
+        ],
+        final: (function(_this) {
+          return function(data) {
+            var i, id, len, ref, resultIds, resultItems, results;
+            resultItems = [];
+            resultIds = [];
+            ref = data.importIds;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              results.push(importContentService["import"](importContentService.storage[id], {
+                projectId: data.projectId,
+                parent: data.parent
+              }, function(item) {
+                resultItems.push(item);
+                resultIds.push(item.id);
+                if (resultItems.length === data.importIds.length) {
+                  return typeof data.cb === "function" ? data.cb(resultItems, resultIds) : void 0;
+                }
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

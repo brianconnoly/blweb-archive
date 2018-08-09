@@ -1,0 +1,1 @@
+<div class="groupIcon"><img ng-src="{{communityData.photo}}" class="picPreload"/></div><div class="text">{{communityData.name}}</div>

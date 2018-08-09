@@ -1,0 +1,21 @@
+buzzlike.directive('collectorItem', function(communityService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var load, unbind;
+      load = function() {
+        return scope.community = communityService.getById(scope.item.communityId);
+      };
+      if (scope.item.communityId != null) {
+        return load();
+      } else {
+        return unbind = scope.$watch('item.communityId', function(nVal) {
+          if (nVal != null) {
+            load();
+            return unbind();
+          }
+        });
+      }
+    }
+  };
+});

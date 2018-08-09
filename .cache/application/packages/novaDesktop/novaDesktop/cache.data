@@ -1,0 +1,466 @@
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+tC['/novaDesktop/template.jade'] = "<div ng-repeat=\"session in desktop.apps\" class=\"novaApp\"></div>";
+
+buzzlike.service('novaDesktop', function(socketAuth, localStorageService) {
+  var desktopService, getIntersect, novaDesktop, novaDesktopService;
+  getIntersect = function(app, rect) {
+    return Math.max(0, Math.min(app.position.x + app.size.width, rect.x2) - Math.max(app.position.x, rect.x1)) * Math.max(0, Math.min(app.position.y + app.size.height, rect.y2) - Math.max(app.position.y, rect.y1));
+  };
+  novaDesktop = (function() {
+    function novaDesktop(code1, data) {
+      var app, e, error, j, len, storedApps;
+      this.code = code1;
+      this.launchApp = bind(this.launchApp, this);
+      this.byItem = {};
+      this.apps = [];
+      try {
+        storedApps = JSON.parse(localStorageService.get('novaDesktop_' + this.code + '_' + socketAuth.session.user_id));
+      } catch (error) {
+        e = error;
+        true;
+      }
+      if ((storedApps != null ? storedApps.length : void 0) > 0) {
+        for (j = 0, len = storedApps.length; j < len; j++) {
+          app = storedApps[j];
+          this.launchApp(app);
+        }
+      }
+      this.appCnt = 0;
+      true;
+    }
+
+    novaDesktop.prototype.close = function() {
+      localStorageService.remove('novaDesktop_' + this.code + '_' + socketAuth.session.user_id);
+      return this.destroy();
+    };
+
+    novaDesktop.prototype.destroy = function() {
+      this.apps.length = 0;
+      return true;
+    };
+
+    novaDesktop.prototype.saveState = function() {
+      var j, len, ref, session, toSave;
+      toSave = [];
+      ref = this.apps;
+      for (j = 0, len = ref.length; j < len; j++) {
+        session = ref[j];
+        if (session.noSave !== true) {
+          toSave.push({
+            id: session.id,
+            app: session.app,
+            item: session.item,
+            index: session.index
+          });
+        }
+      }
+      return localStorageService.add('novaDesktop_' + this.code + '_' + socketAuth.session.user_id, JSON.stringify(toSave));
+    };
+
+    novaDesktop.prototype.activate = function(session, newData) {
+      var appSession, i, j, l, len, len1, ref, toSort;
+      $(':focus').blur();
+      toSort = [];
+      ref = this.apps;
+      for (j = 0, len = ref.length; j < len; j++) {
+        appSession = ref[j];
+        if (session === appSession) {
+          continue;
+        }
+        toSort.push(appSession);
+      }
+      toSort.sort(function(a, b) {
+        if (a.index > b.index) {
+          return 1;
+        }
+        if (a.index < b.index) {
+          return -1;
+        }
+        return 0;
+      });
+      for (i = l = 0, len1 = toSort.length; l < len1; i = ++l) {
+        appSession = toSort[i];
+        appSession.index = i;
+      }
+      session.index = toSort.length + 1;
+      desktopService.activateSession(session);
+      if (newData != null) {
+        session.run(newData);
+      }
+      return this.saveState();
+    };
+
+    novaDesktop.prototype.launchApp = function(session, cb) {
+      var existedSession, ref;
+      if (((ref = session.item) != null ? ref.id : void 0) != null) {
+        if (desktopService.itemSessions[session.item.type + ':' + session.item.id] != null) {
+          existedSession = desktopService.itemSessions[session.item.type + ':' + session.item.id];
+          this.activate(existedSession, session);
+          if (typeof cb === "function") {
+            cb(existedSession);
+          }
+          return existedSession;
+        }
+      }
+      if (session.id == null) {
+        session.id = '' + this.code + Date.now() + session.app + this.appCnt++;
+      }
+      this.apps.push(session);
+      desktopService.registerSession(session);
+      if (session.index == null) {
+        this.activate(session);
+      }
+      this.saveState();
+      if (typeof cb === "function") {
+        cb(session);
+      }
+      return session;
+    };
+
+    novaDesktop.prototype.closeApp = function(session, cb) {
+      desktopService.unregisterSession(session);
+      removeElementFromArray(session, this.apps);
+      this.saveState();
+      return typeof cb === "function" ? cb() : void 0;
+    };
+
+    novaDesktop.prototype.getFreePosition = function(session) {
+      var app, body, bodyHei, bodyWid, defaultMargin, j, l, len, len1, len2, m, min, rect, rectHei, rectWid, rects, ref, ref1;
+      body = $('.novaDesktop');
+      bodyWid = body.width();
+      bodyHei = body.height();
+      rectWid = bodyWid / 2;
+      rectHei = bodyHei / 2;
+      defaultMargin = 30;
+      rects = [
+        {
+          name: 'topleft',
+          size: 0,
+          rect: {
+            x1: 0,
+            y1: 0,
+            x2: rectWid,
+            y2: rectHei
+          },
+          position: {
+            left: defaultMargin,
+            top: defaultMargin
+          }
+        }, {
+          name: 'topright',
+          size: 0,
+          rect: {
+            x1: rectWid,
+            y1: 0,
+            x2: bodyWid,
+            y2: rectHei
+          },
+          position: {
+            top: defaultMargin,
+            right: defaultMargin
+          }
+        }, {
+          name: 'botleft',
+          size: 0,
+          rect: {
+            x1: 0,
+            y1: rectHei,
+            x2: rectWid,
+            y2: bodyHei
+          },
+          position: {
+            left: defaultMargin,
+            bottom: defaultMargin
+          }
+        }, {
+          name: 'botright',
+          size: 0,
+          rect: {
+            x1: rectWid,
+            y1: rectHei,
+            x2: bodyWid,
+            y2: bodyHei
+          },
+          position: {
+            bottom: defaultMargin,
+            right: defaultMargin
+          }
+        }, {
+          name: 'center',
+          size: 0,
+          rect: {
+            x1: rectWid / 2,
+            y1: rectHei / 2,
+            x2: (rectWid / 2) + rectWid,
+            y2: (rectHei / 2) + rectHei
+          },
+          position: {
+            centerWid: true,
+            centerHei: true
+          }
+        }, {
+          name: 'centerTop',
+          size: 0,
+          rect: {
+            x1: rectWid / 2,
+            y1: 0,
+            x2: rectWid / 2 + rectWid,
+            y2: rectHei
+          },
+          position: {
+            centerWid: true,
+            top: defaultMargin
+          }
+        }, {
+          name: 'centerBottom',
+          size: 0,
+          rect: {
+            x1: rectWid / 2,
+            y1: rectHei,
+            x2: rectWid / 2 + rectWid,
+            y2: bodyHei
+          },
+          position: {
+            centerWid: true,
+            bottom: defaultMargin
+          }
+        }, {
+          name: 'leftCenter',
+          size: 0,
+          rect: {
+            x1: 0,
+            y1: rectHei / 2,
+            x2: rectWid,
+            y2: rectHei / 2 + rectHei
+          },
+          position: {
+            centerHei: true,
+            left: defaultMargin
+          }
+        }, {
+          name: 'rightCenter',
+          size: 0,
+          rect: {
+            x1: rectWid,
+            y1: rectHei / 2,
+            x2: bodyWid,
+            y2: rectHei / 2 + rectHei
+          },
+          position: {
+            centerHei: true,
+            right: defaultMargin
+          }
+        }
+      ];
+      ref = this.apps;
+      for (j = 0, len = ref.length; j < len; j++) {
+        app = ref[j];
+        if ((((ref1 = app.position) != null ? ref1.x : void 0) == null) || app === session) {
+          continue;
+        }
+        for (l = 0, len1 = rects.length; l < len1; l++) {
+          rect = rects[l];
+          rect.size += getIntersect(app, rect.rect);
+        }
+      }
+      min = null;
+      for (m = 0, len2 = rects.length; m < len2; m++) {
+        rect = rects[m];
+        if ((min == null) || rect.size < min.size) {
+          min = rect;
+        }
+      }
+      if (min.position.top != null) {
+        session.position.y = min.position.top;
+      }
+      if (min.position.left != null) {
+        session.position.x = min.position.left;
+      }
+      if (min.position.right != null) {
+        session.position.x = bodyWid - min.position.right - session.size.width;
+      }
+      if (min.position.bottom != null) {
+        session.position.y = bodyHei - min.position.bottom - session.size.height;
+      }
+      if (min.position.centerWid) {
+        session.position.x = rectWid - (session.size.width / 2);
+      }
+      if (min.position.centerHei) {
+        session.position.y = rectHei - (session.size.height / 2);
+      }
+      session.position.x += getRandomInt(-30, 30);
+      return session.position.y += getRandomInt(-30, 30);
+    };
+
+    return novaDesktop;
+
+  })();
+  novaDesktopService = (function() {
+    function novaDesktopService() {
+      this.activeSession = null;
+      this.launchers = {};
+      this.itemSessions = {};
+      this.sessions = [];
+      this.desktops = {};
+      socketAuth.onLogout((function(_this) {
+        return function() {
+          return _this.flush();
+        };
+      })(this));
+    }
+
+    novaDesktopService.prototype.registerLauncher = function(data) {
+      var itemCode;
+      itemCode = data.item.type + ':' + data.item.id;
+      data.id = itemCode;
+      this.launchers[itemCode] = data;
+      if (this.itemSessions[itemCode] != null) {
+        this.launchers[itemCode].session = this.itemSessions[itemCode];
+        removeElementFromArray(this.itemSessions[itemCode], this.sessions);
+      }
+      return this.launchers[itemCode];
+    };
+
+    novaDesktopService.prototype.unregisterLauncher = function(data) {
+      var itemCode, ref;
+      itemCode = data.item.type + ':' + data.item.id;
+      data.id = itemCode;
+      if (this.itemSessions[itemCode] != null) {
+        this.getDesktop().closeApp(this.itemSessions[itemCode]);
+      }
+      if (((ref = this.launchers[itemCode]) != null ? ref.session : void 0) != null) {
+        this.getDesktop().closeApp(this.launchers[itemCode].session);
+      }
+      delete this.launchers[itemCode];
+      return true;
+    };
+
+    novaDesktopService.prototype.registerSession = function(session) {
+      var itemCode, ref, ref1;
+      itemCode = ((ref = session.item) != null ? ref.type : void 0) + ':' + ((ref1 = session.item) != null ? ref1.id : void 0);
+      this.itemSessions[itemCode] = session;
+      if (this.launchers[itemCode] != null) {
+        return this.launchers[itemCode].session = session;
+      } else {
+        return this.sessions.push(session);
+      }
+    };
+
+    novaDesktopService.prototype.unregisterSession = function(session) {
+      var itemCode, ref, ref1;
+      itemCode = ((ref = session.item) != null ? ref.type : void 0) + ':' + ((ref1 = session.item) != null ? ref1.id : void 0);
+      if (this.itemSessions[itemCode] != null) {
+        delete this.itemSessions[itemCode];
+      }
+      if (this.launchers[itemCode] != null) {
+        if (this.launchers[itemCode].session != null) {
+          return delete this.launchers[itemCode].session;
+        }
+      } else {
+        return removeElementFromArray(session, this.sessions);
+      }
+    };
+
+    novaDesktopService.prototype.isActive = function(session) {
+      if (this.activeSession === null) {
+        return false;
+      }
+      return this.activeSession === session;
+    };
+
+    novaDesktopService.prototype.activateSession = function(session) {
+      this.activeSession = session;
+      return typeof session.activated === "function" ? session.activated() : void 0;
+    };
+
+    novaDesktopService.prototype.activate = function(session) {
+      return this.getDesktop().activate(session);
+    };
+
+    novaDesktopService.prototype.flush = function() {
+      var desktop, k, ref;
+      ref = this.desktops;
+      for (k in ref) {
+        desktop = ref[k];
+        desktop.destroy();
+        delete this.desktops[k];
+      }
+      this.activeSession = null;
+      emptyObject(this.launchers);
+      emptyObject(this.itemSessions);
+      emptyObject(this.desktops);
+      return this.sessions.length = 0;
+    };
+
+    novaDesktopService.prototype.createDesktop = function(code, data) {
+      if (code == null) {
+        code = 0;
+      }
+      return this.desktops[code] = new novaDesktop(code, data);
+    };
+
+    novaDesktopService.prototype.getDesktop = function(code) {
+      if (code == null) {
+        code = 0;
+      }
+      if (this.desktops[code] == null) {
+        this.createDesktop(code);
+      }
+      return this.desktops[code];
+    };
+
+    novaDesktopService.prototype.init = function() {
+      var desktopsData, e, error, id, j, len, results;
+      this.flush();
+      try {
+        desktopsData = JSON.parse(localStorageService.get('novaDesktops_' + socketAuth.session.user_id));
+      } catch (error) {
+        e = error;
+        desktopsData = [];
+      }
+      results = [];
+      for (j = 0, len = desktopsData.length; j < len; j++) {
+        id = desktopsData[j];
+        results.push(this.createDesktop(id));
+      }
+      return results;
+    };
+
+    novaDesktopService.prototype.launchApp = function(data, cb) {
+      var k, ref, v;
+      ref = this.desktops;
+      for (k in ref) {
+        v = ref[k];
+        v.launchApp(data, cb);
+        return;
+      }
+    };
+
+    return novaDesktopService;
+
+  })();
+  desktopService = new novaDesktopService();
+  return desktopService;
+});
+
+buzzlike.directive('novaDesktop', function(novaDesktop, account, novaWizard) {
+  return {
+    restrict: 'C',
+    template: tC['/novaDesktop/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.desktop = novaDesktop.getDesktop(attrs.desktopId || 0);
+      scope.streamsApp = novaDesktop.registerLauncher({
+        "static": true,
+        item: {
+          type: 'streams',
+          id: account.user.id
+        },
+        app: 'novaStreamsApp'
+      });
+      if (account.user.novaWelcome === false) {
+        return novaWizard.fire('welcome');
+      }
+    }
+  };
+});

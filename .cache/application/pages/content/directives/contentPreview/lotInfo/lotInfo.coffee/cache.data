@@ -1,0 +1,11 @@
+buzzlike.directive('lotInfo', function() {
+  return {
+    restrict: 'C',
+    template: tC['/pages/content/directives/contentPreview/lotInfo'],
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return true;
+    }
+  };
+});

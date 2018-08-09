@@ -1,0 +1,37 @@
+.novaTimelineMenu
+    position absolute
+    top 0
+    left 0
+    right 0
+    height 50px
+    transition all 0.2s ease
+.scroller
+    overflow hidden
+    position absolute
+    top 50px
+    left 0
+    right 0
+    bottom 0
+    transition all 0.2s ease
+
+.novaTimelineCalendar
+    position absolute
+    top 0
+    height 0
+    left 0
+    right 0
+    transition all 0.2s ease
+
+&.calendar
+    .novaTimelineCalendar
+        position absolute
+        top 0
+        height 180px
+        left 0
+        right 0
+
+    .novaTimelineMenu
+        top 180px
+
+    .scroller
+        top 230px

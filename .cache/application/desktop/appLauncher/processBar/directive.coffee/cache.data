@@ -1,0 +1,60 @@
+buzzlike.directive('processBar', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/desktop/appLauncher/processBar'],
+    link: function(scope, element, attrs) {
+      var animTimeout, elem, hideTimeout;
+      elem = $(element);
+      hideTimeout = null;
+      animTimeout = null;
+      scope.$watch(function() {
+        return scope.progress.showed;
+      }, function(nVal) {
+        if (nVal === true) {
+          elem.removeClass('full');
+          elem.addClass('animated');
+          elem.addClass('showed');
+          if (hideTimeout != null) {
+            clearTimeout(hideTimeout);
+            return hideTimeout = null;
+          }
+        } else {
+          elem.removeClass('showed');
+          if (hideTimeout != null) {
+            clearTimeout(hideTimeout);
+          }
+          return hideTimeout = setTimeout(function() {
+            return elem.css('width', 0);
+          }, 200);
+        }
+      });
+      scope.$watch(function() {
+        return scope.progress.done;
+      }, function(nVal, oVal) {
+        if (nVal != null) {
+          if (nVal < oVal || nVal === 0) {
+            elem.removeClass('animated');
+            elem.css('width', nVal + '%');
+            if (animTimeout != null) {
+              clearTimeout(animTimeout);
+            }
+            return animTimeout = setTimeout(function() {
+              return elem.addClass('animated');
+            }, 1);
+          } else {
+            if (animTimeout != null) {
+              clearTimeout(animTimeout);
+              animTimeout = null;
+            }
+            elem.css('width', nVal + '%');
+            if (nVal === 100) {
+              return elem.addClass('full');
+            }
+          }
+        }
+      });
+      return true;
+    }
+  };
+});

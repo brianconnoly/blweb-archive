@@ -1,0 +1,247 @@
+#menu {
+  background: #fff;
+  position: absolute;
+  left: 0px;
+  bottom: 39px;
+  -webkit-border-radius: 0 2px 0 0;
+  border-radius: 0 2px 0 0;
+  z-index: 1000;
+}
+#menu .mainMenu {
+  width: 220px;
+  background: #f2f2f2;
+}
+#menu .mainMenu .appButton {
+  width: 220px;
+  height: 40px;
+  cursor: pointer;
+}
+#menu .mainMenu .appButton * {
+  cursor: pointer;
+}
+#menu .mainMenu .appButton.market .icon {
+  background: url("/resources/images/desktop/dock/black/market.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.teamManager .icon {
+  background: url("/resources/images/desktop/dock/black/teams.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.lotManager .icon {
+  background: url("/resources/images/desktop/dock/black/marketRequests.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.combs .icon {
+  background: url("/resources/images/desktop/dock/black/themes.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.timeline .icon {
+  background: url("/resources/images/desktop/dock/black/timelines.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.notificationViewer .icon {
+  background: url("/resources/images/desktop/dock/black/notify.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.content .icon {
+  background: url("/resources/images/desktop/dock/black/materials.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.textEditor .icon {
+  background: url("/resources/images/desktop/dock/black/text.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.help .icon {
+  background: url("/resources/images/desktop/dock/black/help.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton.shortcuts {
+  cursor: default;
+}
+#menu .mainMenu .appButton.shortcuts * {
+  cursor: default;
+}
+#menu .mainMenu .appButton.shortcuts .icon {
+  background: url("/resources/images/desktop/types/black/filter-video.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover,
+#menu .mainMenu .appButton.active {
+  background: #39b54a;
+  color: #f2f2f2;
+}
+#menu .mainMenu .appButton:hover.market .icon,
+#menu .mainMenu .appButton.active.market .icon {
+  background: url("/resources/images/desktop/dock/white/market.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.teamManager .icon,
+#menu .mainMenu .appButton.active.teamManager .icon {
+  background: url("/resources/images/desktop/dock/white/teams.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.lotManager .icon,
+#menu .mainMenu .appButton.active.lotManager .icon {
+  background: url("/resources/images/desktop/dock/white/marketRequests.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.combs .icon,
+#menu .mainMenu .appButton.active.combs .icon {
+  background: url("/resources/images/desktop/dock/white/themes.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.timeline .icon,
+#menu .mainMenu .appButton.active.timeline .icon {
+  background: url("/resources/images/desktop/dock/white/timelines.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.textEditor .icon,
+#menu .mainMenu .appButton.active.textEditor .icon {
+  background: url("/resources/images/desktop/dock/white/text.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.help .icon,
+#menu .mainMenu .appButton.active.help .icon {
+  background: url("/resources/images/desktop/dock/white/help.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.notificationViewer .icon,
+#menu .mainMenu .appButton.active.notificationViewer .icon {
+  background: url("/resources/images/desktop/dock/white/notify.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.content .icon,
+#menu .mainMenu .appButton.active.content .icon {
+  background: url("/resources/images/desktop/dock/white/materials.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton:hover.shortcuts .icon,
+#menu .mainMenu .appButton.active.shortcuts .icon {
+  background: url("/resources/images/desktop/types/white/filter-video.svg") center center no-repeat;
+}
+#menu .mainMenu .appButton .icon {
+  width: 50px;
+  height: 40px;
+  float: left;
+}
+#menu .mainMenu .appButton .title {
+  height: 40px;
+  line-height: 40px;
+  float: left;
+  font-size: 15px;
+  padding-left: 10px;
+}
+#menu .mainMenu .menuHead {
+  width: 220px;
+  height: 50px;
+  background: #494949;
+  overflow: hidden;
+}
+#menu .mainMenu .menuHead .settings {
+  width: 50px;
+  height: 50px;
+  float: left;
+  background: url("/resources/images/desktop/actions/white/header-button-settings.svg") center center no-repeat;
+  cursor: pointer;
+}
+#menu .mainMenu .menuHead .name {
+  font-size: 12px;
+  line-height: 50px;
+  width: 120px;
+  height: 50px;
+  float: left;
+  color: #f2f2f2;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#menu .mainMenu .menuHead .logout {
+  width: 30px;
+  height: 20px;
+  margin: 15px 10px;
+  float: left;
+  background: url("/resources/images/desktop/dock/white/exit.svg") center center no-repeat;
+  cursor: pointer;
+}
+#menu .popupMenu {
+  width: 190px;
+  padding: 10px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+  position: absolute;
+  bottom: 0px;
+  left: 220px;
+}
+#menu .popupMenu.combs {
+  background: #fcc223;
+  bottom: 60px;
+}
+#menu .popupMenu.combs .addCommunity .title {
+  line-height: 12px !important;
+  margin-top: 4px;
+}
+#menu .popupMenu.combs .addCommunity .icon {
+  background: url("/resources/images/desktop/white/header-button-addTimeline.svg") center center no-repeat;
+}
+#menu .popupMenu.timeline {
+  background: #61a3cb;
+  bottom: 20px;
+}
+#menu .popupMenu.timeline .import .icon {
+  background: url("/resources/images/desktop/dock/white/import.svg") center center no-repeat;
+}
+#menu .popupMenu.timeline .xls .icon {
+  background: url("/resources/images/desktop/dock/white/xls.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts {
+  background: rgba(57,181,74,0.97);
+  -webkit-border-radius: 4px 4px 4px 0;
+  border-radius: 4px 4px 4px 0;
+}
+#menu .popupMenu.shortcuts .actionButton .hotkey {
+  color: #96d49e;
+}
+#menu .popupMenu.shortcuts .addCommunity .title {
+  line-height: 12px !important;
+  margin-top: 4px;
+}
+#menu .popupMenu.shortcuts .addCommunity .icon {
+  background: url("/resources/images/desktop/white/header-button-addTimeline.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .textEditor .icon {
+  background: url("/resources/images/desktop/dock/white/text.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .search .icon {
+  background: url("/resources/images/desktop/dock/white/search.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .import .icon {
+  background: url("/resources/images/desktop/dock/white/import.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .xls .icon {
+  background: url("/resources/images/desktop/dock/white/xls.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .folder .icon {
+  background: url("/resources/images/desktop/dock/white/newFolder.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .upload .icon {
+  background: url("/resources/images/desktop/dock/white/download.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .launchApp .icon {
+  background: url("/resources/images/desktop/dock/white/materials.svg") center center no-repeat;
+}
+#menu .popupMenu.shortcuts .services .icon {
+  background: url("/resources/images/desktop/dock/white/services.svg") center center no-repeat;
+}
+#menu .popupMenu .actionButton {
+  margin: 10px;
+  width: 150px;
+  float: left;
+}
+#menu .popupMenu .actionButton.withHotkey .title,
+#menu .popupMenu .actionButton.withHotkey .hotkey {
+  line-height: 16px;
+}
+#menu .popupMenu .actionButton * {
+  cursor: pointer;
+}
+#menu .popupMenu .actionButton .icon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #f2f2f2;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  float: left;
+  margin-right: 10px;
+}
+#menu .popupMenu .actionButton .title,
+#menu .popupMenu .actionButton .hotkey {
+  font-size: 11px;
+  line-height: 32px;
+  color: #f2f2f2;
+}

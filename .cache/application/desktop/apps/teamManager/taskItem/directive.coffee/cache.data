@@ -1,0 +1,102 @@
+buzzlike.directive('taskItem', function(teamService, taskService, userService, account, complexMenu) {
+  return {
+    restrict: 'E',
+    template: tC['/desktop/apps/teamManager/taskItem'],
+    replace: true,
+    link: function(scope, element, attrs) {
+      var getExecutorInfo, lastClick, ownerProcess;
+      if (scope.$last) {
+        $(element).parent()[0].scrollTop = scope.$parent.tasksScrollValue;
+      }
+      if (scope.$parent.justCreated === scope.item) {
+        scope.$parent.tasksScrollValue = scope.$index * 40;
+        $(element).parent()[0].scrollTop = scope.$parent.tasksScrollValue;
+      }
+      ownerProcess = scope.progress.add();
+      scope.taskOwner = userService.getById(scope.item.userId, function(item) {
+        var ref;
+        scope.progress.finish(ownerProcess);
+        return scope.fromUser = item.firstName[0].toUpperCase() + (((ref = item.lastName) != null ? ref[0] : void 0) != null ? item.lastName[0].toUpperCase() : '');
+      });
+      getExecutorInfo = function() {
+        var execProcess;
+        scope.toUser = '';
+        if (scope.item.users.length > 0) {
+          execProcess = scope.progress.add();
+          return scope.taskExecutor = userService.getById(scope.item.users[scope.item.users.length - 1], function(item) {
+            var ref, ref1, ref2;
+            scope.progress.finish(execProcess);
+            scope.toUser = (item != null ? (ref = item.firstName) != null ? (ref1 = ref[0]) != null ? ref1.toUpperCase() : void 0 : void 0 : void 0) || "";
+            if (((ref2 = item.lastName) != null ? ref2[0] : void 0) != null) {
+              scope.toUser += item.lastName[0].toUpperCase();
+            }
+            if (scope.item.users.length > 1) {
+              return scope.toUser += ' (' + scope.item.users.length + ')';
+            }
+          });
+        }
+      };
+      getExecutorInfo();
+      scope.$watch('item.users', function(nVal) {
+        return getExecutorInfo();
+      }, true);
+      lastClick = 0;
+      scope.params = {
+        editTitle: ''
+      };
+      scope.editTask = function(e) {
+        var diff, now;
+        if (scope.item.editMode === true) {
+          return true;
+        }
+        now = Date.now();
+        diff = now - lastClick;
+        if (diff < 1500 && diff > 500) {
+          scope.params.editTitle = scope.item.name;
+          scope.item.editMode = true;
+          lastClick = 0;
+        }
+        return lastClick = now;
+      };
+      scope.saveTitle = function() {
+        if (scope.params.editTitle === '') {
+          scope.params.editTitle = scope.item.name;
+        }
+        if (scope.params.editTitle !== scope.item.name) {
+          scope.item.name = scope.params.editTitle;
+          scope.$parent.saveTask(scope.item);
+        }
+        return scope.item.editMode = false;
+      };
+      scope.resetTitle = function() {
+        scope.params.editTitle = scope.item.name;
+        return scope.item.editMode = false;
+      };
+      return scope.test = function(e) {
+        return e.stopPropagation();
+      };
+    }
+  };
+});
+
+buzzlike.directive('smartTaskTitle', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      return $(element).on('blur.taskTitle', function(e) {
+        scope.saveTitle();
+        return scope.$apply();
+      }).on('keydown', function(e) {
+        if (e.which === 13) {
+          scope.saveTitle();
+          scope.$apply();
+        }
+        if (e.which === 27) {
+          e.stopPropagation();
+          scope.resetTitle();
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});

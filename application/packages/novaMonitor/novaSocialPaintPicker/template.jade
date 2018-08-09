@@ -1,0 +1,10 @@
+div.pickerBar
+    div.pickerOption(
+        ng-repeat="paintType in paintTypes", 
+        translate="'novaSocialPaintPicker_paint_'+paintType",
+        ng-class="{'active':paintType==wizard.data.paintData.type}",
+        ng-click="wizard.data.paintData.type=paintType")
+        
+div.pickerBody(ng-switch="wizard.data.paintData.type")
+    div.pickerSwitchedBody.usersList.novaEditableDiv(ng-switch-when="vkUsers", ng-model="wizard.data.paintData.value")
+    div.pickerSwitchedBody.usersList.novaEditableDiv(ng-switch-when="vkGroups", ng-model="wizard.data.paintData.value")

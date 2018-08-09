@@ -1,0 +1,75 @@
+buzzlike.service('browserPopup', function() {
+  var open, parseHref, waitResponse;
+  open = function(url, options) {
+    var caption, features, height, left, outerHeight, outerWidth, ref, screenX, screenY, top, width, wnd;
+    options = options || {};
+    width = options.width || 607;
+    height = options.height || 629;
+    caption = options.caption || '_blank';
+    screenX = typeof window.screenX !== 'undefined' ? window.screenX : window.screenLeft;
+    screenY = typeof window.screenY !== 'undefined' ? window.screenY : window.screenTop;
+    outerWidth = typeof window.outerWidth !== 'undefined' ? window.outerWidth : document.body.clientWidth;
+    outerHeight = typeof window.outerHeight !== 'undefined' ? window.outerHeight : document.body.clientHeight - 22;
+    left = Math.floor(screenX + ((outerWidth - width) / 2), 10);
+    top = Math.floor(screenY + ((outerHeight - height) / 2.5), 10);
+    features = 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top;
+    wnd = window.open(url, caption, features);
+    if (!wnd) {
+      if ((typeof navigator !== "undefined" && navigator !== null ? (ref = navigator.vendor) != null ? ref.indexOf("Apple") : void 0 : void 0) + 1) {
+        alert("К сожалению, у Safari возникли трудности с открытием всплывающего окна. Пока мы ищем способ решить проблему, попробуйте использовать другой браузер.");
+      } else {
+        alert("Неизвестная ошибка, связанная с открытием всплывающего окна. Попробуйте обновить браузер до последней версии или обратитесь в тех. поддержку.");
+      }
+    }
+    return wnd;
+  };
+  parseHref = function(url) {
+    var GET, data, i, key, len, pair, val;
+    data = url != null ? url.split(/\?|&|#/) : void 0;
+    GET = {};
+    if (data) {
+      for (i = 0, len = data.length; i < len; i++) {
+        pair = data[i];
+        if (pair.indexOf("=") + 1) {
+          key = pair.split("=")[0];
+          val = pair.split("=")[1];
+          GET[key] = val;
+        }
+      }
+    }
+    return GET;
+  };
+  waitResponse = function(popup, statuses, cb) {
+    var I;
+    if (popup) {
+      return I = setInterval(function() {
+        var GET, e, error, href, name, ref, ref1, ref2, ref3, ref4;
+        try {
+          href = (ref = popup.document) != null ? (ref1 = ref.location) != null ? ref1.href : void 0 : void 0;
+        } catch (error) {
+          e = error;
+          true;
+        }
+        href = (ref2 = popup.document) != null ? (ref3 = ref2.location) != null ? ref3.href : void 0 : void 0;
+        GET = getQuery((ref4 = popup.document) != null ? ref4.location : void 0);
+        if (GET.status && popup.document.body) {
+          if (typeof statuses[name = GET.status] === "function") {
+            statuses[name]();
+          }
+          clearInterval(I);
+          if (typeof cb === "function") {
+            cb(GET.status);
+          }
+        }
+        if (!href) {
+          return clearInterval(I);
+        }
+      }, 50);
+    }
+  };
+  window.popen = open;
+  return {
+    open: open,
+    waitResponse: waitResponse
+  };
+});

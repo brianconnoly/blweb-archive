@@ -1,0 +1,8 @@
+div.novaAppLeftPanel
+    div.peopleLauncher(translate="'novaStreamsApp_people'", ng-click="launchPeople()")
+    div.streamLauncher.novaItem.novaItemPreview.novaItemMenu(
+        ng-repeat="item in makeArray(streams) | filter:streamFilter",
+        ng-click="launchStream(item)",
+        nova-item-preview-type="panel")
+        
+div.workarea.novaFlow

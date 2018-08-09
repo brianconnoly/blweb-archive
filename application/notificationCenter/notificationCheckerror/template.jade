@@ -1,0 +1,11 @@
+div.previews
+    div.itemPreview(type="lot", id="lotId")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header {{translate('marketRequest_checkerror')}}
+
+    div.description {{translate('marketRequest_checkerror_description')}}
+
+div.notificationButtons

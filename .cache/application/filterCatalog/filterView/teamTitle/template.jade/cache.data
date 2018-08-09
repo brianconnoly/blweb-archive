@@ -1,0 +1,1 @@
+<div ng-if="teamData.cover" class="teamIcon"><div id="teamData.cover" type="image" class="itemPreview"></div></div><span>{{teamData.name}}</span>

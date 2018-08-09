@@ -1,0 +1,212 @@
+.notificationCenter {
+  display: block;
+  position: relative;
+  float: left;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+}
+.notificationCenter img.icon {
+  margin: 5px;
+}
+.notificationCenter .counter {
+  cursor: pointer;
+  position: absolute;
+  right: 2px;
+  top: 6px;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  text-align: center;
+  line-height: 18px;
+  color: #fff;
+  font-weight: bolder;
+  background: #f00;
+  -webkit-border-radius: 18px;
+  border-radius: 18px;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.notificationCenter .icon {
+  cursor: pointer;
+  -webkit-transition: opacity 1s ease;
+  -moz-transition: opacity 1s ease;
+  -o-transition: opacity 1s ease;
+  -ms-transition: opacity 1s ease;
+  transition: opacity 1s ease;
+}
+.notificationCenter.error div.error {
+  display: block;
+}
+.notificationCenter.new .counter {
+  display: block;
+}
+.notificationCenter .counter {
+  display: none;
+}
+.notificationCenter.spinner .icon {
+  -webkit-animation: blinkNotify 1s infinite;
+  -moz-animation: blinkNotify 1s infinite;
+  -o-animation: blinkNotify 1s infinite;
+  -ms-animation: blinkNotify 1s infinite;
+  animation: blinkNotify 1s infinite;
+}
+.notificationCenter div.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/resources/images/icons/nav/notify.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 20px 20px;
+  -moz-background-size: 20px 20px;
+  background-size: 20px 20px;
+  -webkit-transition: all ease 0.2s;
+  -moz-transition: all ease 0.2s;
+  -o-transition: all ease 0.2s;
+  -ms-transition: all ease 0.2s;
+  transition: all ease 0.2s;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .notificationCenter div.icon {
+    background-image: url("/resources/images/icons/nav/notify@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 20px 20px;
+    -moz-background-size: 20px 20px;
+    background-size: 20px 20px;
+  }
+}
+.notificationCenter div.error {
+  display: none;
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin-top: -12px;
+  margin-left: -12px;
+  background: #f72821;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
+}
+.notificationCenter div.spinner {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: auto;
+  width: auto;
+  margin-top: auto;
+  margin-left: auto;
+}
+.notificationCenter div.panel {
+  display: none;
+  position: absolute;
+  width: 200px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: rgba(255,255,255,0.8);
+  top: 44px;
+  left: -80px;
+  -webkit-border-radius: 1px;
+  border-radius: 1px;
+}
+.notificationCenter div.panel.active {
+  display: block;
+}
+.notificationCenter div.panel div.task {
+  height: 30px;
+  margin: 1px;
+}
+.notificationCenter div.panel div.task div.icon {
+  width: 30px;
+  height: 30px;
+  background: rgba(100,100,100,0.8);
+  float: left;
+}
+.notificationCenter div.panel div.task div.progress {
+  height: 30px;
+  margin-left: 31px;
+}
+.notificationCenter div.panel div.task div.progress div.value {
+  height: 100%;
+  background: rgba(0,195,0,0.4);
+}
+.white .spinner div div {
+  background-color: #000 !important;
+}
+@-moz-keyframes blinkNotify {
+  0% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+  50% {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+  }
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-webkit-keyframes blinkNotify {
+  0% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+  50% {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+  }
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-o-keyframes blinkNotify {
+  0% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+  50% {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+  }
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@keyframes blinkNotify {
+  0% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+  50% {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+  }
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}

@@ -1,0 +1,38 @@
+tC['/novaTimelineSchedule/template.jade'] = "<div ng-repeat=\"item in schedules track by item.id\" nova-item-preview-type=\"timeline\" ng-dblclick=\"openScheduleFrame(item)\" class=\"novaItem novaItemSelectable novaItemDraggable novaItemDroppable novaItemPreview\"></div>";
+
+buzzlike.directive('novaTimelineSchedule', function(dynamicStyle, postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelineSchedule/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.openScheduleFrame = function(sched) {
+        return scope.flowFrame.flowBox.addFlowFrame({
+          title: 'post',
+          directive: 'novaScheduleFrame',
+          item: sched
+        }, scope.flowFrame);
+      };
+      scope.schedules = [];
+      return scope.$watch('block.schedules', function(nVal) {
+        var i, len, postIds, results, sched;
+        scope.schedules.length = 0;
+        postIds = {};
+        results = [];
+        for (i = 0, len = nVal.length; i < len; i++) {
+          sched = nVal[i];
+          if (postIds[sched.postId] !== true) {
+            postIds[sched.postId] = true;
+            results.push(scope.schedules.push(sched));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaTimelineSchedule', ".novaTimelineSchedule {\n  width: 100%;\n  overflow: hidden;\n}\n.novaTimelineSchedule .novaTimelinePostPreview {\n  float: left;\n}\n.novaTimelineSchedule .scheduleTime {\n  background: rgba(255,255,255,0.6);\n  color: #000;\n  height: 40px;\n  line-height: 40px;\n  text-align: center;\n  font-size: 22px;\n  font-weight: 200;\n}\n.novaTimelineSchedule .novaItem:first-child .time {\n  display: block;\n}\n.novaTimelineSchedule .novaItem .time {\n  display: none;\n}\n");

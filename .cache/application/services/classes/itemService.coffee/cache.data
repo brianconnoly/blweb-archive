@@ -1,0 +1,430 @@
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('itemService', function(account, rpc, operationsService) {
+  var classEntity;
+  return classEntity = (function() {
+    classEntity.prototype.call = function(method, data, cb) {
+      return rpc.call(this.itemType + '.' + method, data, cb);
+    };
+
+    classEntity.prototype.getId = function(entity) {
+      if (typeof entity === 'object') {
+        return entity.id;
+      } else {
+        return entity;
+      }
+    };
+
+    function classEntity() {
+      this.query = bind(this.query, this);
+      this.storage = {};
+      this.fetchedByProject = {};
+      this.byProjectId = {};
+      this.my = {};
+      this.loadingOptimizer = {
+        handler: null,
+        ids: [],
+        cbs: {}
+      };
+      this.init();
+    }
+
+    classEntity.prototype.getByProjectId = function(projectId, cb) {
+      var ref;
+      if (this.fetchedByProject[projectId] !== true) {
+        this.fetchedByProject[projectId] = true;
+        if (((ref = this.byProjectId[projectId]) != null ? ref.length : void 0) == null) {
+          this.byProjectId[projectId] = [];
+        }
+        this.query({
+          projectId: projectId
+        }, (function(_this) {
+          return function(items) {
+            return typeof cb === "function" ? cb(_this.byProjectId[projectId]) : void 0;
+          };
+        })(this));
+        return this.byProjectId[projectId];
+      }
+      if (typeof cb === "function") {
+        cb(this.byProjectId[projectId]);
+      }
+      return this.byProjectId[projectId];
+    };
+
+    classEntity.prototype.purge = function() {
+      var ref;
+      emptyObject(this.storage);
+      emptyObject(this.fetchedByProject);
+      emptyObject(this.byProjectId);
+      emptyObject(this.my);
+      if ((ref = this.loadingOptimizer.handler) != null) {
+        if (typeof ref.clearTimeout === "function") {
+          ref.clearTimeout();
+        }
+      }
+      this.loadingOptimizer.ids.length = 0;
+      return this.loadingOptimizer.cbs.length = 0;
+    };
+
+    classEntity.prototype.handleItems = function(items) {
+      var i, item, len, results;
+      results = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        results.push(this.handleItem(item));
+      }
+      return results;
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var ref, ref1, ref2, stored;
+      stored = this.storage[item.id];
+      if (stored != null) {
+        updateObject(this.storage[item.id], item);
+        if (stored.blank != null) {
+          delete stored.blank;
+        }
+      } else {
+        this.storage[item.id] = item;
+      }
+      if (item.projectId != null) {
+        if (((ref = this.byProjectId[item.projectId]) != null ? ref.length : void 0) != null) {
+          if (ref1 = this.storage[item.id], indexOf.call(this.byProjectId[item.projectId], ref1) < 0) {
+            if (ref2 = this.storage[item.id], indexOf.call(this.byProjectId[item.projectId], ref2) < 0) {
+              this.byProjectId[item.projectId].push(this.storage[item.id]);
+            }
+          }
+        }
+      }
+      if (item.userId === account.user.id) {
+        this.my[item.id] = this.storage[item.id];
+      }
+      return this.storage[item.id];
+    };
+
+    classEntity.prototype.fetchById = function(id, reqCb) {
+      var doFetchOptimized;
+      doFetchOptimized = (function(_this) {
+        return function(ids, cbs) {
+          if (ids.length > 1) {
+            return _this.getByIds(ids, function(items) {
+              var cb, i, item, j, k, l, len, len1, len2, ref, saved, v;
+              for (i = 0, len = items.length; i < len; i++) {
+                item = items[i];
+                saved = _this.handleItem(item);
+                if (cbs[item.id] != null) {
+                  ref = cbs[item.id];
+                  for (j = 0, len1 = ref.length; j < len1; j++) {
+                    cb = ref[j];
+                    if (typeof cb === "function") {
+                      cb(saved);
+                    }
+                  }
+                  delete cbs[item.id];
+                }
+              }
+              for (k in cbs) {
+                v = cbs[k];
+                for (l = 0, len2 = v.length; l < len2; l++) {
+                  cb = v[l];
+                  if (typeof cb === "function") {
+                    cb(false);
+                  }
+                }
+              }
+              return true;
+            });
+          } else {
+            return _this.call('getById', ids[0], function(item) {
+              var cb, i, len, ref, saved;
+              saved = _this.handleItem(item);
+              if (cbs[id] != null) {
+                ref = cbs[id];
+                for (i = 0, len = ref.length; i < len; i++) {
+                  cb = ref[i];
+                  if (typeof cb === "function") {
+                    cb(saved);
+                  }
+                }
+                return delete cbs[id];
+              }
+            });
+          }
+        };
+      })(this);
+      if (indexOf.call(this.loadingOptimizer.ids, id) < 0) {
+        this.loadingOptimizer.ids.push(id);
+      }
+      if (reqCb != null) {
+        if (this.loadingOptimizer.cbs[id] == null) {
+          this.loadingOptimizer.cbs[id] = [];
+        }
+        this.loadingOptimizer.cbs[id].push(reqCb);
+      }
+      if (this.loadingOptimizer.handler === null) {
+        this.loadingOptimizer.handler = setTimeout((function(_this) {
+          return function() {
+            doFetchOptimized(_this.loadingOptimizer.ids, _this.loadingOptimizer.cbs);
+            return _this.loadingOptimizer = {
+              handler: null,
+              ids: [],
+              cbs: {}
+            };
+          };
+        })(this), 200);
+      }
+    };
+
+    classEntity.prototype.getById = function(id, cb) {
+      var stored;
+      if (id == null) {
+        console.log('Undefined!', id, cb);
+        if (typeof cb === "function") {
+          cb(id);
+        }
+        return id;
+      }
+      stored = this.storage[id];
+      if ((stored != null) && stored.blank !== true) {
+        if (typeof cb === "function") {
+          cb(stored);
+        }
+      } else {
+        if (stored == null) {
+          this.storage[id] = {
+            id: id,
+            blank: true
+          };
+        }
+        this.fetchById(id, cb);
+      }
+      return this.storage[id];
+    };
+
+    classEntity.prototype.getByIdsOptimized = function(ids, cb) {
+      var fetchIds, i, id, j, len, len1, optimizedMap, optimizedResult, result;
+      result = [];
+      fetchIds = [];
+      optimizedMap = {};
+      optimizedResult = [];
+      for (i = 0, len = ids.length; i < len; i++) {
+        id = ids[i];
+        if (this.storage[id] == null) {
+          this.storage[id] = {
+            id: id,
+            blank: true
+          };
+        }
+        if (this.storage[id].blank === true) {
+          fetchIds.push(id);
+        } else {
+          optimizedMap[id] = this.storage[id];
+        }
+        result.push(this.storage[id]);
+      }
+      if (fetchIds.length > 0) {
+        this.query({
+          ids: fetchIds
+        }, function(items, total) {
+          var item, j, l, len1, len2;
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            optimizedMap[item.id] = item;
+          }
+          for (l = 0, len2 = ids.length; l < len2; l++) {
+            id = ids[l];
+            optimizedResult.push(optimizedMap[id]);
+          }
+          return typeof cb === "function" ? cb(optimizedResult) : void 0;
+        });
+      } else {
+        for (j = 0, len1 = ids.length; j < len1; j++) {
+          id = ids[j];
+          optimizedResult.push(optimizedMap[id]);
+        }
+        if (typeof cb === "function") {
+          cb(optimizedResult);
+        }
+      }
+      return result;
+    };
+
+    classEntity.prototype.getByIds = function(ids, cb) {
+      var i, id, len, result;
+      result = [];
+      for (i = 0, len = ids.length; i < len; i++) {
+        id = ids[i];
+        if (this.storage[id] == null) {
+          this.storage[id] = {
+            id: id,
+            blank: true
+          };
+        }
+        result.push(this.storage[id]);
+      }
+      this.query({
+        ids: ids
+      }, function(items, total) {
+        return typeof cb === "function" ? cb(items) : void 0;
+      });
+      return result;
+    };
+
+    classEntity.prototype.exists = function(id) {
+      return this.storage[id] != null;
+    };
+
+    classEntity.prototype.addContentIds = function(entity, ids, cb) {
+      var id;
+      id = this.getId(entity);
+      return this.call('addContent', {
+        id: id,
+        ids: ids
+      }, function(result) {
+        return typeof cb === "function" ? cb(true) : void 0;
+      });
+    };
+
+    classEntity.prototype.removeContentIds = function(entity, ids, cb) {
+      var id;
+      id = this.getId(entity);
+      return this.call('removeContent', {
+        id: id,
+        ids: ids
+      }, function(result) {
+        return typeof cb === "function" ? cb(true) : void 0;
+      });
+    };
+
+    classEntity.prototype.query = function(data, cb) {
+      return this.call('query', data, (function(_this) {
+        return function(queryResult) {
+          var response;
+          response = _this.handleItems(queryResult.items);
+          return typeof cb === "function" ? cb(response, queryResult.total) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.duplicate = function(data, cb) {
+      return this.call('duplicate', this.getId(data), (function(_this) {
+        return function(newItem) {
+          return typeof cb === "function" ? cb(_this.getById(newItem.id)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.create = function(data, cb) {
+      return this.call('create', angular.copy(data), (function(_this) {
+        return function(newItem) {
+          return typeof cb === "function" ? cb(_this.getById(newItem.id)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype["delete"] = function(data, cb) {
+      if (data.type == null) {
+        data.type = this.itemType;
+      }
+      return this.call('delete', data, (function(_this) {
+        return function(response) {
+          return typeof cb === "function" ? cb(response) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.deleteByIds = function(ids, cb) {
+      return this.call('deleteByIds', ids, (function(_this) {
+        return function(response) {
+          return typeof cb === "function" ? cb(response) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.save = function(data, cb) {
+      return this.call('update', angular.copy(data), function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var ref;
+      if ((ref = this.storage[id]) != null) {
+        ref.deleted = true;
+      }
+      if (this.my[id] != null) {
+        return delete this.my[id];
+      }
+    };
+
+    classEntity.prototype.hasContentIds = function(entity, ids) {
+      var i, id, itemId, items, len, ref, storedEntity, type;
+      id = this.getId(entity);
+      storedEntity = this.storage[id];
+      for (i = 0, len = ids.length; i < len; i++) {
+        itemId = ids[i];
+        ref = storedEntity.contentIds;
+        for (type in ref) {
+          items = ref[type];
+          if (indexOf.call(items, itemId) >= 0) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    classEntity.prototype.onCreate = function(item) {
+      return this.handleItem(item);
+    };
+
+    classEntity.prototype.init = function() {
+      var types;
+      types = this.typeMarker || this.itemType;
+      operationsService.registerAction('save', types, (function(_this) {
+        return function(item, cb) {
+          return _this.save(item, cb);
+        };
+      })(this));
+      operationsService.registerAction('create', types, (function(_this) {
+        return function(id, data) {
+          return _this.onCreate(data.entity);
+        };
+      })(this));
+      operationsService.registerAction('update', types, (function(_this) {
+        return function(id, data) {
+          return _this.handleItem(data.entity);
+        };
+      })(this));
+      operationsService.registerAction('delete', types, (function(_this) {
+        return function(id, data) {
+          return _this.removeCache(id);
+        };
+      })(this));
+      operationsService.registerAction('get', types, (function(_this) {
+        return function(id, cb) {
+          return _this.getById(id, cb);
+        };
+      })(this));
+      operationsService.registerAction('getByIds', types, (function(_this) {
+        return function(ids, cb) {
+          return _this.getByIds(ids, cb);
+        };
+      })(this));
+      operationsService.registerAction('query', types, (function(_this) {
+        return function(ids, cb) {
+          return _this.query(ids, cb);
+        };
+      })(this));
+      return operationsService.registerAction('call', types, (function(_this) {
+        return function(method, data, cb) {
+          return _this.call(method, data, cb);
+        };
+      })(this));
+    };
+
+    return classEntity;
+
+  })();
+});

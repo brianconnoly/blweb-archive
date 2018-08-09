@@ -1,0 +1,93 @@
+.accountRegister {
+  height: 100%;
+  padding-top: 50px;
+  text-align: center;
+  z-index: 9;
+}
+.accountRegister .add-button {
+  margin: 6px;
+  float: right;
+}
+.accountRegister .remove-button {
+  margin: 10px 45px 0 0;
+  float: right;
+}
+.accountRegister form {
+  margin: auto;
+  display: inline-block;
+}
+.accountRegister form button {
+  width: 48%;
+  float: left;
+  margin-left: 2%;
+  margin-top: 11px;
+}
+.accountRegister form div.face {
+  width: 133px;
+  height: 115px;
+  background-image: url("../resources/images/icons/faces@2x.png");
+  display: inline-block;
+}
+.accountRegister form input {
+  float: left;
+  width: 100%;
+}
+.accountRegister form ul.options {
+  display: block;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+.accountRegister form ul.options li.option {
+  width: 100%;
+  height: 33px;
+}
+.accountRegister form ul.options li.option .wrap {
+  margin-left: 36px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  font-size: 11px;
+  border-bottom: 1px solid #fff;
+}
+.accountRegister form ul.options li.option .wrap span.descr {
+  font-size: 15px;
+  line-height: 34px;
+}
+.accountRegister form ul.options li.option .wrap span.descr span.blocked {
+  padding-left: 5px;
+  color: #f00;
+}
+.accountRegister form ul.options li.option *:hover {
+  cursor: pointer;
+}
+.accountRegister form ul.options li.option:hover {
+  background: rgba(255,255,255,0.3);
+  -webkit-transition: all ease 0.3;
+  -moz-transition: all ease 0.3;
+  -o-transition: all ease 0.3;
+  -ms-transition: all ease 0.3;
+  transition: all ease 0.3;
+}
+.accountRegister form ul.options li.network-type {
+  height: 30px;
+  font-family: "HelveticaNeue", "Helvetica";
+}
+.accountRegister form ul.options li.network-type span.descr {
+  font-size: 19px;
+  line-height: 30px;
+}
+.accountRegister form ul.options li.network-type .icon {
+  width: 22px;
+  height: 22px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  float: left;
+  margin: 4px 6px;
+}
+.accountRegister form ul.options li.network-type .icon .name {
+  margin: 4px 3px;
+  font-size: 13px;
+  text-transform: uppercase;
+}

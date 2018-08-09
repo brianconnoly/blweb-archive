@@ -1,0 +1,65 @@
+div.taskActions.novaItemMenuActivator(ng-if="!createMode") ...
+div.novaTaskStatus(ng-if="!createMode")
+
+div.taskTitle.novaEditableDiv(
+    ng-model="item.name", 
+    placeholder-text="'novaTaskEdit_enterTitle'",
+    ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }",
+    ng-change="updateTask()",
+    auto-focus,
+    on-enter="jumpDescription")
+div.taskDescription.novaEditableDiv(
+    ng-model="item.description", 
+    placeholder-text="'novaTaskEdit_enterDescription'",
+    ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }",
+    ng-change="updateTask()",
+    on-cmd-enter="addSubTask")
+    
+div.taskStream.novaStreamIndicator(ng-if="!createMode", nova-stream-item="item")
+    div.novaStreamIndicatorLastMessage
+
+div.childTasks(ng-if="createMode")
+    div.childTask(ng-repeat="childTask in childTasks track by $index")
+        div.childTaskMark
+        div.childTaskName.novaEditableDiv(
+            ng-model="childTask.name", 
+            placeholder-text="'novaTaskEdit_enterSubtaskName'", 
+            auto-focus,
+            on-enter="addSubTask")
+
+    div.childTask.addSubTask(ng-click="addSubTask()")
+        div.childTaskMark +
+        div.childTaskName(translate="'novaTaskEdit_addSubtask'")
+        
+div.taskMode(ng-if="!createMode && item.parent == null")
+    div.novaSwitch(
+        nova-switch-options="taskModes", 
+        nova-switch-view="simple",
+        ng-model="item.mode",
+        ng-change="updateMode()",
+        translate="'novaSwitch_option_title_' + item.mode")
+
+div.taskUsers.novaMultiselect
+    div.subHeader(translate="'novaTaskEdit_executor' + (item.users.length > 1 ? 's' : '')", ng-if="item.users.length > 0")
+    div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemMenu(
+        ng-repeat="userId in item.users",
+        nova-item-type="user",
+        nova-item-id="userId",
+        nova-item-context="taskItem",
+        ng-class="{'executor':taskItem.executor == userId}")
+    div.subHeader(translate="'novaTaskEdit_initiator'", ng-if="!createMode")
+    div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemMenu(
+        ng-if="taskItem.userId && !createMode",
+        nova-item-id="taskItem.userId",
+        nova-item-type="user",
+        nova-item-context="taskItem")
+                
+div.taskEntities.novaMultiselect
+    div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemMenu(
+        ng-repeat="entity in item.entities track by entity.id",
+        ng-if="entity.id != appItem.id",
+        nova-item-type="{{entity.type}}",
+        nova-item-id="entity.id",
+        nova-item-context="taskItem")
+
+div.doCreate(ng-if="createMode", translate="'novaTaskEdit_doCreate'", ng-click="doCreateTask()", ng-class="{'active':canCreate()}")

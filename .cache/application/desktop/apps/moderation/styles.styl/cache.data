@@ -1,0 +1,38 @@
+.appContainer.moderation {
+  background: #333;
+}
+.appContainer.moderation .topBar {
+  background: #fff;
+}
+.appContainer.moderation .body {
+  background: #333;
+  overflow-y: auto;
+}
+.appContainer.moderation .previewContainer {
+  margin: 0;
+}
+.appContainer.moderation .moderationLot {
+  display: block;
+  overflow: hidden;
+  height: 150px;
+  margin: 15px 20px 0px 5px;
+}
+.appContainer.moderation .moderationLot .controlBlock {
+  float: right;
+}
+.appContainer.moderation .moderationLot .controlBlock button {
+  margin: 25px auto;
+  display: block;
+}
+.appContainer.moderation .moderationLot .lotPreview {
+  float: left;
+}
+.appContainer.moderation .moderationLot .tagList {
+  width: 400px;
+  float: left;
+  margin: 10px 0 0 50px;
+}
+.appContainer.moderation .moderationLot .tagList .tag {
+  float: left;
+  margin: 5px;
+}

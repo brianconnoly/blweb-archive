@@ -1,0 +1,56 @@
+tC['/novaScreenPickerComb/template.jade'] = "<div ng-class=\"{'picked':value.id}\"> <div class=\"screenBar\"> <div translate=\"'novaScreen_back'\" ng-click=\"backScreen()\" class=\"backScreen\"></div> <div ng-if=\"value.id\" nova-item-object=\"value\" nova-item-preview-type=\"list\" class=\"novaItemScope novaItem novaItemPreview\"></div> <div translate=\"'novaScreenPickerComb_helper'\" class=\"novaScreenTextHelper\"></div> </div> <div class=\"projectsList\"> <div ng-repeat=\"item in combs\" nova-item-preview-type=\"list\" ng-click=\"setNewValue(item.id)\" ng-if=\"item.id != value.id\" class=\"novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaScreenPickerComb', function(combService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaScreenPickerComb/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var currentPage, elem, getPage, loadInProgress, total;
+      elem = $(element);
+      scope.combs = [];
+      currentPage = 0;
+      loadInProgress = false;
+      total = null;
+      getPage = function() {
+        if (loadInProgress) {
+          return;
+        }
+        if ((total != null) && scope.combs.length > 0 && scope.combs.length >= total) {
+          return;
+        }
+        loadInProgress = true;
+        return combService.query({
+          limit: 20,
+          page: currentPage,
+          sortBy: 'lastUpdated',
+          sortType: 'DESC',
+          projectId: scope.postParams.projectId
+        }, function(items, ttl) {
+          var i, item, len, results;
+          total = ttl;
+          currentPage++;
+          loadInProgress = false;
+          results = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            results.push(scope.combs.push(item));
+          }
+          return results;
+        });
+      };
+      getPage();
+      return elem.on('mousewheel', function(e) {
+        if (loadInProgress) {
+          return;
+        }
+        if (elem[0].scrollTop + elem.height() > elem[0].scrollHeight - 200) {
+          getPage();
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});
+
+registerStyles('novaScreenPickerComb', ".novaScreenPickerComb {\n  overflow-y: auto;\n  padding-top: 80px;\n}\n.novaScreenPickerComb.picked {\n  padding-top: 140px;\n}\n.novaScreenPickerComb .projectsList .novaItem {\n  cursor: pointer;\n}\n.novaScreenPickerComb .projectsList .novaItemPreview * {\n  pointer-events: none;\n}\n");

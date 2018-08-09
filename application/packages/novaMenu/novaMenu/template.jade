@@ -1,0 +1,9 @@
+div(ng-class="{'active':novaMenu.active}", ng-click="novaMenu.hide(true)")
+    //- div.action.flushMousedown(ng-repeat="action in actions", translate="action.phrase", ng-click="fireAction(action, $event)")
+    div.menuSections
+        div.menuSection(ng-repeat="section in sections")
+            div.menuItem(ng-repeat="item in section.items", ng-click="clickItem(item, section, $event)", ng-class="{'disabled':item.disabled}")
+                span(translate="item.phrase")
+                span {{item.title}}
+                div.check(ng-if="section.type == 'checkbox'", ng-show="section.object[item.param]")
+                div.check(ng-if="section.type == 'select' && selected(item, section)")

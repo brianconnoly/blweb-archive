@@ -1,0 +1,130 @@
+@keyframes blinkNotify
+    0%
+        opacity 1
+    50%
+        opacity 0.2
+    100%
+        opacity 1
+
+.notificationCenter
+    display block
+    position: relative
+    float: left
+    cursor: pointer
+    width 40px
+    height 40px
+    
+    img.icon
+        margin: 5px
+
+    .counter
+        cursor pointer
+        position absolute
+        // bottom 4px
+        right 2px
+        top: 6px
+
+        width 18px
+        height 18px
+
+        font-size 12px
+        text-align center
+        line-height 18px
+
+        color #fff
+        font-weight bolder
+        background #f00
+
+        border-radius 18px
+        
+        transition all 0.2s ease
+    
+    .icon
+        cursor: pointer
+        transition opacity 1s ease
+
+    &.error
+        div.error
+            display: block
+
+    &.new
+        .counter
+            display: block
+            
+    .counter
+        display: none
+
+    &.spinner
+        .icon
+            animation blinkNotify 1s infinite
+
+    div.icon
+        size 'full'
+        sprite "/resources/images/icons/nav/notify.png" center center 20px 20px
+        transition all ease 0.2s
+
+    div.error
+        display: none
+        position: absolute
+        cursor: pointer
+
+        top: 50%;
+        left: 50%;
+
+        width: 24px;
+        height: 24px;
+        margin-top: -12px;
+        margin-left: -12px;
+        background: #F72821;
+        border-radius: 20px;
+
+    div.spinner
+        display none
+        size 'center'
+
+
+    div.panel
+        display: none
+        position: absolute
+        width 200px
+        max-height 200px
+
+        overflow-y: auto
+
+        background: rgba(255,255,255,0.8)
+
+        top 44px
+        left: -80px
+
+        border-radius 1px
+
+        &.active
+            display: block
+
+        div.task
+            height 30px
+            margin 1px
+
+            div.icon
+                width 30px
+                height 30px
+                background: rgba(100,100,100,0.8)
+                float: left
+
+            div.progress
+                height 30px
+
+                margin-left 31px
+
+                div.value
+                    height 100%
+                    background: rgba(0,195,0,0.4)
+
+.white
+    .spinner
+        div div
+            background-color: #000 !important
+
+
+
+

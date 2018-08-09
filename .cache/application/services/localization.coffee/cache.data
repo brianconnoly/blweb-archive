@@ -1,0 +1,237 @@
+buzzlike.factory("localization", function(localStorageService, $http, $rootScope) {
+  var count, declension, declensionPhrase, decrypt, flagInited, getFreshList, getLang, getLangList, initCb, lang, langInited, languageslist, langversion, list, listCount, onLangLoaded, pullTimer, requestToTranslateServer, setLang, state, translate, undefinedWords, updateComplete;
+  list = {};
+  lang = 'ru';
+  languageslist = [];
+  count = 0;
+  undefinedWords = [];
+  pullTimer = {};
+  updateComplete = false;
+  langversion = 0;
+  langInited = false;
+  initCb = [];
+  state = {
+    lang: 'ru',
+    ver: 0
+  };
+  flagInited = function() {
+    var cb, i, len;
+    langInited = true;
+    for (i = 0, len = initCb.length; i < len; i++) {
+      cb = initCb[i];
+      if (typeof cb === "function") {
+        cb();
+      }
+    }
+    return initCb.length = 0;
+  };
+  getFreshList = function(force) {
+    return $http({
+      method: 'GET',
+      url: '//translate.buzzlike.pro/back/getlanguages'
+    }).success(function(data, status, header, config) {
+      var i, item, len, ref;
+      languageslist = [];
+      ref = data.list;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (item.active) {
+          languageslist.push({
+            value: item.code,
+            title: item.title
+          });
+        }
+        if (item.code === lang) {
+          langversion = item.version;
+        }
+      }
+      $rootScope.languageslist = languageslist;
+      if (Math.floor(langversion) !== Math.floor(localStorageService.get('user.langlistversion')) || force === true) {
+        localStorageService.add('user.langlistversion', langversion);
+        return requestToTranslateServer();
+      } else {
+        if (localStorageService.get('user.langlist')) {
+          list = JSON.parse(localStorageService.get('user.langlist'));
+          flagInited();
+          listCount();
+          return state.ver = langversion;
+        } else {
+          return requestToTranslateServer();
+        }
+      }
+    });
+  };
+  requestToTranslateServer = function() {
+    return $http({
+      method: 'GET',
+      url: '//translate.buzzlike.pro/back/getjsonlist/' + lang
+    }).success(function(data, status, header, config) {
+      var i, item, len;
+      if (data.error) {
+        lang = 'en';
+        return requestToTranslateServer();
+      } else {
+        for (i = 0, len = data.length; i < len; i++) {
+          item = data[i];
+          list[item.code] = item.words;
+          translate(item.code);
+        }
+        localStorageService.add('user.langlist', JSON.stringify(list));
+        flagInited();
+        listCount();
+        return state.ver = langversion;
+      }
+    });
+  };
+  listCount = function() {
+    var key, results, value;
+    count = 0;
+    results = [];
+    for (key in list) {
+      value = list[key];
+      results.push(count++);
+    }
+    return results;
+  };
+  getLang = function() {
+    if (!localStorageService.get('user.lang')) {
+      return setLang('ru');
+    } else {
+      return setLang(localStorageService.get('user.lang'));
+    }
+  };
+  setLang = function(lang_v) {
+    lang = lang_v;
+    return state.lang = lang_v;
+  };
+  translate = function(wordIndex, templateData) {
+    var k, lib, newWords, re, search, searchString, v, word;
+    word = '';
+    wordIndex += '';
+    if (wordIndex === '' || (wordIndex == null)) {
+      return '';
+    } else {
+      if (!$.isEmptyObject(list)) {
+        word = list[wordIndex];
+        newWords = false;
+        if (typeof word === 'undefined') {
+          console.log(wordIndex, !!wordIndex);
+        }
+        if (typeof word === 'undefined' && !!wordIndex) {
+          if ($.inArray(wordIndex, undefinedWords) === -1) {
+            re = /\s+/gi;
+            if (!re.test(wordIndex)) {
+              newWords = true;
+              list[wordIndex] = wordIndex;
+              undefinedWords.push(wordIndex);
+              blog('undefined word - ', wordIndex);
+            }
+          }
+        }
+        if (newWords) {
+          clearTimeout(pullTimer);
+          pullTimer = setTimeout(function() {
+            if ((undefinedWords != null) && undefinedWords.length > 0) {
+              return $.ajax({
+                url: '//translate.buzzlike.pro/back/addnew',
+                type: 'POST',
+                data: {
+                  list: undefinedWords
+                },
+                dataType: 'JSON',
+                success: function(data) {
+                  undefinedWords.length = 0;
+                  return true;
+                }
+              });
+            }
+          }, 1500);
+        }
+      }
+    }
+    if ((word != null) && (templateData != null)) {
+      searchString = '';
+      lib = {};
+      for (k in templateData) {
+        v = templateData[k];
+        if (searchString !== '') {
+          searchString += '|';
+        }
+        searchString += '%' + k + '%';
+        lib['%' + k + '%'] = v;
+      }
+      if (searchString.length > 0) {
+        search = new RegExp(searchString, 'g');
+        word = word.replace(search, function(mem) {
+          return lib[mem];
+        });
+      }
+    }
+    return word || wordIndex;
+  };
+  declension = function(number, one, two, five) {
+    var o, s;
+    number = Math.abs(number);
+    if (!two && !five && typeof one === 'string') {
+      s = one;
+      o = translate(s);
+      one = o[0], two = o[1], five = o[2];
+    }
+    if (!two && !five) {
+      two = one[1];
+      five = one[2] || one[1];
+    }
+    number %= 100;
+    if (number >= 5 && number <= 20) {
+      return five;
+    }
+    number %= 10;
+    if (number === 1) {
+      return one;
+    }
+    if (number >= 2 && number <= 4) {
+      return two;
+    }
+    return five;
+  };
+  declensionPhrase = function(number, phrase) {
+    var word;
+    word = translate(phrase);
+    return declension(number, word[0], word[1], word[2]);
+  };
+  decrypt = function(wordIndex, data) {
+    var k, reg, str, v;
+    str = translate(wordIndex);
+    for (k in data) {
+      v = data[k];
+      reg = new RegExp('#{' + k + '}', 'g');
+      str = str.replace(reg, v);
+    }
+    return str;
+  };
+  getLangList = function() {
+    return languageslist;
+  };
+  onLangLoaded = function(cb) {
+    if (langInited === true) {
+      return typeof cb === "function" ? cb(true) : void 0;
+    } else {
+      return initCb.push(cb);
+    }
+  };
+  return {
+    getList: function() {
+      return list;
+    },
+    state: state,
+    setLang: setLang,
+    getLang: getLang,
+    getFreshList: getFreshList,
+    getLangList: getLangList,
+    translate: translate,
+    declension: declension,
+    declensionPhrase: declensionPhrase,
+    decrypt: decrypt,
+    onLangLoaded: onLangLoaded
+  };
+});

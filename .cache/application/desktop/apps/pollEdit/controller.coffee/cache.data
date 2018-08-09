@@ -1,0 +1,164 @@
+buzzlike.controller('pollEditCtrl', function($scope, contentService) {
+  var getMaxVotes, maxVotes;
+  $scope.session.expandedHeader = false;
+  $scope.poll = contentService.getById($scope.session.pollId);
+  $scope.pollEdit = {
+    name: "",
+    anonymous: false,
+    value: "",
+    answers: [],
+    lastUpdated: 0
+  };
+  $scope.$watch('poll', function(nVal) {
+    if (nVal.lastUpdated > $scope.pollEdit.lastUpdated) {
+      $scope.pollEdit.lastUpdated = nVal.lastUpdated;
+      $scope.pollEdit.value = nVal.value;
+      $scope.pollEdit.answers = nVal.answers;
+      $scope.pollEdit.name = nVal.name;
+      return $scope.pollEdit.anonymous = nVal.anonymous;
+    }
+  }, true);
+  $scope.stateTree.applyState({
+    enter: 'default',
+    'enter cmd': function() {
+      return $scope.closeApp();
+    },
+    "delete": 'default',
+    escape: $scope.closeApp
+  });
+  $scope.savePoll = function() {
+    var process;
+    process = $scope.progress.add();
+    return contentService.save({
+      id: $scope.poll.id,
+      type: 'poll',
+      value: $scope.pollEdit.value,
+      answers: $scope.pollEdit.answers,
+      name: $scope.pollEdit.name,
+      anonymous: $scope.pollEdit.anonymous
+    }, function() {
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.newAnswer = "";
+  $scope.addAnswer = function() {
+    $scope.poll.answers.push("" + $scope.newAnswer);
+    $scope.newAnswer = "";
+    return $scope.savePoll();
+  };
+  $scope.newAnswerKey = function(e) {
+    if (e.which === 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      return $scope.addAnswer();
+    }
+  };
+  $scope.removeAnswer = function(answer) {
+    removeElementFromArray(answer, $scope.poll.answers);
+    return $scope.savePoll();
+  };
+  $scope.hasDifferentSchedules = function() {
+    var ref;
+    if (((ref = $scope.poll.lastStats) != null ? ref.schedResults : void 0) == null) {
+      return false;
+    }
+    return Object.keys($scope.poll.lastStats.schedResults).length > 1;
+  };
+  $scope.currentSchedule = null;
+  $scope.pickSchedule = function(id) {
+    $scope.currentSchedule = id;
+    return getMaxVotes();
+  };
+  maxVotes = 0;
+  getMaxVotes = function() {
+    var j, len, list, results, votes;
+    if ($scope.poll.stats.length < 1) {
+      return;
+    }
+    maxVotes = 0;
+    if ($scope.currentSchedule === null) {
+      list = $scope.poll.lastStats.answers;
+    } else {
+      list = $scope.poll.lastStats.schedResults[$scope.currentSchedule].answers;
+    }
+    results = [];
+    for (j = 0, len = list.length; j < len; j++) {
+      votes = list[j];
+      if (votes > maxVotes) {
+        results.push(maxVotes = votes);
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+  $scope.$watch('poll.lastStats', function(nVal) {
+    if (nVal != null) {
+      return getMaxVotes();
+    }
+  });
+  $scope.colors = ['#D50000', '#AA5D00', '#726012', '#4B6A88', '#3E3E3E', '#DB0A5B', '#8A2BE2', '#336E7B', '#005051', '#008040', '#4B6319', '#005031'];
+  $scope.getRate = function(index) {
+    var stat;
+    if ($scope.currentSchedule === null) {
+      stat = $scope.poll.lastStats;
+    } else {
+      stat = $scope.poll.lastStats.schedResults[$scope.currentSchedule];
+    }
+    return (stat.answers[index] / stat.total * 100 | 0) + '%';
+  };
+  $scope.getWidth = function(index) {
+    var stat;
+    if ($scope.currentSchedule === null) {
+      stat = $scope.poll.lastStats;
+    } else {
+      stat = $scope.poll.lastStats.schedResults[$scope.currentSchedule];
+    }
+    return (stat.answers[index] / maxVotes * 100 | 0) + '%';
+  };
+  $scope.getVotes = function(index) {
+    var stat;
+    if ($scope.currentSchedule === null) {
+      stat = $scope.poll.lastStats;
+    } else {
+      stat = $scope.poll.lastStats.schedResults[$scope.currentSchedule];
+    }
+    return stat.answers[index];
+  };
+  $scope.hasVotes = function(index) {
+    var stat;
+    if ($scope.currentSchedule === null) {
+      stat = $scope.poll.lastStats;
+    } else {
+      stat = $scope.poll.lastStats.schedResults[$scope.currentSchedule];
+    }
+    return stat.answers[index] > 0;
+  };
+  $scope.hiddenAnswer = {};
+  $scope.triggerAnswer = function(index, e) {
+    var answer, i, j, len, ref;
+    if (isCmd(e)) {
+      ref = $scope.poll.answers;
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        answer = ref[i];
+        $scope.hiddenAnswer[i] = true;
+      }
+      return $scope.hiddenAnswer[index] = false;
+    } else {
+      return $scope.hiddenAnswer[index] = !$scope.hiddenAnswer[index];
+    }
+  };
+  return true;
+}).directive('pollSchedulePreview', function(communityService, scheduleService, $filter) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      scheduleService.getById(scope.id, function(sched) {
+        scope.community = communityService.getById(sched.communityId);
+        scope.time = $filter('timestampMask')(sched.timestamp, 'hh:mm');
+        return scope.date = $filter('timestampMask')(sched.timestamp, 'DD MMM');
+      });
+      return true;
+    }
+  };
+});

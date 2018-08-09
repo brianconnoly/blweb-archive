@@ -1,0 +1,270 @@
+tC['/bootloader/template.jade'] = "<div class=\"screen loginContainer\"></div> <div class=\"screen desktopContainer right\"></div> <div class=\"disconnectLayer\"> <div translate=\"buzzlike_disconnected\" class=\"mainText\"></div> <div translate=\"buzzlike_disconnected_bottom\" class=\"bottomText\"></div> </div> <form class=\"uploadHelper\"> <input type=\"file\" multiple=\"multiple\" style=\"opacity: 0; top: -55px\"/> </form> <form class=\"importHelper\"> <input id=\"importFullHelper\" type=\"file\" accept=\"application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\" style=\"opacity: 0; top: -55px\"/> </form> <form class=\"importHelper\"> <input id=\"importCommunityHelper\" type=\"file\" accept=\"application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\" style=\"opacity: 0; top: -55px\"/> </form> <div class=\"systemMessages\"></div>";
+
+buzzlike.directive('bootloader', function(rpc, account, contentService, postService, socketAuth, socketService, loginService, localization, $rootScope, $compile, uploadService, tableImport) {
+  return {
+    restrict: 'C',
+    template: tC['/bootloader/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var buildDesktop, buildLogin, buildNova, current, desktopContainer, desktopScope, destroyDesktop, destroyLogin, elem, loginContainer, loginScope, seq, startSessionWatcher;
+      elem = $(element);
+      loginContainer = elem.children('.loginContainer');
+      desktopContainer = elem.children('.desktopContainer');
+      current = null;
+      scope.$watch(function() {
+        return socketService.state.connected;
+      }, function(nVal, oVal) {
+        if (nVal === false && oVal === true) {
+          elem.addClass('disconnected');
+        }
+        if (nVal === true) {
+          return elem.removeClass('disconnected');
+        }
+      });
+      loginScope = null;
+      buildLogin = function(cb) {
+        var loginElem;
+        loginScope = $rootScope.$new();
+        loginElem = $compile('<div class="loginScreen"></div>')(loginScope);
+        loginContainer.append(loginElem);
+        return setTimeout(function() {
+          return cb(true);
+        }, 0);
+      };
+      destroyLogin = function() {
+        if (loginScope != null) {
+          loginScope.$destroy();
+          loginScope = null;
+          return loginContainer.empty();
+        }
+      };
+      desktopScope = null;
+      buildDesktop = function(cb) {
+        var desktopElem;
+        desktopScope = $rootScope.$new();
+        desktopElem = $('<div class="desktop"></div>');
+        desktopContainer.append(desktopElem);
+        $compile(desktopElem)(desktopScope);
+        return setTimeout(function() {
+          return cb(true);
+        }, 0);
+      };
+      buildNova = function(cb) {
+        var desktopElem;
+        desktopScope = $rootScope.$new();
+        desktopElem = $('<div class="nova"></div>');
+        desktopContainer.append(desktopElem);
+        $compile(desktopElem)(desktopScope);
+        return setTimeout(function() {
+          return cb(true);
+        }, 0);
+      };
+      destroyDesktop = function() {
+        if (desktopScope != null) {
+          desktopScope.$destroy();
+          desktopScope = null;
+          return desktopContainer.empty();
+        }
+      };
+      window.goNova = function() {
+        if (current !== 'desktop') {
+          return;
+        }
+        desktopContainer.removeClass('active');
+        return setTimeout(function() {
+          destroyDesktop();
+          return buildNova(function() {
+            return setTimeout(function() {
+              return desktopContainer.addClass('active');
+            }, 800);
+          });
+        }, 800);
+      };
+      window.goDesktop = function() {
+        if (current !== 'desktop') {
+          return;
+        }
+        desktopContainer.removeClass('active');
+        return setTimeout(function() {
+          destroyDesktop();
+          return buildDesktop(function() {
+            return setTimeout(function() {
+              return desktopContainer.addClass('active');
+            }, 800);
+          });
+        }, 800);
+      };
+      startSessionWatcher = function() {
+        return scope.$watch(function() {
+          return account.user.id;
+        }, function(nVal, oVal) {
+          var deskFunc;
+          loginService.state.mode = 'wait';
+          if ((nVal != null) && nVal !== -1) {
+            if (current !== 'desktop') {
+              deskFunc = buildNova;
+              deskFunc(function() {
+                desktopContainer.addClass('visible');
+                if (current === 'login') {
+                  loginContainer.removeClass('active');
+                  setTimeout(function() {
+                    loginContainer.addClass('left');
+                    desktopContainer.removeClass('right');
+                    return setTimeout(function() {
+                      desktopContainer.addClass('active');
+                      loginContainer.removeClass('visible');
+                      return destroyLogin();
+                    }, 800);
+                  }, 500);
+                } else {
+                  loginContainer.addClass('left');
+                  desktopContainer.addClass('noAnim');
+                  setTimeout(function() {
+                    return desktopContainer.removeClass('right');
+                  }, 0);
+                  setTimeout(function() {
+                    desktopContainer.addClass('active');
+                    return desktopContainer.removeClass('noAnim');
+                  }, 500);
+                }
+                return current = 'desktop';
+              });
+              return true;
+            }
+          } else {
+            loginService.state.mode = 'default';
+            if (current !== 'login') {
+              desktopContainer.removeClass('active');
+              buildLogin(function() {
+                loginContainer.addClass('visible');
+                if (current === 'desktop') {
+                  setTimeout(function() {
+                    desktopContainer.addClass('right');
+                    loginContainer.removeClass('left');
+                    return setTimeout(function() {
+                      loginContainer.addClass('active');
+                      desktopContainer.removeClass('visible');
+                      return destroyDesktop();
+                    }, 800);
+                  }, 500);
+                } else {
+                  setTimeout(function() {
+                    loginContainer.removeClass('left');
+                    return loginContainer.addClass('active');
+                  }, 500);
+                }
+                return current = 'login';
+              });
+              return true;
+            }
+          }
+        });
+      };
+      seq = new Sequence({
+        name: 'Bootloader'
+      });
+      seq.addStep({
+        name: 'Legacy init',
+        action: function(next) {
+          contentService.initDeps();
+          postService.initDeps();
+          return next(true);
+        }
+      });
+      seq.addStep({
+        name: 'Init language',
+        async: true,
+        action: function(next) {
+          localization.getLang();
+          localization.getFreshList();
+          return next(true);
+        }
+      });
+      seq.addStep({
+        name: 'Init socket',
+        async: true,
+        action: function(next) {
+          $('#loadingStatus').html('Получение сессии');
+          $('#loadingProgress').css('width', '20%');
+          return socketAuth.init(next);
+        }
+      });
+      seq.addStep({
+        name: 'Auth token',
+        check: function() {
+          return (typeof authHash !== "undefined" && authHash !== null ? authHash.length : void 0) > 10;
+        },
+        action: function(next) {
+          rpc.call('auth.authToken', authHash, socketAuth.processSession);
+          return next(true);
+        }
+      });
+      seq.addStep({
+        name: 'Load config',
+        retry: 5,
+        "var": 'settings',
+        action: function(next) {
+          $('#loadingProgress').css('width', '30%');
+          $('#loadingStatus').html('Загрузка конфигурации');
+          return rpc.call({
+            method: 'settings.get',
+            anyway: next
+          });
+        }
+      });
+      seq.addStep({
+        name: 'Store core settings',
+        action: function(next) {
+          $rootScope.coreSettings = seq.settings;
+          return next(true);
+        }
+      });
+      seq.addStep({
+        name: 'Init login providers',
+        retry: 5,
+        action: function(next) {
+          $('#loadingProgress').css('width', '50%');
+          $('#loadingStatus').html('Загрузка конфигурации');
+          return loginService.init(next);
+        }
+      });
+      seq.addStep({
+        name: 'Wait localization',
+        action: function(next) {
+          $('#loadingProgress').css('width', '80%');
+          $('#loadingStatus').html('Подготовка локализации');
+          return localization.onLangLoaded(next);
+        }
+      });
+      seq.addStep({
+        name: 'Complete initialization',
+        action: function(next) {
+          $('#loadingProgress').addClass('full');
+          $('#loadingStatus').html('');
+          $('body').addClass('noBigLoading');
+          setTimeout(function() {
+            return $('#big_loading').remove();
+          }, 5000);
+          return next(true);
+        }
+      });
+      seq.fire(function() {
+        startSessionWatcher();
+        return true;
+      });
+      $('.uploadHelper input').on('change', function(e) {
+        uploadService.upload(this, true);
+        return $(this).val('');
+      });
+      $('#importFullHelper').on('change', function(e) {
+        tableImport.uploadFull(this);
+        return $(this).val('');
+      });
+      return $('#importCommunityHelper').on('change', function(e) {
+        tableImport.uploadCommunity(this);
+        return $(this).val('');
+      });
+    }
+  };
+});
+
+registerStyles('bootloader', ".bootloader {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.bootloader .screen {\n  overflow: hidden;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n  opacity: 0.01;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=1)\";\n  filter: alpha(opacity=1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background: #aaa;\n}\n.bootloader .screen.loginContainer {\n  right: 0;\n  left: auto;\n}\n.bootloader .screen.desktopContainer {\n  left: 0;\n  right: auto;\n}\n.bootloader .screen.visible {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: all 0.6s ease;\n  -moz-transition: all 0.6s ease;\n  -o-transition: all 0.6s ease;\n  -ms-transition: all 0.6s ease;\n  transition: all 0.6s ease;\n}\n.bootloader .screen.active {\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.6s ease;\n  -moz-transition: all 0.6s ease;\n  -o-transition: all 0.6s ease;\n  -ms-transition: all 0.6s ease;\n  transition: all 0.6s ease;\n}\n.bootloader .screen.right {\n  left: 100%;\n  right: auto;\n  -webkit-transition: all 0.6s ease;\n  -moz-transition: all 0.6s ease;\n  -o-transition: all 0.6s ease;\n  -ms-transition: all 0.6s ease;\n  transition: all 0.6s ease;\n}\n.bootloader .screen.left {\n  right: 100%;\n  left: auto;\n  -webkit-transition: all 0.6s ease;\n  -moz-transition: all 0.6s ease;\n  -o-transition: all 0.6s ease;\n  -ms-transition: all 0.6s ease;\n  transition: all 0.6s ease;\n}\n.bootloader .screen.noAnim {\n  -webkit-transition: -webkit-transform 0.2s ease;\n  -moz-transition: -moz-transform 0.2s ease;\n  -o-transition: -o-transform 0.2s ease;\n  -ms-transition: -ms-transform 0.2s ease;\n  transition: transform 0.2s ease;\n}\n.bootloader .disconnectLayer {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  background: rgba(0,0,0,0.6);\n  color: #fff;\n  pointer-events: none;\n}\n.bootloader.disconnected .disconnectLayer {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  pointer-events: auto;\n}\n.bootloader.disconnected .screen {\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n  -webkit-filter: blur(5px) grayscale(1);\n  -moz-filter: blur(5px) grayscale(1);\n  -o-filter: blur(5px) grayscale(1);\n  -ms-filter: blur(5px) grayscale(1);\n  filter: blur(5px) grayscale(1);\n}\n");

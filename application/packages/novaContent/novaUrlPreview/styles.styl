@@ -1,0 +1,53 @@
+position: absolute
+top 0
+bottom 0
+left 0
+right 0
+overflow hidden
+
+.caption
+    position absolute
+    bottom 0
+    left 0
+    right 0
+    height 50%
+    width 90%
+    padding 0 5%
+
+    display table
+
+    opacity 1
+    transition opacity 0.2s ease
+
+    .noItemNames &
+        opacity 0
+
+    .wrapper
+        width 100%
+        display table-cell
+        vertical-align middle
+        text-align center
+
+        .artist
+            text-overflow: ellipsis
+            overflow: hidden
+            white-space nowrap
+
+        .track
+            font-weight bold
+            margin-bottom 1%
+
+.icon
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 60%;
+    max-height: 30%;
+    text-align: center;
+
+    .noItemNames &
+        bottom 10%
+        min-height 80%
+
+    img
+        height 100%

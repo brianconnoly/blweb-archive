@@ -1,0 +1,148 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('ugcService', function(itemService, rpc, actionsService, account, novaWizard, contentService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'ugc';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byCombId = {};
+    }
+
+    classEntity.prototype.getByCombId = function(combId, cb) {
+      if (this.byCombId[combId] == null) {
+        this.byCombId[combId] = [];
+        this.query({
+          combIds: combId
+        }, function(result) {
+          return typeof cb === "function" ? cb(this.byCombId[combId]) : void 0;
+        });
+      } else {
+        if (typeof cb === "function") {
+          cb(this.byCombId[combId]);
+        }
+      }
+      return this.byCombId[combId];
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var combId, i, len, ref, ref1, saved;
+      saved = classEntity.__super__.handleItem.call(this, item);
+      if (((ref = saved.combIds) != null ? ref.length : void 0) > 0) {
+        ref1 = saved.combIds;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          combId = ref1[i];
+          if (this.byCombId[combId] != null) {
+            if (this.byCombId[combId].indexOf(saved) === -1) {
+              this.byCombId[combId].push(saved);
+            }
+          }
+        }
+      }
+      return saved;
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var combId, i, item, len, ref, ref1;
+      item = this.storage[id];
+      if (((ref = saved.combIds) != null ? ref.length : void 0) > 0) {
+        ref1 = saved.combIds;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          combId = ref1[i];
+          removeElementFromArray(item, this.byCombId[combId]);
+        }
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.fetchMy = function(cb) {
+      return this.call('getMy', (function(_this) {
+        return function(items) {
+          return cb(_this.handleItems(items));
+        };
+      })(this));
+    };
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      actionsService.registerAction({
+        sourceType: 'content',
+        phrase: 'propose',
+        targetType: 'ugc',
+        action: (function(_this) {
+          return function(data) {
+            return _this.call('proposePost', {
+              items: data.ids,
+              ugcId: data.target.id
+            });
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'ugc',
+        phrase: 'delete',
+        action: (function(_this) {
+          return function(data) {
+            return _this.deleteByIds(data.ids);
+          };
+        })(this)
+      });
+      actionsService.registerAction({
+        sourceType: 'community',
+        phrase: 'create_ugc_collector',
+        action: (function(_this) {
+          return function(data) {
+            var comm, i, len, link, ref, results;
+            ref = data.items;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              comm = ref[i];
+              link = "";
+              switch (comm.communityType) {
+                case 'profile':
+                  link += 'id';
+                  break;
+                case 'group':
+                case 'page':
+                  link += 'club';
+                  break;
+                case 'event':
+                  link += 'event';
+              }
+              link += Math.abs(comm.socialNetworkId * 1);
+              results.push(_this.create({
+                communityId: comm.id,
+                link: link,
+                userId: account.user.id
+              }));
+            }
+            return results;
+          };
+        })(this)
+      });
+      return novaWizard.register('collector', {
+        type: 'simple',
+        action: (function(_this) {
+          return function(data) {
+            return _this.create({
+              type: 'ugc',
+              name: 'Новая коллекция',
+              projectId: data.projectId,
+              combIds: data.combId ? [data.combId] : void 0
+            }, function(ugcItem) {
+              return true;
+            });
+          };
+        })(this)
+      });
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

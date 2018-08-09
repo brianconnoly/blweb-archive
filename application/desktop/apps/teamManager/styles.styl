@@ -1,0 +1,481 @@
+.itemPreview.team
+    border 1px solid #FFDD00
+    padding 2px
+    
+    .name
+        background: rgba(255,221,0,0.9)
+        color: #000
+        text-align: center
+
+.appContainer.teamManager
+    
+    background: #FFDD00
+    
+    .scroll-bottom, .scroll-right
+        background: rgba(255,221,0,0.8) !important
+    
+    .switcherPanel
+        
+        .myTasks
+            
+            .code
+                font-size 14px
+                line-height 21px
+                height 21px
+                width 26px
+                
+                color #494949
+                border 1px solid #494949
+                border-radius 3px
+                
+                transition background 0.2s ease
+                // transition color 0.2s ease
+
+                cursor: pointer
+                
+            .settingsText
+                cursor: pointer
+                
+            &.active
+                .code
+                    background: #494949
+                    color #FFDD00
+                    
+        .showAccepted
+            
+            &.active
+                img
+                    background: #494949
+    
+    .bl-checkbox
+        margin-top 5px
+        
+        width 25px
+        height 13px
+        
+        background: #ccc
+        cursor: pointer
+        
+        *
+            cursor: pointer
+        
+        &.checked
+            .button
+                background: #fff
+        
+        .tumbler
+            right 11px
+        
+        .button
+            background: #fff
+            top 2px
+            right 2px
+            
+            width 11px
+            height 11px 
+    
+    .appSettingsLayout
+        
+        &.appSettingsLayout_showed                
+            .appSettingsLayout_settings
+                top -119px !important
+        
+        &.showSettings
+            .appSettingsLayout_settings
+                top 40px !important
+                
+            .appSettingsLayout_body
+                top 199px !important
+                
+        .appSettingsLayout_settings
+            top -159px
+            height 158px
+            
+            background: #fff
+            border-bottom 1px solid #e6e6e6
+            
+    .currentTeam
+        
+        .title
+            margin-right 170px
+        
+        .taskStatusAction
+            float: right
+            margin-right 10px
+        
+        .inviteBlock
+            float: right
+            
+            .inviteButton
+                float: left
+                font-size 12px
+                border 1px solid #494949
+                border-radius 3px
+                display: block
+                height 20px
+                line-height 20px
+                margin 10px 0
+                cursor: pointer
+                margin-left 10px
+                padding 0 5px
+        
+        .switcher
+            float: right
+            width 46px
+            height 21px
+            
+            border 1px solid #494949
+            border-radius 3px
+            margin-right 5px
+            margin-top 8px
+            
+            .button
+                float: left
+                
+                .inactive
+                    cursor: pointer
+                
+                &.chat
+                    .active
+                        display: none
+                    .inactive
+                        display: block
+                &.tasks
+                    .active
+                        display: block
+                    .inactive
+                        display: none
+                
+            &.chatActive
+                
+                .button
+                    float: left
+                    
+                    &.chat
+                        .active
+                            display: block
+                        .inactive
+                            display: none
+                    &.tasks
+                        .active
+                            display: none
+                        .inactive
+                            display: block
+            
+    .teamSettings
+        
+        .previewColumn
+            position: absolute
+            width 180px
+            top 0
+            bottom 0
+            left 0
+            
+            overflow-y: auto
+            
+            .dropHere
+                font-size 12px
+                color #ccc
+                text-align: center
+                margin-top: 40px
+                padding 0 20px
+            
+            .setting
+                margin-top 10px
+                margin-left 15px
+                
+                .name
+                    height 25px
+                    line-height 25px
+                    font-size 12px
+                    float: left
+                    margin-right 10px
+                    
+            button
+                background: none
+                
+                border 1px solid #333
+                border-radius 3px
+                
+                display: block
+                margin: 15px auto
+                
+                color #333
+                font-size 12px
+                line-height 20px
+                padding: 0
+                
+                width 130px
+                height 22px
+                text-align: center
+                
+                cursor: pointer
+                    
+            
+        .paramsColumn
+            position: absolute
+            top 0
+            right 0
+            bottom 0
+            left 200px
+            
+        .descriptionContainer
+            position: absolute
+            top 20px
+            right 20px
+            bottom 20px
+            left 0
+            
+            
+            border 1px solid #e6e6e6
+            border-radius 3px
+            
+            .containerTitle
+                position: absolute
+                top -7px
+                left 9px
+                padding: 0 4px
+                background: #fff
+                font-size 11px
+                z-index 10
+                
+            textarea
+                border none
+
+                width 100%
+                height 100%
+
+                box-sizing border-box
+                resize: none
+                
+                padding 15px 10px
+
+    
+    .rightPanel
+        .selectableItem                    
+            &.inactive
+                opacity 0.6
+            &.selected
+                // opacity 1
+                .name
+                    opacity 1
+                    
+            &:hover .userRole
+                opacity 0
+            
+            .userRole
+                pointer-events none
+                position: absolute
+                font-size 11px
+                text-align: center
+                color #fff
+                background: rgba(0,0,0,0.8)
+                
+                bottom 0
+                right 0
+                left 0
+                
+                padding: 3px 2px
+                
+                opacity: 1
+                transition opacity 0.2s ease
+                
+    .entityChat
+        position: absolute
+        top 0
+        bottom 0
+        right 0
+        left 0
+        
+        .messagesList
+            position absolute
+            top 0
+            bottom 91px
+            left 0
+            right 0
+            overflow: auto
+            padding-bottom: 10px
+
+            background: #fff
+
+            .chatMessage
+                margin 10px
+                margin-bottom: 0
+                overflow: hidden
+                min-height 50px
+
+                .timeInfo
+                    font-size 12px
+                    color: #777
+                    height 20px
+                    float: right
+
+                .userName
+                    height 20px
+                    font-size 12px
+                    line-height: 16px
+                    font-weight: bolder
+                    margin-left 60px
+
+                .messageUser
+                    position: absolute
+                    width 50px
+                    height 35px
+                    top 0px
+                    left 0
+
+                .message
+                    margin-left: 60px
+                    font-size 12px
+                    white-space pre-wrap
+                    line-height 15px
+        
+        .newMessage
+            position: absolute
+            bottom 0
+            left 0
+            right 0
+            height 90px
+            border-top 1px solid #e6e6e6
+            background #f7f7f7
+            
+            .pictureBox
+                width 70px
+                height 50px
+                margin 19px 15px
+                float: left
+                
+            .newMessageText
+                position: absolute
+                left 95px
+                right 103px
+                top 15px
+                bottom 15px
+                
+                border 1px solid #E6E6E6
+                border-radius 3px
+                background: #fff
+                
+                textarea
+                    width 100%
+                    height 100%
+                    
+                    box-sizing border-box
+                    background: none
+                    padding 5px 6px
+                    
+                    font-size 12px
+                    
+                    border none
+                    resize none
+                    
+                    set-placeholder-style color #999
+            
+            .sendMessage
+                display: block
+                position: absolute
+                right 10px
+                top 30px
+                bottom 30px
+                width 83px
+                
+                background: none
+                border none
+                
+                color #000
+                text-align: center
+                font-size 13px
+                
+                cursor: pointer
+    
+    .tasksList
+        position absolute
+        top 0
+        bottom 0
+        right 0
+        left 0
+        
+        .taskItem
+            &.content-drop
+                transform none
+                outline 1px solid #FCEE21
+                outline-offset: -1px
+            
+            .taskStatus
+                padding: 0
+        
+        .head
+            // .cell
+            //     border-right none
+                
+            .title
+                padding-left 20px
+                
+            .taskStatus
+                text-align: left
+            
+        .title
+            width 306px
+            padding-left 0
+            
+            .statusIcon
+                float: left
+                width 5px
+                height 5px
+                border 1px solid #C1272D
+                
+                border-radius 3px
+                
+                margin 16px 9px 16px 10px
+                
+                opacity 0
+                transition all 0.2s ease
+                
+                &.active
+                    opacity: 1
+                    
+                &.unread
+                    opacity 1
+                    background: #C1272D
+            
+            .teamCover
+                float: left
+                width 20px
+                height 20px
+                margin: 10px 10px 10px 0
+            
+            .taskTitle
+                padding-left 5px
+                float: left
+                width 235px
+                text-overflow: ellipsis
+                overflow: hidden
+                white-space nowrap  
+                
+            .taskTitleEditMode
+                box-sizing border-box
+                width 100%
+                height 100%
+                line-height 40px
+                padding-top 1px
+                font-size 14px
+                
+        .from
+            width 75px
+            float: left
+            
+        .to
+            width 75px
+
+        .taskStatus
+            width 100px
+            text-align: right
+            padding-right 0
+                
+        .taskItem.selected
+            outline 1px solid #FCEE21
+            outline-offset: -1px
+
+            & > div
+                opacity 1
+                

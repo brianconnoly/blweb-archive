@@ -1,0 +1,159 @@
+.tutorialcourse {
+  position: absolute;
+  display: none;
+  z-index: 6;
+  left: 0;
+  top: 0;
+  background: rgba(249,249,249,0.89);
+  width: 300px;
+}
+.tutorialcourse .arrow {
+  position: absolute;
+  display: none;
+  background: #fff;
+}
+.tutorialcourse .arrow:after {
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-width: 15px;
+  margin-left: -15px;
+}
+.tutorialcourse .arrow_box_top {
+  left: 0;
+  top: 0;
+}
+.tutorialcourse .arrow_box_top:after {
+  bottom: 100%;
+  left: 50%;
+  border-bottom-color: rgba(249,249,249,0.89);
+}
+.tutorialcourse .arrow_box_bottom {
+  left: 0;
+  top: 100%;
+}
+.tutorialcourse .arrow_box_bottom:after {
+  top: 100%;
+  left: 50%;
+  border-top-color: rgba(249,249,249,0.89);
+}
+.tutorialcourse .arrow_box_left {
+  left: 0;
+  top: 50%;
+  margin-left: -15px;
+}
+.tutorialcourse .arrow_box_left:after {
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(249,249,249,0);
+  border-right-color: rgba(249,249,249,0.89);
+  border-width: 15px;
+  margin-top: -15px;
+}
+.tutorialcourse .arrow_box_right {
+  right: 0;
+  top: 50%;
+  margin-right: -15px;
+}
+.tutorialcourse .arrow_box_right:after {
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(249,249,249,0);
+  border-left-color: rgba(249,249,249,0.89);
+  border-width: 15px;
+  margin-top: -15px;
+}
+.tutorialcourse .close {
+  position: absolute;
+  background-image: url("/resources/images/icons/close.png");
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+  cursor: pointer;
+  width: 11px;
+  height: 11px;
+  z-index: 10;
+  margin: 7px 0 0 7px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .tutorialcourse .close {
+    background-image: url("/resources/images/icons/close@2x.png");
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.tutorialcourse .wrapper {
+  position: relative;
+  overflow: hidden;
+  padding: 15px;
+}
+.tutorialcourse .wrapper .step {
+  font-size: 18px;
+  color: #000;
+  padding-bottom: 5px;
+  text-align: center;
+}
+.tutorialcourse .wrapper .text {
+  font-size: 14px;
+  color: #000;
+  line-height: 1.3em;
+}
+.tutorialcourse .wrapper .text img {
+  max-width: 280px;
+  margin: 10px 0;
+  -webkit-transform: scale(1, 1);
+}
+.tutorialcourse .wrapper .controls {
+  position: relative;
+  margin: 15px 0;
+}
+.tutorialcourse .wrapper .controls span {
+  font-size: 14px;
+  color: #5f9ec3;
+  cursor: pointer;
+  margin-right: 10px;
+}
+.tutorialcourse .wrapper .controls .lock {
+  color: #999;
+  cursor: default;
+  display: none;
+}
+.tutorialcourse .wrapper .controls .prev,
+.tutorialcourse .wrapper .controls .next,
+.tutorialcourse .wrapper .controls .whitespace {
+  position: relative;
+  z-index: 10;
+}
+.tutorialcourse .wrapper .controls .prev {
+  float: left;
+}
+.tutorialcourse .wrapper .controls .next {
+  float: right;
+}
+.tutorialcourse .wrapper .controls .whitespace {
+  float: left;
+}
+.tutorialcourse .wrapper .controls .finBlock {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 5;
+  text-align: center;
+}

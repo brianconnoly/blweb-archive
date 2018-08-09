@@ -1,0 +1,52 @@
+buzzlike.directive('notificationButtons', function() {
+  return {
+    restrict: 'C',
+    template: tC['/notificationCenter/notificationButtons'],
+    replace: true,
+    link: function(scope, element, attrs) {
+      var rebuildActions;
+      scope.buttons = [];
+      scope.sysMessages = false;
+      scope.unreadNotifications = false;
+      if ($(element).parent().attr('systemmessage') === 'true') {
+        scope.sysMessages = true;
+      }
+      if ($(element).parent().attr('unreadnotifications') === 'true') {
+        scope.unreadNotifications = true;
+      }
+      rebuildActions = function() {
+        var action, i, len, ref, ref1, results;
+        scope.buttons.length = 0;
+        if (scope.sysMessages) {
+          scope.buttons.push({
+            phrase: 'notification_button_close',
+            action: function() {
+              return scope.removeMessage(scope.notification);
+            }
+          });
+        }
+        if (scope.unreadNotifications) {
+          scope.buttons.push({
+            phrase: 'hide_notification',
+            action: function() {
+              return scope.markRead(scope.notification);
+            }
+          });
+        }
+        if (((ref = scope.actions) != null ? ref.length : void 0) > 0) {
+          ref1 = scope.actions;
+          results = [];
+          for (i = 0, len = ref1.length; i < len; i++) {
+            action = ref1[i];
+            results.push(scope.buttons.push(action));
+          }
+          return results;
+        }
+      };
+      scope.$watch('actions', function(nVal) {
+        return rebuildActions();
+      });
+      return true;
+    }
+  };
+});

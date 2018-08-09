@@ -1,0 +1,417 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('novaVirtualScroller', function() {
+  var novaVirtualScroller;
+  novaVirtualScroller = (function() {
+    function novaVirtualScroller(params) {
+      this.params = params;
+      this.query = this.params.query;
+      this.pockets = {};
+      this.pocketMap = {};
+      this.pages = [];
+      this.keypage = null;
+      this.pageIdCnt = 0;
+      if (this.params.elem != null) {
+        this.params.elem.on('mousewheel', (function(_this) {
+          return function(e, delta) {
+            e.stopPropagation();
+            e.preventDefault();
+            return _this.scroll(delta);
+          };
+        })(this));
+      }
+      this.scroll(0);
+    }
+
+    novaVirtualScroller.prototype.addPage = function(data) {
+      var page;
+      page = {
+        id: this.pageIdCnt++,
+        anchor: 'top',
+        top: 0,
+        query: data.query,
+        pageCnt: data.pageCnt,
+        blocks: [],
+        height: 0
+      };
+      this.buildPage(page);
+      this.fetch(page.query);
+      return page;
+    };
+
+    novaVirtualScroller.prototype.apply = function() {
+      var base;
+      return typeof (base = this.params).apply === "function" ? base.apply() : void 0;
+    };
+
+    novaVirtualScroller.prototype.scroll = function(delta, fuck) {
+      var bigHei, firstPage, firstTop, i, j, k, keyIndex, keyToFirstTop, l, lastPage, lastY, len, m, middlePage, minDelta, n, newKeypage, pHei, page, ref, ref1, ref10, ref11, ref12, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, smallTop, toDelete, topDelta, wasCreated;
+      if (fuck == null) {
+        fuck = null;
+      }
+      delta = delta | 0;
+      lastY = 0;
+      lastPage = null;
+      firstPage = this.pages[0];
+      wasCreated = false;
+      middlePage = this.params.pageHeight / 2;
+      minDelta = null;
+      newKeypage = null;
+      toDelete = [];
+      if (this.keypage != null) {
+        this.keypage.top += delta;
+        firstTop = firstPage.top;
+        if (firstPage.anchor === 'bottom') {
+          firstTop -= firstPage.height;
+        }
+        keyIndex = this.pages.indexOf(this.keypage);
+        minDelta = Math.abs(middlePage - this.keypage.top);
+        if (this.pages[this.pages.length - 1].last === true) {
+          bigHei = this.keypage.top + this.keypage.height;
+          if (keyIndex + 1 < this.pages.length) {
+            for (i = j = ref = keyIndex + 1, ref1 = this.pages.length; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+              bigHei += this.pages[i].height;
+            }
+          }
+          if (bigHei < this.params.pageHeight) {
+            this.keypage.top += this.params.pageHeight - bigHei;
+          }
+        }
+        if ((firstPage != null ? firstPage.first : void 0) === true) {
+          keyIndex = this.pages.indexOf(this.keypage);
+          keyToFirstTop = 0;
+          for (i = k = 0, ref2 = keyIndex; 0 <= ref2 ? k < ref2 : k > ref2; i = 0 <= ref2 ? ++k : --k) {
+            keyToFirstTop += this.pages[i].height;
+          }
+          if (this.keypage.top - keyToFirstTop > 0) {
+            i = 0;
+            smallTop = 0;
+            page = firstPage;
+            while (page !== this.keypage && i < this.pages.length) {
+              smallTop += page.height;
+              i++;
+              page = this.pages[i];
+            }
+            if (page === this.keypage) {
+              this.keypage.top = smallTop;
+            }
+          }
+        }
+        if (this.keypage.element != null) {
+          pHei = this.keypage.element.height();
+          if (pHei > 0) {
+            this.keypage.height = pHei;
+          }
+          if ((ref3 = this.keypage.element) != null) {
+            ref3.css('transform', "translate3d(0," + this.keypage.top + "px,0)");
+          }
+        }
+        if (this.keypage.top + this.keypage.height < -this.params.pageHeight * 2 || this.keypage.top > this.params.pageHeight * 3) {
+          toDelete.push(this.keypage);
+        }
+        lastY = this.keypage.top + this.keypage.height;
+        if (keyIndex + 1 < this.pages.length) {
+          for (i = l = ref4 = keyIndex + 1, ref5 = this.pages.length; ref4 <= ref5 ? l < ref5 : l > ref5; i = ref4 <= ref5 ? ++l : --l) {
+            page = this.pages[i];
+            page.top = lastY;
+            if (page.element != null) {
+              pHei = page.element.height();
+              if (pHei > 0) {
+                page.height = pHei;
+              }
+              if ((ref6 = page.element) != null) {
+                ref6.css('transform', "translate3d(0," + page.top + "px,0)");
+              }
+            }
+            if (page.anchor === 'bottom') {
+              if ((ref7 = page.element) != null) {
+                ref7.css('bottom', 'auto');
+              }
+              page.anchor = 'top';
+            }
+            lastY += page.height;
+            topDelta = Math.abs(middlePage - page.top);
+            if ((minDelta == null) || topDelta < minDelta) {
+              minDelta = topDelta;
+              newKeypage = page;
+            }
+            if (page.top < -this.params.pageHeight || page.top > this.params.pageHeight * 2) {
+              toDelete.push(page);
+            }
+          }
+        }
+        lastY = this.keypage.top;
+        if (keyIndex > 0) {
+          for (i = m = ref8 = keyIndex - 1; m >= 0; i = m += -1) {
+            page = this.pages[i];
+            page.top = lastY;
+            if (page.element != null) {
+              pHei = page.element.height();
+              if (pHei > 0) {
+                page.height = pHei;
+              }
+              if ((ref9 = page.element) != null) {
+                ref9.css('transform', "translate3d(0," + page.top + "px,0)");
+              }
+            }
+            if (page.anchor === 'top') {
+              if ((ref10 = page.element) != null) {
+                ref10.css('bottom', '100%');
+              }
+              page.anchor = 'bottom';
+            }
+            lastY -= page.height;
+            topDelta = Math.abs(middlePage - lastY);
+            if ((minDelta == null) || topDelta < minDelta) {
+              minDelta = topDelta;
+              newKeypage = page;
+            }
+            if (page.top < -this.params.pageHeight || page.top > this.params.pageHeight * 2) {
+              toDelete.push(page);
+            }
+          }
+        }
+      }
+      lastPage = this.pages[this.pages.length - 1];
+      if (lastPage == null) {
+        lastPage = {
+          top: 0,
+          height: 0,
+          query: {
+            from: this.params.startFrom || 0,
+            to: this.params.startFrom || 0
+          }
+        };
+        firstPage = lastPage;
+      }
+      lastY = lastPage.top + lastPage.height;
+      while (lastPage.last !== true && (lastY != null) && lastY < this.params.pageHeight * 1.5) {
+        page = this.addPage({
+          pageCnt: (lastPage.pageCnt || 0) + 1,
+          query: {
+            cursor: lastPage.query.cursorEnd,
+            from: lastPage.query.to
+          }
+        });
+        page.top = lastY;
+        if (page.last === true && page.first !== true && page.top + page.height < this.params.pageHeight) {
+          page.top = this.params.pageHeight - page.height;
+          if (indexOf.call(toDelete, lastPage) >= 0) {
+            removeElementFromArray(lastPage, toDelete);
+          }
+          if (lastPage.anchor === 'top') {
+            lastPage.top = page.top - lastPage.height;
+          } else {
+            lastPage.top = page.top;
+          }
+        }
+        lastY += page.height;
+        lastPage = page;
+        this.pages.push(page);
+        wasCreated = true;
+        topDelta = Math.abs(middlePage - page.top);
+        if ((minDelta == null) || topDelta < minDelta) {
+          minDelta = topDelta;
+          newKeypage = page;
+        }
+      }
+      if (this.pages[0] != null) {
+        firstPage = this.pages[0];
+      }
+      firstTop = firstPage.top;
+      if (firstPage.anchor === 'bottom') {
+        firstTop = firstPage.top - firstPage.height;
+      }
+      while (firstPage.first !== true && firstTop > -this.params.pageHeight / 2) {
+        page = this.addPage({
+          pageCnt: (firstPage.pageCnt || 0) - 1,
+          query: {
+            cursorEnd: firstPage.query.cursor,
+            to: firstPage.query.from
+          }
+        });
+        if (firstPage.anchor === 'top') {
+          page.top = firstPage.top;
+        } else {
+          page.top = firstPage.top - firstPage.height;
+        }
+        if (page.first === true && page.top - page.height > 0) {
+          page.top = 0 + page.height;
+          if (indexOf.call(toDelete, firstPage) >= 0) {
+            removeElementFromArray(firstPage, toDelete);
+          }
+          if (firstPage.anchor === 'top') {
+            firstPage.top = page.top;
+          } else {
+            firstPage.top = page.top + page.height;
+          }
+        }
+        page.anchor = 'bottom';
+        this.pages.unshift(page);
+        firstPage = page;
+        firstTop = page.top - page.height;
+        wasCreated = true;
+        topDelta = Math.abs(middlePage - page.top + page.height);
+        if ((minDelta == null) || topDelta < minDelta) {
+          minDelta = topDelta;
+          newKeypage = page;
+        }
+      }
+      if (newKeypage != null) {
+        this.keypage = newKeypage;
+        if (this.keypage.anchor === 'bottom') {
+          if ((ref11 = this.keypage.element) != null) {
+            ref11.css('bottom', 'auto');
+          }
+          this.keypage.anchor = 'top';
+          this.keypage.top -= this.keypage.height;
+          if ((ref12 = this.keypage.element) != null) {
+            ref12.css('transform', "translate3d(0," + this.keypage.top + "px,0)");
+          }
+        }
+      }
+      for (n = 0, len = toDelete.length; n < len; n++) {
+        page = toDelete[n];
+        if (page !== this.keypage) {
+          wasCreated = true;
+          removeElementFromArray(page, this.pages);
+        }
+      }
+      if (wasCreated) {
+        this.apply();
+      }
+      return true;
+    };
+
+    novaVirtualScroller.prototype.processAffected = function(affectedPockets) {
+      var j, len, pocketId, ref, updateFlags;
+      if ((this.keypage != null) && affectedPockets.length > 0) {
+        updateFlags = {
+          update: false,
+          updPrev: false,
+          updNext: false,
+          updCur: false
+        };
+        for (j = 0, len = affectedPockets.length; j < len; j++) {
+          pocketId = affectedPockets[j];
+          if (pocketId * 1 > this.keypage.query.from || (pocketId * 1 === this.keypage.query.from && this.keypage.query.cursor > 0)) {
+            updateFlags.update = true;
+            updateFlags.updPrev = true;
+            continue;
+          }
+          if (pocketId * 1 < this.keypage.query.to) {
+            updateFlags.update = true;
+            updateFlags.updNext = true;
+            continue;
+          }
+          if ((this.keypage.query.to <= (ref = pocketId * 1) && ref <= this.keypage.query.from)) {
+            updateFlags.update = true;
+            updateFlags.updCur = true;
+            continue;
+          }
+        }
+        if (updateFlags.update === false) {
+          return;
+        }
+        this.pages.length = 0;
+        this.pages.push(this.keypage);
+        this.buildPage(this.keypage);
+      }
+      this.scroll(0, 'fuck');
+      return this.apply();
+    };
+
+    novaVirtualScroller.prototype.getItemsAffectedPockets = function(items, finalQuery, action) {
+      var affectedPockets, item, j, len, pocketId, ref;
+      console.log('NEW ITEMS', items);
+      affectedPockets = [];
+      for (j = 0, len = items.length; j < len; j++) {
+        item = items[j];
+        if (item.deleted === true || ((item.parent || 'null') !== this.query.parent)) {
+          if (this.pocketMap[item.id] != null) {
+            removeElementFromArray(item, this.pockets[this.pocketMap[item.id]]);
+            affectedPockets.push(this.pocketMap[item.id]);
+            delete this.pocketMap[item.id];
+          }
+        } else {
+          pocketId = this.pickPocket(item, finalQuery);
+          if ((this.pocketMap[item.id] != null) && this.pocketMap[item.id] !== pocketId) {
+            removeElementFromArray(item, this.pockets[this.pocketMap[item.id]]);
+            if (ref = this.pocketMap[item.id], indexOf.call(affectedPockets, ref) < 0) {
+              affectedPockets.push(this.pocketMap[item.id]);
+            }
+          }
+          this.pocketMap[item.id] = pocketId;
+          if (this.pockets[pocketId] == null) {
+            this.pockets[pocketId] = [];
+            if (indexOf.call(affectedPockets, pocketId) < 0) {
+              affectedPockets.push(pocketId);
+            }
+          } else if (this.params.updateOnAffected) {
+            if (indexOf.call(affectedPockets, pocketId) < 0) {
+              affectedPockets.push(pocketId);
+            }
+          }
+          if (indexOf.call(this.pockets[pocketId], item) < 0) {
+            this.pockets[pocketId].push(item);
+          }
+        }
+      }
+      console.log('RESULT', this.pockets);
+      return affectedPockets;
+    };
+
+    novaVirtualScroller.prototype.fetch = function(query) {
+      return this.doFetch(query, (function(_this) {
+        return function(items, total, finalQuery) {
+          return _this.processAffected(_this.getItemsAffectedPockets(items, finalQuery));
+        };
+      })(this));
+    };
+
+    novaVirtualScroller.prototype.updated = function(items, action) {
+      return this.processAffected(this.getItemsAffectedPockets(items, {}, action));
+    };
+
+    novaVirtualScroller.prototype.reloadAll = function() {
+      emptyObject(this.pockets);
+      emptyObject(this.pocketMap);
+      this.pages.length = 0;
+      this.pages.push(this.keypage);
+      this.lastPageFetched = 0;
+      return this.fetch();
+    };
+
+    novaVirtualScroller.prototype.filterFunc = function(item) {
+      console.log(item);
+      return true;
+    };
+
+    novaVirtualScroller.prototype.sortFunc = function(item) {
+      if (this.params.sortFunc != null) {
+        return this.params.sortFunc(item);
+      } else {
+        console.log('ELSE');
+        return item.lastUpdated || item.created;
+      }
+    };
+
+    novaVirtualScroller.prototype.rebuild = function(full) {
+      if (full == null) {
+        full = false;
+      }
+      this.pages.length = 0;
+      if (!full) {
+        this.pages.push(this.keypage);
+        this.buildPage(this.keypage);
+      } else {
+        this.keypage = null;
+      }
+      return this.scroll(0);
+    };
+
+    return novaVirtualScroller;
+
+  })();
+  return novaVirtualScroller;
+});

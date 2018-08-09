@@ -1,0 +1,22 @@
+buzzlike.directive('comboboxList', function(comboboxService, stateManager, localization) {
+  return {
+    restrict: 'C',
+    replace: true,
+    template: tC['/inputs/combobox/list'],
+    scope: {},
+    link: function(scope, element, attrs) {
+      scope.state = comboboxService.state;
+      scope.translate = localization.translate;
+      scope.close = function() {
+        scope.state.opened = false;
+        stateManager.goBack();
+        return true;
+      };
+      scope.select = function(selected) {
+        scope.state.cb(selected);
+        return true;
+      };
+      return true;
+    }
+  };
+});

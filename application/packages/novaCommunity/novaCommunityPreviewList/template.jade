@@ -1,0 +1,6 @@
+div.cover(title="{{::item.name}}")
+    img.picPreload(src="{{item.photo}}")
+    div.snType(ng-style="{background: networksData[item.socialNetwork].background}") {{::item.socialNetwork}}
+div.parameters
+    div.parameter
+        div.label {{::item.name}}

@@ -1,0 +1,21 @@
+buzzlike.directive('notificationNotreadywarning', function(buffer, postService, notificationService, stateManager, desktopService) {
+  return {
+    template: tC['/notificationCenter/notificationNotreadywarning'],
+    link: function(scope, element, attrs) {
+      return scope.actions = [
+        {
+          phrase: 'open',
+          action: function() {
+            notificationService.markRead(scope.notification.id);
+            return postService.getById(scope.notification.itemList[0].id, function(item) {
+              return desktopService.launchApp('combEdit', {
+                combId: item.combId,
+                postId: item.id
+              });
+            });
+          }
+        }
+      ];
+    }
+  };
+});

@@ -1,0 +1,18 @@
+div.loading(ng-if="loadingInProgress")
+    div.novaLoader
+div.historyView(scroll-glue="")
+    //- div.novaItem.novaItemPreview(
+    //-     ng-repeat="item in makeArray(streamItems) | orderBy:orderFunc track by item.id",
+    //-     nova-item-preview-type="list")
+    div.novaStreamItemSmartView(ng-repeat="item in smartItems track by item.idmap")
+div.writeMessage.novaItem.novaItemDroppable(nova-item-object="streamMessage")
+    div.inputBox
+        textarea(ng-model="message", ng-focus="onFocus($event)", ng-keyup="keyDown($event)", translate="", translate-placeholder="'streamFrame_message_enterText'")
+        
+    div.novaButton.sendButton(ng-click="doSend()", ng-class="{'inactive':message.length == 0 && !(streamMessage.items.length > 0)}", translate="'streamFrame_sendButton'")
+    
+    div.boundedItems
+        div.addItems(ng-click="pickItems($event)") +
+        div.novaItem(ng-repeat="item in streamMessage.items")
+            div.novaItemPreview
+            div.novaRemove(ng-click="removeItem(item)")

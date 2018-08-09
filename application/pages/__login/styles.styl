@@ -1,0 +1,201 @@
+#loginPage
+    size 'full'
+
+    
+            
+    
+    
+    &.text
+        .mainWindow 
+            .loginFrame
+                pointer-events none
+                top -50%
+                opacity 0
+
+            .newSocial
+                pointer-events none
+                top 0
+                opacity 0
+                
+            .logo
+                color: #000
+                .light
+                    opacity: 0
+                .dark
+                    opacity 1
+            
+            .bottomLinks
+                bottom 100%
+                margin-bottom: -140px
+                color: #000
+                
+                .bottomLink
+                    color: #000
+
+        .background
+            // bottom 50%
+            opacity 0
+            
+        .textMode
+            top: 160px
+            opacity 1
+            pointer-events auto
+            
+        .backText
+            opacity: 1
+            pointer-events auto
+            
+    .backText
+        opacity: 0
+        pointer-events none
+        
+        position: absolute
+        
+        top 50px
+        left 10%
+        
+        width 50px
+        height 50px
+        
+        border-radius 50px
+        
+        text-align: center
+        
+        border 1px solid #585757
+        border-radius 70px
+        
+        transition all 0.1s ease
+        cursor: pointer
+        
+        z-index 999
+        
+        &:hover
+            background: #fff
+            
+        img
+            margin-top: 0px
+            
+    .textMode
+        position: absolute
+        pointer-events none
+        overflow: auto
+        
+        bottom 45px
+        right 0
+        left 0
+        top 100%
+        
+        opacity 0
+        
+        transition all 0.2s ease
+        
+
+
+    .mainWindow
+        size 'full' 
+                
+        &.new-social
+            
+            .loginFrame
+                display: none
+                
+            .newSocial, .registerRules, .doRegisterButton
+                display: block
+                
+                
+            .password
+                margin-top 20px
+                
+            .registerRules
+                margin-top 30px
+
+        .newSocial
+            display: none
+            position: absolute
+            
+            width 700px
+            height: 300px
+            
+            margin-top: -150px
+            top: 50%
+
+            left 50%
+            margin-left: -350px
+            
+            transition all 0.2s ease
+
+            .mergeAccount
+                float: right
+                width 300px
+                
+            .createAccount
+                float: left
+                width 300px
+
+        .loginFrame
+            size 'full'
+            
+            transition all 0.2s ease
+            
+            &.buzzLogin
+                
+                .loginButtons
+                    top 20%
+                    opacity: 0
+                    pointer-events none
+                    
+                .formFrame
+                    top 50%
+                    opacity: 1
+                    pointer-events auto
+            
+                
+                
+            
+            .formFrame
+                position: absolute
+                
+                width 100%
+                text-align: center
+                
+                transition all 0.2s ease
+                
+                margin-top: -130px
+                top 80%
+                
+                pointer-events none
+                opacity: 0
+                
+                transition all 0.2s ease
+                
+                &.buzzReg
+                    
+                    .passwordContainer, .registerButton, .forgotPassword
+                        display: none
+                        
+                    .newPasswordContainer, .registerRules, .doRegisterButton
+                        display: block
+                
+
+                    
+
+        .bottomLinks
+            position: absolute
+            width 100%
+            text-align: center
+            
+            color: #fff
+            
+            bottom 30px
+            margin-bottom: 0
+            
+            transition all 0.2s ease
+            
+            span
+                opacity 0.5
+            
+            .bottomLink
+                text-decoration: none
+                cursor: pointer
+                font-size 17px
+                margin: 0 5px

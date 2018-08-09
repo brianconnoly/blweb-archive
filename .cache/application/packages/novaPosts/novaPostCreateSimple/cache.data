@@ -1,0 +1,173 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaPostCreateSimple/template.jade'] = "<div class=\"novaPostEditor\"> <div nova-item-object=\"postParams.newPost\" class=\"postHelper novaItemScope novaItem novaItemDroppable\"> <div ng-if=\"postParams.newPost.contentIds.text.length &lt; 1\" ng-model=\"postParams.newPostText\" placeholder-text=\"'novaPostCreate_new_post_text'\" pasted-items=\"handlePastedItems\" class=\"newPostText novaEditableDiv\"></div> <div ng-repeat=\"id in postParams.newPost.contentIds.text\" nova-item-id=\"id\" nova-item-type=\"text\" class=\"novaItem\"> <div ng-model=\"item.value\" ng-model-options=\"{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }\" ng-change=\"saveText(item)\" pasted-items=\"handlePastedItems\" class=\"newPostText novaEditableDiv\"></div> </div> <div class=\"novaPostContent\"></div> </div> <div ng-if=\"postParams.postId\" class=\"postPreview\"> <div nova-item-id=\"postParams.postId\" nova-item-type=\"post\" nova-item-preview-type=\"timeline\" class=\"novaItemScope novaItem novaItemPreview\"></div> </div> <div class=\"addMenu\"> <div ng-click=\"addItems($event)\" class=\"addItems\">+</div> <div ng-click=\"addItems($event)\" translate=\"'novaPostCreate_addItems'\" class=\"addItemsDoubler\"></div> <div ng-click=\"addItemsUpload()\" class=\"addItemsShortcut addItemsUpload\">U</div> <div ng-click=\"addItemsStorage()\" class=\"addItemsShortcut addItemsStorage\">S</div> </div> <div class=\"spacer\"></div> </div> <div class=\"actions\"> <div ng-click=\"doCancel()\" translate=\"'novaPostCreate_cancel'\" class=\"action\"></div> <div ng-click=\"doCreate()\" translate=\"'novaPostCreate_create'\" ng-class=\"{'inactive':createBlocked()}\" class=\"action blue\"></div> </div>";
+
+buzzlike.directive('novaPostCreateSimple', function(localization, account, scheduleService, postService, combService, $filter, contentService, novaWizard, novaMenu) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostCreateSimple/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var addItems, combItem, createPost, elem;
+      elem = $(element);
+      addItems = $(elem.find('.addItems')[0]);
+      scope.postParams = {
+        newPostText: "",
+        newThemeName: "",
+        newPost: {
+          type: 'post',
+          virtual: true,
+          id: 'createNewPost' + getRandomInt(0, 1000) + Date.now(),
+          contentIds: {
+            image: [],
+            audio: [],
+            video: [],
+            url: [],
+            poll: [],
+            text: []
+          }
+        }
+      };
+      scope.handlePastedItems = function(items) {
+        var i, ids, item, j, len, len1, ref, results;
+        if (scope.postParams.postId == null) {
+          results = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            if (ref = item.id, indexOf.call(scope.postParams.newPost.contentIds[item.type], ref) < 0) {
+              results.push(scope.postParams.newPost.contentIds[item.type].push(item.id));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        } else {
+          ids = [];
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            ids.push(item.id);
+          }
+          return postService.addContentIds(scope.postParams.postId, ids);
+        }
+      };
+      scope.addItems = function(e) {
+        var offset, sections;
+        sections = [
+          {
+            type: 'actions',
+            items: [
+              {
+                phrase: 'novaPostCreate_add_upload_content',
+                action: function() {
+                  return novaWizard.fire('upload', {
+                    projectId: combItem.projectId,
+                    cb: scope.handlePastedItems
+                  });
+                }
+              }, {
+                phrase: 'novaPostCreate_add_from_storage',
+                action: function() {
+                  return novaWizard.fire('contentBrowser', {
+                    projectId: combItem.projectId,
+                    cb: scope.handlePastedItems
+                  });
+                }
+              }, {
+                phrase: 'novaPostCreate_add_import',
+                action: function() {
+                  return novaWizard.fire('importContent', {
+                    projectId: combItem.projectId,
+                    cb: scope.handlePastedItems
+                  });
+                }
+              }, {
+                phrase: 'novaPostCreate_add_text',
+                action: function() {
+                  return contentService.create({
+                    type: 'text',
+                    projectId: combItem.projectId
+                  }, function(textItem) {
+                    return scope.handlePastedItems([textItem]);
+                  });
+                }
+              }
+            ]
+          }
+        ];
+        offset = addItems.offset();
+        novaMenu.show({
+          position: {
+            x: offset.left + Math.ceil(addItems.width() / 2),
+            y: offset.top,
+            hei: addItems.height()
+          },
+          sections: sections,
+          menuStyle: 'center',
+          noApply: true
+        });
+        e.stopPropagation();
+        e.preventDefault();
+        return true;
+      };
+      scope.addItemsUpload = function() {
+        return novaWizard.fire('upload', {
+          projectId: scope.postParams.projectId,
+          cb: scope.handlePastedItems
+        });
+      };
+      scope.addItemsStorage = function() {
+        return novaWizard.fire('contentBrowser', {
+          projectId: scope.postParams.projectId,
+          cb: scope.handlePastedItems
+        });
+      };
+      scope.createBlocked = function() {
+        var k, ref, v;
+        if (scope.postParams.newPostText.length > 0) {
+          return false;
+        }
+        ref = scope.postParams.newPost.contentIds;
+        for (k in ref) {
+          v = ref[k];
+          if (v.length > 0) {
+            return false;
+          }
+        }
+        return true;
+      };
+      scope.doCancel = function() {
+        return typeof scope.closePostCreate === "function" ? scope.closePostCreate() : void 0;
+      };
+      scope.saveText = function(textItem) {
+        return contentService.save(textItem);
+      };
+      createPost = function(combId, cb) {
+        scope.postParams.newPost.combId = combId;
+        scope.postParams.newPost.projectId = combItem.projectId;
+        delete scope.postParams.newPost.id;
+        return postService.create(scope.postParams.newPost, function(postItem) {
+          var ref;
+          if (((ref = scope.postParams.newPostText) != null ? ref.length : void 0) > 0) {
+            return contentService.create({
+              type: 'text',
+              value: scope.postParams.newPostText,
+              projectId: scope.postParams.projectId
+            }, function(item) {
+              postService.addContentIds(postItem, [item.id]);
+              return combService.addContentIds(combId, [item.id]);
+            });
+          }
+        });
+      };
+      combItem = combService.getById(scope.flowFrame.item.id);
+      return scope.doCreate = function() {
+        if (scope.createBlocked()) {
+          return;
+        }
+        createPost(scope.flowFrame.item.id);
+        return scope.doCancel();
+      };
+    }
+  };
+});
+
+registerStyles('novaPostCreateSimple', ".novaPostCreateSimple {\n  background: #fff;\n}\n.novaPostCreateSimple .novaPostEditor {\n  overflow-y: auto;\n  height: auto;\n  max-height: 100%;\n}\n.novaPostCreateSimple .postDestination {\n  overflow: hidden;\n}\n.novaPostCreateSimple .postDestination .destinationParameters {\n  float: right;\n  margin: 20px;\n  text-align: right;\n}\n.novaPostCreateSimple .postDestination .destinationParameters .picker {\n  line-height: 20px;\n}\n.novaPostCreateSimple .postDestination .projectPreview {\n  float: left;\n  width: 50px;\n  height: 50px;\n  margin: 20px;\n  margin-bottom: 5px;\n  background: #d4d4d4;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.4);\n  box-shadow: 0 0 2px rgba(0,0,0,0.4);\n  overflow: hidden;\n}\n.novaPostCreateSimple .postDestination .projectPreview .name {\n  display: none;\n}\n.novaPostCreateSimple .novaTimelineCalendar {\n  height: 180px;\n}\n.novaPostCreateSimple .novaTimelineMenu .novaScreenPicker {\n  float: right;\n  margin-right: 20px;\n  line-height: 50px;\n}\n.novaPostCreateSimple .calendarContainer {\n  height: 0;\n  overflow: hidden;\n  -webkit-transition: height 0.2s ease;\n  -moz-transition: height 0.2s ease;\n  -o-transition: height 0.2s ease;\n  -ms-transition: height 0.2s ease;\n  transition: height 0.2s ease;\n}\n.novaPostCreateSimple .withCalendar .calendarContainer {\n  height: 180px;\n}\n.novaPostCreateSimple .postTimeBar {\n  font-size: 14px;\n  padding: 0 13px;\n}\n.novaPostCreateSimple .postTimeBar .hourRate {\n  float: right;\n}\n.novaPostCreateSimple .postTimeBar .currentDate .timePicker {\n  margin-right: 5px;\n}\n.novaPostCreateSimple .postTimeBar .currentDate .timePicker input {\n  font-size: 14px;\n  width: 18px;\n  text-align: center;\n  line-height: 15px;\n  height: 15px;\n  padding: 0;\n}\n.novaPostCreateSimple .postTimeBar .currentDate .timePicker .date {\n  cursor: pointer;\n}\n.novaPostCreateSimple .themePickerBar {\n  padding: 0 13px;\n  padding-top: 2px;\n  font-size: 14px;\n  overflow: hidden;\n  height: 16px;\n}\n.novaPostCreateSimple .themePickerBar .themePicker {\n  float: right;\n  z-index: 2;\n}\n.novaPostCreateSimple .themePickerBar .newThemeName {\n  font-size: 14px;\n}\n.novaPostCreateSimple .themePickerBar .newThemeName:after {\n  color: rgba(0,0,0,0.5);\n}\n.novaPostCreateSimple .themePickerBar .pickedTheme .remove {\n  float: left;\n  -webkit-transform: rotate(45deg);\n  -moz-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  transform: rotate(45deg);\n  font-size: 16px;\n  line-height: 15px;\n  text-align: center;\n  cursor: pointer;\n  margin-right: 5px;\n}\n.novaPostCreateSimple .themePickerBar .pickedTheme .novaItem {\n  float: left;\n}\n.novaPostCreateSimple .postControls {\n  font-size: 14px;\n  padding: 10px 13px;\n}\n.novaPostCreateSimple .postControls .postPicker {\n  float: right;\n  z-index: 2;\n}\n.novaPostCreateSimple .postControls .postSwitch {\n  opacity: 0.5;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)\";\n  filter: alpha(opacity=50);\n  cursor: pointer;\n}\n.novaPostCreateSimple .postControls .postSwitch.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  cursor: default;\n}\n.novaPostCreateSimple .postHelper {\n  font-size: 14px;\n}\n.novaPostCreateSimple .postHelper .novaPostContent {\n  height: 240px;\n  width: 100%;\n}\n.novaPostCreateSimple .postHelper .newPostText {\n  padding: 0 13px;\n  min-height: 40px;\n  padding-bottom: 10px;\n}\n.novaPostCreateSimple .postHelper .newPostText:after {\n  padding: 6px 17px;\n  width: 260px;\n  font-size: 12px;\n  line-height: 16px;\n  color: #ababab;\n  position: absolute;\n}\n.novaPostCreateSimple .addMenu {\n  overflow: hidden;\n  padding: 10px 13px;\n  font-size: 14px;\n}\n.novaPostCreateSimple .addMenu div {\n  float: right;\n}\n.novaPostCreateSimple .addMenu .addItems {\n  height: 27px;\n  width: 27px;\n  line-height: 27px;\n  text-align: center;\n  font-size: 25px;\n  opacity: 0.6;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)\";\n  filter: alpha(opacity=60);\n  cursor: pointer;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaPostCreateSimple .addMenu .addItems:active {\n  -webkit-transform: scale(0.9);\n  -moz-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  transform: scale(0.9);\n}\n.novaPostCreateSimple .addMenu .addItems:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaPostCreateSimple .addMenu .addItemsDoubler {\n  margin: 0 5px;\n  margin-right: 0;\n  cursor: pointer;\n  line-height: 27px;\n  height: 27px;\n}\n.novaPostCreateSimple .addMenu .addItemsShortcut {\n  height: 15px;\n  line-height: 15px;\n  padding: 0 5px;\n  border: 1px solid #554545;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  margin: 5px;\n  cursor: pointer;\n}\n.novaPostCreateSimple .spacer {\n  width: 100%;\n  height: 40px;\n}\n.novaPostCreateSimple .actions {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  height: 40px;\n  z-index: 2;\n}\n.novaPostCreateSimple .actions .action {\n  width: 50%;\n  height: 40px;\n  float: left;\n  text-align: center;\n  line-height: 40px;\n  font-size: 14px;\n  background: #f2f2f2;\n  color: #4d4d4d;\n  cursor: pointer;\n}\n.novaPostCreateSimple .actions .action:hover {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaPostCreateSimple .actions .action.blue {\n  background: #3fa9f5;\n  color: #fff;\n}\n.novaPostCreateSimple .actions .action.inactive {\n  background: #d6d6d6 !important;\n  cursor: default !important;\n}\n");

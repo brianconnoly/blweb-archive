@@ -1,0 +1,3 @@
+tC['/novaUserPreviewName/template.jade'] = "<div ng-if=\"item.name\" class=\"userName\">{{::item.name}}</div> <div ng-if=\"!item.name\" class=\"userName\">{{::getUserIdent(item)}}</div>";
+
+registerStyles('novaUserPreviewName', ".novaUserPreviewName .userName {\n  font-size: 14px;\n}\n");

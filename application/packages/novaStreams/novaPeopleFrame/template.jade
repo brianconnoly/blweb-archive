@@ -1,0 +1,17 @@
+div.novaFrameTopBarLayout
+    div.novaFrameTopBar
+        div.filterBox
+            input(ng-model="filterBox")
+        div.searchPeople(ng-click="doSearch()") 🔭
+    
+    div.novaFrameContents(ng-if="searchResults.length == 0")
+        div.novaItem(ng-repeat="item in userGroups")
+        
+    div.novaFrameContents.searchResults(ng-if="searchResults.length > 0")
+        div.foundBar
+            div.back(ng-click="backToGroups()") Go back
+            div Found users:
+        div.container.novaMultiselect
+            div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable(
+                ng-repeat="item in searchResults",
+                ng-dblclick="startStream(item)")

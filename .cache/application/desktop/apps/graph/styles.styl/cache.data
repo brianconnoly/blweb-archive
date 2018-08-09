@@ -1,0 +1,267 @@
+.appContainer.graph {
+  background: #fff;
+}
+.appContainer.graph .title span.month {
+  text-transform: capitalize;
+}
+.appContainer.graph .uniGraph {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.appContainer.graph .uniGraph .typeSwitch {
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+}
+.appContainer.graph .uniGraph .typeSwitch .button {
+  display: inline-block;
+  margin: 0 5px;
+  cursor: pointer;
+  padding: 1px 8px 4px 8px;
+  font-size: 13px;
+}
+.appContainer.graph .uniGraph .typeSwitch .button.active {
+  cursor: default;
+  background: #454545;
+  color: #fff;
+}
+.appContainer.graph .uniGraph .graphDescription {
+  text-align: center;
+  font-size: 14px;
+  line-height: 16px;
+  color: #acacac;
+  margin-top: 10px;
+}
+.appContainer.graph .uniGraph .graphContainer {
+  position: absolute;
+  top: 90px;
+  left: 30px;
+  right: 30px;
+  bottom: 70px;
+}
+.appContainer.graph .uniGraph .graphContainer:hover .hoverBar {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.graph .uniGraph .graphContainer .hoverBar {
+  position: absolute;
+  top: 10px;
+  bottom: 40px;
+  width: 50px;
+  margin-left: 40px;
+  background: rgba(200,200,200,0.15);
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appContainer.graph .uniGraph .graphContainer .fullSize {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.appContainer.graph .uniGraph .graphContainer .helper {
+  position: absolute;
+  background: #efefef;
+  -webkit-box-shadow: 0px 0px 2px 0px #454545;
+  box-shadow: 0px 0px 2px 0px #454545;
+  pointer-events: none;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 4px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: right;
+}
+.appContainer.graph .uniGraph .graphContainer .helper.visible {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .points {
+  font-weight: bolder;
+  font-size: 13px;
+  line-height: 16px;
+  margin: 0 0 3px 0;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .time {
+  font-size: 10px;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  top: -2px;
+  margin-right: 2px;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon.likes {
+  background: url("/resources/images/desktop/stats/likes.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon.reposts {
+  background: url("/resources/images/desktop/stats/reposts.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon.comments {
+  background: url("/resources/images/desktop/stats/comments.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon.commLikes {
+  background: url("/resources/images/desktop/stats/commentsLikes.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon.activity {
+  top: -5px;
+}
+.appContainer.graph .uniGraph .graphContainer .helper .icon.activity:after {
+  content: "⦿";
+  font-size: 20px;
+}
+.appContainer.graph .uniGraph .graphContainer .dots {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.appContainer.graph .uniGraph .graphContainer .dots .dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin-top: -5px;
+  margin-left: -5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 3px solid;
+  background: #fff;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.appContainer.graph .uniGraph .graphContainer .dots .dot:hover {
+  -webkit-transform: scale(1.6);
+  -moz-transform: scale(1.6);
+  -o-transform: scale(1.6);
+  -ms-transform: scale(1.6);
+  transform: scale(1.6);
+}
+.appContainer.graph .uniGraph .legend {
+  position: absolute;
+  bottom: 35px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  text-align: center;
+}
+.appContainer.graph .uniGraph .legend .line {
+  display: inline-block;
+  margin: 0 8px;
+  cursor: pointer;
+}
+.appContainer.graph .uniGraph .legend .line * {
+  cursor: pointer;
+}
+.appContainer.graph .uniGraph .legend .line .number {
+  font-size: 14px;
+}
+.appContainer.graph .uniGraph .legend .line .icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  top: -2px;
+  margin-right: 5px;
+}
+.appContainer.graph .uniGraph .legend .line .icon.likes {
+  background: url("/resources/images/desktop/stats/likes.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .legend .line .icon.reposts {
+  background: url("/resources/images/desktop/stats/reposts.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .legend .line .icon.comments {
+  background: url("/resources/images/desktop/stats/comments.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .legend .line .icon.commLikes {
+  background: url("/resources/images/desktop/stats/commentsLikes.svg") center center no-repeat;
+}
+.appContainer.graph .uniGraph .legend .line .icon.activity {
+  top: -5px;
+}
+.appContainer.graph .uniGraph .legend .line .icon.activity:after {
+  content: "⦿";
+  font-size: 20px;
+}
+.appContainer.graph .uniGraph .legend .line .color {
+  position: absolute;
+  left: 2px;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+}
+.appContainer.graph .uniGraph .overallSwitch {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35px;
+  text-align: center;
+}
+.appContainer.graph .uniGraph .overallSwitch .button {
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-block;
+}
+#graphHelper {
+  position: absolute;
+  z-index: 9999;
+  pointer-events: none;
+  width: 800px;
+  margin-left: -400px;
+  text-align: center;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+#graphHelper.visible {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+#graphHelper .plate {
+  display: inline-block;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  padding: 5px 8px;
+  line-height: 16px;
+  font-size: 14px;
+}
+#graphHelper .corner {
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  margin-left: -5px;
+  border-left: solid 5px transparent;
+  border-right: solid 5px transparent;
+  border-top: solid 6px rgba(0,0,0,0.8);
+}

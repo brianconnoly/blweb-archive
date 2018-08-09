@@ -1,0 +1,1127 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service("actionsRegister", function(novaDesktop, actionsService, combService, buffer, postService, contentService, desktopService, multiselect, scheduleService, notificationCenter, confirmBox, taskService, localization, ruleService, groupService, importContentService, importAlbumService) {
+  actionsService.registerAction({
+    category: "C",
+    targetType: "comb",
+    sourceType: "content",
+    phrase: "remove_from_comb",
+    priority: "27",
+    restrict: "dragndrop",
+    check2: function(data) {
+      return combService.hasContentIds(data.target, data.ids);
+    },
+    action: function(data) {
+      combService.removeContentIds(data.target, data.ids);
+      return buffer.addItems(data.items);
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "postPanel",
+    sourceType: "content",
+    sourceContext: "team",
+    phrase: "create_post",
+    priority: "68",
+    action: function(data) {
+      return postService.create({
+        items: data.ids,
+        combId: data.target.comb.id
+      }, function() {
+        return true;
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "comb",
+    sourceType: "team",
+    phrase: "bind_team",
+    priority: "200",
+    action: function(data) {
+      return combService.call('bindTeam', {
+        id: data.target.id,
+        teamId: data.items[0].id
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "comb",
+    sourceType: "content",
+    phrase: "add_to_comb",
+    priority: "87",
+    check2: function(data) {
+      var i, item, len, ref, ref1, ref2;
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (((ref1 = data.target.contentIds[item.type]) != null ? ref1.length : void 0) > 0) {
+          if (ref2 = item.id, indexOf.call(data.target.contentIds[item.type], ref2) < 0) {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
+      return false;
+    },
+    action: function(data) {
+      return combService.addContentIds(data.target, data.ids);
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "comb",
+    sourceType: "content",
+    phrase: "add_to_every_post",
+    priority: "97",
+    restrict: "",
+    action: function(data) {
+      return combService.addToEveryPost({
+        combId: data.target.id,
+        ids: data.ids
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "content",
+    phrase: "new_comb",
+    priority: "67",
+    action: function(data) {
+      return combService.create({
+        items: data.ids
+      }, function(comb) {
+        return buffer.addItems([comb]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "content",
+    phrase: "new_post",
+    priority: "88",
+    action: function(data) {
+      return postService.create({
+        items: data.ids
+      }, function(post) {
+        return buffer.addItems([post]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "comb",
+    sourceType: "content",
+    phrase: "new_post_in_comb",
+    priority: "99",
+    action: function(data) {
+      return postService.create({
+        combId: data.target.id,
+        items: data.ids
+      }, function(post) {
+        return buffer.addItems([post]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "content",
+    phrase: "new_post_swarm",
+    priority: "96",
+    action: function(data) {
+      return combService.swarm({
+        items: data.ids
+      }, function(comb) {
+        return buffer.addItems([comb]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "comb",
+    sourceType: "content",
+    sourceNumber: "many",
+    phrase: "new_post_swarm_in_comb",
+    priority: "98",
+    action: function(data) {
+      return combService.swarm({
+        combId: data.target.id,
+        items: data.ids
+      }, function(comb) {
+        return buffer.addItems([comb]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "D",
+    sourceType: "comb",
+    phrase: "duplicate",
+    priority: "50",
+    leaveItems: true,
+    action: function(data) {
+      var i, id, len, ref, results;
+      ref = data.ids;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        id = ref[i];
+        results.push(combService.duplicate({
+          id: id
+        }, function(newComb) {
+          return buffer.addItems([newComb]);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    sourceType: "comb",
+    phrase: "pick_posts",
+    priority: "62",
+    action: function(data) {
+      var i, item, len, postIds, ref;
+      postIds = [];
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        postIds = postIds.concat(item.postIds);
+      }
+      return postService.query({
+        ids: postIds
+      }, function(items) {
+        return buffer.addItems(items);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "C",
+    sourceType: "comb",
+    phrase: "delete",
+    priority: "-15",
+    action: function(data) {
+      return combService.deleteByIds(data.ids);
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "comb",
+    phrase: "new_text",
+    priority: "66",
+    action: function(data) {
+      return contentService.create({
+        type: 'text',
+        value: ""
+      }, (function(_this) {
+        return function(textItem) {
+          var i, item, len, ref;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            combService.addContentIds(item, [textItem.id]);
+          }
+          return desktopService.launchApp('textEditor', {
+            textId: textItem.id
+          });
+        };
+      })(this));
+    }
+  });
+  actionsService.registerAction({
+    category: "D",
+    sourceType: "comb",
+    phrase: "paste_post",
+    priority: "44",
+    check2: function(data) {
+      if (multiselect.state.buffer === null) {
+        return false;
+      }
+      return true;
+    },
+    action: function(data) {
+      var arr, cIds, i, id, item, j, key, len, len1, post, ref, ref1, results;
+      cIds = [];
+      post = multiselect.state.buffer;
+      ref = post.contentIds;
+      for (key in ref) {
+        arr = ref[key];
+        for (i = 0, len = arr.length; i < len; i++) {
+          id = arr[i];
+          cIds.push(id);
+        }
+      }
+      ref1 = data.items;
+      results = [];
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        item = ref1[j];
+        results.push(postService.create({
+          items: cIds,
+          combId: item.id
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    phrase: "new_comb",
+    priority: "67",
+    action: function(data) {
+      return combService.create({}, function(newComb) {
+        return buffer.addItems([newComb]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "placeholder",
+    phrase: "new_comb",
+    priority: "67",
+    action: function(data) {
+      return combService.create({}, function(newComb) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          scheduleService.create({
+            items: [],
+            communityId: item.communityId,
+            timestamp: item.timestamp,
+            combId: newComb.id
+          });
+        }
+        return desktopService.launchApp('combEdit', {
+          combId: newComb.id
+        });
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    sourceType: "folder",
+    contextType: "rightPanel",
+    phrase: "open_folder",
+    priority: "86",
+    only: "contextMenu",
+    action: function(data) {
+      return desktopService.launchApp('content', {
+        folderId: data.item.id
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "C",
+    sourceType: "content",
+    phrase: "delete",
+    priority: "25",
+    action: function(data) {
+      var ref, ref1;
+      if (((ref = data.target) != null ? ref.type : void 0) === 'folder') {
+        contentService.removeContentIds(data.target, data.ids);
+      }
+      if (((ref1 = data.target) != null ? ref1.type : void 0) === 'comb') {
+        combService.removeContentIds(data.target, data.ids);
+      }
+      buffer.removeItems(data.items);
+      return contentService.deleteByIds(data.ids, function(result) {
+        if (result === true) {
+          return notificationCenter.addMessage({
+            text: 126
+          });
+        }
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "D",
+    sourceType: "content",
+    phrase: "duplicate",
+    priority: "50",
+    leaveItems: true,
+    check2: function(data) {
+      var i, item, len, ref, ref1;
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if ((ref1 = item.type) === 'text' || ref1 === 'folder') {
+          return true;
+        }
+      }
+      return false;
+    },
+    action: function(data) {
+      var i, item, len, ref, ref1, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if ((ref1 = item.type) === 'text' || ref1 === 'folder') {
+          results.push(contentService.duplicate(item, function(duplicate) {
+            return buffer.addItems([duplicate]);
+          }));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "folder",
+    sourceType: "content",
+    phrase: "add_to_folder",
+    priority: "85",
+    check2: function(data) {
+      var i, item, len, ref;
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (item.parent !== data.target.id) {
+          return true;
+        }
+      }
+      return false;
+    },
+    action: function(data) {
+      return contentService.addContentIds(data.target, data.ids, function(result) {
+        return notificationCenter.addMessage({
+          text: 39
+        });
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "C",
+    targetType: "folder",
+    sourceType: "content",
+    phrase: "remove_from_folder",
+    priority: "26",
+    leaveItems: true,
+    restrict: "dragndrop",
+    check2: function(data) {
+      var i, item, len, ref;
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (item.parent != null) {
+          return true;
+        }
+      }
+      return false;
+    },
+    action: function(data) {
+      return contentService.removeContentIds(data.target, data.ids, function(result) {
+        buffer.addItems(data.items);
+        return notificationCenter.addMessage({
+          text: 41
+        });
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "folder",
+    phrase: "new_text",
+    priority: "66",
+    restrict: "rightPanel",
+    action: function(data) {
+      return contentService.create({
+        type: 'text',
+        value: ""
+      }, (function(_this) {
+        return function(text) {
+          var i, item, len, ref;
+          ref = data.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            contentService.addContentIds(item, [text.id]);
+          }
+          desktopService.launchApp('textEditor', {
+            textId: text.id
+          });
+          return buffer.addItems([text]);
+        };
+      })(this));
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    phrase: "new_text",
+    priority: "66",
+    restrict: "rightPanel",
+    action: function(data) {
+      return contentService.create({
+        type: 'text',
+        value: ""
+      }, (function(_this) {
+        return function(text) {
+          desktopService.launchApp('textEditor', {
+            textId: text.id
+          });
+          return buffer.addItems([text]);
+        };
+      })(this));
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "content",
+    sourceType: "content",
+    sourceContext: "rightPanel",
+    contextType: "rightPanel",
+    phrase: "new_folder",
+    only: "dragndrop",
+    check2: function(data) {
+      var i, item, len, ref;
+      if (data.target.type === 'folder') {
+        return false;
+      }
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (item.type === 'folder') {
+          return false;
+        }
+      }
+      return true;
+    },
+    action: function(data) {
+      var i, id, ids, len, ref;
+      ids = [];
+      ids.push(data.target.id);
+      ref = data.ids;
+      for (i = 0, len = ref.length; i < len; i++) {
+        id = ref[i];
+        if (indexOf.call(ids, id) < 0) {
+          ids.push(id);
+        }
+      }
+      return contentService.create({
+        type: 'folder',
+        items: ids,
+        parent: data.items[0].parent
+      }, function(newFolder) {
+        buffer.addItems([newFolder]);
+        return buffer.removeItems([data.target]);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "C",
+    sourceType: "taskAdmin",
+    phrase: "delete",
+    action: function(data) {
+      var cnt;
+      cnt = data.ids.length;
+      return novaDesktop.launchApp({
+        app: 'novaOptionsListApp',
+        noSave: true,
+        data: {
+          realText: localization.translate('teamManager_confirm_task_delete') + ' ' + cnt + ' ' + localization.declensionPhrase(cnt, 'teamManager_confirm_task_delete_declension') + '?',
+          description: 'teamManager_confirm_task_delete_description',
+          onAccept: (function(_this) {
+            return function() {
+              return taskService.deleteByIds(data.ids, function() {
+                return true;
+              });
+            };
+          })(this)
+        }
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    sourceType: "taskAdmin",
+    sourceNumber: "many",
+    phrase: "tasks_merge",
+    priority: "500",
+    check2: function(data) {
+      var i, item, len, ref, team;
+      team = data.item.teamId;
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (item.teamId !== team) {
+          return false;
+        }
+      }
+      return true;
+    },
+    action: function(data) {
+      var i, item, j, len, len1, ref, ref1, ref2, userId, userIds;
+      userIds = [];
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        ref1 = item.users;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          userId = ref1[j];
+          if (indexOf.call(userIds, userId) < 0) {
+            userIds.push(userId);
+          }
+        }
+      }
+      return taskService.create({
+        name: 'Объединенные задачи',
+        users: userIds,
+        teamId: data.items[0].teamId,
+        parent: ((ref2 = data.target) != null ? ref2.type : void 0) === 'task' ? data.target.id : data.item.parent,
+        status: 'created'
+      }, (function(_this) {
+        return function(newTask) {
+          var k, len2, ref3, results;
+          ref3 = data.items;
+          results = [];
+          for (k = 0, len2 = ref3.length; k < len2; k++) {
+            item = ref3[k];
+            results.push(taskService.save({
+              id: item.id,
+              parent: newTask.id
+            }, function() {
+              return true;
+            }));
+          }
+          return results;
+        };
+      })(this));
+    }
+  });
+  actionsService.registerAction({
+    sourceType: "activeDesktop",
+    phrase: "change_wallpaper",
+    action: function(data) {
+      return desktopService.launchApp('settings', {
+        section: 'appearance'
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "C",
+    sourceType: "placeholder",
+    phrase: "delete",
+    action: function(data) {
+      var actions, i, item, len, ref, simpleDelete;
+      simpleDelete = false;
+      actions = [
+        {
+          text: 'remove_one',
+          action: function() {
+            ruleService.removePlaceholders(data.items);
+            return true;
+          }
+        }, {
+          text: 'remove_chain',
+          action: function() {
+            var i, item, len;
+            for (i = 0, len = placeholders.length; i < len; i++) {
+              item = placeholders[i];
+              item.cut = true;
+            }
+            ruleService.removePlaceholders(data.items, true);
+            return true;
+          }
+        }
+      ];
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        if (item.ruleType === 'single') {
+          simpleDelete = true;
+        }
+      }
+      if (simpleDelete) {
+        actions = [
+          {
+            text: 'remove_one',
+            action: function() {
+              ruleService.removePlaceholders(data.items);
+              return true;
+            }
+          }
+        ];
+      }
+      return desktopService.launchApp('optionsList', {
+        message: 'post_delete_question',
+        options: actions
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "myCommunity",
+    phrase: "create_feedGroup",
+    action: function(data) {
+      var community, i, len, newGroup, ref;
+      newGroup = {
+        type: 'group',
+        name: 'new_group',
+        feeds: []
+      };
+      ref = data.items;
+      for (i = 0, len = ref.length; i < len; i++) {
+        community = ref[i];
+        newGroup.feeds.push({
+          status: 'Writable',
+          communityId: community.id,
+          statusAsInt: 1
+        });
+      }
+      return groupService.create(newGroup);
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importContent",
+    phrase: "import",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importContentService["import"](item, function(imported) {
+          return buffer.addItem(imported);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importContent",
+    phrase: "import_to_folder",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return contentService.create({
+        type: 'folder',
+        name: 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(folder) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          importContentService["import"](item, function(imported) {
+            return contentService.addContentIds(folder, [imported.id]);
+          });
+        }
+        return buffer.addItem(folder);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importAlbum",
+    phrase: "import",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importAlbumService["import"](item, function(folder) {
+          return buffer.addItem(folder);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importAlbum",
+    sourceNumber: "many",
+    phrase: "import_to_folder",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return contentService.create({
+        type: 'folder',
+        name: 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(folder) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          importAlbumService["import"](item, function(imported) {
+            return contentService.addContentIds(folder, [imported.id]);
+          });
+        }
+        return buffer.addItem(folder);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importContent",
+    phrase: "import_to_new_comb",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return combService.create({
+        name: 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(comb) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          importContentService["import"](item, function(imported) {
+            return combService.addContentIds(comb, [imported.id]);
+          });
+        }
+        return buffer.addItem(comb);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importAlbum",
+    phrase: "import_to_new_comb",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return combService.create({
+        name: data.items.length === 1 ? data.item.title : 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(comb) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          importAlbumService["import"](item, function(imported) {
+            return combService.addContentIds(comb, [imported.id]);
+          });
+        }
+        return buffer.addItem(comb);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importContent",
+    phrase: "import_to_new_post",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return postService.create({
+        name: 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(post) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          importContentService["import"](item, function(imported) {
+            return postService.addContentIds(post, [imported.id]);
+          });
+        }
+        return buffer.addItem(post);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    sourceType: "importContent",
+    sourceNumber: "many",
+    phrase: "import_to_swarm",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return combService.create({
+        name: 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(comb) {
+        var i, item, len, ref;
+        ref = data.items;
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          importContentService["import"](item, function(imported) {
+            return postService.create({
+              combId: comb.id,
+              items: [imported.id]
+            });
+          });
+        }
+        return buffer.addItem(comb);
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "comb",
+    sourceType: "importContent",
+    phrase: "import_to_comb",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importContentService["import"](item, function(imported) {
+          return combService.addContentIds(data.target, [imported.id]);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "comb",
+    sourceType: "importAlbum",
+    phrase: "import_to_comb",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importAlbumService["import"](item, function(imported) {
+          return combService.addContentIds(data.target, [imported.id]);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "folder",
+    sourceType: "importContent",
+    phrase: "import_to_folder",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importContentService["import"](item, function(imported) {
+          return contentService.addContentIds(data.target, [imported.id]);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "folder",
+    sourceType: "importAlbum",
+    phrase: "import_to_folder",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importAlbumService["import"](item, function(imported) {
+          return contentService.addContentIds(data.target, [imported.id]);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "contentApp",
+    sourceType: "importContent",
+    phrase: "import",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importContentService["import"](item));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "contentApp",
+    sourceType: "importAlbum",
+    phrase: "import",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importAlbumService["import"](item));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "combsApp",
+    sourceType: "importAlbum",
+    phrase: "import_to_new_comb",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return combService.create({
+        name: data.items.length === 1 ? data.item.title : 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(comb) {
+        var i, item, len, ref, results;
+        ref = data.items;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          results.push(importAlbumService["import"](item, function(imported) {
+            return combService.addContentIds(comb, [imported.id]);
+          }));
+        }
+        return results;
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "combsApp",
+    sourceType: "importContent",
+    phrase: "import_to_new_comb",
+    action: function(data) {
+      var date;
+      date = new Date();
+      return combService.create({
+        name: 'Импорт ' + date.getDay() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
+      }, function(comb) {
+        var i, item, len, ref, results;
+        ref = data.items;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          results.push(importContentService["import"](item, function(imported) {
+            return combService.addContentIds(comb, [imported.id]);
+          }));
+        }
+        return results;
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "rightPanel",
+    sourceType: "importAlbum",
+    phrase: "import",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importAlbumService["import"](item, function(folder) {
+          return buffer.addItem(folder);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "rightPanel",
+    sourceType: "importContent",
+    phrase: "import",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importContentService["import"](item, function(imported) {
+          return buffer.addItem(imported);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "B",
+    targetType: "timeline/placeholder",
+    sourceType: "importContent",
+    phrase: "import_to_scheduled_post",
+    action: function(data) {
+      return postService.create({}, function(post) {
+        var i, item, len, ref, results;
+        scheduleService.create({
+          postId: post.id,
+          communityId: data.target.communityId,
+          timestamp: data.target.timestamp
+        });
+        ref = data.items;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          results.push(importContentService["import"](item, function(imported) {
+            return postService.addContentIds(post, [imported.id]);
+          }));
+        }
+        return results;
+      });
+    }
+  });
+  actionsService.registerAction({
+    category: "A",
+    targetType: "post",
+    sourceType: "importContent",
+    phrase: "import_to_post",
+    action: function(data) {
+      var i, item, len, ref, results;
+      ref = data.items;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        item = ref[i];
+        results.push(importContentService["import"](item, function(imported) {
+          return postService.addContentIds(data.target, [imported.id]);
+        }));
+      }
+      return results;
+    }
+  });
+  actionsService.registerAction({
+    category: "C",
+    targetType: "task",
+    sourceType: "content",
+    phrase: "task_remove_bounded",
+    restrict: "dragndrop",
+    check2: function(data) {
+      var i, id, j, len, len1, ref, ref1, targetItem;
+      if (data.target.entities.length === 0) {
+        return false;
+      }
+      ref = data.ids;
+      for (i = 0, len = ref.length; i < len; i++) {
+        id = ref[i];
+        ref1 = data.target.entities;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          targetItem = ref1[j];
+          if (id === targetItem.id) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    action: function(data) {
+      return taskService.call('removeEntity', {
+        taskId: data.target.id,
+        entityIds: data.ids
+      }, function() {
+        return true;
+      });
+    }
+  });
+  return actionsService.registerAction({
+    category: "B",
+    sourceType: "content",
+    phrase: "new_folder",
+    priority: "64",
+    action: function(data) {
+      return contentService.create({
+        type: 'folder',
+        items: data.ids,
+        parent: data.items[0].parent
+      }, function(newFolder) {
+        return buffer.addItems([newFolder]);
+      });
+    }
+  });
+});

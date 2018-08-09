@@ -1,0 +1,41 @@
+buzzlike.service('novaAppStateSaver', function(localStorageService, socketAuth) {
+  var novaAppStateSaver;
+  novaAppStateSaver = (function() {
+    function novaAppStateSaver(appSID) {
+      this.appSID = appSID;
+      this.savers = {};
+    }
+
+    novaAppStateSaver.prototype.register = function(id, data) {
+      this.savers[id] = data;
+      return data.load(this.load(id));
+    };
+
+    novaAppStateSaver.prototype.save = function(id) {
+      var data, dataString;
+      data = this.savers[id].save();
+      dataString = JSON.stringify(data);
+      localStorageService.add(socketAuth.session.user_id + ':appState:' + this.appSID + ':' + id, dataString);
+      return data;
+    };
+
+    novaAppStateSaver.prototype.load = function(id) {
+      var data, dataString, e, error;
+      dataString = localStorageService.get(socketAuth.session.user_id + ':appState:' + this.appSID + ':' + id);
+      if ((dataString != null ? dataString.length : void 0) > 0) {
+        try {
+          data = JSON.parse(dataString);
+          return data;
+        } catch (error) {
+          e = error;
+          true;
+        }
+      }
+      return this.save(id);
+    };
+
+    return novaAppStateSaver;
+
+  })();
+  return novaAppStateSaver;
+});

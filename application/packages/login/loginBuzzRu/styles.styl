@@ -1,0 +1,89 @@
+.ugcsContainer
+    width: 750px;
+    margin: 0 auto;
+    margin-top: 30px
+      
+    .ugcItem
+        width 120px
+        height 120px
+        margin 10px
+        border-radius 20px
+
+        box-sizing border-box
+        transform translate3d(0,0,0)
+        transition all 0.2s ease
+        
+        border 3px solid rgba(255,255,255,0.4)
+        cursor: pointer
+        overflow: hidden
+
+        &:hover
+            border 3px solid rgba(255,255,255,0.4)
+        
+        .itemPreview
+            pointer-events none
+        // &:active
+        //     transform scale(0.9)
+        
+        
+
+@keyframes hvr-buzz-out 
+    10% 
+        -webkit-transform: translateX(3px) rotate(2deg);
+        transform: translateX(3px) rotate(2deg);
+
+    20%
+        -webkit-transform: translateX(-3px) rotate(-2deg);
+        transform: translateX(-3px) rotate(-2deg);
+
+    30%
+        -webkit-transform: translateX(3px) rotate(2deg);
+        transform: translateX(3px) rotate(2deg);
+
+    40%
+        -webkit-transform: translateX(-3px) rotate(-2deg);
+        transform: translateX(-3px) rotate(-2deg);
+
+    50%
+        -webkit-transform: translateX(2px) rotate(1deg);
+        transform: translateX(2px) rotate(1deg);
+
+    60%
+        -webkit-transform: translateX(-2px) rotate(-1deg);
+        transform: translateX(-2px) rotate(-1deg);
+
+    70%
+        -webkit-transform: translateX(2px) rotate(1deg);
+        transform: translateX(2px) rotate(1deg);
+
+    80%
+        -webkit-transform: translateX(-2px) rotate(-1deg);
+        transform: translateX(-2px) rotate(-1deg);
+
+    90%
+        -webkit-transform: translateX(1px) rotate(0);
+        transform: translateX(1px) rotate(0);
+
+    100%
+        -webkit-transform: translateX(-1px) rotate(0);
+        transform: translateX(-1px) rotate(0);
+
+.ugcItem
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+
+.ugcItem:hover
+    -webkit-animation-name: hvr-buzz-out;
+    animation-name: hvr-buzz-out;
+    -webkit-animation-duration: 1.1s;
+    animation-duration: 1.1s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: 1;
+    animation-iteration-count: 1;

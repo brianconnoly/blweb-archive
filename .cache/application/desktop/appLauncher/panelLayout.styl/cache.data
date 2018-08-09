@@ -1,0 +1,157 @@
+.appLauncher .panelWide .leftPanel {
+  width: 208px;
+}
+.appLauncher .panelWide .leftPanel .panelItem {
+  width: 168px;
+  padding-left: 40px;
+}
+.appLauncher .panelWide .rightContent {
+  left: 209px;
+}
+.appLauncher .withRight .rightContent {
+  right: 99px;
+}
+.appLauncher .withRight .rightPanel {
+  right: 0;
+}
+.appLauncher div.rightPanel {
+  position: absolute;
+  top: 0;
+  bottom: 31px;
+  right: -100px;
+  width: 99px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 15px 0;
+  overflow-y: auto;
+  border-left: 1px solid #e6e6e6;
+  -webkit-transition: right 0.2s ease;
+  -moz-transition: right 0.2s ease;
+  -o-transition: right 0.2s ease;
+  -ms-transition: right 0.2s ease;
+  transition: right 0.2s ease;
+}
+.appLauncher div.rightPanel .previewContainer {
+  margin: 0;
+  margin-left: 14px;
+  margin-bottom: 15px;
+}
+.appLauncher div.rightPanel .divider {
+  width: 100%;
+  border-top: 1px solid #e6e6e6;
+  margin-bottom: 15px;
+  float: left;
+}
+.appLauncher div.rightPanel .itemPreview:hover .name {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appLauncher div.rightPanel .itemPreview .name {
+  font-size: 11px;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  min-height: 100%;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-top: 14px;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appLauncher .leftPanel {
+  position: absolute;
+  top: 0;
+  bottom: 31px;
+  left: 0;
+  width: 180px;
+  padding: 0 !important;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+}
+.appLauncher .leftPanel .panelItem {
+  overflow: hidden;
+  width: 160px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-left: 20px;
+  cursor: pointer;
+}
+.appLauncher .leftPanel .panelItem * {
+  cursor: pointer;
+}
+.appLauncher .leftPanel .panelItem .previewContainer {
+  margin: 0;
+}
+.appLauncher .leftPanel .panelItem.active {
+  background: #f2f2f2;
+  cursor: default;
+}
+.appLauncher .leftPanel .panelItem.active * {
+  cursor: default;
+}
+.appLauncher .leftPanel .panelItem.active .previewContainer {
+  outline: 4px solid #fcee21;
+}
+.appLauncher .leftPanel .panelItem:first-child {
+  padding-top: 20px;
+}
+.appLauncher .leftPanel .panelItem.small {
+  width: 120px;
+  padding-left: 60px;
+}
+.appLauncher .leftPanel .panelItem.small .previewContainer {
+  width: 100px;
+  height: 72px;
+}
+.appLauncher .leftPanel .panelItem.small .previewContainer .name {
+  font-size: 10px;
+  line-height: 11px;
+}
+.appLauncher .leftPanel .panelItem .notify {
+  position: absolute;
+  bottom: 51px;
+  left: 10px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #c1272d;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  font-weight: bolder;
+  color: #fff;
+  text-align: center;
+  line-height: 18px;
+  font-size: 11px;
+  z-index: 10000;
+  pointer-events: none;
+  display: none;
+}
+.appLauncher .leftPanel .panelItem .notify.active {
+  display: block;
+}
+.appLauncher .leftPanel .panelItem .notify.counter {
+  background: #c1272d;
+}
+.appLauncher .rightContent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 31px;
+  left: 181px;
+  overflow-y: auto;
+  border-left: 1px solid #e6e6e6;
+  -webkit-transition: right 0.2s ease;
+  -moz-transition: right 0.2s ease;
+  -o-transition: right 0.2s ease;
+  -ms-transition: right 0.2s ease;
+  transition: right 0.2s ease;
+}

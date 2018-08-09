@@ -1,0 +1,583 @@
+buzzlike.service('appsService', function(rpc, socketAuth, multiselect, $compile, $rootScope, actionsService, dragMaster, stateManager, localStorageService) {
+  var Progress, StateSaver, StateTree, itemClass;
+  StateTree = (function() {
+    function StateTree() {
+      this.showed = false;
+      this.stack = [];
+      this.activeState = null;
+      this.handler = null;
+    }
+
+    StateTree.prototype.applyState = function(state) {
+      if (this.activeState != null) {
+        this.stack.push(this.activeState);
+      }
+      return this.activeState = state;
+    };
+
+    StateTree.prototype.goBack = function() {
+      return this.activeState = this.stack.pop();
+    };
+
+    return StateTree;
+
+  })();
+  Progress = (function() {
+    function Progress(scope) {
+      this.scope = scope;
+      this.stack = [];
+      this.done = 0;
+    }
+
+    Progress.prototype.flush = function() {
+      var i, len, ref, results, task;
+      clearTimeout(this.handler);
+      ref = this.stack;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        task = ref[i];
+        results.push(this.finish(task));
+      }
+      return results;
+    };
+
+    Progress.prototype.add = function() {
+      var newProcess;
+      if (this.handler !== null) {
+        clearTimeout(this.handler);
+        this.handler = null;
+      }
+      newProcess = {};
+      this.stack.push(newProcess);
+      this.done = 80. * 100 / (this.stack.length * 100);
+      this.showed = true;
+      return newProcess;
+    };
+
+    Progress.prototype.finish = function(process) {
+      removeElementFromArray(process, this.stack);
+      this.done = 80 * 100 / (this.stack.length * 100);
+      if (this.stack.length === 0) {
+        this.done = 100;
+        if (this.handler === null) {
+          return this.handler = setTimeout((function(_this) {
+            return function() {
+              _this.showed = false;
+              return _this.scope.$apply();
+            };
+          })(this), 1000);
+        }
+      }
+    };
+
+    return Progress;
+
+  })();
+  StateSaver = (function() {
+    function StateSaver(sessionId) {
+      var blob;
+      this.sessionId = sessionId;
+      if (this.sessionId == null) {
+        this.sessionId = Date.now() + '' + getRandomInt(0, 1000);
+      }
+      this.handlers = {};
+      blob = localStorageService.get('appState_' + this.sessionId);
+      if (blob != null) {
+        this.initData = JSON.parse(blob);
+      }
+    }
+
+    StateSaver.prototype.destroy = function() {
+      return localStorageService.remove('appState_' + this.sessionId);
+    };
+
+    StateSaver.prototype.add = function(code, saver, loader) {
+      var ref, ref1;
+      this.handlers[code] = {
+        saver: saver,
+        loader: loader,
+        code: code
+      };
+      if (((ref = this.initData) != null ? ref[code] : void 0) != null) {
+        return this.handlers[code].loader((ref1 = this.initData) != null ? ref1[code] : void 0);
+      }
+    };
+
+    StateSaver.prototype.remove = function(code) {
+      if (this.handlers[code] != null) {
+        return delete this.handlers[code];
+      }
+    };
+
+    StateSaver.prototype.save = function() {
+      var blob, k, obj, ref;
+      blob = {};
+      ref = this.handlers;
+      for (k in ref) {
+        obj = ref[k];
+        blob[k] = obj.saver();
+      }
+      return localStorageService.add('appState_' + this.sessionId, JSON.stringify(blob));
+    };
+
+    StateSaver.prototype.load = function() {
+      var blob, blobData, data, k, ref, ref1, results;
+      blob = localStorageService.get('appState_' + this.sessionId);
+      blobData = JSON.parse(blob);
+      results = [];
+      for (k in blobData) {
+        data = blobData[k];
+        results.push((ref = this.handlers) != null ? (ref1 = ref[k]) != null ? typeof ref1.load === "function" ? ref1.load(data) : void 0 : void 0 : void 0);
+      }
+      return results;
+    };
+
+    return StateSaver;
+
+  })();
+  itemClass = (function() {
+    var lastAppCoord, lastZindex, launchedApps;
+
+    launchedApps = 0;
+
+    lastAppCoord = 20;
+
+    lastZindex = 0;
+
+    function itemClass() {
+      this.apps = {};
+      this.sessions = [];
+      this.activeSession = null;
+      this.desktop = null;
+      this.appsFrame = null;
+      this.desktopService = null;
+      this.body = $('body');
+      actionsService.registerAction({
+        sourceType: 'session',
+        phrase: 'close',
+        action: function(data) {
+          var i, len, ref, results, session;
+          ref = data.items;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            session = ref[i];
+            results.push(session.scope.closeApp());
+          }
+          return results;
+        }
+      });
+    }
+
+    itemClass.prototype.desktopResized = function() {
+      var desktop, desktopHei, desktopWid, i, len, ref, results, session;
+      desktop = $('div#desktop');
+      desktopHei = desktop.height();
+      desktopWid = desktop.width();
+      ref = this.sessions;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        session = ref[i];
+        if (session.maximized === true) {
+          session.scope.setWidth(desktopWid);
+          session.scope.setHeight(desktopHei);
+          session.element.css({
+            width: 'auto',
+            height: 'auto'
+          });
+          results.push(session.scope.resized(desktopWid, desktopHei));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    };
+
+    itemClass.prototype.setDesktopService = function(service) {
+      this.desktop = null;
+      this.appsFrame = null;
+      return this.desktopService = service;
+    };
+
+    itemClass.prototype.launchApp = function(appId, params, e, no_flush) {
+      var appData, closeHandlers, desktop, desktopHei, desktopWid, errorFlush, handler, jElem, newScope, newSession, resizeHandlers, resizeProgressHandlers, template;
+      if (no_flush == null) {
+        no_flush = false;
+      }
+      if (this.apps[appId] == null) {
+        console.log('Unknown application', appId);
+        return;
+      }
+      launchedApps++;
+      appData = angular.copy(this.apps[appId]);
+      lastAppCoord += 20;
+      if ((this.desktop != null) && lastAppCoord > this.desktop.width() / 3) {
+        lastAppCoord = 20;
+      }
+      newSession = {
+        no_flush: no_flush,
+        id: (params != null ? params.id : void 0) || Date.now() + '' + launchedApps,
+        type: 'session',
+        app: appId,
+        stateVars: {},
+        coords: {
+          x: lastAppCoord,
+          y: lastAppCoord
+        },
+        size: {
+          width: 600,
+          height: 500
+        }
+      };
+      updateObject(newSession, appData);
+      updateObject(newSession, params);
+      desktop = $('div#desktop');
+      desktopHei = desktop.height();
+      desktopWid = desktop.width();
+      if (newSession.startPosition === 'center') {
+        newSession.coords.x = (desktopWid - newSession.size.width) / 2 | 0;
+        newSession.coords.y = (desktopHei - (newSession.size.height | 0)) / 3 | 0;
+        delete newSession.startPosition;
+      }
+      if (newSession.startPosition === 'cursor' && (e != null)) {
+        newSession.coords.x = e.clientX + 20;
+        newSession.coords.y = e.clientY + 20;
+      }
+      if (newSession.size.width > desktopWid) {
+        newSession.coords.x = 0;
+        newSession.size.height = desktopWid;
+      }
+      if (newSession.coords.y + newSession.size.height > desktopHei) {
+        newSession.coords.y = desktopHei - newSession.size.height;
+      }
+      if (newSession.coords.y < 0) {
+        newSession.coords.y = 0;
+      }
+      if (newSession.size.height > desktopHei) {
+        newSession.coords.y = 0;
+        newSession.size.height = desktopHei;
+      }
+      if (newSession.coords.x + newSession.size.width > desktopWid) {
+        newSession.coords.x = desktopWid - newSession.size.width;
+      }
+      if (this.appsFrame == null) {
+        this.appsFrame = $('#applications');
+      }
+      newScope = $rootScope.$new();
+      newScope.session = newSession;
+      newScope.progress = new Progress(newScope);
+      errorFlush = rpc.registerErrorFlush(function() {
+        return newScope.progress.flush();
+      });
+      newScope.stateSaver = new StateSaver(newSession.id);
+      newScope.stateSaver.add('session', function() {
+        var k, ref, toSave, v;
+        toSave = {};
+        ref = newScope.session;
+        for (k in ref) {
+          v = ref[k];
+          if (k !== 'scope' && k !== 'element') {
+            toSave[k] = angular.copy(v);
+          }
+        }
+        return toSave;
+      }, function(data) {
+        var k, results, v;
+        results = [];
+        for (k in data) {
+          v = data[k];
+          results.push(newScope.session[k] = v);
+        }
+        return results;
+      });
+      newScope.stateTree = new StateTree();
+      newScope.closeApp = (function(_this) {
+        return function(result) {
+          var handler, i, len;
+          rpc.clearErrorFlush(errorFlush);
+          for (i = 0, len = closeHandlers.length; i < len; i++) {
+            handler = closeHandlers[i];
+            handler(result);
+          }
+          return _this.close(newSession);
+        };
+      })(this);
+      closeHandlers = [];
+      newScope.onClose = function(handler) {
+        return closeHandlers.push(handler);
+      };
+      newScope.hideApp = (function(_this) {
+        return function() {
+          return _this.hide(newSession);
+        };
+      })(this);
+      resizeHandlers = [];
+      newScope.onResize = function(handler, fire) {
+        if (fire == null) {
+          fire = true;
+        }
+        if (fire === true) {
+          handler(newSession.size.width, newSession.size.height);
+        }
+        return resizeHandlers.push(handler);
+      };
+      newScope.resized = function(wid, hei) {
+        var handler, i, len, results;
+        results = [];
+        for (i = 0, len = resizeHandlers.length; i < len; i++) {
+          handler = resizeHandlers[i];
+          results.push(handler(wid, hei));
+        }
+        return results;
+      };
+      resizeProgressHandlers = [];
+      newScope.onResizeProgress = function(handler, fire) {
+        if (fire == null) {
+          fire = true;
+        }
+        if (fire === true) {
+          handler(newSession.size.width, newSession.size.height);
+        }
+        return resizeProgressHandlers.push(handler);
+      };
+      newScope.resizeInProgress = function(wid, hei) {
+        var handler, i, len, results;
+        results = [];
+        for (i = 0, len = resizeProgressHandlers.length; i < len; i++) {
+          handler = resizeProgressHandlers[i];
+          results.push(handler(wid, hei));
+        }
+        return results;
+      };
+      jElem = $('<div class="appLauncher"></div>');
+      newScope.window = jElem[0];
+      newScope.maximize = (function(_this) {
+        return function() {
+          if (newSession.maximized !== true) {
+            desktopHei = desktop.height();
+            desktopWid = desktop.width();
+            newSession.ex = {
+              coords: angular.copy(newSession.coords),
+              size: angular.copy(newSession.size)
+            };
+            newScope.setPosition(0, 0);
+            newScope.setWidth(desktopWid);
+            newScope.setHeight(desktopHei);
+            newScope.element.css({
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: 'auto',
+              height: 'auto',
+              transform: 'none'
+            });
+            newSession.maximized = true;
+          } else {
+            newScope.setPosition(newSession.ex.coords.x, newSession.ex.coords.y);
+            newScope.setWidth(newSession.ex.size.width);
+            newScope.setHeight(newSession.ex.size.height);
+            newSession.maximized = false;
+          }
+          newScope.resized(newScope.session.size.width, newScope.session.size.height);
+          newScope.stateSaver.save();
+          return true;
+        };
+      })(this);
+      newScope.setWidth = function(wid) {
+        newScope.session.size.width = wid;
+        if ((newScope.session.size.minWidth != null) && newScope.session.size.width < newScope.session.size.minWidth) {
+          newScope.session.size.width = newScope.session.size.minWidth;
+        }
+        if ((newScope.session.size.maxWidth != null) && newScope.session.size.width > newScope.session.size.maxWidth) {
+          newScope.session.size.width = newScope.session.size.maxWidth;
+        }
+        return jElem.width(newScope.session.size.width);
+      };
+      newScope.setHeight = function(hei, force) {
+        if (force == null) {
+          force = false;
+        }
+        newScope.session.size.height = hei;
+        if (force) {
+          if (newScope.session.size.minHeight != null) {
+            newScope.session.size.minHeight = hei;
+          }
+          if (newScope.session.size.maxHeight != null) {
+            newScope.session.size.maxHeight = hei;
+          }
+        }
+        if ((newScope.session.size.minHeight != null) && newScope.session.size.height < newScope.session.size.minHeight) {
+          newScope.session.size.height = newScope.session.size.minHeight;
+        }
+        if ((newScope.session.size.maxHeight != null) && newScope.session.size.height > newScope.session.size.maxHeight) {
+          newScope.session.size.height = newScope.session.size.maxHeight;
+        }
+        return jElem.height(newScope.session.size.height);
+      };
+      newScope.setPosition = function(x, y) {
+        if (y < -10) {
+          y = -10;
+        }
+        jElem.css('transform', 'translate3d(' + x + 'px,' + y + 'px, 0)');
+        return newScope.session.coords = {
+          x: x,
+          y: y
+        };
+      };
+      template = $compile(jElem)(newScope);
+      $(template).on('mousedown.blApp', (function(_this) {
+        return function(e) {
+          e.stopPropagation();
+          _this.activate(newSession);
+          return newScope.$apply();
+        };
+      })(this));
+      handler = null;
+      jElem.on('mouseenter.blApp', (function(_this) {
+        return function(e) {
+          if (dragMaster.dragInProgress() && e.which === 1) {
+            return handler = setTimeout(function() {
+              _this.activate(newSession);
+              return newScope.$apply();
+            }, 200);
+          }
+        };
+      })(this));
+      jElem.on('mouseleave.blApp', (function(_this) {
+        return function(e) {
+          if (handler != null) {
+            clearTimeout(handler);
+            return handler = null;
+          }
+        };
+      })(this));
+      newSession.scope = newScope;
+      newSession.element = template;
+      this.appsFrame.append(newSession.element);
+      this.sessions.push(newSession);
+      this.activate(newSession, no_flush);
+      newScope.stateSaver.save();
+      return newSession;
+    };
+
+    itemClass.prototype.activate = function(session, no_flush) {
+      var index, ref;
+      if (no_flush == null) {
+        no_flush = false;
+      }
+      if (session.minimized) {
+        session.minimized = false;
+        this.appsFrame.append(session.element);
+      }
+      if (session.maximized) {
+        session.scope.element.css({
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: 'auto',
+          height: 'auto',
+          transform: 'none'
+        });
+      }
+      if (session !== this.activeSession) {
+        if (!no_flush && !session.no_flush) {
+          multiselect.flush();
+        }
+        lastZindex++;
+        $('.appLauncher.active').removeClass('active');
+        session.element.addClass('active');
+        session.element.css('z-index', lastZindex);
+        session.zIndex = lastZindex;
+        this.activeSession = session;
+        index = this.sessions.indexOf(session);
+        this.sessions.move(index, this.sessions.length - 1);
+        stateManager.setTree(session.scope.stateTree);
+        return (ref = this.desktopService) != null ? ref.saveState() : void 0;
+      }
+    };
+
+    itemClass.prototype.flushActive = function() {
+      this.activeSession = null;
+      $('.appLauncher.active').removeClass('active');
+      stateManager.clearTree();
+      return true;
+    };
+
+    itemClass.prototype.launchSessions = function(sessions) {
+      var i, j, len, len1, ref, ref1, results, session;
+      ref = this.sessions;
+      for (i = 0, len = ref.length; i < len; i++) {
+        session = ref[i];
+        session.element.detach();
+      }
+      this.sessions = sessions;
+      ref1 = this.sessions;
+      results = [];
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        session = ref1[j];
+        results.push(this.appsFrame.append(session.element));
+      }
+      return results;
+    };
+
+    itemClass.prototype.flush = function() {
+      var i, len, ref, session;
+      ref = this.sessions;
+      for (i = 0, len = ref.length; i < len; i++) {
+        session = ref[i];
+        session.scope.$destroy();
+        session.element.remove();
+      }
+      this.sessions.length = 0;
+      return this.activeSession = null;
+    };
+
+    itemClass.prototype.close = function(session, noSave) {
+      var jElemDestopy;
+      if (noSave == null) {
+        noSave = false;
+      }
+      if ((session == null) || session.destroyed === true) {
+        return;
+      }
+      jElemDestopy = $(session.element);
+      jElemDestopy.addClass('hideAnimationStart');
+      setTimeout((function(_this) {
+        return function() {
+          jElemDestopy[0].style.transform += ' scale(0.9)';
+          jElemDestopy.addClass('hideAnimation');
+          return setTimeout(function() {
+            var ref;
+            session.element.remove();
+            if (_this.sessions[_this.sessions.length - 1] != null) {
+              _this.activate(_this.sessions[_this.sessions.length - 1], session.no_flush);
+            }
+            if (!noSave) {
+              return (ref = _this.desktopService) != null ? ref.saveState() : void 0;
+            }
+          }, 500);
+        };
+      })(this), 0);
+      session.destroyed = true;
+      session.scope.stateSaver.destroy();
+      session.scope.$destroy();
+      return removeElementFromArray(session, this.sessions);
+    };
+
+    itemClass.prototype.hide = function(session) {
+      session.minimized = true;
+      session.element.detach();
+      return true;
+    };
+
+    itemClass.prototype.registerApp = function(app) {
+      this.apps[app.app] = app;
+      return true;
+    };
+
+    return itemClass;
+
+  })();
+  return new itemClass();
+});

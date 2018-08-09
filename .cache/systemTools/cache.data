@@ -1,0 +1,374 @@
+var Sequence, error,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+window.registerStyles = function(id, styles) {
+  var styleBox;
+  styleBox = $('#' + id);
+  if (styleBox.length === 0) {
+    styleBox = $('<style>', {
+      id: id
+    });
+    $('head').append(styleBox);
+  }
+  return styleBox.html(styles);
+};
+
+window.reloadPackage = function(id) {
+  var scripts;
+  scripts = $('script');
+  scripts.each(function() {
+    var file, newPath;
+    file = this.src.split('/').pop();
+    if (file.indexOf(id) > -1) {
+      newPath = this.src + '?reload=' + Date.now();
+      $(this).remove();
+      return $('<script>').attr('src', newPath).appendTo('head');
+    }
+  });
+  return true;
+};
+
+error = function(code, text) {
+  return {
+    err: true,
+    code: code,
+    text: text
+  };
+};
+
+Sequence = (function() {
+  function Sequence(params, repeats1) {
+    this.repeats = repeats1 != null ? repeats1 : 0;
+    this.fire = bind(this.fire, this);
+    this.next = bind(this.next, this);
+    this.makeNext = bind(this.makeNext, this);
+    this.tryStep = bind(this.tryStep, this);
+    this.buffer = [];
+    this.results = [];
+    this.endCb = null;
+    this._log = [];
+    this._debug = 0;
+    this.safe = true;
+    this.sequenceName = 'Undefined sequence';
+    if (typeof params !== 'object') {
+      this.delay = params || 0;
+    } else {
+      this.sequenceName = params.name;
+      this.delay = params.delay;
+      this.repeats = params.repeats;
+      this._debug = params.debug || 0;
+      this.safe = params.safe || false;
+    }
+    this.repeatsLeft = this.repeats;
+  }
+
+  Sequence.prototype.log = function() {
+    if (this._debug > 2) {
+      return console.log.apply(console, arguments);
+    }
+  };
+
+  Sequence.prototype.addStep = function(method) {
+    return this.buffer.push(method);
+  };
+
+  Sequence.prototype.addSteps = function(array) {
+    var j, len, results1, step;
+    results1 = [];
+    for (j = 0, len = array.length; j < len; j++) {
+      step = array[j];
+      results1.push(this.addStep(step));
+    }
+    return results1;
+  };
+
+  Sequence.prototype.tryStep = function(step, next) {
+    var check, doTry, e, error1, iteratorSteps, iteratorStepsCounter, method, timeout;
+    if (step.check != null) {
+      check = step.check();
+      step.checkResult = !!check;
+      if (check !== true) {
+        next(true, step);
+        return;
+      }
+    }
+    if (step.iterator != null) {
+      iteratorSteps = [];
+      iteratorStepsCounter = 0;
+      step.iterator(function(data) {
+        iteratorStepsCounter++;
+        return iteratorSteps.push({
+          name: step.name + ' ' + iteratorStepsCounter,
+          data: data,
+          "var": step["var"],
+          async: step.async,
+          iteratorCnt: iteratorStepsCounter,
+          action: step.action
+        });
+      });
+      this.buffer = iteratorSteps.concat(this.buffer);
+      this._log.push({
+        name: step.name,
+        date: step.data,
+        "var": step["var"],
+        async: step.async,
+        iteratorCnt: step.iteratorCnt,
+        message: {
+          text: 'Iterator worked, ' + iteratorStepsCounter + ' steps added'
+        }
+      });
+      next([], step);
+      return;
+    }
+    this.log('TRY: ', step.name);
+    step.timestampStart = Date.now();
+    method = step.action;
+    if (step.timeout != null) {
+      timeout = new Timeout({
+        time: step.timeout,
+        complete: next,
+        expire: (function(_this) {
+          return function() {
+            _this._log.push({
+              name: step.name,
+              date: step.data,
+              "var": step["var"],
+              async: step.async,
+              iteratorCnt: step.iteratorCnt,
+              message: {
+                err: true,
+                text: 'Timeout expired'
+              }
+            });
+            return next({
+              err: true
+            }, step);
+          };
+        })(this)
+      });
+    }
+    doTry = function() {
+      if (step.timeout != null) {
+        return method(timeout.done, (function(_this) {
+          return function() {
+            timeout.abort();
+            return _this.tryStep(step, _this.makeNext(step));
+          };
+        })(this), step.data, step.iteratorCnt);
+      } else {
+        return method(next, (function(_this) {
+          return function() {
+            return _this.tryStep(step, _this.makeNext(step));
+          };
+        })(this), step.data, step.iteratorCnt);
+      }
+    };
+    if (this.safe !== true) {
+      return doTry();
+    } else {
+      try {
+        return doTry();
+      } catch (error1) {
+        e = error1;
+        this.log('CRASH: ', step.name, e.toString());
+        this._log.push({
+          name: step.name,
+          date: step.data,
+          "var": step["var"],
+          async: step.async,
+          iteratorCnt: step.iteratorCnt,
+          message: {
+            err: true,
+            text: 'CRASH: ' + e.toString()
+          }
+        });
+        if (step.timeout != null) {
+          timeout.abort();
+        }
+        return next((step.error != null ? step.error : error(0, e.toString())), step);
+      }
+    }
+  };
+
+  Sequence.prototype.makeNext = function(step) {
+    return (function(_this) {
+      return function(result) {
+        return _this.next(result, step);
+      };
+    })(this);
+  };
+
+  Sequence.prototype.next = function(result, fromStep) {
+    var asyncNext, asyncResults, asyncSteps, completedCnt, delay, failedFlag, i, j, len, ref, repeats, results1, step;
+    if (result == null) {
+      result = null;
+    }
+    if ((result != null ? result.err : void 0) === true) {
+      this.log('ERROR: ', fromStep != null ? fromStep.name : void 0);
+      if (this.repeatsLeft > 0) {
+        this.stepName = '-> ' + fromStep.name;
+        this._log.push({
+          name: fromStep.name,
+          date: fromStep.data,
+          "var": fromStep["var"],
+          async: fromStep.async,
+          iteratorCnt: fromStep.iteratorCnt,
+          message: {
+            text: 'Retry step',
+            details: result
+          }
+        });
+        this.repeatsLeft--;
+        this.tryStep(fromStep, this.makeNext(fromStep));
+        return;
+      } else {
+        this._log.push({
+          name: fromStep.name,
+          date: fromStep.data,
+          "var": fromStep["var"],
+          async: fromStep.async,
+          iteratorCnt: fromStep.iteratorCnt,
+          checkResult: fromStep.checkResult,
+          message: {
+            err: true,
+            text: 'Step error',
+            details: result
+          }
+        });
+        this.finish({
+          error: result,
+          details: result.details,
+          err: true,
+          success: false,
+          log: this._log,
+          failedOn: this.stepName
+        });
+        return;
+      }
+    }
+    if (fromStep != null) {
+      this.log('COMPLETE: ', fromStep.name);
+      fromStep.timestampEnd = Date.now();
+      this._log.push({
+        name: fromStep.name,
+        date: fromStep.data,
+        "var": fromStep["var"],
+        async: fromStep.async,
+        iteratorCnt: fromStep.iteratorCnt,
+        checkResult: fromStep.checkResult,
+        message: {
+          time: fromStep.timestampEnd - fromStep.timestampStart,
+          text: 'Completed',
+          details: result
+        }
+      });
+      if ((fromStep["var"] != null) && fromStep.checkResult !== false) {
+        if ((fromStep.iteratorCnt != null) && fromStep.async !== true) {
+          this[fromStep["var"]][fromStep.iteratorCnt - 1] = result;
+        } else {
+          this[fromStep["var"]] = result;
+        }
+      } else {
+        this.results.push(result);
+      }
+    }
+    if (this.buffer.length > 0) {
+      asyncSteps = [];
+      while (((ref = this.buffer[0]) != null ? ref.async : void 0) === true) {
+        asyncSteps.push(this.buffer.shift());
+      }
+      if (asyncSteps.length > 0) {
+        asyncResults = [];
+        failedFlag = false;
+        completedCnt = 0;
+        asyncNext = (function(_this) {
+          return function(asyncResult, step) {
+            _this._log.push({
+              name: step.name,
+              date: step.data,
+              "var": step["var"],
+              async: step.async,
+              iteratorCnt: step.iteratorCnt,
+              message: {
+                err: (asyncResult != null ? asyncResult.err : void 0) === true,
+                text: 'Async result',
+                details: asyncResult
+              }
+            });
+            if (failedFlag === false) {
+              if ((asyncResult != null ? asyncResult.err : void 0) === true) {
+                failedFlag = true;
+                return _this.finish({
+                  error: asyncResult,
+                  details: asyncResult.details,
+                  err: true,
+                  success: false,
+                  log: _this._log,
+                  failedOn: _this.stepName
+                });
+              } else {
+                completedCnt++;
+                if (completedCnt >= asyncSteps.length) {
+                  return _this.next(asyncResults, step);
+                }
+              }
+            }
+          };
+        })(this);
+        results1 = [];
+        for (i = j = 0, len = asyncSteps.length; j < len; i = ++j) {
+          step = asyncSteps[i];
+          results1.push((function(_this) {
+            return function(step, i) {
+              return _this.tryStep(step, function(res) {
+                asyncResults[i] = res;
+                return asyncNext(res, step);
+              });
+            };
+          })(this)(step, i));
+        }
+        return results1;
+      } else {
+        this.step = this.buffer.shift();
+        this.stepName = this.step.name || 'Step';
+        repeats = this.step.retry || this.repeats;
+        delay = this.step.delay || this.delay;
+        this.repeatsLeft = repeats;
+        if (delay > 0) {
+          return setTimeout((function(_this) {
+            return function() {
+              return _this.tryStep(_this.step, _this.makeNext(_this.step));
+            };
+          })(this), delay);
+        } else {
+          return this.tryStep(this.step, this.makeNext(this.step));
+        }
+      }
+    } else {
+      return this.finish({
+        success: true,
+        err: false,
+        log: this._log,
+        results: this.results
+      });
+    }
+  };
+
+  Sequence.prototype.finish = function(results) {
+    return typeof this.endCb === "function" ? this.endCb(results) : void 0;
+  };
+
+  Sequence.prototype.fire = function(endCb) {
+    this.endCb = endCb;
+    return this.next();
+  };
+
+  Sequence.prototype.repeatLast = function() {
+    if (this.step != null) {
+      return this.step(this.next);
+    }
+  };
+
+  return Sequence;
+
+})();

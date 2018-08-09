@@ -1,0 +1,86 @@
+.superPaginator
+    height 30px
+    
+    
+    //.right
+    //    float: right
+    //    margin-right 5px
+    //
+    //.left
+    //    float: left
+    //    margin-left 5px
+
+    .page
+        opacity 1
+        text-align: center
+        width 20px
+        height 30px
+        vertical-align middle
+        cursor: pointer
+        font-size 11px
+        //line-height: 20px
+        box-sizing border-box
+        
+        &.type
+            //float: left
+            width 30px
+            text-align: center
+            cursor: pointer
+            padding: 0 5px
+
+        &.active
+            // font-size 18px
+            background-color: #494949
+            color #fff
+            cursor: default
+            
+            .type
+                background-color none
+            
+        &.typeFinal
+            padding-left: 1px
+            border-right 1px solid #494949
+            
+            &:last-child
+                border-right none
+
+        &.icon_image
+            background url("/resources/images/desktop/types/black/filter-image.svg") center center
+            
+            &.active
+                background-image url("/resources/images/desktop/types/black/filter-image-active.svg")
+
+        &.icon_audio
+            background url("/resources/images/desktop/types/black/filter-audio.svg") center center
+            
+            &.active
+                background-image url("/resources/images/desktop/types/black/filter-audio-active.svg")
+
+        &.icon_text
+            background url("/resources/images/desktop/types/black/filter-text.svg") center center
+            
+            &.active
+                background-image url("/resources/images/desktop/types/black/filter-text-active.svg")
+
+        &.icon_url
+            background url("/resources/images/desktop/types/black/filter-url.svg") center center
+            
+            &.active
+                background-image url("/resources/images/desktop/types/black/filter-url-active.svg")
+
+        &.icon_video
+            background url("/resources/images/desktop/types/black/filter-video.svg") center center
+            
+            &.active
+                background-image url("/resources/images/desktop/types/black/filter-video-active.svg")
+
+    .pages
+        float: left
+        text-align: center
+        cursor: pointer
+
+        div.page, div.type
+            display: inline-block
+
+    .hidden
+        visibility: hidden

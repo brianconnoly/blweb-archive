@@ -1,0 +1,11 @@
+div.messageTime 
+    span(ng-if="!today") {{::streamItem.created | timestampMask:'D ofMMMM optYY'}}
+    span {{::streamItem.created | timestampMask:'hh:mm'}}
+div.userPic.novaItem.novaItemPreview(
+    nova-item-object="user",
+    nova-item-preview-type="simple")
+div.messageBox
+    div.userName {{::user.name}}
+    div.shortName {{::user.firstName}}
+    div.message(ng-if="::streamItem.streamItemType=='user'") {{::streamItem.value}}
+    div.message.novaStreamItemSystemMessage(ng-if="::streamItem.streamItemType!='user'")

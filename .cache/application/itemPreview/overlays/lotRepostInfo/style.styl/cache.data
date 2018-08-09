@@ -1,0 +1,221 @@
+.itemPreview > .lot-repost-info {
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45px;
+  z-index: 888;
+}
+.itemPreview > .lot-repost-info .picWrapper {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: 0;
+  width: 45px;
+}
+.itemPreview > .lot-repost-info .picWrapper .status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.itemPreview > .lot-repost-info .picWrapper .status.socialNetwork .icon {
+  text-transform: uppercase;
+  line-height: 45px;
+  color: #fff;
+  font-size: 27px;
+  text-align: center;
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .bgColor.active {
+  background: #000;
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon {
+  background-image: url("/resources/images/icons/requestStatus/status.png");
+  background-position: 0 45px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 135px 45px;
+  -moz-background-size: 135px 45px;
+  background-size: 135px 45px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon {
+    background-image: url("/resources/images/icons/requestStatus/status@2x.png");
+    background-position: 0 45px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 135px 45px;
+    -moz-background-size: 135px 45px;
+    background-size: 135px 45px;
+  }
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.accepted {
+  background-position: 0 0;
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.rejected {
+  background-position: -45px 0;
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.created,
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.returned {
+  background-position: -90px 0;
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.failed {
+  background-color: #ee453e;
+}
+.itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.completed {
+  background-color: #2fbe42;
+}
+.itemPreview > .lot-repost-info .picWrapper .status .bgColor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  opacity: 0.7;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+  filter: alpha(opacity=70);
+}
+.itemPreview > .lot-repost-info .picWrapper .status .icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+}
+.itemPreview > .lot-repost-info .info {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 45px;
+  right: 0;
+  bottom: 0;
+  height: 45px;
+  line-height: 45px;
+  font-size: 17px;
+  text-align: center;
+  background: #fcee21;
+  color: #000;
+}
+#rightPanel .single .itemPreview > .lot-repost-info {
+  height: 60px;
+}
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper {
+  width: 60px;
+}
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.socialNetwork .icon {
+  line-height: 60px;
+  font-size: 34px;
+}
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon {
+  background-image: url("/resources/images/icons/requestStatus/status.png");
+  background-position: 0 60px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 180px 60px;
+  -moz-background-size: 180px 60px;
+  background-size: 180px 60px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  #rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon {
+    background-image: url("/resources/images/icons/requestStatus/status@2x.png");
+    background-position: 0 60px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 180px 60px;
+    -moz-background-size: 180px 60px;
+    background-size: 180px 60px;
+  }
+}
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.accepted {
+  background-position: 0 0;
+}
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.rejected {
+  background-position: -60px 0;
+}
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.created,
+#rightPanel .single .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.returned {
+  background-position: -120px 0;
+}
+#rightPanel .single .itemPreview > .lot-repost-info .info {
+  position: absolute;
+  top: 0;
+  left: 60px;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  line-height: 60px;
+  font-size: 20px;
+}
+#rightPanel .itemPreview > .lot-repost-info,
+.small_view .itemPreview > .lot-repost-info,
+.size75 .itemPreview > .lot-repost-info {
+  height: 25px;
+}
+#rightPanel .itemPreview > .lot-repost-info .picWrapper,
+.small_view .itemPreview > .lot-repost-info .picWrapper,
+.size75 .itemPreview > .lot-repost-info .picWrapper {
+  width: 25px;
+}
+#rightPanel .itemPreview > .lot-repost-info .picWrapper .status.socialNetwork .icon,
+.small_view .itemPreview > .lot-repost-info .picWrapper .status.socialNetwork .icon,
+.size75 .itemPreview > .lot-repost-info .picWrapper .status.socialNetwork .icon {
+  line-height: 25px;
+  font-size: 14px;
+}
+#rightPanel .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon,
+.small_view .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon,
+.size75 .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon {
+  background-image: url("/resources/images/icons/requestStatus/status.png");
+  background-position: 0 25px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 75px 25px;
+  -moz-background-size: 75px 25px;
+  background-size: 75px 25px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  #rightPanel .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon,
+  .small_view .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon,
+  .size75 .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon {
+    background-image: url("/resources/images/icons/requestStatus/status@2x.png");
+    background-position: 0 25px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 75px 25px;
+    -moz-background-size: 75px 25px;
+    background-size: 75px 25px;
+  }
+}
+#rightPanel .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.accepted,
+.small_view .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.accepted,
+.size75 .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.accepted {
+  background-position: 0 0;
+}
+#rightPanel .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.rejected,
+.small_view .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.rejected,
+.size75 .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.rejected {
+  background-position: -25px 0;
+}
+#rightPanel .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.created,
+.small_view .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.created,
+.size75 .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.created,
+#rightPanel .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.returned,
+.small_view .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.returned,
+.size75 .itemPreview > .lot-repost-info .picWrapper .status.requestStatus .icon.returned {
+  background-position: -50px 0;
+}
+#rightPanel .itemPreview > .lot-repost-info .info,
+.small_view .itemPreview > .lot-repost-info .info,
+.size75 .itemPreview > .lot-repost-info .info {
+  position: absolute;
+  top: 0;
+  left: 25px;
+  right: 0;
+  bottom: 0;
+  height: 25px;
+  line-height: 25px;
+  font-size: 10px;
+}

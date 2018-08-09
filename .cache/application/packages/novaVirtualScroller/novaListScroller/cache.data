@@ -1,0 +1,184 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaListScroller/template.jade'] = "<div ng-repeat=\"page in scroller.pages\" class=\"novaScrollerPage\"> <div ng-repeat=\"item in page.blocks | orderBy:'scroller.sortFunc' track by item.id\" nova-item-preview-type=\"list\" nova-item-context=\"parentItem\" data-sort=\"{{scroller.sortFunc(item)}}\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemDroppable novaItemMenu\"></div> </div>";
+
+buzzlike.service('novaListScroller', function(novaVirtualScroller) {
+  var novaListScroller;
+  novaListScroller = (function(superClass) {
+    extend(novaListScroller, superClass);
+
+    function novaListScroller(params) {
+      this.perLine = 1;
+      this.sepCache = {};
+      this.lastPageFetched = 0;
+      params.updateOnAffected = true;
+      novaListScroller.__super__.constructor.call(this, params);
+    }
+
+    novaListScroller.prototype.setPerLine = function(val) {
+      return this.perLine = val;
+    };
+
+    novaListScroller.prototype.rebuild = function() {
+      this.params.pageHeight = this.params.elem.height();
+      return this.scroll(0);
+    };
+
+    novaListScroller.prototype.buildPage = function(page) {
+      var cursor, i, j, k, lineId, lineStart, newBlock, pocketId, pocketIndex, pocketKeys, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8;
+      page.blocks.length = 0;
+      page.height = 0;
+      page.log = [];
+      pocketKeys = Object.keys(this.pockets);
+      console.log('KEYS', pocketKeys);
+      if (pocketKeys.length === 0) {
+        page.last = true;
+        page.first = true;
+        if ((page.query.from != null) && (page.query.to == null)) {
+          page.query.to = page.query.from;
+        }
+        return page;
+      }
+      pocketKeys.sort().reverse();
+      if ((page != null ? (ref = page.query) != null ? ref.from : void 0 : void 0) != null) {
+        page.query.to = page.query.from;
+        pocketId = page.query.from;
+        if (ref1 = pocketId + '', indexOf.call(pocketKeys, ref1) < 0) {
+          pocketId = pocketKeys[0] * 1;
+        }
+        pocketIndex = pocketKeys.indexOf(pocketId + '');
+        cursor = page.query.cursor || 0;
+        console.log(this.pockets[pocketId], pocketId, this.params.pageHeight);
+        while ((this.pockets[pocketId] != null) && page.height < this.params.pageHeight) {
+          page.query.to = pocketId;
+          newBlock = {
+            id: pocketId,
+            code: pocketId + ':' + cursor,
+            type: 'content',
+            items: []
+          };
+          while (cursor < this.pockets[pocketId].length && page.height < this.params.pageHeight) {
+            for (i = j = ref2 = cursor, ref3 = cursor + this.perLine; ref2 <= ref3 ? j < ref3 : j > ref3; i = ref2 <= ref3 ? ++j : --j) {
+              if (this.pockets[pocketId][i] != null) {
+                page.blocks.push(this.pockets[pocketId][i]);
+              }
+            }
+            cursor += this.perLine;
+            page.height += this.params.lineHei;
+          }
+          if (cursor >= this.pockets[pocketId].length) {
+            pocketIndex++;
+            cursor = 0;
+            pocketId = pocketKeys[pocketIndex] * 1;
+          }
+          page.query.cursorEnd = cursor;
+        }
+        if (this.pockets[pocketId] == null) {
+          page.last = true;
+          this.fetch(page);
+        } else {
+          page.query.to = pocketId;
+          page.last = false;
+        }
+        if (page.query.from === 0) {
+          page.first = true;
+        }
+      } else {
+        page.query.from = page.query.to;
+        pocketId = page.query.to;
+        if (ref4 = pocketId + '', indexOf.call(pocketKeys, ref4) < 0) {
+          pocketId = pocketKeys[0] * 1;
+        }
+        pocketIndex = pocketKeys.indexOf(pocketId + '');
+        cursor = page.query.cursorEnd || 0;
+        page.log.push('start ' + cursor);
+        if (cursor === 0) {
+          pocketIndex--;
+          pocketId = pocketKeys[pocketIndex] * 1;
+          cursor = (ref5 = this.pockets[pocketId]) != null ? ref5.length : void 0;
+        }
+        page.log.push('pocket picked ' + pocketId);
+        while ((this.pockets[pocketId] != null) && page.height < this.params.pageHeight) {
+          newBlock = {
+            id: pocketId,
+            code: pocketId + ':' + cursor,
+            type: 'content',
+            items: []
+          };
+          lineId = Math.ceil(cursor / this.perLine);
+          while (lineId > 0 && page.height < this.params.pageHeight) {
+            lineStart = (lineId - 1) * this.perLine;
+            for (i = k = ref6 = lineStart + this.perLine, ref7 = lineStart; ref6 <= ref7 ? k < ref7 : k > ref7; i = ref6 <= ref7 ? ++k : --k) {
+              if (this.pockets[pocketId][i - 1] != null) {
+                page.blocks.unshift(this.pockets[pocketId][i - 1]);
+              }
+            }
+            lineId--;
+            cursor = lineStart;
+            page.height += this.params.lineHei;
+          }
+          if (cursor <= 0) {
+            pocketIndex--;
+            pocketId = pocketKeys[pocketIndex] * 1;
+            cursor = (ref8 = this.pockets[pocketId]) != null ? ref8.length : void 0;
+          }
+        }
+        if (this.pockets[pocketId] == null) {
+          page.query.from = 0;
+          page.first = true;
+        } else {
+          page.query.cursor = cursor;
+          page.query.from = pocketId;
+          page.first = false;
+        }
+      }
+      return page;
+    };
+
+    novaListScroller.prototype.pickPocket = function(item, query) {
+      if (this.params.sortFunc != null) {
+        return this.params.sortFunc(item, query);
+      }
+      return query.page;
+    };
+
+    novaListScroller.prototype.doFetch = function(query, cb) {
+      var finalQuery;
+      if (this.lastPageFetched >= this.maxPages) {
+        return;
+      }
+      finalQuery = {
+        limit: 20,
+        page: this.lastPageFetched++,
+        parent: this.params.parent || 'null',
+        sortBy: this.params.sortBy,
+        sortType: 'desc'
+      };
+      updateObject(finalQuery, this.query);
+      return this.params.queryFunc(finalQuery, (function(_this) {
+        return function(items, total) {
+          _this.maxPages = Math.ceil(total / 20);
+          return cb(items, total, finalQuery);
+        };
+      })(this));
+    };
+
+    return novaListScroller;
+
+  })(novaVirtualScroller);
+  return novaListScroller;
+});
+
+buzzlike.directive('novaListScroller', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaListScroller/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return true;
+    }
+  };
+});
+
+registerStyles('novaListScroller', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaListScroller\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

@@ -1,0 +1,266 @@
+buzzlike.controller('callApiCtrl', function($scope, account, rpc) {
+  $scope.session.expandedHeader = false;
+  $scope.api = [
+    {
+      title: 'user',
+      methods: [
+        {
+          title: 'fillBalance',
+          type: 'rpc',
+          dataValue: 'amount',
+          fields: [
+            {
+              key: 'amount',
+              value: 0,
+              type: 'number'
+            }
+          ]
+        }, {
+          title: 'getAccounts',
+          type: 'rpc'
+        }, {
+          title: 'getByLogin',
+          type: 'rpc',
+          fields: [
+            {
+              key: 'login',
+              value: ''
+            }
+          ]
+        }
+      ]
+    }, {
+      title: '...',
+      methods: []
+    }
+  ];
+  $scope.request = {
+    userId: account.user.id,
+    apiKey: ""
+  };
+  $scope.current = {
+    controller: {
+      title: 'simpleApi',
+      methods: [
+        {
+          title: 'create',
+          fields: [
+            {
+              key: 'text',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'attachments',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'timestamp',
+              value: Date.now() + 1 * MIN,
+              type: 'number'
+            }, {
+              key: 'communityId',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'communityType',
+              value: "group",
+              type: 'text'
+            }, {
+              key: 'socialNetwork',
+              value: "ok",
+              type: 'text'
+            }, {
+              key: 'accessToken',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'refreshToken',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'appId',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'appKey',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'appSecret',
+              value: "",
+              type: 'text'
+            }
+          ]
+        }, {
+          title: 'update',
+          fields: [
+            {
+              key: 'id',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'text',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'attachments',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'timestamp',
+              value: Date.now() * 1 + 1 * MIN,
+              type: 'number'
+            }, {
+              key: 'communityId',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'communityType',
+              value: "group",
+              type: 'text'
+            }, {
+              key: 'socialNetwork',
+              value: "ok",
+              type: 'text'
+            }, {
+              key: 'accessToken',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'refreshToken',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'appId',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'appKey',
+              value: "",
+              type: 'text'
+            }, {
+              key: 'appSecret',
+              value: "",
+              type: 'text'
+            }
+          ]
+        }, {
+          title: 'delete',
+          fields: [
+            {
+              key: 'id',
+              value: "",
+              type: 'text'
+            }
+          ]
+        }, {
+          title: 'get',
+          fields: [
+            {
+              key: 'id',
+              value: "",
+              type: 'text'
+            }
+          ]
+        }, {
+          title: 'list',
+          fields: [
+            {
+              key: 'status',
+              value: 'planned',
+              type: 'text'
+            }, {
+              key: 'page',
+              value: 0,
+              type: 'number'
+            }
+          ]
+        }
+      ]
+    },
+    method: null
+  };
+  $scope.fields = null;
+  $scope.result = 'Result will be here.';
+  $scope.setMethod = function() {
+    var ref;
+    $scope.current.method = null;
+    if ((ref = $scope.current.controller.methods) != null ? ref[0] : void 0) {
+      $scope.current.method = $scope.current.controller.methods[0];
+    }
+    $scope.setFields();
+    return true;
+  };
+  $scope.setFields = function() {
+    if (!$scope.current.method) {
+      return false;
+    }
+    if (!$scope.current.method.fields) {
+      $scope.current.method.fields = [];
+    }
+    $scope.fields = $scope.current.method.fields;
+    return true;
+  };
+  $scope.addField = function() {
+    $scope.fields.push({
+      key: 'key',
+      value: 'value',
+      editable: true
+    });
+    return true;
+  };
+  $scope.deleteField = function(field) {
+    removeElementFromArray(field, $scope.fields);
+    return true;
+  };
+  $scope.call = function() {
+    var data, field, i, k, len, process, ref, v;
+    data = {};
+    ref = $scope.fields;
+    for (i = 0, len = ref.length; i < len; i++) {
+      field = ref[i];
+      k = field.key;
+      v = field.value;
+      data[k] = v;
+    }
+    data.userId = $scope.request.userId;
+    data.apiKey = $scope.request.apiKey;
+    data.showErrors = true;
+    if ($scope.current.method.dataValue != null) {
+      data = data[$scope.current.method.dataValue];
+    }
+    process = $scope.progress.add();
+    rpc.call($scope.current.controller.title + "." + $scope.current.method.title, data, function(res) {
+      var e, error;
+      if (!res) {
+        $scope.result = 'No result';
+        return;
+      }
+      try {
+        $scope.result = JSON.stringify(res, null, 4);
+      } catch (error) {
+        e = error;
+        $scope.result = res;
+      }
+      return $scope.progress.finish(process);
+    });
+    return true;
+  };
+  $scope.selectAll = function() {
+    var range, resNode, selection;
+    resNode = $('#result')[0];
+    if (document.body.createTextRange) {
+      range = document.body.createTextRange();
+      range.moveToElementText(resNode);
+      range.select();
+    } else if (window.getSelection) {
+      selection = window.getSelection();
+      range = document.createRange();
+      range.selectNodeContents(resNode);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    return true;
+  };
+  return true;
+});

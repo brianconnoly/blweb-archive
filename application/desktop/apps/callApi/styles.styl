@@ -1,0 +1,91 @@
+.appContainer.callApi
+    
+    background #d3d3d3
+
+    $maxWidth = 900px
+    
+    .call
+        background: none
+        box-shadow none
+
+        $formWidth = 320px
+        &_form, &_result
+            background rgba(255, 255, 255, 0.2)
+            border-radius 10px
+            padding 5px
+            box-sizing border-box
+
+        &_form
+            size 'abs' 0 auto auto 0
+            width $formWidth
+
+            .form
+                &_title
+                    text-align left
+                    font-weight: bolder
+                    padding 6px 0
+                    margin-left 10px
+
+                &_controller, &_method
+                    //margin 5px 0
+
+                &_submit
+                    width 100%
+                    margin-top 7px
+
+                &_fields
+                    margin 10px 0
+                    background rgba(255, 255, 255, 0.2)
+
+
+                &_field
+                    $h = 30px
+                    margin-bottom 1px
+                    height $h
+                    line-height $h
+
+                    .field
+                        &_key, &_val, &_separator, &_delete, &_delete_button
+                            height $h
+                            line-height $h
+
+                        &_delete
+                            float left
+                            width 20px
+                            color #fa5f5a
+                            overflow hidden
+                            text-align center
+
+                            span
+                                cursor pointer
+
+                        &_key
+                            float left
+                            width 130px
+
+                        &_val
+                            float right
+                            width 150px
+
+                    input
+                        background #3d3d3d
+                        color #ffffff
+
+
+        &_result
+            height 100%
+            overflow-y: auto
+            
+            $resultLeft = $formWidth + 50px
+            size 'abs' 0 0 auto $resultLeft
+
+            .result_select
+                width 100%
+                margin-bottom 10px
+
+            #result
+                width 100%
+                min-height 500px
+                word-break break-word
+                user-select initial
+                cursor text

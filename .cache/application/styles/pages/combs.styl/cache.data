@@ -1,0 +1,1063 @@
+.combs_catalog h2.headlining {
+  padding: 30px 15px 15px 12px;
+}
+.combeditor .column.content .item {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.combeditor .column.content .item .sign {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.combeditor .column.content .item .track-name {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.combeditor .column.content .item .text-preview {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.combeditor .column.content.mini .item {
+  margin: 5px;
+  width: 75px;
+  height: 75px;
+}
+.combeditor .column.content.mini .item .sign {
+  top: -27px;
+  right: -25px;
+  -webkit-transform: scale(0.15);
+  -moz-transform: scale(0.15);
+  -o-transform: scale(0.15);
+  -ms-transform: scale(0.15);
+  transform: scale(0.15);
+}
+.combeditor .column.content.mini .item .track-name {
+  top: 20px;
+  font-size: 10px;
+}
+.combeditor .column.content.mini .item .text-preview {
+  font-size: 12px;
+}
+.combeditor .column.content.mini .item .locked {
+  background-image: url("/resources/images/icons/locks/lock-S.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 23px 34px;
+  -moz-background-size: 23px 34px;
+  background-size: 23px 34px;
+  bottom: 0;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .combeditor .column.content.mini .item .locked {
+    background-image: url("/resources/images/icons/locks/lock-S@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 23px 34px;
+    -moz-background-size: 23px 34px;
+    background-size: 23px 34px;
+  }
+}
+.combeditor .column.posts .postMode {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding-top: 8px;
+}
+.combeditor .column.posts .postMode .paginator {
+  margin: 0 35px;
+}
+.combeditor .column.posts .postMode .paginator .center {
+  width: 310px;
+}
+.combeditor .column.posts .postMode .list {
+  position: absolute;
+  top: 0px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 8px;
+  overflow-y: auto;
+  -webkit-transition: left 0.2s ease;
+  -moz-transition: left 0.2s ease;
+  -o-transition: left 0.2s ease;
+  -ms-transition: left 0.2s ease;
+  transition: left 0.2s ease;
+}
+.combeditor .column.posts .postMode .list.fullPosts {
+  bottom: 46px;
+}
+.combeditor .column.posts .postMode .postEdit {
+  position: absolute;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  bottom: 0;
+  overflow-y: auto;
+  -webkit-transition: right 0.2s ease;
+  -moz-transition: right 0.2s ease;
+  -o-transition: right 0.2s ease;
+  -ms-transition: right 0.2s ease;
+  transition: right 0.2s ease;
+}
+.combeditor .column.posts .postMode.postEditMode .list {
+  position: absolute;
+  top: 0;
+  left: -101%;
+  width: 100%;
+}
+.combeditor .column.posts .postMode.postEditMode .postEdit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  bottom: 0;
+}
+.combeditor .column.posts .postMode.postEditMode .paginator {
+  bottom: -100%;
+}
+.textCounter {
+  display: none;
+}
+.postEntity {
+  float: left;
+  display: block;
+  position: relative;
+  background: #fff;
+  margin: 5px 35px 15px 35px;
+  width: 360px;
+}
+.postEntity.drop-hover {
+  outline: 5px solid rgba(255,255,255,0.5);
+  background: #fff;
+}
+.postEntity.warn {
+  background: rgba(222,47,47,0.9) !important;
+}
+.postEntity.onSale {
+  background: #ffd700;
+}
+.postEntity.text.contents .categorypost_text {
+  margin-bottom: 10px;
+}
+.postEntity.text.contents .categories {
+  margin-bottom: 5px;
+}
+.postEntity.contents.noText .categories {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.postEntity.emptyPost .category.empty {
+  display: inline-block;
+}
+.postEntity .category.empty {
+  display: none;
+  padding: 10px 5px;
+  color: #aaa;
+  text-align: center;
+  font-size: 11px;
+}
+.postEntity .category.empty a {
+  font-size: 11px;
+  color: #777;
+}
+.postEntity .snPickerSelected div {
+  color: #fff;
+  font-size: 18px;
+  font-weight: normal;
+}
+.postEntity .wrapper {
+  position: relative;
+}
+.postEntity .wrapper a.remove-circle-button {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+}
+.postEntity .headSide {
+  width: 100%;
+  height: 40px;
+  overflow: hidden;
+}
+.postEntity .headSide .buttonsContainer {
+  height: 40px;
+}
+.postEntity .headSide .buttonsContainer .snIcon {
+  float: left;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  z-index: 2;
+  outline: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  background-image: none;
+}
+.postEntity .headSide .buttonsContainer .snIcon .value {
+  padding: 0;
+  width: 100%;
+  line-height: 39px;
+  text-align: center;
+  font-size: 18px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons {
+  width: 40px;
+  height: 40px;
+  float: left;
+  cursor: pointer;
+  background-image: url("/resources/images/icons/comb/post-head.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 360px 80px;
+  -moz-background-size: 360px 80px;
+  background-size: 360px 80px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .headSide .buttonsContainer .mainButtons {
+    background-image: url("/resources/images/icons/comb/post-head@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 360px 80px;
+    -moz-background-size: 360px 80px;
+    background-size: 360px 80px;
+  }
+}
+.postEntity .headSide .buttonsContainer .mainButtons.disabled {
+  opacity: 0.3;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+  filter: alpha(opacity=30);
+  pointer-events: none;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.inactive {
+  opacity: 0.4;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
+  filter: alpha(opacity=40);
+}
+.postEntity .headSide .buttonsContainer .mainButtons.remove {
+  background-position: 0px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.addAlbum {
+  background-position: -40px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.clone {
+  background-position: -80px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.pasteInto {
+  background-position: -120px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.selectPost {
+  background-position: -160px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.orderDown {
+  background-position: -240px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.orderUp {
+  background-position: -200px 0px;
+}
+.postEntity .headSide .buttonsContainer .mainButtons.makeLot {
+  background-position: -280px 0px;
+}
+.postEntity .headSide .checkboxes {
+  position: relative;
+  float: right;
+  margin-right: 10px;
+  top: 4px;
+}
+.postEntity .headSide .checkboxes div {
+  float: left;
+}
+.postEntity .headSide .checkboxes div .bl-checkbox {
+  position: relative;
+  margin-right: 7px;
+  top: 4px;
+  border: 2px #fff solid;
+}
+.postEntity .headSide .checkboxes div .bl-checkbox .tumbler {
+  background: #fff;
+}
+.postEntity .headSide .checkboxes div span {
+  position: relative;
+  top: 6px;
+  color: #fff;
+}
+.postEntity .headSide .checkboxes .second {
+  margin-left: 42px;
+}
+.postEntity .headSide .checkboxes .none {
+  display: none;
+}
+.postEntity .categories {
+  text-align: center;
+}
+.postEntity .category {
+  display: inline-block;
+  text-align: left;
+  width: 340px;
+}
+.postEntity .category.categorypost_text {
+  width: 100%;
+}
+.postEntity .textSeparator {
+  position: absolute;
+  top: auto;
+  left: 40px;
+  right: 40px;
+  bottom: 0;
+  height: 1px;
+  background: #999;
+}
+.postEntity li.item {
+  margin: 5px;
+  width: 75px;
+  height: 75px;
+  background: #6ea155;
+}
+.postEntity li.item.contentType_text {
+  width: 100%;
+  height: auto;
+  float: none;
+  margin: 10px 0 0 0;
+  display: inline-block;
+  overflow: hidden;
+  background: none;
+}
+.postEntity li.item.contentType_text .deleted-mark {
+  height: 35px;
+}
+.postEntity li.item.contentType_text .itemPreview {
+  position: relative;
+  background: none;
+}
+.postEntity li.item.contentType_text .text-preview {
+  position: relative;
+  display: inline-block;
+  max-height: 80px;
+  max-width: 300px;
+  padding: 0 0 0 40px;
+  margin: 0 20px 10px 0;
+  background: none;
+  font-size: 11px;
+  line-height: 20px;
+}
+.postEntity li.item.contentType_text .text-footer {
+  display: none;
+}
+.postEntity li.item.contentType_text .textCounter {
+  display: block;
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: auto;
+  bottom: 0;
+  width: 40px;
+  height: auto;
+  font-size: 10px;
+  text-align: center;
+  color: #999;
+}
+.postEntity li.item.contentType_text .removeBox {
+  position: absolute;
+  top: 3px;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  -webkit-background-size: 16px;
+  -moz-background-size: 16px;
+  background-size: 16px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-image: url("/resources/images/icons/closers/big-black-noPadding.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+  opacity: 0.35;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=35)";
+  filter: alpha(opacity=35);
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity li.item.contentType_text .removeBox {
+    background-image: url("/resources/images/icons/closers/big-black-noPadding@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.postEntity li.item.contentType_text .removeBox:hover {
+  opacity: 0.7;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+  filter: alpha(opacity=70);
+}
+.postEntity li.item.contentType_video .play_button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-top: 25px solid transparent;
+  border-bottom: 25px solid transparent;
+  border-left: 35px solid rgba(255,255,255,0.5);
+  margin-left: -10px;
+  margin-top: -22px;
+  text-align: center;
+  font-size: 19px;
+  line-height: 38px;
+  cursor: pointer;
+  z-index: 20;
+}
+.postEntity li.item.descripted {
+  float: left;
+}
+.postEntity li.item.descripted .itemPreview {
+  width: 75px;
+  height: 75px;
+}
+.postEntity li.item.descripted .contentComment {
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  padding: 5px;
+  overflow: hidden;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 1.3em;
+  background: rgba(255,255,255,0.7);
+  -webkit-transition: all ease 0.2s;
+  -moz-transition: all ease 0.2s;
+  -o-transition: all ease 0.2s;
+  -ms-transition: all ease 0.2s;
+  transition: all ease 0.2s;
+  z-index: 10;
+}
+.postEntity li.item.descripted .contentComment:hover {
+  height: 100%;
+}
+.postEntity li.item.descripted .contentComment:hover .removeBox {
+  opacity: 0.9;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+  filter: alpha(opacity=90);
+}
+.postEntity .communityAttach {
+  width: 100%;
+  height: 80px;
+  background: #000;
+  margin-top: 1px;
+}
+.postEntity .communityAttach .marquee {
+  width: 100%;
+}
+.postEntity .communityAttach .resched {
+  position: absolute;
+  background: url("/resources/images/icons/delete-white.png");
+  -webkit-background-size: 100%;
+  -moz-background-size: 100%;
+  background-size: 100%;
+  width: 15px;
+  height: 15px;
+  left: 2px;
+  top: 2px;
+  z-index: 50;
+  cursor: pointer;
+}
+.postEntity .communityAttach .avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  background: #fff;
+}
+.postEntity .communityAttach .avatar .status {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  -webkit-background-size: 80px;
+  -moz-background-size: 80px;
+  background-size: 80px;
+  -webkit-transition: opacity ease 0.2s;
+  -moz-transition: opacity ease 0.2s;
+  -o-transition: opacity ease 0.2s;
+  -ms-transition: opacity ease 0.2s;
+  transition: opacity ease 0.2s;
+  z-index: 10;
+  background-image: url("/resources/images/icons/scheduleStatus/status.png");
+  background-position: 0 80px;
+  background-repeat: no-repeat;
+  -webkit-background-size: 80px 400px;
+  -moz-background-size: 80px 400px;
+  background-size: 80px 400px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .avatar .status {
+    background-image: url("/resources/images/icons/scheduleStatus/status@2x.png");
+    background-position: 0 80px;
+    background-repeat: no-repeat;
+    -webkit-background-size: 80px 400px;
+    -moz-background-size: 80px 400px;
+    background-size: 80px 400px;
+  }
+}
+.postEntity .communityAttach .avatar .status.pending {
+  background-position: 0 -80px;
+}
+.postEntity .communityAttach .avatar .status.ready {
+  background-position: 0 -160px;
+}
+.postEntity .communityAttach .avatar .status.deleted {
+  background-position: 0 -240px;
+}
+.postEntity .communityAttach .avatar .status.completed {
+  background-position: 0 -320px;
+}
+.postEntity .communityAttach .avatar .status.error {
+  background-position: 0 0;
+}
+.postEntity .communityAttach .avatar .status:hover {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.postEntity .communityAttach .info {
+  position: absolute;
+  top: 0;
+  left: 80px;
+  right: 40px;
+  bottom: 0;
+  color: #fff;
+}
+.postEntity .communityAttach .info .name {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 20px;
+  font-size: 12px;
+}
+.postEntity .communityAttach .info .name .scrollContainer {
+  padding-top: 8px;
+  padding-left: 10px;
+}
+.postEntity .communityAttach .info .date {
+  position: relative;
+  vertical-align: top;
+  padding-left: 10px;
+  float: left;
+}
+.postEntity .communityAttach .info .date .datevalue {
+  font-size: 44px;
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+}
+.postEntity .communityAttach .info .date .monthyear {
+  font-size: 15px;
+  float: left;
+  margin-left: 10px;
+  line-height: 13px;
+  padding-top: 5px;
+  width: 32px;
+}
+.postEntity .communityAttach .info .date .monthyear .dayValue {
+  line-height: 11px;
+}
+.postEntity .communityAttach .info .date .monthyear .yearValue {
+  font-size: 11px;
+}
+.postEntity .communityAttach .info .time {
+  height: 44px;
+  font-size: 44px;
+  color: #fff;
+  float: left;
+  width: 135px;
+  text-align: center;
+}
+.postEntity .communityAttach .info .time .timePicker {
+  margin-left: 7px;
+}
+.postEntity .communityAttach .info .time .timePicker span {
+  line-height: 44px;
+  font-size: inherit;
+}
+.postEntity .communityAttach .info .time .timePicker input {
+  line-height: 44px;
+  font-size: 44px;
+  height: initial;
+  width: 47px;
+  margin: -4px 0 0 0;
+  padding: 0;
+}
+.postEntity .communityAttach .info .signatures {
+  position: absolute;
+  top: auto;
+  left: 5px;
+  right: 5px;
+  bottom: 0;
+  height: 18px;
+  line-height: 18px;
+  font-size: 14px;
+}
+.postEntity .communityAttach .info .signatures .button {
+  float: left;
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+  padding: 0 5px;
+  cursor: pointer;
+}
+.postEntity .communityAttach .info .signatures .button.checked {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.postEntity .communityAttach .buttons {
+  position: absolute;
+  top: 0;
+  left: auto;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+}
+.postEntity .communityAttach .buttons .button {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+}
+.postEntity .communityAttach .buttons .button.onSale {
+  top: 0;
+  background-image: url("/resources/images/icons/comb/post-head.png");
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  -webkit-background-size: 360px 80px;
+  -moz-background-size: 360px 80px;
+  background-size: 360px 80px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .buttons .button.onSale {
+    background-image: url("/resources/images/icons/comb/post-head@2x.png");
+    background-position: right bottom;
+    background-repeat: no-repeat;
+    -webkit-background-size: 360px 80px;
+    -moz-background-size: 360px 80px;
+    background-size: 360px 80px;
+  }
+}
+.postEntity .communityAttach .buttons .button.onSale.active {
+  background-color: #ffd700;
+  background-position: right top;
+}
+.postEntity .communityAttach .buttons .button.deletionTime {
+  top: 40px;
+  background: #e85b5b;
+}
+.postEntity .communityAttach .buttons .button.deletionTime .option p {
+  height: 100%;
+  color: #fff;
+  font-size: 12px;
+  line-height: 40px;
+  text-align: center;
+}
+.postEntity .communityAttach .buttons .button.deletionTime .trash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/resources/images/icons/trash.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 40px 40px;
+  -moz-background-size: 40px 40px;
+  background-size: 40px 40px;
+  background-color: #000;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .buttons .button.deletionTime .trash {
+    background-image: url("/resources/images/icons/trash@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 40px 40px;
+    -moz-background-size: 40px 40px;
+    background-size: 40px 40px;
+  }
+}
+.postEntity .communityAttach .buttons.cannotSale .onSale {
+  display: none;
+}
+.postEntity .communityAttach .buttons.cannotSale .deletionTime {
+  top: 0;
+  height: 100%;
+}
+.postEntity .communityAttach .buttons.cannotSale .deletionTime .option p {
+  line-height: 80px;
+}
+.postEntity .communityAttach .timeright {
+  position: relative;
+  display: inline-block;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  width: 66px;
+  height: 66px;
+  background: none;
+  margin-left: 15px;
+  top: 18px;
+  text-align: center;
+}
+.postEntity .communityAttach .timeright .switcher {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.postEntity .communityAttach .timeright .switcher .option {
+  padding-top: 22px;
+}
+.postEntity .communityAttach .timeright .switcher .option p {
+  position: relative;
+  width: auto;
+  height: 15px;
+  font-size: 16px;
+  color: #fff;
+  top: -6px;
+  cursor: pointer;
+}
+.postEntity .communityAttach .timeright .switcher .option .trash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/resources/images/icons/trash_icon.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 25px 25px;
+  -moz-background-size: 25px 25px;
+  background-size: 25px 25px;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .timeright .switcher .option .trash {
+    background-image: url("/resources/images/icons/trash_icon@2x.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-background-size: 25px 25px;
+    -moz-background-size: 25px 25px;
+    background-size: 25px 25px;
+  }
+}
+.postEntity .communityAttach .timeright .background {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.2);
+  left: 6px;
+  top: 6px;
+  text-align: center;
+}
+.postEntity .communityAttach .timeright .dollar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/resources/images/icons/comb/schedule$.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .timeright .dollar {
+    background-image: url("/resources/images/icons/comb/schedule$@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.postEntity .communityAttach .timeright .onSale {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background: rgba(255,255,255,0.3);
+  background-image: url("/resources/images/icons/comb/schedule$-mini.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .timeright .onSale {
+    background-image: url("/resources/images/icons/comb/schedule$-mini@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.postEntity .communityAttach .timeright .onSale.trash {
+  background-image: url("/resources/images/icons/comb/schedule-trash-mini.png");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  -moz-background-size: 100% 100%;
+  background-size: 100% 100%;
+}
+@media all and (-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 1.5/1), (min-device-pixel-ratio: 1.5), (min-resolution: 138dpi), (min-resolution: 1.5dppx) {
+  .postEntity .communityAttach .timeright .onSale.trash {
+    background-image: url("/resources/images/icons/comb/schedule-trash-mini@2x.png");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+.postEntity .communityAttach .timerightlocked {
+  position: relative;
+  display: inline-block;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  width: 33px;
+  height: 33px;
+  background: #e0e3d6;
+  margin-left: 19px;
+  top: 33px;
+}
+.postEntity .communityAttach .timerightlocked div {
+  position: absolute;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  width: 21px;
+  height: 7px;
+  background: #fff;
+  top: 13px;
+  left: 6px;
+}
+.postEntity .communityAttach .timerightlocked span {
+  position: absolute;
+  left: -8px;
+  top: -4px;
+  width: 38px;
+  height: 38px;
+  z-index: 10;
+  font-size: 200px;
+  line-height: 0;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.postEntity .communityAttach.repost {
+  background: rgba(0,0,0,0.2);
+}
+.postEntity .communityAttach.repost .info .name .gradient {
+  background: -webkit-linear-gradient(left, rgba(147,172,173,0) 0%, #93acad 100%);
+  background: -moz-linear-gradient(left, rgba(147,172,173,0) 0%, #93acad 100%);
+  background: -o-linear-gradient(left, rgba(147,172,173,0) 0%, #93acad 100%);
+  background: -ms-linear-gradient(left, rgba(147,172,173,0) 0%, #93acad 100%);
+  background: linear-gradient(to right, rgba(147,172,173,0) 0%, #93acad 100%);
+}
+.turbo .postEntity .communityAttach.repost .info .name .gradient {
+  background: #93acad;
+}
+.postEntity .communityAttach.repost .buttons,
+.postEntity .communityAttach.repost .signatures {
+  display: none;
+}
+.postEntity .communityAttach.success {
+  background: #034366;
+}
+.postEntity .communityAttach.success .info .name .gradient {
+  background: -webkit-linear-gradient(left, rgba(255,255,255,0) 50%, #034366 100%);
+  background: -moz-linear-gradient(left, rgba(255,255,255,0) 50%, #034366 100%);
+  background: -o-linear-gradient(left, rgba(255,255,255,0) 50%, #034366 100%);
+  background: -ms-linear-gradient(left, rgba(255,255,255,0) 50%, #034366 100%);
+  background: linear-gradient(to right, rgba(255,255,255,0) 50%, #034366 100%);
+}
+.turbo .postEntity .communityAttach.success .info .name .gradient {
+  background: #034366;
+}
+.postEntity .communityAttach.success.repost {
+  background: #3e606b;
+}
+.postEntity .communityAttach.success.repost .info .name .gradient {
+  background: -webkit-linear-gradient(left, rgba(255,255,255,0) 50%, #3e606b 100%);
+  background: -moz-linear-gradient(left, rgba(255,255,255,0) 50%, #3e606b 100%);
+  background: -o-linear-gradient(left, rgba(255,255,255,0) 50%, #3e606b 100%);
+  background: -ms-linear-gradient(left, rgba(255,255,255,0) 50%, #3e606b 100%);
+  background: linear-gradient(to right, rgba(255,255,255,0) 50%, #3e606b 100%);
+}
+.turbo .postEntity .communityAttach.success.repost .info .name .gradient {
+  background: #3e606b;
+}
+.postEntity .communityAttach.error .info .name .gradient {
+  background: -webkit-linear-gradient(left, rgba(255,255,255,0) 50%, #e0113d 100%);
+  background: -moz-linear-gradient(left, rgba(255,255,255,0) 50%, #e0113d 100%);
+  background: -o-linear-gradient(left, rgba(255,255,255,0) 50%, #e0113d 100%);
+  background: -ms-linear-gradient(left, rgba(255,255,255,0) 50%, #e0113d 100%);
+  background: linear-gradient(to right, rgba(255,255,255,0) 50%, #e0113d 100%);
+}
+.turbo .postEntity .communityAttach.error .info .name .gradient {
+  background: #e0113d;
+}
+.postEntity .communityAttach.error.repost {
+  background: #d96e65;
+}
+.postEntity .communityAttach.error.repost .info .name .gradient {
+  background: -webkit-linear-gradient(left, rgba(255,255,255,0) 50%, #d96e65 100%);
+  background: -moz-linear-gradient(left, rgba(255,255,255,0) 50%, #d96e65 100%);
+  background: -o-linear-gradient(left, rgba(255,255,255,0) 50%, #d96e65 100%);
+  background: -ms-linear-gradient(left, rgba(255,255,255,0) 50%, #d96e65 100%);
+  background: linear-gradient(to right, rgba(255,255,255,0) 50%, #d96e65 100%);
+}
+.turbo .postEntity .communityAttach.error.repost .info .name .gradient {
+  background: #d96e65;
+}
+.postEntity .footerSide {
+  width: 100%;
+}
+.postEntity .footerSide .scheduleInfo {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.postEntity .footerSide .scheduleInfo.repost {
+  border-left: 4px solid #becddc;
+  margin-left: 10px;
+  padding-left: 5px;
+}
+.postEntity .footerSide .scheduleInfo .communityIcon {
+  width: 60px;
+  height: 60px;
+  margin: 0 10px;
+  float: left;
+  overflow: hidden;
+}
+.postEntity .footerSide .scheduleInfo .removeSchedule {
+  color: #000;
+}
+.postEntity .footerSide .scheduleInfo .removeSchedule:hover {
+  color: #ffa500;
+}
+.postEntity .footerSide .switcher {
+  display: block;
+  margin-bottom: 15px;
+  margin-left: 10px;
+}
+.postEntity .footerSide .switcher a.option {
+  position: relative;
+  color: #000;
+}
+.postEntity .footerSide .switcher a.option:hover {
+  color: #ffa500;
+}
+.postEntity .footerSide .options {
+  margin-top: 10px;
+}
+.postEntity .footerSide .options .bl-checkbox {
+  margin: 0 10px;
+}
+.postEntity .footerSide label.optionLabel {
+  position: relative;
+  top: -3px;
+}
+.postEntity .sorting-list li.item.descripted .contentComment {
+  width: 0;
+  height: 0;
+  margin-left: 0 !important;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.placeHolder {
+  background: rgba(255,255,255,0.2);
+}
+.helper-transparent .contentComment {
+  display: none;
+}
+.wrapper.postText {
+  margin: 4px;
+}
+.wrapper.postText p {
+  background: rgba(247,233,141,0.6);
+  padding: 2%;
+}
+.wrapper.postPicture {
+  margin: 4px;
+  display: block;
+  float: left;
+}
+.wrapper.postPicture img {
+  width: 60px;
+  display: block;
+  float: left;
+}
+.wrapper.postPicture p.descr {
+  float: left;
+  position: relative;
+  padding: 5px;
+  margin-left: 5px;
+  background: rgba(247,233,141,0.6);
+  max-width: 75%;
+  display: none;
+}
+.wrapper.postPicture .editWrapper {
+  width: 75%;
+  float: left;
+  margin-left: 5px;
+  display: none;
+}
+.wrapper.postPicture .editWrapper textarea {
+  float: left;
+  margin: 0;
+  margin-bottom: 5px;
+  width: 95%;
+  min-height: 60px;
+}
+.wrapper.postPicture .editWrapper button {
+  float: left;
+}
+.wrapper.postPicture.withComment {
+  width: 96%;
+}
+.wrapper.postPicture.withComment p.descr {
+  display: block;
+}
+.wrapper.postPicture.editComment {
+  width: 96%;
+}
+.wrapper.postPicture.editComment p.descr {
+  display: none;
+}
+.wrapper.postPicture.editComment .editWrapper {
+  display: block;
+}

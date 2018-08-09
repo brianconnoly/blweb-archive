@@ -1,0 +1,35 @@
+tC['/novaProjectUsers/template.jade'] = "<div translate=\"moduleName\" ng-click=\"activateAll()\" ng-class=\"{'active':flow.currentCode == 'projectMembers'}\" class=\"title\"></div>";
+
+buzzlike.directive('novaProjectUsers', function(groupService, novaDesktop, combService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectUsers/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.moduleName = 'novaProjectUsers_title';
+      scope.pinned = [];
+      scope.activatePinned = function(comb) {
+        novaDesktop.launchApp({
+          app: 'novaThemesApp',
+          item: {
+            id: comb,
+            type: 'comb'
+          }
+        });
+        return true;
+      };
+      return scope.activateAll = function() {
+        scope.flow.addFrame({
+          title: 'members',
+          unitCode: 'members',
+          directive: 'novaUsersGroups',
+          code: 'projectMembers'
+        });
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectUsers', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaProjectUsers\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

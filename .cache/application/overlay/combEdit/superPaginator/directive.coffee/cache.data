@@ -1,0 +1,200 @@
+buzzlike.directive('superPaginator', function(resize) {
+  return {
+    restrict: 'C',
+    template: tC['/overlay/combEdit/superPaginator'],
+    link: function(scope, element, attrs) {
+      var iconWidth, numbers, oldwid, pagesContentMap, paginatorParams, recalcWidth, render, updateWidth;
+      oldwid = 0;
+      numbers = 3;
+      scope.totalPages = 0;
+      paginatorParams = scope.paginatorParams;
+      scope.beforeTypes = [];
+      scope.afterTypes = [];
+      scope.pages = [];
+      scope.$on('destroy', function() {
+        return resize.unregisterCb('superPaginator');
+      });
+      scope.$watch('paginatorParams', function(nVal) {
+        if (nVal != null) {
+          render();
+          if (paginatorParams.currentPage > scope.totalPages - 1) {
+            return paginatorParams.currentPage = scope.totalPages - 1;
+          }
+        }
+      }, true);
+      pagesContentMap = {};
+      iconWidth = 25;
+      scope.freeSpaceWidth = 10;
+      updateWidth = function(wid) {
+        var freeSpace, items;
+        freeSpace = wid - (paginatorParams.contentTypes.length * 25) - 40;
+        scope.freeSpaceWidth = wid - 60;
+        console.log(wid, freeSpace);
+        items = Math.floor(freeSpace / iconWidth);
+        items -= paginatorParams.contentTypes.length;
+        numbers = Math.floor((items - 1) / 2);
+        return render();
+      };
+      render = function() {
+        var availableSpace, catCount, catPages, end, i, j, k, l, lastPageAdded, leftTail, len, noTail, otherPages, pageCnt, pages, ref, ref1, ref2, ref3, ref4, rightTail, start, totPages, type;
+        scope.beforeTypes.length = 0;
+        scope.afterTypes.length = 0;
+        scope.pages.length = 0;
+        pageCnt = 0;
+        lastPageAdded = 0;
+        noTail = false;
+        ref = paginatorParams.contentTypes;
+        for (catCount = j = 0, len = ref.length; j < len; catCount = ++j) {
+          type = ref[catCount];
+          noTail = false;
+          pages = Math.ceil(type.count / paginatorParams.contentSize);
+          totPages = paginatorParams.totalPages;
+          leftTail = numbers;
+          rightTail = totPages - paginatorParams.currentPage < numbers ? totPages - paginatorParams.currentPage : numbers;
+          if (rightTail < 0) {
+            rightTail = 0;
+          }
+          if (totPages - paginatorParams.currentPage < numbers) {
+            leftTail = numbers + numbers - rightTail;
+          }
+          scope.shortcuts[type.type] = pageCnt;
+          if (pageCnt <= paginatorParams.currentPage - leftTail) {
+            scope.beforeTypes.push({
+              num: pageCnt,
+              "class": 'icon_' + type.type + ' type',
+              type: type.type
+            });
+          } else {
+            if (paginatorParams.currentPage >= pageCnt - leftTail) {
+              scope.pages.push({
+                num: pageCnt,
+                "class": 'icon_' + type.type + ' type' + (pages === 1 ? ' typeFinal' : ''),
+                type: type.type
+              });
+              lastPageAdded = pageCnt;
+            } else {
+              scope.afterTypes.push({
+                num: pageCnt,
+                "class": 'icon_' + type.type + ' type' + ' typeFinal',
+                type: type.type
+              });
+              noTail = true;
+            }
+          }
+          availableSpace = (leftTail + rightTail) + 1 - scope.pages.length;
+          if (paginatorParams.currentPage >= pageCnt - leftTail) {
+            availableSpace++;
+          }
+          if (!noTail && scope.pages.length <= (leftTail + rightTail) + 1) {
+            start = paginatorParams.currentPage - leftTail < pageCnt + 1 ? pageCnt + 1 : paginatorParams.currentPage - leftTail;
+            if (lastPageAdded >= start) {
+              start = lastPageAdded + 1;
+            }
+            if (start < pageCnt + 1) {
+              start = pageCnt + 1;
+            }
+            end = start + (leftTail + rightTail) + 1;
+            if (end > pageCnt + pages) {
+              end = pageCnt + pages;
+            }
+            if (end > start) {
+              if (end - start > pages - 1) {
+                end = start + pages - 1;
+              }
+              if (end - start >= availableSpace) {
+                end = start + availableSpace;
+              } else {
+                otherPages = 0;
+                for (i = k = ref1 = catCount + 1, ref2 = paginatorParams.contentTypes.length; ref1 <= ref2 ? k < ref2 : k > ref2; i = ref1 <= ref2 ? ++k : --k) {
+                  catPages = Math.ceil(paginatorParams.contentTypes[i].count / paginatorParams.contentSize);
+                  if (catPages > 1) {
+                    otherPages += catPages - 1;
+                  }
+                }
+                if (end === pageCnt + pages) {
+                  if (otherPages === 0) {
+                    start = end - availableSpace;
+                  } else if (rightTail < numbers) {
+                    start = end - availableSpace + otherPages + 1;
+                  }
+                  if (start < pageCnt + 1) {
+                    start = pageCnt + 1;
+                  }
+                }
+              }
+              for (i = l = ref3 = start, ref4 = end; ref3 <= ref4 ? l < ref4 : l > ref4; i = ref3 <= ref4 ? ++l : --l) {
+                scope.pages.push({
+                  displayNum: i - pageCnt + 1,
+                  num: i,
+                  dots: (i === end - 1 && i < pageCnt + pages - 1) || (i === start && i > pageCnt + 1) && (end - start > 1),
+                  "class": 'number ' + (i === end - 1 ? ' typeFinal' : void 0)
+                });
+                lastPageAdded = i;
+                pagesContentMap[i] = type.type;
+              }
+            }
+          }
+          pageCnt += pages;
+        }
+        scope.totalPages = pageCnt;
+        return true;
+      };
+      recalcWidth = function(wid) {
+        var teamPanel;
+        teamPanel = scope.comb.teamId != null ? 99 : 0;
+        if (oldwid !== wid - 350 - teamPanel) {
+          oldwid = wid - 350 - teamPanel;
+          updateWidth(oldwid);
+          if (paginatorParams.currentPage > scope.totalPages - 1) {
+            return paginatorParams.currentPage = scope.totalPages - 1;
+          }
+        }
+      };
+      scope.$watch('comb.teamId', function(nVal) {
+        return recalcWidth(scope.session.size.width);
+      });
+      scope.onResize(function(wid, hei) {
+        return recalcWidth(wid);
+      });
+      scope.goRight = function() {
+        return paginatorParams.currentPage++;
+      };
+      scope.goEnd = function() {
+        return paginatorParams.currentPage = scope.totalPages - 1;
+      };
+      scope.goLeft = function() {
+        paginatorParams.currentPage--;
+        if (paginatorParams.currentPage < 0) {
+          return paginatorParams.currentPage = 0;
+        }
+      };
+      scope.goStart = function() {
+        return paginatorParams.currentPage = 0;
+      };
+      scope.goPage = function(page) {
+        return paginatorParams.currentPage = page;
+      };
+      scope.pageTitle = function(page) {
+        if (page.type != null) {
+          return '';
+        } else {
+          if (page.dots === true && numbers >= 2) {
+            return '...';
+          }
+          if (scope.totalPages < 10) {
+            return '●';
+          } else {
+            return page.displayNum;
+          }
+        }
+      };
+      scope.isActive = function(page) {
+        if (page.num === paginatorParams.currentPage) {
+          return true;
+        }
+        return false;
+      };
+      return true;
+    }
+  };
+});

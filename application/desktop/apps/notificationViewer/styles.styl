@@ -1,0 +1,65 @@
+.appContainer.notificationViewer
+    
+    background: #fff
+    
+    .body
+        box-shadow none
+        
+        .notificationItem
+            border-top 1px solid #ececec
+            
+            &:last-child
+                border-bottom 1px solid #ececec
+
+        .filters
+            width 100%
+            position relative
+            left 20px
+            top 10px
+
+            font-size 22px
+
+        .list
+            margin: 20px auto
+            width 400px
+
+            .big
+                height 100px
+                margin-bottom: 3px
+                background: rgba(240,240,240,0.3)
+        
+        .paginator
+            bottom 0
+            left 0
+            right 0
+            height 40px
+            padding-top 20px
+            background: #fff
+            text-align: center
+            
+            .activator
+                cursor: pointer
+
+            .right
+                position: absolute
+                right 20px
+            .left
+                position: absolute
+                left 20px
+            .goPage
+                display: inline-block
+                margin: 0 8px
+                opacity: 0.8
+
+                transition opacity 0.2s ease
+
+                font-size 20px
+
+                &:hover
+                    opacity 1
+
+                &.active
+                    opacity: 1
+                    cursor: default
+                    border-bottom 1px solid #000
+                    padding-bottom 2px

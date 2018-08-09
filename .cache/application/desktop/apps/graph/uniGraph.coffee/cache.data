@@ -1,0 +1,769 @@
+buzzlike.directive('uniGraph', function($filter, localization) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var bottomMargin, buildLines, canvas, ctx, dots, drawGraph, drawLine, drawSeries, elem, globalHelper, globalHelperText, graphMode, helper, hideHelper, hoverBar, humanDays, jcanvas, lineColors, linesCnt, maxTime, maxValue, minTime, positionHelper, rebuildGraph, showHelper, sideMargin, simpleCache, simpleNumber, topMargin, workHeight, workWidth;
+      elem = $(element);
+      dots = $(elem.find('.dots')[0]);
+      helper = $(elem.find('.helper')[0]);
+      hoverBar = $(elem.find('.hoverBar')[0]);
+      canvas = elem.find('canvas')[0];
+      jcanvas = $(canvas);
+      ctx = canvas.getContext('2d');
+      globalHelper = $('#graphHelper');
+      globalHelperText = $(globalHelper.children('.plate')[0]);
+      showHelper = function(text, x, y) {
+        globalHelper.addClass('visible');
+        globalHelperText.html(text);
+        return globalHelper.css({
+          top: y + scope.session.coords.y + 30 + 90 - 53,
+          left: x + scope.session.coords.x + 30
+        });
+      };
+      hideHelper = function() {
+        return globalHelper.removeClass('visible');
+      };
+      sideMargin = 40;
+      topMargin = 10;
+      bottomMargin = 40;
+      workWidth = 0;
+      workHeight = 0;
+      graphMode = 0;
+      scope.graphType = 'cumulative';
+      scope.setGraphType = function(type) {
+        scope.graphType = type;
+        buildLines();
+        return rebuildGraph();
+      };
+      scope.linesType = 'overall';
+      scope.toggleLinesType = function() {
+        if (scope.linesType === 'discrete') {
+          scope.linesType = 'overall';
+        } else {
+          scope.linesType = 'discrete';
+        }
+        buildLines();
+        return rebuildGraph();
+      };
+      lineColors = {
+        activity: '#555454',
+        likes: '#D50000',
+        reposts: '#4B6A88',
+        comments: '#3E3E3E',
+        commLikes: '#8A2BE2'
+      };
+      linesCnt = 0;
+      maxValue = 0;
+      minTime = 0;
+      maxTime = 0;
+      scope.showLine = {
+        likes: true,
+        comments: true,
+        commLikes: true,
+        reposts: true,
+        activity: true
+      };
+      scope.lines = [];
+      scope.toggleLine = function(line) {
+        scope.showLine[line.type] = !scope.showLine[line.type];
+        return rebuildGraph();
+      };
+      buildLines = function() {
+        var dObj, i, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, n, newLine, o, p, q, r, ref, ref1, ref10, ref11, ref12, ref13, ref14, ref15, ref16, ref17, ref18, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, stat, ts, v, val;
+        scope.lines.length = 0;
+        switch ((ref = scope.item) != null ? ref.type : void 0) {
+          case 'statsCut':
+            graphMode = 1;
+            switch (scope.item.statsCutType) {
+              case 'day':
+                minTime = scope.item.timestamp - DAY;
+                maxTime = scope.item.timestamp;
+                break;
+              case 'week':
+                minTime = scope.item.timestamp - WEEK;
+                maxTime = scope.item.timestamp;
+                break;
+              case 'month':
+                dObj = new Date(scope.item.timestamp);
+                maxTime = scope.item.timestamp;
+                minTime = new Date(dObj.getFullYear(), dObj.getMonth() - 1).getTime();
+            }
+            if (scope.linesType === 'discrete') {
+              ref1 = scope.item.stats;
+              for (k in ref1) {
+                v = ref1[k];
+                if (k !== 'likes' && k !== 'reposts' && k !== 'commLikes' && k !== 'comments') {
+                  continue;
+                }
+                newLine = {
+                  type: k,
+                  color: lineColors[k],
+                  total: v,
+                  active: true,
+                  dots: [
+                    {
+                      ts: minTime,
+                      val: 0
+                    }
+                  ],
+                  avgs: [
+                    {
+                      ts: minTime,
+                      val: 0
+                    }
+                  ]
+                };
+                val = 0;
+                ref2 = scope.item.history;
+                for (i = j = 0, len = ref2.length; j < len; i = ++j) {
+                  stat = ref2[i];
+                  if (scope.graphType === 'cumulative') {
+                    val += stat.delta[k];
+                  } else {
+                    val = stat.delta[k] / ((stat.ts - (((ref3 = scope.item.history[i - 1]) != null ? ref3.ts : void 0) || 0)) / MIN);
+                  }
+                  if (val > maxValue) {
+                    maxValue = val;
+                  }
+                  if (stat.ts > maxTime || stat.ts < minTime) {
+                    continue;
+                  }
+                  newLine.dots.push({
+                    ts: stat.ts,
+                    val: val
+                  });
+                }
+                newLine.dots.push({
+                  ts: maxTime,
+                  val: val
+                });
+                val = 0;
+                ref4 = scope.item.forecast;
+                for (i = l = 0, len1 = ref4.length; l < len1; i = ++l) {
+                  stat = ref4[i];
+                  if (scope.graphType === 'cumulative') {
+                    val += stat.delta[k];
+                  } else {
+                    val = stat.delta[k] / ((stat.ts - (((ref5 = scope.item.forecast[i - 1]) != null ? ref5.ts : void 0) || 0)) / MIN);
+                  }
+                  if (val > maxValue) {
+                    maxValue = val;
+                  }
+                  ts = minTime + stat.ts;
+                  if (ts > maxTime || ts < minTime) {
+                    continue;
+                  }
+                  if (ts < 0) {
+                    continue;
+                  }
+                  newLine.avgs.push({
+                    ts: minTime + stat.ts,
+                    val: val
+                  });
+                }
+                newLine.avgs.push({
+                  ts: maxTime,
+                  val: scope.item.delta[k]
+                });
+                scope.lines.push(newLine);
+              }
+            } else {
+              k = 'activity';
+              newLine = {
+                type: k,
+                color: lineColors[k],
+                total: scope.item.stats[k],
+                active: true,
+                dots: [
+                  {
+                    ts: minTime,
+                    val: 0
+                  }
+                ],
+                avgs: [
+                  {
+                    ts: minTime,
+                    val: 0
+                  }
+                ]
+              };
+              val = 0;
+              ref6 = scope.item.history;
+              for (i = m = 0, len2 = ref6.length; m < len2; i = ++m) {
+                stat = ref6[i];
+                if (scope.graphType === 'cumulative') {
+                  val += stat.delta[k];
+                } else {
+                  val = stat.delta[k] / ((stat.ts - (((ref7 = scope.item.history[i - 1]) != null ? ref7.ts : void 0) || 0)) / MIN);
+                }
+                if (val > maxValue) {
+                  maxValue = val;
+                }
+                if (stat.ts > maxTime || stat.ts < minTime) {
+                  continue;
+                }
+                newLine.dots.push({
+                  ts: stat.ts,
+                  val: val
+                });
+              }
+              newLine.dots.push({
+                ts: maxTime,
+                val: val
+              });
+              val = 0;
+              ref8 = scope.item.forecast;
+              for (i = n = 0, len3 = ref8.length; n < len3; i = ++n) {
+                stat = ref8[i];
+                if (scope.graphType === 'cumulative') {
+                  val += stat.delta[k];
+                } else {
+                  val = stat.delta[k] / ((stat.ts - (((ref9 = scope.item.forecast[i - 1]) != null ? ref9.ts : void 0) || 0)) / MIN);
+                }
+                if (val > maxValue) {
+                  maxValue = val;
+                }
+                ts = minTime + stat.ts;
+                if (ts > maxTime || ts < minTime) {
+                  continue;
+                }
+                if (ts < 0) {
+                  continue;
+                }
+                newLine.avgs.push({
+                  ts: minTime + stat.ts,
+                  val: val
+                });
+              }
+              newLine.avgs.push({
+                ts: maxTime,
+                val: scope.item.delta[k]
+              });
+              scope.lines.push(newLine);
+            }
+            break;
+          case 'schedule':
+            graphMode = 0;
+            if (scope.linesType === 'discrete') {
+              ref10 = scope.item.lastStats;
+              for (k in ref10) {
+                v = ref10[k];
+                if (k !== 'likes' && k !== 'reposts' && k !== 'commLikes' && k !== 'comments') {
+                  continue;
+                }
+                newLine = {
+                  type: k,
+                  color: lineColors[k],
+                  total: v,
+                  active: true,
+                  dots: [
+                    {
+                      ts: 0,
+                      val: 0
+                    }
+                  ],
+                  avgs: [
+                    {
+                      ts: 0,
+                      val: 0
+                    }
+                  ]
+                };
+                ref11 = scope.item.stats;
+                for (i = o = 0, len4 = ref11.length; o < len4; i = ++o) {
+                  stat = ref11[i];
+                  if (scope.graphType === 'cumulative') {
+                    val = stat.stats[k];
+                  } else {
+                    val = (stat.stats[k] - (((ref12 = scope.item.stats[i - 1]) != null ? ref12.stats[k] : void 0) || 0)) / (stat.delay / MIN);
+                  }
+                  if (val > maxValue) {
+                    maxValue = val;
+                  }
+                  if (stat.delay < minTime || minTime === 0) {
+                    minTime = stat.delay;
+                  }
+                  if (stat.delay > maxTime || maxTime === 0) {
+                    maxTime = stat.delay;
+                  }
+                  newLine.dots.push({
+                    ts: stat.delay,
+                    val: val
+                  });
+                }
+                ref13 = scope.item.stats;
+                for (i = p = 0, len5 = ref13.length; p < len5; i = ++p) {
+                  stat = ref13[i];
+                  if (scope.graphType === 'cumulative') {
+                    val = stat.avgStats[k];
+                  } else {
+                    val = (stat.avgStats[k] - (((ref14 = scope.item.stats[i - 1]) != null ? ref14.avgStats[k] : void 0) || 0)) / (stat.delay / MIN);
+                  }
+                  if (val > maxValue) {
+                    maxValue = val;
+                  }
+                  if (stat.delay < minTime || minTime === 0) {
+                    minTime = stat.delay;
+                  }
+                  if (stat.delay > maxTime || maxTime === 0) {
+                    maxTime = stat.delay;
+                  }
+                  newLine.avgs.push({
+                    ts: stat.delay,
+                    val: val
+                  });
+                }
+                scope.lines.push(newLine);
+              }
+            } else {
+              k = 'activity';
+              newLine = {
+                type: k,
+                color: lineColors[k],
+                total: scope.item.lastActivity,
+                active: true,
+                dots: [
+                  {
+                    ts: 0,
+                    val: 0
+                  }
+                ],
+                avgs: [
+                  {
+                    ts: 0,
+                    val: 0
+                  }
+                ]
+              };
+              ref15 = scope.item.stats;
+              for (i = q = 0, len6 = ref15.length; q < len6; i = ++q) {
+                stat = ref15[i];
+                if (scope.graphType === 'cumulative') {
+                  val = stat.stats[k];
+                } else {
+                  val = (stat.stats[k] - (((ref16 = scope.item.stats[i - 1]) != null ? ref16.stats[k] : void 0) || 0)) / (stat.delay / MIN);
+                }
+                if (val > maxValue) {
+                  maxValue = val;
+                }
+                if (stat.delay < minTime || minTime === 0) {
+                  minTime = stat.delay;
+                }
+                if (stat.delay > maxTime || maxTime === 0) {
+                  maxTime = stat.delay;
+                }
+                newLine.dots.push({
+                  ts: stat.delay,
+                  val: val
+                });
+              }
+              ref17 = scope.item.stats;
+              for (i = r = 0, len7 = ref17.length; r < len7; i = ++r) {
+                stat = ref17[i];
+                if (scope.graphType === 'cumulative') {
+                  val = stat.avgStats[k];
+                } else {
+                  val = (stat.avgStats[k] - (((ref18 = scope.item.stats[i - 1]) != null ? ref18.avgStats[k] : void 0) || 0)) / (stat.delay / MIN);
+                }
+                if (val > maxValue) {
+                  maxValue = val;
+                }
+                if (stat.delay < minTime || minTime === 0) {
+                  minTime = stat.delay;
+                }
+                if (stat.delay > maxTime || maxTime === 0) {
+                  maxTime = stat.delay;
+                }
+                newLine.avgs.push({
+                  ts: stat.delay,
+                  val: val
+                });
+              }
+              scope.lines.push(newLine);
+            }
+        }
+        return true;
+      };
+      drawLine = function(startX, startY, endX, endY) {
+        ctx.beginPath();
+        ctx.moveTo(startX - 0.5, startY + 0.5);
+        ctx.lineTo(endX - 0.5, endY + 0.5);
+        return ctx.stroke();
+      };
+      humanDays = function(ts) {
+        if (ts >= 30 * DAY) {
+          ts = ts / 30 * DAY | 0;
+          return ts + ' м';
+        }
+        if (ts === 7 * DAY) {
+          return '1 н';
+        }
+        if (ts >= DAY) {
+          ts = ts / DAY | 0;
+          return ts + ' д';
+        }
+        if (ts >= HOUR) {
+          ts = ts / HOUR | 0;
+          return ts + ' ч';
+        }
+        ts = ts / MIN | 0;
+        return ts + ' м';
+      };
+      simpleCache = {};
+      simpleNumber = function(number) {
+        if (simpleCache[number] != null) {
+          return simpleCache[number];
+        }
+        if (number >= 1000000) {
+          simpleCache[number] = (number / 1000000).toFixed(1);
+          if (simpleCache[number][simpleCache[number].length - 1] === '0') {
+            simpleCache[number] = simpleCache[number].substring(0, simpleCache[number].length - 2);
+          }
+          simpleCache[number] += 'm';
+        } else if (number >= 1000) {
+          simpleCache[number] = (number / 1000).toFixed(1);
+          if (simpleCache[number][simpleCache[number].length - 1] === '0') {
+            simpleCache[number] = simpleCache[number].substring(0, simpleCache[number].length - 2);
+          }
+          simpleCache[number] += 'k';
+        } else {
+          simpleCache[number] = number;
+        }
+        return simpleCache[number];
+      };
+      positionHelper = function(x, y) {
+        if (x > workWidth / 2 + sideMargin) {
+          return helper.css({
+            left: 'auto',
+            right: workWidth + sideMargin * 2 - x + 15,
+            top: y - 20
+          });
+        } else {
+          return helper.css({
+            right: 'auto',
+            left: x + 15,
+            top: y - 20
+          });
+        }
+      };
+      drawSeries = function(series, line, avg) {
+        var dot, dotElem, i, j, len, results, x, y;
+        if (avg == null) {
+          avg = false;
+        }
+        results = [];
+        for (i = j = 0, len = series.length; j < len; i = ++j) {
+          dot = series[i];
+          if (i > 0 && dot.val === series[i - 1].val && i < series.length - 1 && dot.val === series[i + 1].val) {
+            continue;
+          }
+          if (graphMode === 0) {
+            x = sideMargin + i / scope.item.stats.length * workWidth;
+          } else {
+            x = sideMargin + (dot.ts - minTime) / (maxTime - minTime) * workWidth;
+          }
+          y = topMargin + workHeight - dot.val / maxValue * workHeight;
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          if (!avg) {
+            dotElem = $('<div>', {
+              "class": 'dot',
+              css: {
+                top: y,
+                left: x,
+                borderColor: line.color,
+                borderWidth: avg ? 2 : void 0
+              }
+            });
+            (function(x, y, dot, line) {
+              return dotElem.on('mouseenter', function() {
+                var intPoints, points, statTS, time1, time2;
+                if (scope.item.type === 'statsCut') {
+                  statTS = dot.ts;
+                } else {
+                  statTS = scope.item.timestamp - dot.ts;
+                }
+                time1 = $filter('timestampMask')(statTS, 'DD MMM');
+                time2 = $filter('timestampMask')(statTS, 'hч. mмин.');
+                points = 10 * dot.val;
+                points = points | 0;
+                points /= 10;
+                intPoints = points | 0;
+                points = $filter('formatNumber')(points);
+                return localization.onLangLoaded(function() {
+                  var dObj, forWord, localTS, text;
+                  text = points + ' ';
+                  text += localization.declensionPhrase(intPoints, 'graphApp_points_type_' + line.type);
+                  if (scope.graphType !== 'cumulative') {
+                    text += ' в минуту';
+                    forWord = 'на';
+                    if (scope.item.type === 'schedule') {
+                      forWord = 'спустя';
+                    }
+                  } else {
+                    forWord = 'за';
+                  }
+                  text += '<br>';
+                  switch (scope.item.statsCutType) {
+                    case 'day':
+                      if (statTS === scope.item.timestamp) {
+                        if (scope.graphType !== 'cumulative') {
+                          text += 'на конец дня';
+                        } else {
+                          text += forWord + ' день';
+                        }
+                      } else {
+                        text += forWord + ' ';
+                        text += time2;
+                      }
+                      break;
+                    case 'week':
+                      if (statTS === scope.item.timestamp) {
+                        if (scope.graphType !== 'cumulative') {
+                          text += 'на конец недели';
+                        } else {
+                          text += forWord + ' неделю';
+                        }
+                      } else {
+                        text += forWord + ' ';
+                        localTS = dot.ts - scope.item.timestamp + WEEK;
+                        if (localTS > DAY) {
+                          text += (localTS / DAY | 0) + 'д. ';
+                        }
+                        text += time2;
+                      }
+                      break;
+                    case 'month':
+                      if (statTS === scope.item.timestamp) {
+                        if (scope.graphType !== 'cumulative') {
+                          text += 'на конец месяца';
+                        } else {
+                          text += forWord + ' месяц';
+                        }
+                      } else {
+                        text += forWord + ' ';
+                        dObj = new Date(scope.item.timestamp);
+                        localTS = dot.ts - new Date(dObj.getFullYear(), dObj.getMonth() - 1).getTime();
+                        if (localTS > DAY) {
+                          text += (localTS / DAY | 0) + 'д. ';
+                        }
+                        text += time2;
+                      }
+                  }
+                  if (scope.item.type === 'schedule') {
+                    text += forWord + ' ';
+                    text += humanDays(dot.ts);
+                  }
+                  return showHelper(text, x, y);
+                });
+              });
+            })(x, y, dot, line);
+            dotElem.on('mouseleave', function() {
+              return hideHelper();
+            });
+            results.push(dots.append(dotElem));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      drawGraph = function() {
+        var big, bigLines, cHei, cWid, captWid, caption, dig, horLinesCnt, i, j, l, lastMark, lastX, len, line, lineWid, m, n, o, ref, ref1, ref2, ref3, ref4, ref5, smallLines, x, y;
+        cWid = scope.session.size.width - 60;
+        cHei = scope.session.size.height - 190;
+        workWidth = cWid - (2 * sideMargin);
+        workHeight = cHei - topMargin - bottomMargin;
+        canvas.width = cWid;
+        canvas.height = cHei;
+        if (window.devicePixelRatio > 1) {
+          canvas.width = cWid * window.devicePixelRatio;
+          canvas.height = cHei * window.devicePixelRatio;
+          ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        jcanvas.width(cWid);
+        jcanvas.height(cHei);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        dots.empty();
+        ctx.lineCap = 'butt';
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgb(180,180,180)';
+        if (((ref = scope.item) != null ? ref.stats : void 0) == null) {
+          return;
+        }
+        ctx.strokeStyle = 'rgb(230,230,230)';
+        ctx.font = '12px Helvetica Neue';
+        ctx.fillStyle = '#554545';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        captWid = 20;
+        switch (scope.item.statsCutType) {
+          case 'day':
+            linesCnt = 24;
+            captWid = 40;
+            break;
+          case 'week':
+            linesCnt = 7;
+            break;
+          case 'month':
+            linesCnt = (maxTime - minTime) / DAY | 0;
+            break;
+          default:
+            linesCnt = scope.item.stats.length || 0;
+        }
+        lineWid = workWidth / linesCnt;
+        lastX = sideMargin;
+        lastMark = 0;
+        for (i = j = 0, ref1 = linesCnt; 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
+          lastX += lineWid;
+          x = Math.ceil(lastX);
+          if (lastX - lastMark > captWid) {
+            lastMark = lastX;
+            switch (scope.item.statsCutType) {
+              case 'day':
+                caption = i + 1;
+                if (caption < 10) {
+                  caption = '0' + caption;
+                }
+                caption += ':00';
+                break;
+              case 'week':
+                if (i === linesCnt - 1) {
+                  caption = localization.translate(147)[1];
+                } else {
+                  caption = localization.translate(147 + i + 1)[1];
+                }
+                x -= lineWid / 2;
+                break;
+              case 'month':
+                caption = i + 2;
+                break;
+              default:
+                caption = humanDays(scope.item.stats[i].delay);
+            }
+            ctx.fillText(caption, x, topMargin + workHeight + 20);
+          }
+        }
+        ctx.textAlign = 'right';
+        dig = (maxValue + "").length;
+        big = 1;
+        for (i = l = 0, ref2 = dig - 1; 0 <= ref2 ? l < ref2 : l > ref2; i = 0 <= ref2 ? ++l : --l) {
+          big *= 10;
+        }
+        bigLines = maxValue / big | 0;
+        for (i = m = 0, ref3 = bigLines; 0 <= ref3 ? m <= ref3 : m >= ref3; i = 0 <= ref3 ? ++m : --m) {
+          y = workHeight + topMargin - (workHeight / maxValue) * (big * i);
+          y = Math.ceil(y);
+          drawLine(sideMargin + 1, y, sideMargin + workWidth, y);
+          if (i > 0) {
+            ctx.fillText(simpleNumber(big * i, 1), sideMargin - 15, y);
+          }
+        }
+        if (bigLines === 1) {
+          smallLines = big / 2 | 0;
+          horLinesCnt = maxValue / smallLines | 0;
+          for (i = n = 1, ref4 = horLinesCnt; 1 <= ref4 ? n <= ref4 : n >= ref4; i = 1 <= ref4 ? ++n : --n) {
+            y = workHeight + topMargin - (workHeight / maxValue) * (smallLines * i);
+            y = Math.ceil(y);
+            drawLine(sideMargin + 1, y, sideMargin + workWidth, y);
+            ctx.fillText(simpleNumber(smallLines * i, 1), sideMargin - 15, y);
+          }
+        }
+        drawLine(sideMargin + 1, topMargin, sideMargin + workWidth, topMargin);
+        if ((y == null) || y - topMargin > 12) {
+          ctx.fillText(simpleNumber(maxValue, 1), sideMargin - 15, topMargin);
+        }
+        ctx.lineCap = 'round';
+        ref5 = scope.lines;
+        for (o = 0, len = ref5.length; o < len; o++) {
+          line = ref5[o];
+          if (!scope.showLine[line.type]) {
+            continue;
+          }
+          ctx.beginPath();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = line.color;
+          ctx.setLineDash([]);
+          drawSeries(line.dots, line);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = line.color;
+          ctx.setLineDash([5, 5]);
+          drawSeries(line.avgs, line, true);
+          ctx.stroke();
+        }
+        return true;
+      };
+      rebuildGraph = function() {
+        var dot, j, l, len, len1, len2, line, m, ref, ref1, ref2;
+        maxValue = 0;
+        if (graphMode === 0) {
+          minTime = 0;
+          maxTime = 0;
+        }
+        ref = scope.lines;
+        for (j = 0, len = ref.length; j < len; j++) {
+          line = ref[j];
+          if (!scope.showLine[line.type]) {
+            continue;
+          }
+          ref1 = line.dots;
+          for (l = 0, len1 = ref1.length; l < len1; l++) {
+            dot = ref1[l];
+            if (dot.val > maxValue) {
+              maxValue = dot.val;
+            }
+            if (graphMode === 0) {
+              if (dot.ts < minTime || minTime === 0) {
+                minTime = dot.ts;
+              }
+              if (dot.ts > maxTime || maxTime === 0) {
+                maxTime = dot.ts;
+              }
+            }
+          }
+          ref2 = line.avgs;
+          for (m = 0, len2 = ref2.length; m < len2; m++) {
+            dot = ref2[m];
+            if (dot.val > maxValue) {
+              maxValue = dot.val;
+            }
+            if (graphMode === 0) {
+              if (dot.ts < minTime || minTime === 0) {
+                minTime = dot.ts;
+              }
+              if (dot.ts > maxTime || maxTime === 0) {
+                maxTime = dot.ts;
+              }
+            }
+          }
+          maxValue = Math.ceil(maxValue);
+        }
+        drawGraph();
+        return true;
+      };
+      elem.on('mousemove', function(e) {
+        var bar, barWid, x;
+        x = e.pageX - scope.session.coords.x - 40 - 30;
+        bar = x / workWidth * linesCnt | 0;
+        barWid = workWidth / linesCnt;
+        if (bar > linesCnt - 1) {
+          bar = linesCnt - 1;
+        }
+        return hoverBar.css({
+          left: bar * barWid,
+          width: barWid
+        });
+      });
+      buildLines();
+      rebuildGraph();
+      return scope.onResizeProgress(function() {
+        return drawGraph();
+      }, false);
+    }
+  };
+});

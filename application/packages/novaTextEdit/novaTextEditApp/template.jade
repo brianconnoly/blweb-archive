@@ -1,0 +1,14 @@
+div.textItem.novaItemScope.novaItem.novaItemDraggable.noDrag(nova-item-object="appItem")
+div.textHeader
+    div.textTitle.novaEditableDiv(
+        ng-model="editableItem.name", 
+        placeholder-text="'novaTextEdit_enterTitle'", 
+        ng-change="saveText()", 
+        ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }")
+div.textBody
+    div.textContents.novaEditableDiv(
+        ng-model="editableItem.value", 
+        placeholder-text="'novaTextEdit_enterText'", 
+        ng-change="saveText()", 
+        ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }")
+div.bottomHider

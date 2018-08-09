@@ -1,0 +1,23 @@
+div(ng-class="{'showed':novaBuffer.showed}")
+    div.tabBar
+        div.novaBufferTab(
+            ng-repeat="pocket in novaBuffer.pockets", 
+            ng-style="{'background':pocket.color,'width':pocket.width}",
+            ng-click="novaBuffer.activatePocket(pocket)",
+            ng-mouseover="novaBuffer.mousePocket(pocket)",
+            ng-class="{'active':novaBuffer.currentPocket == pocket}")
+            div.closePocket(ng-click="novaBuffer.closePocket(pocket)") X
+        div.addPocket.novaItem.novaItemDroppable(
+            ng-click="novaBuffer.addPocket()", 
+            ng-class="{'hidden':novaBuffer.pockets.length > 4}", 
+            nova-item-object="{type:'newBuffer'}") +
+
+    div.tabContents.novaItem.novaItemDroppable.novaMultiselect(
+        nova-item-object="novaBuffer.currentPocket", 
+        nova-item-watch,
+        ng-if="novaBuffer.showed")
+        div.bufferItem(ng-repeat="item in novaBuffer.currentPocket.items")
+            div.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemMenu(nova-item-context="novaBuffer.currentPocket")
+            div.removeElement.flushMousedown(ng-click="novaBuffer.removeItem(item, $event)")
+            
+    div.novaBufferResize

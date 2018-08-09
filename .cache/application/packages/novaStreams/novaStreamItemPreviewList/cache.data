@@ -1,0 +1,20 @@
+tC['/novaStreamItemPreviewList/template.jade'] = "<div ng-switch=\"item.streamItemType\"> <div ng-switch-default=\"ng-switch-default\" class=\"userMessage\"> <div class=\"messageTime\">{{::item.created | timestampMask:'hh:mm'}}</div> <div ng-if=\"!mine\" class=\"userPicSide\"> <div nova-item-object=\"user\" nova-item-preview-type=\"simple\" class=\"novaItem novaItemScope novaItemPreview novaItemDraggable\"></div> </div> <div class=\"messageSide\"> <div class=\"userName\">{{user.name}}    </div> <div class=\"message\"> <div class=\"messageText\">{{item.value}}</div> <div ng-if=\"item.entities.length &gt; 0\" class=\"messageAttachments novaMultiselect\"> <div ng-repeat=\"entity in item.entities\" nova-item-id=\"entity.id\" nova-item-type=\"{{::entity.type}}\" class=\"novaItem novaItemPreview novaItemSelectable novaItemDraggable\"></div> </div> </div> </div> </div> <div ng-switch-when=\"system\" class=\"systemMessage\"> <div class=\"messageTime\">{{::item.created | timestampMask:'hh:mm'}}</div><span class=\"userName\">{{user.name}}</span><span stream-item=\"item\" class=\"novaStreamItemSystemMessage\"></span> </div> </div>";
+
+buzzlike.directive('novaStreamItemPreviewList', function(account, userService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaStreamItemPreviewList/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.user = userService.getById(scope.item.userId);
+      if (scope.item.userId === account.user.id) {
+        scope.mine = true;
+        return elem.addClass('mine');
+      }
+    }
+  };
+});
+
+registerStyles('novaStreamItemPreviewList', ".novaStreamItemPreviewList.mine .userMessage .messageTime {\n  top: 10px;\n}\n.novaStreamItemPreviewList.mine .userMessage .userPicSide {\n  display: none;\n}\n.novaStreamItemPreviewList.mine .userMessage .messageSide {\n  float: right;\n  margin-right: 45px;\n}\n.novaStreamItemPreviewList.mine .userMessage .messageSide .message {\n  background: #3496f2;\n  color: #fff;\n}\n.novaStreamItemPreviewList.mine .userMessage .messageSide .message .messageText {\n  font-weight: 400;\n}\n.novaStreamItemPreviewList.mine .userMessage .messageSide .userName {\n  display: none;\n}\n.novaStreamItemPreviewList .messageTime {\n  position: absolute;\n  right: 10px;\n  top: 20px;\n  font-size: 9px;\n  color: #444;\n}\n.novaStreamItemPreviewList .userMessage {\n  overflow: hidden;\n  margin-bottom: 5px;\n}\n.novaStreamItemPreviewList .userMessage .userPicSide {\n  float: left;\n  width: 35px;\n  min-height: 35px;\n}\n.novaStreamItemPreviewList .userMessage .userPicSide .novaItem {\n  width: 25px;\n  height: 25px;\n  position: absolute;\n  top: 10px;\n  right: 0px;\n}\n.novaStreamItemPreviewList .userMessage .messageSide {\n  float: left;\n  max-width: 70%;\n}\n.novaStreamItemPreviewList .userMessage .messageSide .userName {\n  font-size: 10px;\n  font-weight: 500;\n  color: #444;\n  margin: 11px 0 0 15px;\n}\n.novaStreamItemPreviewList .userMessage .messageSide .message {\n  background: #efefef;\n  padding: 5px 10px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  margin: 2px 0 0 11px;\n  font-size: 11px;\n  line-height: 13px;\n  font-weight: 400;\n  white-space: pre-line;\n}\n.novaStreamItemPreviewList .systemMessage {\n  text-align: center;\n  padding: 10px 35px;\n  line-height: 13px;\n}\n.novaStreamItemPreviewList .systemMessage span {\n  font-size: 10px;\n  font-weight: 400;\n}\n.novaStreamItemPreviewList .systemMessage .messageTime {\n  top: 10px;\n}\n.novaStreamItemPreviewList .systemMessage .userName {\n  margin-right: 3px;\n}\n");

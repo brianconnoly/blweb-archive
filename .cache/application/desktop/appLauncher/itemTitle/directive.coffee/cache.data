@@ -1,0 +1,41 @@
+buzzlike.directive('itemTitle', function($parse, operationsService, localization) {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tC['/desktop/appLauncher/itemTitle'],
+    link: function(scope, element, attrs) {
+      var elem, prevName;
+      elem = $(element);
+      prevName = "";
+      scope.$watch(attrs.id, function() {
+        return scope.editedItem = operationsService.get(attrs.type, $parse(attrs.id)(scope), function(item) {
+          return prevName = item.name;
+        });
+      });
+      scope.save = function() {
+        var process;
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        return operationsService.save(attrs.type, {
+          type: scope.editedItem.type,
+          id: scope.editedItem.id,
+          name: scope.editedItem.name
+        }, function() {
+          if (process != null) {
+            return scope.progress.finish(process);
+          }
+        });
+      };
+      scope.$on('$destroy', function() {
+        if (scope.editedItem.name !== prevName) {
+          return scope.save();
+        }
+      });
+      localization.onLangLoaded(function() {
+        return elem.attr('placeholder', localization.translate(attrs.placeholdertext));
+      });
+      return true;
+    }
+  };
+});

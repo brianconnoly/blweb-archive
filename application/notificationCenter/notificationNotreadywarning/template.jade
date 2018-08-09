@@ -1,0 +1,10 @@
+div.previews
+    div.itemPreview(type="post", id="notification.itemList[0].id", overlay="rightPanel")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header {{translate('notification_notReady_warning')}}
+    div.description {{notifications.details}}
+
+div.notificationButtons

@@ -1,0 +1,18 @@
+tC['/loginNewSocial/template.jade'] = "<div translate=\"'login_form_register_create_account'\" class=\"headText\"></div> <div class=\"loginRegisterRules\"> <div ng-class=\"{'checked':state.rulesAccepted}\" ng-click=\"state.rulesAccepted = !state.rulesAccepted\" class=\"registerCheckbox\"><img src=\"/resources/images/login/check.svg\" width=\"19px\" height=\"17px\" class=\"check\"/></div> <div class=\"registerText\"> <span translate=\"'login_form_register_text_start'\"> </span><span> </span><a translate=\"'login_form_register_text_link'\" ng-click=\"showRules()\"> </a><span> </span><span translate=\"'login_form_register_text_end'\"> </span></div> </div> <div ng-click=\"doLogin()\" ng-class=\"{'inactive':!state.rulesAccepted}\" translate=\"'login_form_register_register'\" class=\"loginRegisterButton\"> </div>";
+
+buzzlike.directive('loginNewSocial', function(loginService) {
+  return {
+    restrict: 'C',
+    template: tC['/loginNewSocial/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.state = {
+        rulesAccepted: false
+      };
+      return scope.doLogin = function() {
+        return loginService.newSocial();
+      };
+    }
+  };
+});
+
+registerStyles('loginNewSocial', ".loginNewSocial {\n  margin-top: 65px !important;\n}\n");

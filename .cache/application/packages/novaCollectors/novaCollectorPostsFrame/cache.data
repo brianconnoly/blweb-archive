@@ -1,0 +1,37 @@
+tC['/novaCollectorPostsFrame/template.jade'] = "<div class=\"novaFrameTopBarLayout\"> <div class=\"novaFrameTopBar\"> <div ng-click=\"goComb()\" translate=\"'novaCollectorPostsFrame_goComb'\" ng-if=\"appItem.type != 'comb' &amp;&amp; ugc.combIds.length &gt; 0\" class=\"goComb\"></div> </div> <div class=\"novaFrameContents\"> <div ng-repeat=\"item in items | filter:proposedFilter\" ng-dblclick=\"openPostEdit(item)\" class=\"novaCollectorProposedPost novaItem novaItemDroppable novaItemDraggable\"></div> </div> </div>";
+
+buzzlike.directive('novaCollectorPostsFrame', function(ugcService, novaDesktop, postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaCollectorPostsFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.flowFrame.maxWidth = 320;
+      scope.ugc = ugcService.getById(scope.flowFrame.item.id);
+      scope.items = postService.getByUgcId(scope.flowFrame.item.id);
+      scope.proposedFilter = function(item) {
+        return item.proposeStatus === 'created';
+      };
+      return scope.goComb = function() {
+        var combId, i, len, ref, results;
+        ref = scope.ugc.combIds;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          combId = ref[i];
+          results.push(novaDesktop.launchApp({
+            app: 'novaThemesApp',
+            item: {
+              id: combId,
+              type: 'comb'
+            }
+          }));
+        }
+        return results;
+      };
+    }
+  };
+});
+
+registerStyles('novaCollectorPostsFrame', ".novaCollectorPostsFrame {\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.novaCollectorPostsFrame .novaFrameContents {\n  overflow-y: auto !important;\n}\n");

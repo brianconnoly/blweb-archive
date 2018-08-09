@@ -1,0 +1,3 @@
+buzzlike.service('debugTools', function() {
+  return true;
+});

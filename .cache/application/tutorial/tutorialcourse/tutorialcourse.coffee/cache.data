@@ -1,0 +1,142 @@
+buzzlike.directive("tutorialcourse", function($rootScope, tutorialService, optionsList, account) {
+  return {
+    restrict: "C",
+    template: templateCache['/tutorial/tutorialcourse'],
+    link: function(scope, element, attrs) {
+      var actions, cancelCourse, init, switchLesson;
+      scope.status = {};
+      actions = [
+        {
+          text: 'textEditor_yes',
+          action: function() {
+            return angular.element($('.tutorialcourse')).scope().cancelLesson();
+          }
+        }, {
+          text: 'textEditor_no',
+          action: function() {
+            return true;
+          }
+        }
+      ];
+      scope.$watch(function() {
+        return tutorialService.status.show;
+      }, function(nValue) {
+        if (nValue != null) {
+          if (nValue) {
+            $('.tutorialcourse').show();
+            $(window).off('click');
+            return $(window).on('click', cancelCourse);
+          } else {
+            $(window).off('click');
+            return $('.tutorialcourse').hide();
+          }
+        }
+      }, true);
+      scope.$watch(function() {
+        return tutorialService.status;
+      }, function(nValue) {
+        if (nValue != null) {
+          return scope.status = nValue;
+        }
+      }, true);
+      scope.prevLesson = function() {
+        return switchLesson('prev');
+      };
+      scope.nextLesson = function(handClick) {
+        if ((handClick != null) && scope.status.currentLesson.nextbutton === 'lock') {
+          return false;
+        }
+        return switchLesson('next');
+      };
+      scope.openOptionsList = function() {
+        optionsList.init('tutorial_close', actions);
+        return $rootScope.$apply();
+      };
+      scope.cancelLesson = function() {
+        if (scope.status.currentLesson != null) {
+          if (scope.status.last) {
+            scope.passCourse();
+          } else {
+            if (!scope.status.currentCourse.passed) {
+              scope.status.currentCourse.canceled = true;
+            }
+            scope.status.show = false;
+            $.ajax({
+              url: 'http://tutorial.buzzlike.pro/back/cancelcourse',
+              type: 'POST',
+              data: {
+                userid: account.user.userId,
+                code: scope.status.currentCourse.code
+              },
+              dataType: 'JSON',
+              success: function(data) {
+                return true;
+              }
+            });
+          }
+          tutorialService.status.currentLesson = null;
+          return tutorialService.status.currentCourse = null;
+        }
+      };
+      scope.passCourse = function() {
+        scope.status.currentCourse.canceled = false;
+        scope.status.currentCourse.passed = true;
+        scope.status.show = false;
+        return $.ajax({
+          url: 'http://tutorial.buzzlike.pro/back/passcourse',
+          type: 'POST',
+          data: {
+            userid: account.user.userId,
+            code: scope.status.currentCourse.code
+          },
+          dataType: 'JSON',
+          success: function(data) {
+            tutorialService.status.currentLesson = null;
+            tutorialService.status.currentCourse = null;
+            return true;
+          }
+        });
+      };
+      switchLesson = function(where) {
+        var cur, i, index, j, len, lesson, lessonOfService, ref, results;
+        if (where === 'next') {
+          cur = 1;
+        } else {
+          cur = -1;
+        }
+        ref = scope.status.currentCourse.lessons;
+        results = [];
+        for (i = j = 0, len = ref.length; j < len; i = ++j) {
+          lesson = ref[i];
+          if (lesson.code === scope.status.currentLesson.code) {
+            index = i + cur;
+            if (where === 'next') {
+              lessonOfService = tutorialService.getNextLesson();
+            } else {
+              lessonOfService = tutorialService.getPrevLesson();
+            }
+            tutorialService.showLesson(scope.status.currentCourse.code, lessonOfService.lesson.code, true);
+            tutorialService.status.selectedStep = index + 1;
+            if (index === 0) {
+              tutorialService.setTutorialStep('first');
+            } else if (index === scope.status.currentCourse.lessons.length - 1) {
+              tutorialService.setTutorialStep('last');
+              tutorialService.hideArrows();
+            } else {
+              tutorialService.setTutorialStep('middle');
+            }
+            break;
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      cancelCourse = function(e) {};
+      init = function() {
+        return $(window).on('resize', tutorialService.setPosition);
+      };
+      return init();
+    }
+  };
+});

@@ -1,0 +1,187 @@
+ul.eternity
+
+    li.interval
+        position: absolute
+        //top 0
+        //bottom 0
+
+        // top 50%
+        // height 150px
+        // margin-top -75px
+
+        height 100%
+
+        div.part
+            position absolute
+            overflow: hidden
+            height 100%
+
+            transition all 0.5s ease
+
+            div.smallMark
+                position: absolute
+                
+                top 50%
+                margin-top -7px
+                right -1px
+
+                height 14px
+                width 2px
+
+                background: #494949
+
+            div.dayBreak                
+                position absolute
+                overflow hidden
+
+                color #61A3CB
+
+                height 54px
+                width 100%
+                text-align: center
+
+                transition all 0.2s ease
+                
+                top 50%
+                margin-top -27px
+
+                .compact &
+                    margin-top 25px
+                    height 100px
+
+                .glued &
+                    .weekDay
+                        font-size 15px
+
+                .weekDay
+                    position: absolute
+                    display block
+
+                    bottom 0
+                    left 0
+                    right 0
+
+                    line-height 50px
+                    text-align: center
+
+                    font-size 17px
+
+                    transition 0.2s all ease
+
+                    .compact &
+                        width 100px
+                        margin-left -50px
+
+                        height 30px
+                        line-height 40px
+                        font-size 15px
+
+                .date
+                    position: absolute
+
+                    top 0px
+                    bottom 0
+                    left 0
+                    right 0
+
+                    height 60px
+                    line-height 60px
+
+                    font-size 50px
+                    text-align: center
+                    font-weight: normal
+
+                    .compact &
+                        top 25px
+
+                        height 40px
+                        line-height 40px
+
+                        font-size 30px
+
+                .month
+                    position: absolute
+
+                    top 0
+                    left 0
+                    right 0
+
+                    text-align: center
+                    font-size 18px
+
+                    line-height: 20px
+
+                    .compact &
+                        height 10px
+                        line-height 10px
+
+                        font-size 12px
+
+                .year
+                    position: absolute
+
+                    bottom 0
+                    right 0
+                    left 0
+
+                    text-align: center
+                    font-size 14px
+
+                    .compact &
+                        height 25px
+
+            div.hourMark
+                position absolute
+                overflow hidden
+
+                color #61A3CB
+                font-size 40px
+
+                line-height 40px
+                height 40px
+                width 100%
+                text-align: center
+
+                transition all 0.2s ease
+                
+                top 50%
+                margin-top -20px
+
+                .glued &
+                    font-size 20px
+            
+            div.freePlace
+                height 100%
+
+                &.freeMarks
+
+                    background: url(/resources/images/desktop/timeline/dividerMulti360.svg) top left repeat-y
+
+                .glued &
+                    display: none
+
+                div.column
+                    width 35px
+                    height 100%
+
+                    float: left
+                    position: relative
+
+                    &.spriteMark
+                        padding-left: 1px
+                        background: url(/resources/images/desktop/timeline/dividerSingle.svg) top left repeat-y
+
+                    &.absolute
+                        position: absolute
+
+                    .longMark
+                        position: absolute
+
+                        top 50%
+                        margin-top -25px
+                        right -1px
+
+                        height 50px
+                        width 2px
+
+                        background: #494949

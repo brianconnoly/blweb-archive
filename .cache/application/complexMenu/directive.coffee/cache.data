@@ -1,0 +1,42 @@
+buzzlike.directive('complexMenu', function(complexMenu) {
+  return {
+    restrict: 'C',
+    replace: true,
+    template: tC['/complexMenu'],
+    link: function(scope, element, attrs) {
+      var elem, menu;
+      elem = $(element);
+      menu = elem.find('.menuFrame');
+      scope.complexMenu = complexMenu;
+      scope.clickItem = function(item, section, e) {
+        switch (section.type) {
+          case 'checkbox':
+            section.object[item.param] = !section.object[item.param];
+            if (typeof section.selectFunction === "function") {
+              section.selectFunction(item);
+            }
+            break;
+          case 'select':
+            if ((section.object != null) && (section.param != null)) {
+              section.object[section.param] = item.value;
+            }
+            if (typeof section.selectFunction === "function") {
+              section.selectFunction(item);
+            }
+            break;
+          case 'actions':
+            item.action(e);
+        }
+        return complexMenu.hide();
+      };
+      scope.selected = function(item, section) {
+        var ref;
+        if (section.value != null) {
+          return section.value === item.value;
+        }
+        return ((ref = section.object) != null ? ref[section.param] : void 0) === item.value;
+      };
+      return true;
+    }
+  };
+});

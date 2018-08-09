@@ -1,0 +1,111 @@
+buzzlike.controller('lotPreviewCtrl', function(userService, buffer, desktopService, localization, smartDate, resize, $scope, stateManager, favouriteService, communityService, scheduleService, lotService, postService, contentService) {
+  var lot, process;
+  $scope.session.expandedHeader = false;
+  $scope.stateTree.applyState({
+    'escape': $scope.closeApp
+  });
+  $scope.bigItem = null;
+  $scope.contentIds = [];
+  $scope.community = null;
+  $scope.owner = null;
+  process = $scope.progress.add();
+  $scope.lot = lot = lotService.getById($scope.session.lotId, function(item) {
+    var schedProcess, userProcess;
+    $scope.progress.finish(process);
+    process = $scope.progress.add();
+    postService.getById(item.postId, function(postItem) {
+      var i, id, k, len, ref, v;
+      $scope.progress.finish(process);
+      $scope.bigItem = null;
+      $scope.contentIds.length = 0;
+      ref = postItem.contentIds;
+      for (k in ref) {
+        v = ref[k];
+        for (i = 0, len = v.length; i < len; i++) {
+          id = v[i];
+          if (k === 'image' && $scope.bigItem === null) {
+            $scope.bigItem = id;
+          } else {
+            $scope.contentIds.push(id);
+          }
+        }
+      }
+      if ($scope.bigItem === null) {
+        return $scope.bigItem = $scope.contentIds.pop();
+      }
+    });
+    if (item.lotType === 'repost') {
+      schedProcess = $scope.progress.add();
+      scheduleService.getOriginalByPostId(item.postId, function(schedItem) {
+        var commProcess;
+        $scope.progress.finish(schedProcess);
+        commProcess = $scope.progress.add();
+        return communityService.getById(schedItem.communityId, function(communityItem) {
+          $scope.progress.finish(commProcess);
+          return $scope.community = communityItem;
+        });
+      });
+    }
+    userProcess = $scope.progress.add();
+    return userService.getById(item.userId, function(userItem) {
+      $scope.progress.finish(userProcess);
+      return $scope.owner = userItem;
+    });
+  });
+  $scope.getLotPrice = function(action) {
+    var priceString;
+    if (action == null) {
+      action = 'lotPreviewApp_for';
+    }
+    if ($scope.lot.price === 0) {
+      return localization.translate('marketApp_lotPrice_free').toLowerCase();
+    }
+    priceString = localization.translate(action) + ' ' + $scope.lot.price + ' ';
+    if ($scope.lot.buzzLot) {
+      priceString += localization.declensionPhrase($scope.lot.price, 'costDays');
+    } else {
+      priceString += localization.declensionPhrase($scope.lot.price, 'roubles');
+    }
+    return priceString;
+  };
+  $scope.getLotCustomers = function() {
+    if ($scope.lot.boughtCounter === 0) {
+      return localization.translate('lotPreviewApp_bought_none').toLowerCase();
+    }
+    return $scope.lot.boughtCounter + ' ' + localization.declensionPhrase($scope.lot.boughtCounter, 'usersDeclension');
+  };
+  $scope.takeToRight = function() {
+    if ($scope.lot.type === 'repost') {
+      buffer.addItem($scope.lot);
+    }
+    if ($scope.lot.lotType === 'post') {
+      process = $scope.progress.add();
+      return lotService.call('buy', $scope.lot.id, function(bought) {
+        $scope.progress.finish(process);
+        return buffer.addItem(bought);
+      });
+    }
+  };
+  $scope.goOwnerPage = function() {
+    var acc, i, len, ref;
+    ref = $scope.owner.accounts;
+    for (i = 0, len = ref.length; i < len; i++) {
+      acc = ref[i];
+      if (acc.socialNetwork === 'vk') {
+        openCommunityPage({
+          communityType: 'profile',
+          socialNetwork: acc.socialNetwork,
+          socialNetworkId: acc.publicId
+        });
+        return;
+      }
+    }
+    acc = $scope.owner.accounts[0];
+    return openCommunityPage({
+      communityType: 'profile',
+      socialNetwork: acc.socialNetwork,
+      socialNetworkId: acc.publicId
+    });
+  };
+  return true;
+});

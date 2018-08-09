@@ -1,0 +1,233 @@
+min-height 30px
+border-bottom 1px solid #ccc
+
+background rgba(225, 221, 71, 0.05)
+
+&.mine
+    background rgba(255, 255, 255, 0.05) //rgba(25, 232, 19, 0.05)
+
+&.rejected
+    // background rgba(232, 19, 19, 0.05)
+    background rgba(171, 37, 37, 0.07);
+
+&.accepted
+    background rgba(0, 0, 0, 0.05);
+
+.taskActions
+    float right
+    margin-right 10px
+    z-index 1
+
+.novaTaskStatus
+    float right
+    margin-right 5px
+
+.taskName
+    font-size 14px
+    line-height 17px
+    padding 7px 15px
+    font-weight bolder
+
+.taskDescription
+    font-size 14px
+    line-height 17px
+    padding 7px 15px
+
+    margin-top -12px
+
+.novaTasksCompact &
+    .childTasks, .progressDetails
+        display none
+
+    .taskProgress
+        margin 0
+        padding 0
+        position absolute
+        bottom 0
+        left 0
+        right 0
+
+    .taskStream
+        margin-bottom 0
+
+    .taskItems
+        display none
+        // .taskItem
+        //     width 40px
+        //     height 30px
+
+.childTasks
+    padding 7px 15px
+    margin-top -5px
+
+    .childTask
+        overflow hidden
+        min-height 30px
+        display: table;
+        margin: 4px 0;
+        border-radius: 17px;
+
+        &:hover
+            .childTaskMark
+                cursor pointer
+                *
+                    cursor pointer
+                &.started
+                    .overlay
+                        background rgba(52, 150, 242, 0.8)
+                        &:after
+                            content: "F"
+                &.mine, &.created
+                    .overlay
+                        background rgba(105, 199, 79, 0.8)
+                        &:after
+                            content: "S"
+                &.created
+                    .overlay
+                        border 1px solid rgb(105, 199, 79)
+                &.rejected
+                    .overlay
+                        background rgba(189, 79, 79, 0.8)
+                        &:after
+                            content: "R"
+                &.finished
+                    .overlay
+                        background rgba(70, 176, 41, 0.8)
+                        &:after
+                            content: "A"
+
+        .childTaskMark
+            float left
+            width 60px
+
+            &.started
+                .overlay
+                    border 1px solid rgb(52, 150, 242)
+            &.mine
+                .overlay
+                    border 1px solid rgb(105, 199, 79)
+            &.rejected
+                .overlay
+                    border 1px solid rgb(189, 79, 79)
+            &.finished
+                .overlay
+                    border 1px solid rgb(70, 176, 41)
+
+            .overlay
+                // display none
+                position absolute
+                top 0
+                bottom 0
+                left 0
+                right 0
+                border-radius 15px
+
+                transition background 0.2s ease
+                pointer-events none
+                z-index 1
+
+                text-align: center;
+
+                &:after
+                    line-height: 28px;
+                    font-size: 20px;
+                    color: #fff;
+                    z-index 2
+
+
+            .executorMark
+                width 30px
+                height 30px
+                background #fff
+                border-radius 15px
+                // border 1px solid #454545
+                // overflow hidden
+                box-shadow 0 0px 2px 0 rgba(0,0,0,0.5)
+                float left
+                margin 2px
+                margin-right 6px
+
+                .novaUserPreviewSimple
+                    height 26px
+                    transform translate3d(0,0,0)
+
+                .backFace
+                    display none
+
+                .novaItem
+                    margin 2px
+
+            .taskOptions
+                float left
+
+        .childTaskName
+            line-height 20px
+            font-size 14px
+            line-height 17px
+
+            min-width: 200px
+
+            display: table-cell;
+            vertical-align: middle;
+
+.progressDetails
+    padding 7px 15px
+    font-size 14px
+    margin-top -5px
+    .caption
+        font-weight bolder
+        margin-right 5px
+
+// .childTasksList
+    // margin-top 15px
+
+.taskProgress
+    margin 0 15px
+    margin-bottom 25px //15px
+    height 2px
+    background rgba(0,0,0,0.1)
+
+    .value
+        position absolute
+        top 0
+        left 0
+        bottom 0
+        background #69C74F
+        transition width 0.2s ease
+
+    .started
+        position absolute
+        top 0
+        left 0
+        bottom 0
+        background #fcee21
+        transition width 0.2s ease
+
+.taskStream
+    overflow hidden
+    // min-height 40px
+    padding 0 15px
+    width: 100%;
+    box-sizing: border-box;
+
+.taskItems
+    overflow hidden
+    padding 10px 10px
+    // margin-top -5px
+    width: 100%;
+    box-sizing: border-box;
+
+    .taskItem
+        width 89px //80px
+        height 67px //60px
+        float left
+        position relative
+
+        border-radius 5px
+        overflow hidden
+        transform translate3d(0,0,0)
+        transition all 0.2s ease
+
+        box-shadow 0 0 2px 0 rgba(0,0,0,0.2)
+
+        margin 4px 5px

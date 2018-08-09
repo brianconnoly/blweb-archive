@@ -1,0 +1,63 @@
+buzzlike.service('resize', function($rootScope) {
+  var callbacks, innerCnt, registerCb, setLeftPanel, setRightPanel, showedPanels, status, trigger, unregisterCb, updateCallbacks;
+  status = {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+  innerCnt = 0;
+  callbacks = {};
+  showedPanels = {
+    right: false,
+    left: false
+  };
+  registerCb = function(cb, id) {
+    var width;
+    if (id == null) {
+      id = 'inner_' + innerCnt;
+      innerCnt++;
+    }
+    callbacks[id] = cb;
+    width = status.width;
+    cb(width, status.height, showedPanels);
+    return id;
+  };
+  unregisterCb = function(id) {
+    if (callbacks[id] != null) {
+      return delete callbacks[id];
+    }
+  };
+  setRightPanel = function(showed) {
+    if (showedPanels.right !== showed) {
+      showedPanels.right = showed;
+      return updateCallbacks();
+    }
+  };
+  setLeftPanel = function(showed) {
+    if (showedPanels.left !== showed) {
+      showedPanels.left = showed;
+      return updateCallbacks();
+    }
+  };
+  updateCallbacks = function() {
+    var cb, key, results, width;
+    width = status.width;
+    results = [];
+    for (key in callbacks) {
+      cb = callbacks[key];
+      results.push(cb(width, status.height, showedPanels));
+    }
+    return results;
+  };
+  trigger = function() {
+    return updateCallbacks();
+  };
+  return {
+    status: status,
+    showedPanels: showedPanels,
+    trigger: trigger,
+    registerCb: registerCb,
+    unregisterCb: unregisterCb,
+    setRightPanel: setRightPanel,
+    setLeftPanel: setLeftPanel
+  };
+});

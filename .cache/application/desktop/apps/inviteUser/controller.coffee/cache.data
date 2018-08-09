@@ -1,0 +1,86 @@
+buzzlike.controller('inviteUserCtrl', function($scope, userService, rpc) {
+  var i, len, role, roles;
+  $scope.stateTree.applyState({
+    'escape': $scope.closeApp
+  });
+  $scope.session.expandedHeader = false;
+  $scope.searchField = "";
+  $scope.searchUser = null;
+  $scope.canAddNew = false;
+  $scope.newUser = false;
+  $scope.params = {
+    userRole: null
+  };
+  $scope.switchInviteNew = function() {
+    $scope.newUser = true;
+    $scope.canAddNew = false;
+    $scope.searchUser = {
+      photo: 'https://www.buzzlike.pro/resources/images/desktop/black/avatar.svg'
+    };
+    return $scope.setHeight(390);
+  };
+  $scope.searchUsers = function() {
+    return userService.call('search', $scope.searchField, function(user) {
+      if (user === 'nouser') {
+        $scope.setHeight(162);
+        $scope.searchUser = null;
+        if ($scope.searchField.indexOf('@') > -1) {
+          return $scope.canAddNew = true;
+        }
+      } else {
+        $scope.setHeight(390);
+        $scope.searchUser = user;
+        return $scope.canAddNew = false;
+      }
+    });
+  };
+  roles = ['invite', 'mainEditor', 'editor', 'conetntManager', 'timeManager', 'postManager', 'client'];
+  $scope.roles = [];
+  for (i = 0, len = roles.length; i < len; i++) {
+    role = roles[i];
+    $scope.roles.push({
+      value: role,
+      phrase: 'invite_member_role_' + role
+    });
+  }
+  $scope.params.userRole = $scope.roles[0].value;
+  $scope.doInvite = function() {
+    if (!$scope.newUser && ($scope.searchUser != null)) {
+      $scope.session.api.pickUser($scope.searchUser, $scope.params.userRole);
+      $scope.closeApp();
+    }
+    if ($scope.newUser) {
+      return rpc.call('auth.registerSimple', {
+        name: $scope.searchField,
+        firstName: $scope.searchField,
+        login: $scope.searchField,
+        settings: {
+          simpleMode: true,
+          takeUploadToRight: true
+        }
+      }, function(userItem) {
+        $scope.session.api.pickUser(userItem, $scope.params.userRole);
+        return $scope.closeApp();
+      });
+    }
+  };
+  $scope.keyDown = function(e) {
+    if (e.which === 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      return $scope.doInvite();
+    }
+  };
+  return true;
+}).directive('inviteFocus', function() {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return setTimeout(function() {
+        return elem.focus();
+      });
+    }
+  };
+});

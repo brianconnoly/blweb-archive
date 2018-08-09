@@ -1,0 +1,103 @@
+.filterPanel {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: auto;
+  bottom: 0;
+  width: $leftPanelWidth;
+/*overflow auto*/
+  background: rgba(0,0,0,0.2);
+  -webkit-transition: all ease auto 0.2s;
+  -moz-transition: all ease auto 0.2s;
+  -o-transition: all ease auto 0.2s;
+  -ms-transition: all ease auto 0.2s;
+  transition: all ease auto 0.2s;
+}
+.filterPanel .antiscroll,
+.filterPanel .no-antiscroll {
+  height: 100%;
+}
+.filterPanel .sections {
+  color: #fff;
+}
+.filterPanel .sections .section {
+  font-size: 20px;
+  white-space: nowrap;
+  -webkit-transition: all ease 0.2s;
+  -moz-transition: all ease 0.2s;
+  -o-transition: all ease 0.2s;
+  -ms-transition: all ease 0.2s;
+  transition: all ease 0.2s;
+  cursor: pointer;
+  line-height: 44px;
+  margin-bottom: 1px;
+}
+.filterPanel .sections .section .sectionChildrenList .sectionChildren {
+  cursor: pointer;
+  padding-left: 15px;
+  margin-bottom: 1px;
+  background: rgba(255,255,255,0.2);
+  color: rgba(0,0,0,0.5);
+}
+.filterPanel .sections .section .sectionChildrenList .sectionChildren.active {
+  background: rgba(255,255,255,0.8);
+  color: #000;
+}
+.filterPanel .sections .section.title {
+  padding-left: 15px;
+  height: 44px;
+}
+.filterPanel .sections .section.warning {
+  height: auto;
+  font-size: 13px;
+  white-space: normal;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  line-height: 16px;
+  margin-left: 10px;
+}
+.filterPanel .sections .section.menuButton,
+.filterPanel .sections .section .menuButton {
+  padding-left: 15px;
+  height: 44px;
+  background: rgba(255,255,255,0.4);
+  color: rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.filterPanel .sections .section.menuButton.active,
+.filterPanel .sections .section .menuButton.active {
+  background: #fff;
+  color: #000;
+}
+.filterPanel .sections .section.active .sectionTitle,
+.filterPanel .sections .section .active {
+  background: #fff;
+  color: #000;
+}
+.filterPanel .sections .section .sortType {
+  height: 33px;
+  display: block;
+}
+.filterPanel .sections .section .bl-checkbox {
+  float: left;
+  margin: 11px 10px;
+  border: 1px solid #afaeae;
+  cursor: pointer;
+}
+.filterPanel .sections .section .bl-checkbox .tumbler {
+  background: #afaeae;
+}
+.filterPanel .sections .section .bl-checkbox.checked .tumbler {
+  background: #97c35a;
+}
+.filterPanel .sections .section .label {
+  width: $leftPanelWidth -3;
+  float: left;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.filterPanel .sections .section .combobox {
+  position: absolute;
+  left: 0;
+  right: 0;
+}

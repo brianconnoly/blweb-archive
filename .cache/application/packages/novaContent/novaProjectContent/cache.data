@@ -1,0 +1,28 @@
+tC['/novaProjectContent/template.jade'] = "<div translate=\"moduleName\" ng-click=\"activateAll()\" ng-class=\"{'active':flow.currentCode == 'projectContent'}\" class=\"title\"></div> <div ng-repeat=\"folder in pinned\" ng-click=\"activatePinned(folder)\" class=\"subItem\"> <div class=\"subTitle\">{{folder.name}}</div> </div>";
+
+buzzlike.directive('novaProjectContent', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectContent/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      scope.moduleName = 'novaProjectContent_title';
+      scope.activatePinned = function(content) {
+        console.log('NOT IMPLEMENTED');
+        return true;
+      };
+      return scope.activateAll = function() {
+        scope.flow.addFrame({
+          translateTitle: 'novaContentFrame',
+          unitCode: 'content',
+          directive: 'novaContentFrame',
+          code: 'projectContent'
+        });
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectContent', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaProjectContent\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

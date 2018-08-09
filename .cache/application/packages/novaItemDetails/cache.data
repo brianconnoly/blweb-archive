@@ -1,0 +1,3 @@
+tC['/novaItemDetails/template.jade'] = "<true></true>";
+
+registerStyles('novaItemDetails', ".novaItemDetails {\n  margin-top: 15px;\n}\n.novaItemDetails .detail {\n  font-size: 12px;\n  line-height: 15px;\n  overflow: hidden;\n}\n.novaItemDetails .detail .label {\n  float: left;\n  width: 150px;\n  margin-right: 10px;\n  text-align: right;\n  color: #b3b3b3;\n}\n.novaItemDetails .detail .value {\n  color: #000;\n}\n");

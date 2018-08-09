@@ -1,0 +1,13 @@
+tC['/novaRowScrollerItems/template.jade'] = "<div ng-repeat=\"item in block.items track by item.id\" class=\"novaContentItem\"> <div nova-item-context=\"parentItem\" nova-item-preview-back-face=\"nova-item-preview-back-face\" class=\"novaRowScrollerItem novaItem novaItemPreview novaItemSelectable novaItemDraggable novaItemDroppable novaItemMenu\"></div> </div>";
+
+buzzlike.directive('novaRowScrollerItems', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaRowScrollerItems/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      return true;
+    }
+  };
+});
+
+registerStyles('novaRowScrollerItems', ".novaRowScrollerItems {\n  padding: 10px;\n  overflow: hidden;\n}\n.novaRowScrollerItems .novaItem {\n  position: relative;\n  float: left;\n  width: 50px;\n  height: 38px;\n  margin: 10px;\n  overflow: hidden;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n}\n");

@@ -1,0 +1,20 @@
+tC['/novaScheduleFrame/template.jade'] = "<div class=\"scheduleBar\">{{::flowFrame.item.timestamp | timestampMask:'hh:mm'}}</div> <div nova-item-object=\"post\" class=\"novaItem novaPostView\"></div> <div class=\"novaItemDetails\"> <div class=\"detail\"> <div class=\"label\">Автор</div> <div class=\"value\">Павел Пивкин</div> </div> <div class=\"detail\"> <div class=\"label\">Размещение</div> <div class=\"value\">{{::flowFrame.item.timestamp | timestampMask:'hh:mm, DD ofMMMM YYYY'}}</div> </div> <div class=\"detail\"> <div class=\"label\">Активность</div> <div class=\"value\">1536</div> </div> <div class=\"detail\"> <div class=\"label\">Качество</div> <div class=\"value\">63%</div> </div> </div>";
+
+buzzlike.directive('novaScheduleFrame', function(postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaScheduleFrame/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var unreg;
+      scope.flowFrame.maxWidth = 320;
+      return unreg = scope.$watch('flowFrame.item.postId', function(nVal) {
+        if (nVal != null) {
+          scope.post = postService.getById(nVal);
+          return unreg();
+        }
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaScheduleFrame', ".novaScheduleFrame .scheduleBar {\n  height: 50px;\n  font-weight: 200;\n  font-size: 22px;\n  line-height: 50px;\n  text-align: center;\n}\n");

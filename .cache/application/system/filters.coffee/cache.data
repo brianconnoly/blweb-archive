@@ -1,0 +1,394 @@
+var timestampCache,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.filter('combcat', function($rootScope) {
+  return function(items, search) {
+    var array, k, res, v;
+    if (items == null) {
+      return [];
+    }
+    if (!search) {
+      return items;
+    }
+    if (!search || '' === search) {
+      return items;
+    }
+    array = [];
+    for (k in items) {
+      v = items[k];
+      if (v !== 0) {
+        array.push(v);
+      }
+    }
+    res = array.filter(function(element, index, array) {
+      var id;
+      id = false;
+      if (search !== -1) {
+        if (element.mediaplans != null) {
+          id = indexOf.call(element.mediaplans, search) >= 0;
+        }
+      } else {
+        if ((element.mediaplans == null) || element.mediaplans.length === 0) {
+          id = true;
+        }
+      }
+      return id;
+    });
+    $rootScope.combCatCache[search] = res.length;
+    return res;
+  };
+});
+
+buzzlike.filter('groupfilter', function() {
+  return function(items, search) {
+    if (!search) {
+      return items;
+    }
+    if (!search || '' === search) {
+      return items;
+    }
+    return items.filter(function(element, index, array) {
+      return search === element.group;
+    });
+  };
+});
+
+buzzlike.filter('combfilter', function($rootScope) {
+  return function(items, search) {
+    if ($rootScope.timelineFilter.length === 0) {
+      return items;
+    }
+    return items.filter(function(element, index, array) {
+      var j, len, ref, ref1, tl;
+      ref = $rootScope.timelineFilter;
+      for (j = 0, len = ref.length; j < len; j++) {
+        tl = ref[j];
+        if ((element.mediaplans != null) && element.mediaplans.length > 0) {
+          if (ref1 = tl.id, indexOf.call(element.mediaplans, ref1) >= 0) {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
+      return false;
+    });
+  };
+});
+
+buzzlike.filter('reverse', function() {
+  return function(items) {
+    if (items == null) {
+      return [];
+    }
+    if (typeof items === 'object') {
+      return items.slice().reverse();
+    } else {
+      return items.reverse();
+    }
+  };
+});
+
+buzzlike.filter('toHTML', function() {
+  return function(text) {
+    return text != null ? text.replace(/\n/g, '<br>') : void 0;
+  };
+});
+
+buzzlike.filter('dateOnly', function(localization) {
+  return function(items, search) {
+    var D, d, dd, h, hh, m, mm, separator, year, yyyy;
+    if (items == null) {
+      return;
+    }
+    D = new Date(items);
+    if (search === "DDD") {
+      return localization.translate(147 + D.getDay())[1];
+    }
+    if (search === "DDDD") {
+      return localization.translate(147 + D.getDay())[0];
+    }
+    if (search === "MMM") {
+      return localization.translate(154 + D.getMonth())[2];
+    }
+    if (search === "MMMM") {
+      return localization.translate(154 + D.getMonth())[0];
+    }
+    if (search === "MMMM2") {
+      return localization.translate(154 + D.getMonth())[1];
+    }
+    if (search === "YYYY") {
+      return D.getFullYear();
+    }
+    if (search === "YY") {
+      year = D.getFullYear() + '';
+      return year.substr(2);
+    }
+    if (search === "d") {
+      return D.getDate();
+    }
+    if (search === "dd") {
+      d = D.getDate();
+      if (d < 10) {
+        d = "0" + d;
+      }
+      return d;
+    }
+    if (search === "HH:MM") {
+      h = D.getHours();
+      if (h < 10) {
+        hh = "0" + h;
+      } else {
+        hh = h;
+      }
+      m = D.getMinutes();
+      if (m < 10) {
+        mm = "0" + m;
+      } else {
+        mm = m;
+      }
+      return hh + ":" + mm;
+    }
+    if (search === "dd.mm.yyyy") {
+      separator = ".";
+      d = D.getDate();
+      if (d < 10) {
+        dd = "0" + d;
+      } else {
+        dd = d;
+      }
+      m = D.getMonth();
+      if (m < 10) {
+        mm = "0" + m;
+      } else {
+        mm = m;
+      }
+      yyyy = D.getFullYear();
+      return dd + separator + mm + separator + yyyy;
+    }
+  };
+});
+
+timestampCache = {};
+
+buzzlike.filter('timestampMask', function(localization) {
+  return function(items, search) {
+    var DATE, lib, nowYEAR, str;
+    if (timestampCache[items + ':' + search] != null) {
+      return timestampCache[items + ':' + search];
+    }
+    if ((items != null) && !isNaN(items)) {
+      DATE = new Date(items);
+      lib = {};
+      lib.D = DATE.getDate();
+      if (lib.D < 10) {
+        lib.DD = "0" + lib.D;
+      } else {
+        lib.DD = lib.D;
+      }
+      lib.M = DATE.getMonth() + 1;
+      if (lib.M < 10) {
+        lib.MM = "0" + lib.M;
+      } else {
+        lib.MM = lib.M;
+      }
+      lib.MMM = localization.translate(153 + lib.M)[2];
+      lib.MMMM = localization.translate(153 + lib.M)[0];
+      lib.ofMMMM = localization.translate(153 + lib.M)[1];
+      lib.YYYY = DATE.getFullYear();
+      lib.YY = ('' + lib.YYYY).substr(2);
+      lib.wk = DATE.getWeekNumber();
+      lib.h = DATE.getHours();
+      if (lib.h < 10) {
+        lib.hh = "0" + lib.h;
+      } else {
+        lib.hh = lib.h;
+      }
+      lib.m = DATE.getMinutes();
+      if (lib.m < 10) {
+        lib.mm = "0" + lib.m;
+      } else {
+        lib.mm = lib.m;
+      }
+      lib.s = DATE.getSeconds();
+      if (lib.s < 10) {
+        lib.ss = "0" + lib.s;
+      } else {
+        lib.ss = lib.s;
+      }
+      lib.d = DATE.getDay();
+      lib.ddd = localization.translate(147 + lib.d)[1];
+      lib.dddd = localization.translate(147 + lib.d)[0];
+      nowYEAR = new Date().getFullYear();
+      if (lib.YYYY !== nowYEAR) {
+        lib.optYY = "'" + lib.YY;
+        lib.optYYYY = lib.YYYY;
+      } else {
+        lib.optYY = '';
+        lib.optYYYY = '';
+      }
+      str = search || localization.translate("timestampMask");
+      str = str.replace(/(date|time)/g, function(mem) {
+        return localization.translate("timestampMask_" + mem);
+      });
+      str = str.replace(/(DD|D|ofMMMM|MMMM|MMM|MM|M|YYYY|YY|optYYYY|optYY|hh|h|mm|m|ss|s|dddd|ddd|d|wk)/g, function(mem) {
+        return lib[mem];
+      });
+      timestampCache[items + ':' + search] = str;
+      return str;
+    }
+  };
+});
+
+buzzlike.filter('secondsToHumanTime', function() {
+  return function(items, search) {
+    var hours, minutes, mod, result, seconds;
+    seconds = items;
+    if ((search != null) && search === 'ms') {
+      seconds = seconds / 1000;
+    }
+    hours = 0;
+    minutes = Math.floor(seconds / 60);
+    mod = seconds % 60;
+    result = '';
+    if (minutes > 59) {
+      hours = Math.floor(minutes / 60);
+      minutes = Math.floor(minutes % 60);
+    }
+    if (minutes < 10) {
+      minutes = '0' + minutes;
+    }
+    if (hours < 10) {
+      hours = '0' + hours;
+    }
+    if (mod < 10) {
+      mod = '0' + mod;
+    }
+    if (parseInt(hours) > 0) {
+      result = hours + ':' + minutes + ':' + mod;
+    } else {
+      result = minutes + ':' + mod;
+    }
+    if ((search != null) && search === 'ms') {
+      result = hours + ':' + minutes;
+    }
+    return result;
+  };
+});
+
+buzzlike.filter('formatNumber', function() {
+  return function(num, separator) {
+    var bNegative, i, j, nCount, nDotIndex, ref, sDecimalSeparator, sNewOutput, sOutput;
+    if (!separator) {
+      separator = " ";
+    }
+    if (num) {
+      bNegative = num < 0;
+      sDecimalSeparator = ".";
+      sOutput = num.toString();
+      nDotIndex = sOutput.lastIndexOf(sDecimalSeparator);
+      if (nDotIndex === -1) {
+        nDotIndex = sOutput.length;
+      }
+      sNewOutput = sOutput.substring(nDotIndex);
+      nCount = -1;
+      for (i = j = ref = nDotIndex; ref <= 0 ? j <= 0 : j >= 0; i = ref <= 0 ? ++j : --j) {
+        nCount++;
+        if ((nCount % 3 === 0) && (i !== nDotIndex) && (!bNegative || (i > 1))) {
+          sNewOutput = separator + sNewOutput;
+        }
+        sNewOutput = sOutput.charAt(i - 1) + sNewOutput;
+      }
+      return sNewOutput;
+    }
+    return num;
+  };
+});
+
+buzzlike.filter('hh', function() {
+  return function(num, search) {
+    var n;
+    n = '00';
+    if (num) {
+      if (num.length >= 3) {
+        num = num.replace(/0/, '');
+        if ($('.timeinput input:focus').caret() === 2) {
+          num = num.substr(0, num.length - 1);
+        }
+      }
+      n = Math.floor(num);
+      if (n > 23) {
+        n = 23;
+      } else if (n <= 0) {
+        n = 0;
+      }
+      if (n < 10) {
+        n = '0' + n;
+      }
+    }
+    return n;
+  };
+});
+
+buzzlike.filter('mm', function() {
+  return function(num, mod) {
+    var n;
+    n = '00';
+    if (num) {
+      if (num.length >= 3) {
+        num = num.replace(/0/, '');
+        if ($('.timeinput input:focus').caret() === 2) {
+          num = num.substr(0, num.length - 1);
+        }
+      }
+      n = Math.floor(num);
+      if (n > 59) {
+        n = 59;
+      } else if (n <= 0) {
+        n = 0;
+      }
+      if (n < 10) {
+        n = '0' + n;
+      }
+    }
+    return n;
+  };
+});
+
+buzzlike.filter('startFrom', function() {
+  return function(input, start) {
+    start = +start;
+    return input.slice(start);
+  };
+});
+
+buzzlike.filter('shortInt', function() {
+  return function(int, mod) {
+    var chars, k, res, v;
+    chars = {
+      1000000000: 'M',
+      1000000: 'm',
+      1000: 'k'
+    };
+    for (k in chars) {
+      v = chars[k];
+      if (int > k) {
+        res = Math.floor(int / k);
+        return res + v;
+      }
+    }
+    return int;
+  };
+});
+
+
+/*
+buzzlike.filter 'categoriesFilter', (lotService) ->
+    (item, type) ->
+        newList = []
+        for i in item
+            if i.categoryIds? and i.categoryIds[0]? and i.categoryIds.length > 0
+                if lotService.categoriesList[i.categoryIds[0]]? and lotService.categoriesList[i.categoryIds[0]].key == type
+                    newList.push i
+        newList
+ */

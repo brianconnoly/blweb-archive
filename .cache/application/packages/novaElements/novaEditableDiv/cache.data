@@ -1,0 +1,177 @@
+buzzlike.directive('novaEditableDiv', function($sce, localization, $parse, uploadService) {
+  return {
+    restrict: 'C',
+    require: '?ngModel',
+    link: function(scope, element, attrs, ngModel) {
+      var ceId, elem, jElem, placeholder, read, styles;
+      if (!ngModel) {
+        return;
+      }
+      elem = element[0];
+      jElem = $(elem);
+      elem.contentEditable = true;
+      ceId = 'ce' + getRandomInt(10000, 99999) + '_' + Date.now();
+      element.attr('id', ceId);
+      $('body').on('mousedown.' + ceId, function(e) {
+        elem.blur();
+        return window.getSelection().removeAllRanges();
+      });
+      placeholder = "";
+      styles = $('<style>');
+      $('head').append(styles);
+      scope.$on('$destroy', function() {
+        styles.remove();
+        return $('body').off('mousedown.' + ceId);
+      });
+      if (attrs.placeholderText != null) {
+        placeholder = localization.translate($parse(attrs.placeholderText)(scope));
+        if ($sce.getTrustedHtml(ngModel.$viewValue || '') === '') {
+          styles.html("#" + ceId + ".placeholder:after {content:'" + placeholder + "'}");
+        }
+        scope.$watch(function() {
+          return localization.state;
+        }, function(nVal) {
+          placeholder = localization.translate($parse(attrs.placeholderText)(scope));
+          if (element.hasClass('placeholder')) {
+            return styles.html("#" + ceId + ".placeholder:after {content:'" + placeholder + "'}");
+          }
+        }, true);
+      }
+      ngModel.$render = function() {
+        var value;
+        value = $sce.getTrustedHtml(ngModel.$viewValue || '');
+        element.removeClass('placeholder');
+        if (value === '') {
+          element.addClass('placeholder');
+        }
+        return element.html(value);
+      };
+      element.on('blur keyup change', function(e) {
+        return scope.$evalAsync(function() {
+          var html;
+          return html = read();
+        });
+      });
+      element.on('keydown', function(e) {
+        element.removeClass('placeholder');
+        if (attrs.onCmdEnter != null) {
+          if (e.which === 13 && isCmd(e)) {
+            e.stopPropagation();
+            e.preventDefault();
+            $parse(attrs.onCmdEnter)(scope)();
+          }
+        }
+        if (attrs.onEnter != null) {
+          if (e.which === 13) {
+            e.stopPropagation();
+            e.preventDefault();
+            return $parse(attrs.onEnter)(scope)();
+          }
+        }
+      });
+      element.on('paste', function(e) {
+        var ref, seq;
+        if (((ref = e.clipboardData) != null ? ref.items.length : void 0) > 0) {
+          seq = new Sequence({
+            name: 'Parse pasted items'
+          });
+          seq.addStep({
+            name: 'Prepare items',
+            "var": 'items',
+            iterator: function(step) {
+              var i, item, len, ref1, results;
+              ref1 = e.clipboardData.items;
+              results = [];
+              for (i = 0, len = ref1.length; i < len; i++) {
+                item = ref1[i];
+                if (item.kind === 'file') {
+                  results.push(step(item));
+                } else {
+                  results.push(void 0);
+                }
+              }
+              return results;
+            },
+            action: function(next, retry, item) {
+              var file, reader;
+              reader = new FileReader();
+              file = item.getAsFile();
+              reader.onload = function(e) {
+                return next({
+                  item: file,
+                  blob: event.target.result
+                });
+              };
+              return reader.readAsBinaryString(file);
+            }
+          });
+          seq.addStep({
+            name: 'Do upload',
+            "var": 'uploadResult',
+            action: function(next) {
+              return uploadService.upload({
+                buffer: seq.items
+              }, next);
+            }
+          });
+          seq.fire(function(result) {
+            var base;
+            if (attrs.pastedItems != null) {
+              if (typeof (base = $parse(attrs.pastedItems)(scope)) === "function") {
+                base(seq.uploadResult);
+              }
+            }
+            return true;
+          });
+        }
+        return setTimeout(function() {
+          var html;
+          html = elem.innerText || elem.textContent;
+          element.html(html);
+          return ngModel.$setViewValue(html);
+        }, 0);
+      });
+      element.on('mousedown', function(e) {
+        return e.stopPropagation();
+      });
+      element.on('focus', function(e) {
+        var html;
+        return html = read();
+      });
+      element.on('blur', function(e) {
+        var html;
+        html = elem.innerText || elem.textContent;
+        if (html === '') {
+          return element.addClass('placeholder');
+        }
+      });
+      read = function() {
+        var html;
+        html = elem.innerText || elem.textContent;
+        if (html === '') {
+          element.addClass('placeholder');
+        } else {
+          element.removeClass('placeholder');
+        }
+        ngModel.$setViewValue(html);
+        return html;
+      };
+      if (attrs.disabled != null) {
+        scope.$watch(attrs.disabled, function(nVal) {
+          if (nVal === true) {
+            return elem.contentEditable = false;
+          } else {
+            return elem.contentEditable = true;
+          }
+        });
+      }
+      read();
+      if (attrs.autoFocus != null) {
+        $(element).focus();
+      }
+      return true;
+    }
+  };
+});
+
+registerStyles('novaEditableDiv', ".novaEditableDiv {\n  white-space: pre-wrap;\n  background: none;\n  cursor: text !important;\n}\n.novaEditableDiv * {\n  cursor: text !important;\n}\n.novaEditableDiv:after {\n  cursor: text !important;\n}\n.novaEditableDiv:focus {\n  outline: none;\n}\n");

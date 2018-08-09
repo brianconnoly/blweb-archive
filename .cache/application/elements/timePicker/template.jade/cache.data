@@ -1,0 +1,1 @@
+<input ng-model="hours" ng-keydown="hour_keys($event)" class="hours"/><span>:</span><input ng-model="minutes" ng-keydown="minutes_keys($event)" class="minutes"/>

@@ -1,0 +1,253 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('scheduleService', function(itemService, rpc, actionsService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'schedule';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byPostId = {};
+      this.storageMap = {};
+      this.dayCommunity = {};
+      this.weekCommunity = {};
+      this.monthCommunity = {};
+      this.handler = null;
+      this.fetchData = {};
+    }
+
+    classEntity.prototype.fetchDayOptimized = function(ts, cId) {
+      if (this.fetchData[ts] == null) {
+        this.fetchData[ts] = [];
+      }
+      this.fetchData[ts].push(cId);
+      if (this.handler == null) {
+        return this.handler = setTimeout((function(_this) {
+          return function() {
+            var k, ref, results, v;
+            ref = _this.fetchData;
+            results = [];
+            for (k in ref) {
+              v = ref[k];
+              results.push(_this.query({
+                timestamp: {
+                  $gte: k * 1,
+                  $lte: k * 1 + DAY
+                },
+                communityId: {
+                  $in: v
+                }
+              }));
+            }
+            return results;
+          };
+        })(this), 500);
+      }
+    };
+
+    classEntity.prototype.getCommunityDay = function(timestamp, communityId) {
+      if (this.dayCommunity[timestamp] == null) {
+        this.dayCommunity[timestamp] = {};
+      }
+      if (this.dayCommunity[timestamp][communityId] == null) {
+        this.dayCommunity[timestamp][communityId] = [];
+        this.fetchDayOptimized(timestamp, communityId);
+      }
+      return this.dayCommunity[timestamp][communityId];
+    };
+
+    classEntity.prototype.getCommunityWeek = function(timestamp, communityId) {
+      if (this.weekCommunity[timestamp] == null) {
+        this.weekCommunity[timestamp] = {};
+      }
+      if (this.weekCommunity[timestamp][communityId] == null) {
+        this.weekCommunity[timestamp][communityId] = [];
+      }
+      return this.weekCommunity[timestamp][communityId];
+    };
+
+    classEntity.prototype.getCommunityMonth = function(timestamp, communityId) {
+      if (this.monthCommunity[timestamp] == null) {
+        this.monthCommunity[timestamp] = {};
+      }
+      if (this.monthCommunity[timestamp][communityId] == null) {
+        this.monthCommunity[timestamp][communityId] = [];
+      }
+      return this.monthCommunity[timestamp][communityId];
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var dateObj, dayTs, monthTs, saved, weekDay, weekTs;
+      saved = classEntity.__super__.handleItem.call(this, item);
+      if (this.byPostId[saved.postId] == null) {
+        this.byPostId[saved.postId] = [];
+      }
+      if (this.byPostId[saved.postId].indexOf(saved) === -1) {
+        this.byPostId[saved.postId].push(saved);
+      }
+      dateObj = new Date(saved.timestamp);
+      dayTs = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+      monthTs = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1).getTime();
+      weekDay = dateObj.getDay();
+      weekDay--;
+      if (weekDay < 0) {
+        weekDay = 6;
+      }
+      weekTs = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate() - weekDay).getTime();
+      if (this.storageMap[saved.id + 'day'] != null) {
+        removeElementFromArray(saved, this.storageMap[saved.id + 'day']);
+        delete this.storageMap[saved.id + 'day'];
+      }
+      if (this.storageMap[saved.id + 'week'] != null) {
+        removeElementFromArray(saved, this.storageMap[saved.id + 'week']);
+        delete this.storageMap[saved.id + 'week'];
+      }
+      if (this.storageMap[saved.id + 'month'] != null) {
+        removeElementFromArray(saved, this.storageMap[saved.id + 'month']);
+        delete this.storageMap[saved.id + 'month'];
+      }
+      if (this.dayCommunity[dayTs] == null) {
+        this.dayCommunity[dayTs] = {};
+      }
+      if (this.dayCommunity[dayTs][saved.communityId] == null) {
+        this.dayCommunity[dayTs][saved.communityId] = [];
+      }
+      if (indexOf.call(this.dayCommunity[dayTs][saved.communityId], saved) < 0) {
+        this.dayCommunity[dayTs][saved.communityId].push(saved);
+      }
+      this.storageMap[saved.id + 'day'] = this.dayCommunity[dayTs][saved.communityId];
+      if (this.weekCommunity[weekTs] == null) {
+        this.weekCommunity[weekTs] = {};
+      }
+      if (this.weekCommunity[weekTs][saved.communityId] == null) {
+        this.weekCommunity[weekTs][saved.communityId] = [];
+      }
+      if (indexOf.call(this.weekCommunity[weekTs][saved.communityId], saved) < 0) {
+        this.weekCommunity[weekTs][saved.communityId].push(saved);
+      }
+      this.storageMap[saved.id + 'week'] = this.weekCommunity[weekTs][saved.communityId];
+      if (this.monthCommunity[monthTs] == null) {
+        this.monthCommunity[monthTs] = {};
+      }
+      if (this.monthCommunity[monthTs][saved.communityId] == null) {
+        this.monthCommunity[monthTs][saved.communityId] = [];
+      }
+      if (indexOf.call(this.monthCommunity[monthTs][saved.communityId], saved) < 0) {
+        this.monthCommunity[monthTs][saved.communityId].push(saved);
+      }
+      this.storageMap[saved.id + 'week'] = this.monthCommunity[monthTs][saved.communityId];
+      return saved;
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var item;
+      item = this.storage[id];
+      if (item != null) {
+        removeElementFromArray(item, this.byPostId[item.postId]);
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.removeReposts = function(postId, cb) {
+      return rpc.call(this.itemType + '.removeReposts', postId, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.fetchByPostId = function(postId, cb) {
+      if (this.byPostId[postId] == null) {
+        this.byPostId[postId] = [];
+      }
+      this.query({
+        postIds: [postId]
+      }, function(items) {
+        return typeof cb === "function" ? cb(items) : void 0;
+      });
+      return this.byPostId[postId];
+    };
+
+    classEntity.prototype.getByPostId = function(postId) {
+      if (this.byPostId[postId] == null) {
+        this.byPostId[postId] = [];
+      }
+      this.byPostId[postId].empty = true;
+      return this.byPostId[postId];
+    };
+
+    classEntity.prototype.getOriginalByPostId = function(postId, cb, force) {
+      var i, len, preloaded, ref, ref1, sched;
+      if (force == null) {
+        force = false;
+      }
+      preloaded = (ref = this.byPostId[postId]) != null ? ref.empty : void 0;
+      ref1 = this.getByPostId(postId);
+      for (i = 0, len = ref1.length; i < len; i++) {
+        sched = ref1[i];
+        if (sched.scheduleType === 'post') {
+          if (typeof cb === "function") {
+            cb(sched);
+          }
+          return sched;
+        }
+      }
+      if (preloaded !== true && force === false) {
+        return;
+      }
+      delete this.byPostId[postId].empty;
+      this.query({
+        scheduleType: 'post',
+        postId: postId,
+        limit: 1
+      }, function(items) {
+        if (items[0] != null) {
+          if (typeof cb === "function") {
+            cb(items[0]);
+          }
+        } else {
+          return typeof cb === "function" ? cb(null) : void 0;
+        }
+      });
+      return null;
+    };
+
+    classEntity.prototype.repost = function(data, cb) {
+      return rpc.call('schedule.repost', data, (function(_this) {
+        return function(repostItem) {
+          return typeof cb === "function" ? cb(_this.handleItem(repostItem)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.updateOriginal = function(data, cb) {
+      return rpc.call('schedule.updateOriginal', data, (function(_this) {
+        return function(result) {
+          return typeof cb === "function" ? cb(_this.handleItem(result)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.clonePost = function(data, cb) {
+      return rpc.call('schedule.clonePost', data, (function(_this) {
+        return function(result) {
+          return typeof cb === "function" ? cb(_this.handleItems(result)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.sendNow = function(schedId, cb) {
+      return this.call('sendNow', schedId, cb);
+    };
+
+    classEntity.prototype.init = function() {
+      return classEntity.__super__.init.call(this);
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

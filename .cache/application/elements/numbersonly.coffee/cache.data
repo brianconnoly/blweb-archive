@@ -1,0 +1,20 @@
+buzzlike.directive("numbersonly", function() {
+  return {
+    restrict: "A",
+    require: "ngModel",
+    link: function(scope, element, attrs, modelCtrl) {
+      return modelCtrl.$parsers.push(function(inputValue) {
+        var transformedInput;
+        if (inputValue == null) {
+          return '';
+        }
+        transformedInput = inputValue.replace(/[^0-9]/g, '');
+        if (transformedInput !== inputValue) {
+          modelCtrl.$setViewValue(transformedInput);
+          modelCtrl.$render();
+        }
+        return transformedInput;
+      });
+    }
+  };
+});

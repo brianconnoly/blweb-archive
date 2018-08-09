@@ -1,0 +1,72 @@
+div.dragHandler.topBar.withHelp
+    process-bar.red
+    div.appControls
+    div.backButton(ng-click="stepBack()", ng-if="canGoBack()")
+
+    div.title(ng-if="currentStep.translateTitle && !currentStep.parent", translate="currentStep.translateTitle")
+    div.title(ng-if="!currentStep.translateTitle && !currentStep.parent") {{currentStep.title}}
+    item-title(ng-if="currentStep.parent", type="folder", id="currentStep.parent", placeholderText="contentApp_enterFolderName")
+
+    div.actionsPanel
+        div.action
+            div.icon
+                img(src="/resources/images/desktop/actions/white/header-button-upload.svg", ng-click="upload()")
+            div.settingsText(translate="'contentApp_upload'", ng-click="upload()")
+
+        div.action
+            div.icon
+                img(src="/resources/images/desktop/actions/white/header-button-newText.svg", ng-click="newText()")
+            div.settingsText(translate="'contentApp_newText'", ng-click="newText()")
+
+        div.action
+            div.icon.folder
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-newFolder.svg", ng-click="newFolder()")
+            div.settingsText.flushMousedown(translate="'contentApp_newFolder'", ng-click="newFolder()")
+        
+        div.action
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-poll.svg", ng-click="newPoll($event)")
+            div.settingsText.flushMousedown(translate="'contentApp_newPoll'", ng-click="showMoreMenu($event)")
+        
+        div.action
+            div.icon.settings
+                img.flushMousedown(src="/resources/images/desktop/actions/white/header-button-settings.svg", ng-click="showMoreMenu($event)")
+            div.settingsText.flushMousedown(translate="'contentApp_more'", ng-click="showMoreMenu($event)")
+    
+    div.switcherPanel
+        zoom-switch
+
+        div.switcher
+            div.iconButton
+                img(src="/resources/images/desktop/white/sortby.svg", ng-click="showSortMenu($event)")
+            div.settingsText(translate="'generalApp_sortType'")
+
+        div.switcher
+            div.switch.twoSide
+                div.button(ng-class="{'active':currentStep.filterTypes.image == true}", ng-click="currentStep.filterTypes.image = !currentStep.filterTypes.image")
+                    img.activate(src="/resources/images/desktop/types/white/filter-image.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-image-active.svg")
+                div.button(ng-class="{'active':currentStep.filterTypes.text == true}", ng-click="currentStep.filterTypes.text = !currentStep.filterTypes.text")
+                    img.activate(src="/resources/images/desktop/types/white/filter-text.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-text-active.svg")
+                div.button(ng-class="{'active':currentStep.filterTypes.video == true}", ng-click="currentStep.filterTypes.video = !currentStep.filterTypes.video")
+                    img.activate(src="/resources/images/desktop/types/white/filter-video.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-video-active.svg")
+                div.button(ng-class="{'active':currentStep.filterTypes.audio == true}", ng-click="currentStep.filterTypes.audio = !currentStep.filterTypes.audio")
+                    img.activate(src="/resources/images/desktop/types/white/filter-audio.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-audio-active.svg")
+                div.button(ng-class="{'active':currentStep.filterTypes.url == true}", ng-click="currentStep.filterTypes.url = !currentStep.filterTypes.url")
+                    img.activate(src="/resources/images/desktop/types/white/filter-url.svg")
+                    img.deactivate(src="/resources/images/desktop/types/white/filter-url-active.svg")
+                div.button(ng-class="{'active':currentStep.filterTypes.folder == true}", ng-click="currentStep.filterTypes.folder = !currentStep.filterTypes.folder")
+                    img.activate(src="/resources/images/desktop/filters/white/zoom-size-max.svg")
+                    img.deactivate(src="/resources/images/desktop/filters/white/zoom-size-max-active.svg")
+            div.settingsText(translate="'contentApp_displayTypes'")
+
+div.body.widthCrombs.droppableItem(no-effects, dropable-item="getDropable()", class="zoom_{{session.zoom}}", antiscroll)
+    items-container
+    
+bread-crombs
+
+help-browser
+

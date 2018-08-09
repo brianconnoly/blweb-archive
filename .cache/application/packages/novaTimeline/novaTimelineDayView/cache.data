@@ -1,0 +1,302 @@
+tC['/novaTimelineDayView/template.jade'] = "<div ng-switch=\"block.dayBreakType\" class=\"timeBox\"> <div ng-switch-when=\"day\"> <div class=\"monthLine\">{{::block.timestamp | timestampMask:'MMMM'}}</div> <div class=\"dayLine\">{{::block.timestamp | timestampMask:'D'}}</div> <div class=\"weekDayLine\">{{::block.timestamp | timestampMask:'ddd'}}</div> </div> <div ng-switch-when=\"month\"> <div class=\"monthLine big\">{{::block.timestamp | timestampMask:'MMMM'}}</div> <div class=\"yearLine\">{{::block.timestamp | timestampMask:'optYYYY'}}</div> </div> <div ng-switch-when=\"week\"> <div translate=\"'novaTimelineDayView_week'\" class=\"weekCaption\"></div> <div class=\"dayLine\">{{::block.timestamp | timestampMask:'wk'}}</div> <div class=\"weekRange\">{{::block.timestamp | timestampMask:'DD MMM'}}</div> <div class=\"weekRange\">{{::weekEnd | timestampMask:'DD MMM'}}</div> </div> </div> <div class=\"statsBox\"><span class=\"delta\">{{delta}}%</span><span class=\"total\">{{total}}</span></div> <div ng-click=\"newPost()\" class=\"newPostActivator\">+</div> <div class=\"graph\"> <canvas></canvas> </div>";
+
+buzzlike.directive('novaTimelineDayView', function(statsCutService, scheduleService, localization) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelineDayView/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var barHei, barWid, cHei, cWid, canvas, communityId, ctx, drawGraph, elem, greenColor, jcanvas, k, len, period, redColor, ref, spacer, timeObj, totalBars, ts, updateStats;
+      elem = $(element);
+      jcanvas = elem.find('canvas');
+      canvas = jcanvas[0];
+      ctx = canvas.getContext('2d');
+      cWid = 240;
+      cHei = 90;
+      barHei = 57;
+      canvas.width = cWid;
+      canvas.height = cHei;
+      redColor = "#E0A1A4";
+      greenColor = "#B0CC85";
+      switch (scope.block.dayBreakType) {
+        case 'week':
+          period = DAY;
+          totalBars = 7;
+          barWid = 34;
+          spacer = 5;
+          scope.weekEnd = scope.block.timestamp + WEEK - DAY;
+          break;
+        case 'month':
+          period = DAY;
+          timeObj = new Date(scope.block.timestamp);
+          totalBars = new Date(timeObj.getFullYear(), timeObj.getMonth() + 1, 0).getDate();
+          barWid = 240 / totalBars;
+          spacer = 1;
+          break;
+        default:
+          period = HOUR;
+          totalBars = 24;
+          barWid = 10;
+          spacer = 1;
+      }
+      if (window.devicePixelRatio > 1) {
+        canvas.width = cWid * window.devicePixelRatio;
+        canvas.height = cHei * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+      drawGraph = function(hours, maxValue) {
+        var hei, hour, i, j, k, l, m, max, n, o, post, ref, ref1, ref2, ref3, ref4, results, wd;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (i = k = 0, ref = totalBars - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+          hour = hours[i];
+          if (maxValue === 0) {
+            hei = barHei;
+          } else {
+            hei = Math.ceil(hour.history / maxValue * barHei);
+          }
+          ctx.fillStyle = "#EEF0F2";
+          ctx.fillRect(i * barWid, barHei - hei, barWid - spacer, hei);
+          max = (hour != null ? hour.postsTotal : void 0) || 0;
+          if (max > 5) {
+            max = 5;
+          }
+          if ((0 < max && max < 6)) {
+            for (j = l = 0, ref1 = max; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
+              post = hour.posts[j];
+              switch (post) {
+                case '0':
+                  ctx.fillStyle = '#EEF0F2';
+                  break;
+                case '-':
+                  ctx.fillStyle = redColor;
+                  break;
+                default:
+                  ctx.fillStyle = greenColor;
+              }
+              ctx.fillRect(i * barWid, barHei + 2 + (j * 3), barWid - spacer, 2);
+            }
+          }
+          if ((hour == null) || hour.total === 0) {
+            continue;
+          }
+          hei = Math.ceil(hour.total / maxValue * barHei);
+          if (hour.total < hour.history) {
+            ctx.fillStyle = redColor;
+          } else {
+            ctx.fillStyle = greenColor;
+          }
+          ctx.fillRect(i * barWid, barHei - hei, barWid - spacer, hei);
+        }
+        ctx.strokeStyle = 'rgb(230,230,230)';
+        ctx.font = '300 8px Roboto';
+        ctx.fillStyle = '#999999';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        switch (scope.block.dayBreakType) {
+          case 'week':
+            results = [];
+            for (i = m = 0, ref2 = totalBars - 1; 0 <= ref2 ? m <= ref2 : m >= ref2; i = 0 <= ref2 ? ++m : --m) {
+              wd = i + 1;
+              if (wd > 6) {
+                wd = 0;
+              }
+              results.push(ctx.fillText(localization.translate(147 + wd)[1], (i + 0.5) * barWid - spacer / 2, barHei + 24));
+            }
+            return results;
+            break;
+          case 'month':
+            for (i = n = 5, ref3 = totalBars; n <= ref3; i = n += 5) {
+              ctx.fillText(i, (i - 0.5) * barWid - spacer / 2, barHei + 24);
+            }
+            return ctx.fillText(1, 0.5 * barWid - spacer / 2, barHei + 24);
+          case 'day':
+            for (i = o = 0, ref4 = totalBars - 1; o <= ref4; i = o += 6) {
+              ctx.fillText(i, (i + 0.5) * barWid - spacer / 2, barHei + 24);
+            }
+            return ctx.fillText(23, 23.5 * barWid - spacer / 2, barHei + 24);
+        }
+      };
+      updateStats = function() {
+        var commPosts, hist, hourStats, i, id, k, l, len, len1, len2, len3, len4, m, maxValue, n, o, p, postStat, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, sched, stat, timestamp;
+        scope.total = 0;
+        scope.history = 0;
+        hourStats = {};
+        maxValue = 0;
+        for (i = k = 0, ref = totalBars - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+          hourStats[i] = {
+            history: 0,
+            total: 0,
+            posts: [],
+            postsTotal: 0,
+            postsGood: 0,
+            postsBad: 0
+          };
+        }
+        ref1 = scope.stats;
+        for (l = 0, len = ref1.length; l < len; l++) {
+          stat = ref1[l];
+          switch (scope.block.dayBreakType) {
+            case 'month':
+              if (((ref2 = stat.month) != null ? ref2.stats : void 0) == null) {
+                continue;
+              }
+              stat = stat.month;
+              break;
+            case 'week':
+              if (((ref3 = stat.week) != null ? ref3.stats : void 0) == null) {
+                continue;
+              }
+              stat = stat.week;
+              break;
+            case 'day':
+              if (((ref4 = stat.day) != null ? ref4.stats : void 0) == null) {
+                continue;
+              }
+              stat = stat.day;
+          }
+          scope.total += stat.stats.activity;
+          scope.history += stat.delta.activity;
+          ref5 = stat.forecast;
+          for (m = 0, len1 = ref5.length; m < len1; m++) {
+            hist = ref5[m];
+            id = Math.floor(hist.ts / period);
+            if (id > totalBars - 1) {
+              id = totalBars - 1;
+            }
+            hourStats[id].history += hist.delta.activity;
+            if (hourStats[id].history > maxValue) {
+              maxValue = hourStats[id].history;
+            }
+          }
+          ref6 = stat.history;
+          for (n = 0, len2 = ref6.length; n < len2; n++) {
+            hist = ref6[n];
+            id = Math.floor((hist.ts - stat.timestamp + (totalBars * period)) / period);
+            if (id > totalBars - 1) {
+              id = totalBars - 1;
+            }
+            if (id < 0) {
+              id = 0;
+            }
+            hourStats[id].total += hist.delta.activity;
+            if (hourStats[id].total > maxValue) {
+              maxValue = hourStats[id].total;
+            }
+          }
+        }
+        postStat = {};
+        ref7 = scope.posts;
+        for (o = 0, len3 = ref7.length; o < len3; o++) {
+          commPosts = ref7[o];
+          for (p = 0, len4 = commPosts.length; p < len4; p++) {
+            sched = commPosts[p];
+            if (postStat[sched.timestamp] == null) {
+              postStat[sched.timestamp] = {
+                total: 0,
+                history: 0
+              };
+            }
+            postStat[sched.timestamp].total += sched.lastStats.activity || 0;
+            if (sched.delta.activity * 1 >= 0) {
+              postStat[sched.timestamp].history += (sched.lastStats.activity * (1 - sched.delta.activity)) || 0;
+            } else {
+              postStat[sched.timestamp].history += (sched.lastStats.activity / (1 + sched.delta.activity)) || 0;
+            }
+          }
+        }
+        for (timestamp in postStat) {
+          stat = postStat[timestamp];
+          id = Math.floor((timestamp - scope.block.timestamp) / period);
+          hourStats[id].postsTotal++;
+          if (timestamp > Date.now()) {
+            hourStats[id].posts.push('0');
+          } else {
+            if (stat.history <= stat.total) {
+              hourStats[id].postsGood++;
+              hourStats[id].posts.push('+');
+            } else {
+              hourStats[id].postsBad++;
+              hourStats[id].posts.push('-');
+            }
+          }
+        }
+        drawGraph(hourStats, maxValue);
+        if (scope.total === scope.history) {
+          scope.delta = 0;
+          return;
+        }
+        if (scope.total === 0) {
+          scope.delta = -100;
+          return;
+        }
+        if (scope.history === 0) {
+          scope.delta = 100;
+          return;
+        }
+        if (scope.total > scope.history) {
+          scope.delta = Math.ceil(scope.total / scope.history * 100) - 100;
+        } else {
+          scope.delta = -100 + Math.ceil(scope.total / scope.history * 100);
+        }
+        return true;
+      };
+      scope.stats = [];
+      scope.posts = [];
+      ref = scope.communityIds;
+      for (k = 0, len = ref.length; k < len; k++) {
+        communityId = ref[k];
+        switch (scope.block.dayBreakType) {
+          case 'month':
+            ts = scope.block.timestamp + totalBars * DAY;
+            break;
+          case 'week':
+            ts = scope.block.timestamp + WEEK;
+            break;
+          default:
+            ts = scope.block.timestamp + DAY;
+        }
+        statsCutService.get({
+          timestamp: ts,
+          communityId: communityId
+        }, function(res) {
+          return scope.stats.push(res);
+        });
+        switch (scope.block.dayBreakType) {
+          case 'month':
+            scope.posts.push(scheduleService.getCommunityMonth(scope.block.timestamp, communityId));
+            break;
+          case 'week':
+            scope.posts.push(scheduleService.getCommunityWeek(scope.block.timestamp, communityId));
+            break;
+          case 'day':
+            scope.posts.push(scheduleService.getCommunityDay(scope.block.timestamp, communityId));
+        }
+      }
+      scope.$watch('stats', function() {
+        return updateStats();
+      }, true);
+      scope.$watch('posts', function() {
+        return updateStats();
+      }, true);
+      elem.on('mousedown', function(e) {
+        e.stopPropagation();
+        if (scope.flowFrame.active !== true || scope.flowBox.active !== true) {
+          scope.flow.activate(scope.flowFrame, scope.flowBox);
+          return scope.$apply();
+        }
+      });
+      return elem.on('dblclick', function(e) {
+        return scope.flowFrame.flowBox.addFlowFrame({
+          title: 'task',
+          directive: 'novaTimelineRangeFrame',
+          data: {
+            type: scope.block.dayBreakType,
+            timestamp: scope.block.timestamp,
+            communityIds: scope.communityIds
+          }
+        }, scope.flowFrame);
+      });
+    }
+  };
+});
+
+registerStyles('novaTimelineDayView', ".novaTimelineDayView {\n  height: 141px;\n  width: 100%;\n  border-bottom: 1px solid #ccc;\n  background: rgba(255,255,255,0.97);\n  color: #000;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.novaScrollerPage .novaTimelineDayView {\n  height: 140px;\n  margin-top: -1px;\n  border-top: 1px solid #ccc;\n}\n.novaTimelineDayView .timeBox {\n  position: absolute;\n  width: 60px;\n  text-align: center;\n  left: 0;\n  top: 18px;\n}\n.novaTimelineDayView .timeBox div {\n  width: 100%;\n}\n.novaTimelineDayView .timeBox .monthLine,\n.novaTimelineDayView .timeBox .weekCaption {\n  font-size: 8px;\n  height: 8px;\n  line-height: 8px;\n  text-transform: uppercase;\n}\n.novaTimelineDayView .timeBox .monthLine.big,\n.novaTimelineDayView .timeBox .weekCaption.big {\n  font-size: 11px;\n  height: 12px;\n  line-height: 12px;\n  font-weight: bolder;\n}\n.novaTimelineDayView .timeBox .dayLine {\n  font-size: 20px;\n  height: 24px;\n  line-height: 24px;\n}\n.novaTimelineDayView .timeBox .weekDayLine {\n  font-size: 12px;\n  height: 12px;\n  line-height: 12px;\n}\n.novaTimelineDayView .timeBox .yearLine {\n  font-size: 14px;\n  line-height: 16px;\n  height: 16px;\n}\n.novaTimelineDayView .timeBox .weekRange {\n  font-size: 10px;\n  height: 10px;\n  line-height: 10px;\n  text-transform: uppercase;\n}\n.novaTimelineDayView .statsBox {\n  position: absolute;\n  right: 20px;\n  top: 20px;\n  font-size: 13px;\n}\n.novaTimelineDayView .statsBox span {\n  text-align: right;\n}\n.novaTimelineDayView .statsBox .total {\n  width: 55px;\n  display: inline-block;\n}\n.novaTimelineDayView .newPostActivator {\n  position: absolute;\n  left: 20px;\n  bottom: 40px;\n  font-size: 37px;\n  font-weight: 200;\n  height: 20px;\n  width: 20px;\n  text-align: center;\n  line-height: 20px;\n  cursor: pointer;\n}\n.novaTimelineDayView .graph {\n  position: absolute;\n  bottom: 5px;\n  right: 20px;\n  width: 240px;\n  height: 90px;\n}\n.novaTimelineDayView .graph canvas {\n  width: 240px;\n  height: 90px;\n}\n.novaTimelineDayView .debug,\n.novaTimelineDayView .debug2 {\n  position: absolute;\n  bottom: 5px;\n  right: 5px;\n  width: 20px;\n  height: 20px;\n  background: #ccc;\n  cursor: pointer;\n}\n.novaTimelineDayView .debug2 {\n  right: 30px;\n}\n");

@@ -1,0 +1,45 @@
+buzzlike.factory('confirmService', function(optionsList, localization) {
+  var callbacks, confTimer, deleteItem;
+  confTimer = null;
+  callbacks = [];
+  deleteItem = function(data) {
+    var questionText;
+    callbacks.push(data.cb);
+    questionText = '';
+    if (data.entity.type === 'comb') {
+      questionText = 'delete_lot_withrequests';
+    }
+    if (data.entity.type === 'post') {
+      questionText = 'delete_lot';
+    }
+    if (data.entity.type === 'lot') {
+      questionText = 'delete_lot_withrequests';
+    }
+    return optionsList.init(questionText, [
+      {
+        text: 'textEditor_yes',
+        action: function() {
+          var cb, i, len;
+          for (i = 0, len = callbacks.length; i < len; i++) {
+            cb = callbacks[i];
+            cb(true);
+          }
+          return callbacks.length = 0;
+        }
+      }, {
+        text: 'textEditor_no',
+        action: function() {
+          var cb, i, len;
+          for (i = 0, len = callbacks.length; i < len; i++) {
+            cb = callbacks[i];
+            cb(false);
+          }
+          return callbacks.length = 0;
+        }
+      }
+    ]);
+  };
+  return {
+    deleteItem: deleteItem
+  };
+});

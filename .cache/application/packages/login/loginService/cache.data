@@ -1,0 +1,174 @@
+buzzlike.service('loginService', function($rootScope, rpc, env, socketService, socketAuth, localStorageService, browserPopup, localization) {
+  var closePopup, loginSn, networksData, popup, popupWatcher, state;
+  state = {
+    mode: 'default'
+  };
+  socketService.on('loginEvent', function(msg) {
+    closePopup();
+    console.log(msg);
+    switch (msg != null ? msg.type : void 0) {
+      case 'AUTH_OK':
+        socketAuth.fetchSession();
+        break;
+      case 'REGISTER':
+        state.mode = 'newSocial';
+        break;
+      case 'FAIL':
+        console.log('FAIL');
+        break;
+      case 'CLOSE':
+        console.log('CLOSE');
+    }
+    return $rootScope.$applyAsync();
+  });
+  window["try"] = function(msg) {
+    switch (msg) {
+      case 'AUTH_OK':
+        socketAuth.fetchSession();
+        break;
+      case 'REGISTER':
+        state.mode = 'newSocial';
+        break;
+      case 'FAIL':
+        console.log('FAIL');
+        break;
+      case 'CLOSE':
+        console.log('CLOSE');
+    }
+    return $rootScope.$applyAsync();
+  };
+  networksData = {};
+  popup = null;
+  popupWatcher = null;
+  closePopup = function() {
+    if (popup != null) {
+      popup.close();
+      popup = null;
+    }
+    if (popupWatcher != null) {
+      clearInterval(popupWatcher);
+      return popupWatcher = null;
+    }
+  };
+  loginSn = function(sn) {
+    var url;
+    closePopup();
+    url = env.baseurl + 'auth/snauth/' + sn + '?sid=' + localStorageService.get('sid');
+    popup = browserPopup.open(location.origin + '/resources/static/login.jade?ver=' + (window.frontVersion || ""), {
+      caption: localization.translate('userOptions_updateAccount'),
+      width: 671
+    });
+    popup.color = networksData[sn].background;
+    return popup.onload = function() {
+      return popup.location.href = url;
+    };
+  };
+  return {
+    state: state,
+    networksData: networksData,
+    init: function(cb) {
+      return rpc.call({
+        method: 'social.getNetworks',
+        anyway: function(data) {
+          var i, len, ref, sn;
+          if ((data != null ? data.err : void 0) != null) {
+            cb(data);
+            return;
+          }
+          $rootScope.networks = data;
+          $rootScope.pickerNetworks = [];
+          $rootScope.availableNetworks = {};
+          $rootScope.networksData = {};
+          if (!data) {
+            return cb(error(0));
+          }
+          ref = $rootScope.networks;
+          for (i = 0, len = ref.length; i < len; i++) {
+            sn = ref[i];
+            if (sn.enable || localStorage['DEV_MODE'] === true) {
+              networksData[sn.type] = {
+                enable: sn.enable,
+                background: sn.background
+              };
+              $rootScope.pickerNetworks.push({
+                name: sn.name,
+                value: sn.type,
+                title: sn.type,
+                "class": sn.type,
+                style: {
+                  background: sn.background
+                }
+              });
+            }
+            $rootScope.availableNetworks[sn.type] = sn.enable;
+            $rootScope.networksData[sn.type] = {
+              enable: sn.enable,
+              background: sn.background
+            };
+          }
+          $rootScope.pickerNetworks.push({
+            value: null,
+            title: "bl",
+            "class": "null",
+            style: {
+              background: "#000"
+            }
+          });
+          $rootScope.networks.push({
+            type: 'bl'
+          });
+          return cb(data);
+        }
+      });
+    },
+    doLogin: function(sn) {
+      if (sn === 'bl') {
+        return state.mode = 'blLogin';
+      } else {
+        return loginSn(sn);
+      }
+    },
+    auth: function(data, cb, merge) {
+      if (merge == null) {
+        merge = false;
+      }
+      return socketAuth.authBuzzlike({
+        login: data.login.toLowerCase(),
+        password: data.password
+      }, function(res) {
+        if (merge) {
+          rpc.call({
+            method: 'social.addAccountToUser'
+          });
+        }
+        return cb;
+      });
+    },
+    newSocial: function(cb) {
+      return rpc.call({
+        method: 'auth.registerGuestSN',
+        success: function() {
+          socketAuth.fetchSession();
+          return typeof cb === "function" ? cb(true) : void 0;
+        }
+      });
+    },
+    register: function(data, cb, merge) {
+      if (merge == null) {
+        merge = false;
+      }
+      return rpc.call({
+        method: 'auth.register',
+        data: {
+          login: data.login.toLowerCase(),
+          password: data.password
+        },
+        success: (function(_this) {
+          return function() {
+            return _this.auth(data, cb, merge);
+          };
+        })(this)
+      });
+    }
+  };
+});

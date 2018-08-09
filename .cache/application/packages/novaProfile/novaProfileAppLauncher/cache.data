@@ -1,0 +1,13 @@
+tC['/novaProfileAppLauncher/template.jade'] = "<img src=\"{{user.photo}}\" class=\"picPreload\"/> <div ng-click=\"showOptions()\" class=\"options\"> <div class=\"corner\"></div> </div>";
+
+buzzlike.directive('novaProfileAppLauncher', function(account) {
+  return {
+    restrict: 'C',
+    template: null,
+    link: function(scope, element, attrs, ngModel) {
+      return scope.user = account.user;
+    }
+  };
+});
+
+registerStyles('novaProfileAppLauncher', ".novaProfileAppLauncher {\n  pointer-events: auto !important;\n}\n.novaProfileAppLauncher .options {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  width: 16px;\n  background: rgba(255,255,255,0.6);\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  cursor: pointer;\n}\n.novaProfileAppLauncher .options .corner {\n  position: absolute;\n  top: 11px;\n  left: 5px;\n  border-right: solid transparent 3px;\n  border-left: solid transparent 3px;\n  border-bottom: 4px solid rgba(0,0,0,0.7);\n  pointer-events: none;\n}\n.novaProfileAppLauncher:hover .options {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n");

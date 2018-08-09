@@ -1,0 +1,25 @@
+div.dragHandler.topBar.noMaximize.noSettings.black
+    div.appControls
+    div.title(translate="'calendarApp_title'")
+
+div.body.dragHandler
+    table
+        tr.head
+            td.center(colspan=7)
+                div.arrow.flushMousedown(ng-click="goLeft()")
+                    div.button.left
+                div.month {{localization.translate(154 + current.month)[0]}} 
+                    //- {{current.year}}
+                div.arrow.flushMousedown(ng-click="goRight()")
+                    div.button.right
+        tr.week
+            td.day.dayname {{localization.translate(148)[1].toUpperCase()}}
+            td.day.dayname {{localization.translate(149)[1].toUpperCase()}}
+            td.day.dayname {{localization.translate(150)[1].toUpperCase()}}
+            td.day.dayname {{localization.translate(151)[1].toUpperCase()}}
+            td.day.dayname {{localization.translate(152)[1].toUpperCase()}}
+            td.day.dayname {{localization.translate(153)[1].toUpperCase()}}
+            td.day.dayname {{localization.translate(147)[1].toUpperCase()}}
+        tr.table_body(ng-repeat="week in days")
+            td.day.flushMousedown(ng-repeat="day in week", ng-class="{'active':day.active, 'selected':day.selected, 'other':day.other}", data-date="{{day.date}}", ng-click="pickDate(day, $event)") 
+                div.dayNumber {{day.date}}

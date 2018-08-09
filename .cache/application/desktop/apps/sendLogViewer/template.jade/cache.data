@@ -1,0 +1,1 @@
+<div class="dragHandler topBar noSettings"><process-bar></process-bar><div class="appControls"></div><div translate="'sendLogViewerApp_title'" class="title"></div></div><div class="body"><div ng-repeat="log in schedule.sendLog | orderBy:logOrder" class="novaLog"></div></div>

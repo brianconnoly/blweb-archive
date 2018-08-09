@@ -1,0 +1,13 @@
+div.novaFrameTopBarLayout
+
+    div.novaPostCreateSimple(ng-if="createPostActive")
+    div.novaFrameTopBar
+        div.createPost(ng-click="createPost()", translate="'novaThemePostsFrame_createPost'")
+        div.textLink.goComb(ng-click="goComb()", ng-if="appItem.type != 'comb'", translate="'novaThemePostsFrame_goComb'")
+        div.textLink.showProposed(
+            ng-click="showProposed()", 
+            translate="'novaThemePostsFrame_showProposed'",
+            ng-if="ugcs.length > 0")
+    
+    div.novaFrameContents
+        div.novaCollectorProposedPost.novaItem.novaItemDroppable.novaItemDraggable(ng-repeat="item in items | filter:postFilter", ng-dblclick="openPostEdit(item)")

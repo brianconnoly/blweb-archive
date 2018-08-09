@@ -1,0 +1,108 @@
+buzzlike.factory('socialContentBrowser', function(env, httpWrapped, contentService, buffer) {
+  var content, fetchAlbumContent, fetchAlbums, handleIncomingContent, socialBaseUrl, status;
+  socialBaseUrl = env.baseurl + '/social';
+  status = {
+    loading: false,
+    empty: false
+  };
+  content = [];
+  fetchAlbums = function(contentCommunity, type, cb) {
+    var owner, sn;
+    owner = contentCommunity.id;
+    sn = contentCommunity.socialNetwork;
+    status.loading = true;
+    status.empty = false;
+    return rpc.call(sn + 'Import.getAlbums', {
+      type: type,
+      communityId: owner
+    }, function(albums) {
+      var album, i, len;
+      if (albums.err === true) {
+        return;
+      }
+      content.length = 0;
+      for (i = 0, len = albums.length; i < len; i++) {
+        album = albums[i];
+        album.type = 'album';
+        content.push(album);
+      }
+      status.loading = false;
+      return typeof cb === "function" ? cb(albums) : void 0;
+    }, true);
+  };
+  handleIncomingContent = function(items) {
+    var contentItem, i, len;
+    if (items.err === true) {
+      return;
+    }
+    content.length = 0;
+    for (i = 0, len = items.length; i < len; i++) {
+      contentItem = items[i];
+      if (content.indexOf(contentItem) < 0) {
+        content.push(contentItem);
+      }
+    }
+    status.loading = false;
+    if (items.length === 0) {
+      return status.empty = true;
+    }
+  };
+  fetchAlbumContent = function(album) {
+    var sn;
+    sn = album.socialNetwork;
+    status.loading = true;
+    status.empty = false;
+    return rpc.call(sn + 'Import.getAlbumContent', album, handleIncomingContent, true);
+  };
+  return {
+    fetchAlbums: fetchAlbums,
+    fetchAlbumContent: fetchAlbumContent,
+    importAlbum: function(album, cb) {
+      var sn;
+      sn = album.socialNetwork;
+      return rpc.call(sn + 'Import.importAlbum', album, function(folder) {
+        var item;
+        if (folder != null) {
+          item = contentService.handleItem(folder);
+          return buffer.addItems([folder]);
+        }
+      });
+    },
+    importItem: function(item, cb) {
+      return rpc.call('socialImport.importItem', item, function(createdItem) {
+        if (createdItem != null) {
+          item = contentService.handleItem(createdItem);
+          return buffer.addItems([createdItem]);
+        }
+      });
+    },
+    getContent: function() {
+      return content;
+    },
+    purge: function() {
+      return content.length = 0;
+    },
+    getAvailableTypes: function(contentCommunity, cb) {
+      var owner, sn, types;
+      owner = contentCommunity.id;
+      sn = contentCommunity.socialNetwork;
+      types = [];
+      status.loading = true;
+      status.empty = false;
+      rpc.call(sn + 'Import.getAvailableTypes', owner, function(data) {
+        var i, item, len;
+        for (i = 0, len = data.length; i < len; i++) {
+          item = data[i];
+          types.push(item);
+        }
+        if (types.length === 0) {
+          status.empty = true;
+          status.loading = false;
+        }
+        return typeof cb === "function" ? cb(types) : void 0;
+      });
+      return types;
+    },
+    status: status
+  };
+});

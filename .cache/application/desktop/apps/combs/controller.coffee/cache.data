@@ -1,0 +1,476 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.controller('combsCtrl', function($scope, desktopService, operationsService, groupService, account, teamService, complexMenu, uploadService, contentService, postService, combService, multiselect, buffer, actionsService, confirmBox, localization) {
+  var sortTypes;
+  if ($scope.session.zoom == null) {
+    $scope.session.zoom = 'mid';
+  }
+  $scope.helpFile = 'themes';
+  $scope.stateTree.applyState({
+    'V cmd': function(repeat, defaultAction) {
+      var items;
+      items = multiselect.getFocused();
+      return defaultAction(items);
+    },
+    'U cmd': function(repeat, defaultAction) {
+      var items;
+      items = multiselect.getFocused();
+      return defaultAction(items);
+    },
+    'delete': function() {
+      var items;
+      items = multiselect.getFocused();
+      if (items.length > 0) {
+        return confirmBox.init({
+          realText: localization.translate(32) + ' ' + items.length + ' ' + localization.declensionPhrase(items.length, 'combs_deletion_number'),
+          description: 'comb_delete_description'
+        }, function() {
+          var deleted, i, ids, item, j, len, len1, ref, results;
+          ids = [];
+          for (i = 0, len = items.length; i < len; i++) {
+            item = items[i];
+            ids.push(item.id);
+          }
+          buffer.removeItems(items);
+          deleted = [];
+          results = [];
+          for (j = 0, len1 = items.length; j < len1; j++) {
+            item = items[j];
+            if (ref = item.id, indexOf.call(deleted, ref) < 0) {
+              deleted.push(item.id);
+              if (combService.exists(item.id)) {
+                results.push(combService["delete"](item));
+              } else {
+                results.push(void 0);
+              }
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        });
+      }
+    },
+    'escape': function() {
+      return $scope.stepBack();
+    }
+  });
+  if ($scope.session.filterTypes == null) {
+    $scope.session.filterTypes = {
+      image: false,
+      text: false,
+      url: false,
+      video: false,
+      audio: false,
+      poll: false,
+      file: false
+    };
+  }
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'combsApp_myCombs',
+    flow: true,
+    sortBy: 'created',
+    itemType: 'comb',
+    notSended: false,
+    notScheduled: false,
+    query: {}
+  };
+  $scope.stepStack.push($scope.currentStep);
+  sortTypes = ['created', 'lastUpdated', 'lastSent', 'lastScheduled'];
+  $scope.showSortMenu = function(e) {
+    return complexMenu.show([
+      {
+        object: $scope.currentStep,
+        type: 'select',
+        param: 'sortBy',
+        items: [
+          {
+            phrase: 'filter_catalog_sort_by_community',
+            value: 'communities'
+          }, {
+            phrase: 'filter_catalog_sort_created',
+            value: 'created'
+          }, {
+            phrase: 'filter_catalog_sort_lastUpdated',
+            value: 'lastUpdated'
+          }, {
+            phrase: 'filter_catalog_sort_lastSent',
+            value: 'lastUseInSentPosts',
+            disabled: $scope.currentStep.notSended === true
+          }, {
+            phrase: 'filter_catalog_sort_lastScheduled',
+            value: 'lastUseInCombs',
+            disabled: $scope.currentStep.notScheduled === true
+          }
+        ]
+      }, {
+        object: $scope.currentStep.query,
+        type: 'checkbox',
+        items: [
+          {
+            phrase: 'filter_settings_hide_sent',
+            param: 'hideAllSent',
+            disabled: $scope.currentStep.sortBy.indexOf('lastSent') > -1
+          }, {
+            phrase: 'filter_settings_hide_scheduled',
+            param: 'hideAllScheduled',
+            disabled: $scope.currentStep.sortBy.indexOf('lastScheduled') > -1
+          }
+        ]
+      }
+    ], {
+      top: $(e.target).offset().top + 27,
+      left: $(e.target).offset().left
+    });
+  };
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.goSection = function(section) {
+    var id, ref;
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = angular.copy($scope.currentStep);
+    updateObjectFull($scope.currentStep, section);
+    if (((ref = section.title) != null ? ref.length : void 0) > 0) {
+      delete $scope.currentStep.translateTitle;
+    }
+    $scope.currentStep.group = false;
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+      return $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+    }
+  };
+  $scope.triggerShared = function() {
+    var id;
+    multiselect.flush();
+    if ($scope.currentStep.type === 'shared') {
+      return $scope.stepBack();
+    } else {
+      id = $scope.stepStack.indexOf($scope.currentStep);
+      if (id < $scope.stepStack.length - 1) {
+        $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+      }
+      $scope.currentStep = {
+        translateTitle: 'generalApp_sharedWithMe',
+        type: 'shared',
+        itemType: 'comb',
+        group: true,
+        query: {},
+        sortBy: $scope.currentStep.sortBy,
+        filterTypes: $scope.currentStep.filterTypes
+      };
+      return $scope.stepStack.push($scope.currentStep);
+    }
+  };
+  $scope.newText = function() {
+    var items, process;
+    items = multiselect.getFocused();
+    process = $scope.progress.add();
+    return contentService.create({
+      type: 'text',
+      value: ''
+    }, function(newText) {
+      var i, item, len;
+      buffer.addItem(newText);
+      desktopService.launchApp('textEditor', {
+        textId: newText.id
+      });
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        combService.addContentIds(item.id, [newText.id]);
+      }
+      return $scope.progress.finish(process);
+    });
+  };
+  $scope.newPost = function() {
+    var i, item, items, len, results;
+    items = multiselect.getFocused();
+    if (items.length > 0) {
+      results = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        results.push(postService.create({
+          combId: item.id
+        }, function(newPost) {
+          return buffer.addItem(newPost);
+        }));
+      }
+      return results;
+    } else {
+      return postService.create({}, function(newPost) {
+        return desktopService.launchApp('combEdit', {
+          combId: newPost.combId
+        });
+      });
+    }
+  };
+  $scope.showMoreMenu = function(e) {
+    var action, actions, groups, i, items, itemsActions, k, len, list;
+    items = multiselect.getFocused();
+    itemsActions = actionsService.getActions({
+      source: items
+    });
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (i = 0, len = itemsActions.length; i < len; i++) {
+        action = itemsActions[i];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      complexMenu.show(groups, {
+        top: $(e.target).offset().top + 27,
+        left: $(e.target).offset().left
+      });
+    }
+    return true;
+  };
+  $scope.queryFunction = function(query, cb) {
+    return operationsService.query($scope.currentStep.itemType, query, cb);
+  };
+  $scope.getGroups = function(cb) {
+    var date, dateObj, day, excludeCommunityIds, groups, result, startDay, startDayTS, startYear;
+    groups = [];
+    if ($scope.currentStep.sortBy === 'communities') {
+      result = [];
+      excludeCommunityIds = [];
+      groupService.get(function() {
+        var commIds, feed, group, i, id, len, ref, ref1, ref2;
+        ref = groupService.storage;
+        for (id in ref) {
+          group = ref[id];
+          commIds = [];
+          ref1 = group.feeds;
+          for (i = 0, len = ref1.length; i < len; i++) {
+            feed = ref1[i];
+            commIds.push(feed.communityId);
+            if (ref2 = feed.communityId, indexOf.call(excludeCommunityIds, ref2) >= 0) {
+              continue;
+            }
+            excludeCommunityIds.push(feed.communityId);
+          }
+          groups.push({
+            communityId: group.feeds[0].communityId,
+            type: 'comb',
+            screens: 3,
+            lines: 3,
+            query: {
+              entityType: 'comb',
+              communityId: {
+                '$in': commIds
+              }
+            }
+          });
+        }
+        groups.unshift({
+          translateTitle: 'combsApp_notUsedInCommunities',
+          type: 'comb',
+          screens: 3,
+          lines: 3,
+          query: {
+            entityType: 'comb',
+            excludeCommunityIds: excludeCommunityIds
+          }
+        });
+        return typeof cb === "function" ? cb(groups) : void 0;
+      });
+    } else if ($scope.currentStep.type === 'shared') {
+      teamService.query({
+        member: account.user.id
+      }, function(items) {
+        var i, item, len, ref;
+        for (i = 0, len = items.length; i < len; i++) {
+          item = items[i];
+          groups.push({
+            translateTitle: !((ref = item.name) != null ? ref.length : void 0) > 0 ? 'generalApp_sharedWith_noNameTeam' : null,
+            groupPic: item.cover,
+            type: 'comb',
+            title: item.name,
+            screens: 3,
+            lines: 3,
+            query: {
+              entityType: 'comb',
+              teamId: item.id
+            }
+          });
+        }
+        return typeof cb === "function" ? cb(groups) : void 0;
+      });
+    } else if ($scope.currentStep.sortBy.indexOf('lastU') > -1 || $scope.currentStep.sortBy === 'created') {
+      dateObj = new Date();
+      startDay = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+      startYear = new Date(dateObj.getFullYear(), 0, 1);
+      date = dateObj.getDate();
+      day = dateObj.getDay();
+      day -= 1;
+      if (day < 0) {
+        day = 7;
+      }
+      startDayTS = startDay.getTime();
+      groups.push({
+        translateTitle: 'group_by_today',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterGreater: startDayTS - 1
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_yesterday',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterLower: startDayTS,
+          filterGreater: startDayTS - DAY - 1
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_currentWeek',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterLower: startDayTS - DAY,
+          filterGreater: startDayTS - DAY * day - 1
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_lastWeek',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterLower: startDayTS - DAY * day,
+          filterGreater: startDayTS - DAY * (day + 7) - 1
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_lastMonth',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterLower: startDayTS - DAY * (day + 7),
+          filterGreater: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1)
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_thisYear',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterLower: startDayTS - DAY * date,
+          filterGreater: startYear.getTime() - 1
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_laterThenEver',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterLower: startYear.getTime(),
+          filterGreater: 1
+        }
+      });
+      groups.push({
+        translateTitle: 'group_by_other',
+        screens: 3,
+        lines: 3,
+        query: {
+          hideAllSent: $scope.currentStep.query.hideAllSent,
+          hideAllScheduled: $scope.currentStep.query.hideAllScheduled,
+          sortBy: $scope.currentStep.sortBy,
+          sortType: $scope.currentStep.sortType || 'desc',
+          filterBy: $scope.currentStep.sortBy,
+          filterEquals: {
+            $in: [null, 0]
+          }
+        }
+      });
+      if (typeof cb === "function") {
+        cb(groups);
+      }
+    }
+    return groups;
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep)
+    };
+  }, function(data) {
+    var i, len, ref, step;
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (i = 0, len = ref.length; i < len; i++) {
+      step = ref[i];
+      $scope.stepStack.push(step);
+    }
+    return $scope.currentStep = $scope.stepStack[data.current * 1];
+  });
+  $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  return true;
+});

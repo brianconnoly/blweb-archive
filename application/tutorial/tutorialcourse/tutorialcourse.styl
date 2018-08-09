@@ -1,0 +1,145 @@
+.tutorialcourse
+    position absolute
+    display none
+    z-index 6
+    left 0
+    top 0
+    background rgba(249,249,249,0.89)
+    width 300px
+
+    .arrow
+        position absolute
+        display none
+        background #fff
+
+    .arrow:after
+        border solid transparent
+        content " "
+        height 0
+        width 0
+        position absolute
+        pointer-events none
+        border-width 15px
+        margin-left -15px
+
+    .arrow_box_top
+        left 0
+        top 0
+
+    .arrow_box_top:after
+        bottom 100%
+        left 50%
+        border-bottom-color rgba(249, 249, 249, 0.89)
+
+    .arrow_box_bottom
+        left 0
+        top 100%
+
+    .arrow_box_bottom:after
+        top 100%
+        left 50%
+        border-top-color rgba(249, 249, 249, 0.89)
+
+    .arrow_box_left
+        left 0
+        top 50%
+        margin-left -15px
+
+    .arrow_box_left:after
+        border solid transparent
+        content " "
+        height 0
+        width 0
+        position absolute
+        pointer-events none
+        border-color rgba(249, 249, 249, 0)
+        border-right-color rgba(249, 249, 249, 0.89)
+        border-width 15px
+        margin-top -15px
+
+    .arrow_box_right
+        right 0
+        top 50%
+        margin-right -15px
+
+    .arrow_box_right:after
+        border solid transparent
+        content " "
+        height 0
+        width 0
+        position absolute
+        pointer-events none
+        border-color rgba(249, 249, 249, 0)
+        border-left-color rgba(249, 249, 249, 0.89)
+        border-width 15px
+        margin-top -15px
+
+
+    .close
+        position absolute
+        sprite "/resources/images/icons/close.png" 0px 0px 100% 100%
+        cursor pointer
+        width 11px
+        height 11px
+        z-index 10
+        margin 7px 0 0 7px
+
+    .wrapper
+        position relative
+        overflow hidden
+        padding 15px
+
+        .step
+            font-size 18px
+            color #000
+            padding-bottom 5px
+            text-align center
+
+        .text
+            font-size 14px
+            color #000
+            line-height 1.3em
+
+            img
+                max-width 280px
+                margin 10px 0
+                -webkit-transform: scale(1, 1)
+
+        .controls
+            position relative
+            margin 15px 0
+
+            span
+                font-size 14px
+                color #5f9ec3
+                cursor pointer
+                margin-right 10px
+
+            .lock
+                color #999
+                cursor default
+
+                display none
+
+            .prev
+            .next
+            .whitespace
+                position relative
+                z-index 10
+
+            .prev
+                float left
+
+            .next
+                float right
+
+            .whitespace
+                float left
+
+            .finBlock
+                position absolute
+                left 0
+                top 0
+                width 100%
+                z-index 5
+                text-align center

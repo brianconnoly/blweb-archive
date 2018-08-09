@@ -1,0 +1,6 @@
+div.novaAppLeftPanel
+    div.novaProfileOverview
+    div.novaModuleActivator(ng-repeat="module in modules")
+        div.title(translate="'moduleTitle_' + module.title", ng-click="runModule(module)", ng-class="{'active':module == activeModule}")
+        
+div.workarea.novaFlow

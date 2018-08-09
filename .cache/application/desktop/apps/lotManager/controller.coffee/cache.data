@@ -1,0 +1,377 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.controller('lotManagerCtrl', function($scope, $filter, smartDate, updateService, account, lotService, communityService, scheduleService, desktopService, requestService, confirmBox) {
+  var applyStep, flushHandler, flushLot, preloadLot, tsCache, updateId;
+  $scope.session.expandedHeader = false;
+  $scope.requestLots = [];
+  $scope.user = account.user;
+  $scope.userMorpheus = function() {
+    var ref, ref1;
+    if (((ref = account.user) != null ? (ref1 = ref.roles) != null ? ref1.Morpheus : void 0 : void 0) === true) {
+      return true;
+    }
+    return false;
+  };
+  $scope.openCommPage = function(item) {
+    return openCommunityPage(item);
+  };
+  $scope.stateTree.applyState({
+    'escape': function() {
+      return $scope.stepBack();
+    }
+  });
+  tsCache = {};
+  $scope.getFormatedDate = function(ts) {
+    ts = smartDate.getShiftTimeline(ts);
+    if (tsCache[ts] == null) {
+      tsCache[ts] = $filter('timestampMask')(ts, 'DD.M.YY hh:mm');
+    }
+    return tsCache[ts];
+  };
+  $scope.currentLot = null;
+  $scope.lotCommunity = null;
+  $scope.showSettings = false;
+  $scope.requests = [];
+  flushHandler = null;
+  flushLot = function(lotId) {
+    if (flushHandler !== null) {
+      clearTimeout(flushHandler);
+      flushHandler = null;
+    }
+    return flushHandler = setTimeout(function() {
+      var process;
+      process = $scope.progress.add();
+      return lotService.flushNew(lotId, function() {
+        return $scope.progress.finish(process);
+      });
+    }, 5000);
+  };
+  $scope.selectLot = function(lot) {
+    var ref;
+    $scope.progress.flush();
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.splice(1, $scope.stepStack.length - 1);
+    }
+    $scope.currentStep = {
+      translateTitle: ((ref = lot.name) != null ? ref.length : void 0) > 0 ? null : 'lotManagerApp_lotRequests',
+      title: lot.name,
+      lotId: lot.id
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return preloadLot(lot);
+  };
+  preloadLot = function(lot) {
+    var schedProcess;
+    $scope.currentLot = lot;
+    $scope.lotCommunity = null;
+    $scope.requests.length = 0;
+    $scope.resetRequestList();
+    $scope.fetchRequestsPage();
+    $scope.showSettings = !lot.published;
+    schedProcess = $scope.progress.add();
+    return scheduleService.getOriginalByPostId(lot.postId, function(schedItem) {
+      var commProcess;
+      $scope.progress.finish(schedProcess);
+      commProcess = $scope.progress.add();
+      return communityService.getById(schedItem.communityId, function(communityItem) {
+        $scope.progress.finish(commProcess);
+        $scope.lotCommunity = communityItem;
+        return flushLot(lot.id);
+      });
+    }, true);
+  };
+  $scope.previewLot = function() {
+    return desktopService.launchApp('lotPreview', {
+      lotId: $scope.currentLot.id
+    });
+  };
+  $scope.saveLot = function() {
+    var saveProcess;
+    saveProcess = $scope.progress.add();
+    return lotService.save($scope.currentLot, function() {
+      return $scope.progress.finish(saveProcess);
+    });
+  };
+  $scope.triggerPublish = function(invert) {
+    if (invert == null) {
+      invert = false;
+    }
+    if (($scope.currentLot.published === true && invert === false) || ($scope.currentLot.published === false && invert === true)) {
+      return confirmBox.init({
+        phrase: 'confirmpublishlot',
+        description: 'confirmpublishlot_description'
+      }, function() {
+        var process;
+        process = $scope.progress.add();
+        return lotService.publish($scope.currentLot.id, function() {
+          return $scope.progress.finish(process);
+        });
+      }, function() {
+        return $scope.currentLot.published = false;
+      });
+    } else {
+      return confirmBox.init({
+        phrase: 'unpublished_lot',
+        description: 'unpublished_lot_description'
+      }, function() {
+        var process;
+        process = $scope.progress.add();
+        return lotService.unpublish($scope.currentLot.id, function() {
+          return $scope.progress.finish(process);
+        });
+      }, function() {
+        return $scope.currentLot.published = true;
+      });
+    }
+  };
+  $scope.lotActive = function() {
+    var ref;
+    return ((ref = $scope.currentLot) != null ? ref.dateTo : void 0) > Date.now();
+  };
+  $scope.deleteLot = function() {
+    var actions;
+    actions = [
+      {
+        text: 'textEditor_yes',
+        action: function() {
+          return lotService["delete"]($scope.currentLot, function(result) {
+            $scope.currentStep = $scope.stepStack[0];
+            $scope.stepStack.length = 1;
+            return applyStep($scope.currentStep);
+          });
+        }
+      }, {
+        text: 'textEditor_no',
+        action: function() {
+          return false;
+        }
+      }
+    ];
+    return desktopService.launchApp('optionsList', {
+      message: {
+        phrase: 'requestmanager_removelot',
+        description: 'requestmanager_removelot_description'
+      },
+      options: actions,
+      newSettings: {
+        cancelButton: false
+      }
+    });
+  };
+  $scope.lotFilter = function(item) {
+    return item.deleted !== true;
+  };
+  $scope.lotOrder = function(item) {
+    var map, ref;
+    map = item != null ? (ref = item.userUpdated) != null ? ref[0] : void 0 : void 0;
+    if ((map != null ? map.userId : void 0) === account.user.id) {
+      if (map.unread) {
+        return '3' + map.timestamp;
+      }
+      if (map.updates > 0) {
+        return '2' + map.timestamp;
+      }
+      return '1' + map.timestamp;
+    }
+  };
+  $scope.lotParams = {
+    pageSize: 0,
+    page: 0,
+    total: 0,
+    isLoading: false,
+    reloadOnStart: false
+  };
+  $scope.resetLotList = function() {
+    $scope.lotParams.pageSize = Math.ceil(($scope.session.size.height - 100) / 120) * 2;
+    $scope.lotParams.page = 0;
+    $scope.lotParams.total = 0;
+    $scope.lotParams.isLoading = false;
+    return $scope.lotParams.reloadOnStart = false;
+  };
+  $scope.resetLotList();
+  $scope.fetchLotsPage = function() {
+    var requestsProcess;
+    if ($scope.lotParams.isLoading === true) {
+      return;
+    }
+    requestsProcess = $scope.progress.add();
+    $scope.lotParams.isLoading = true;
+    return lotService.query({
+      updateUser: account.user.id,
+      limit: $scope.lotParams.pageSize,
+      page: $scope.lotParams.page,
+      sortBy: 'userUpdated.timestamp',
+      sortType: 'desc',
+      lotType: 'repost'
+    }, function(items, total) {
+      var i, item, len;
+      if ($scope.requestParams.page === 0) {
+        $scope.requests.length = 0;
+      }
+      $scope.progress.finish(requestsProcess);
+      $scope.lotParams.page++;
+      $scope.lotParams.total = total;
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call($scope.requestLots, item) < 0) {
+          $scope.requestLots.push(item);
+        }
+      }
+      return $scope.lotParams.isLoading = false;
+    });
+  };
+  $scope.requestOrder = function(item) {
+    var ref, ref1;
+    if (item.toUserId === account.user.id && ((ref = item.status) === 'created')) {
+      return '3' + (item.created || item.lastUpdated);
+    }
+    if (item.fromUserId === account.user.id && ((ref1 = item.status) === 'returned')) {
+      return '3' + (item.created || item.lastUpdated);
+    }
+    return item.created || item.lastUpdated;
+  };
+  $scope.requestParams = {
+    pageSize: 0,
+    page: 50,
+    total: 0,
+    isLoading: false,
+    reloadOnStart: false
+  };
+  $scope.resetRequestList = function() {
+    $scope.requestParams.pageSize = Math.ceil(($scope.session.size.height - 100) / 40) * 2;
+    $scope.requestParams.page = 0;
+    $scope.requestParams.total = 0;
+    $scope.requestParams.isLoading = false;
+    return $scope.requestParams.reloadOnStart = false;
+  };
+  $scope.fetchRequestsPage = function() {
+    var ref, requestsProcess;
+    if ($scope.requestParams.isLoading === true) {
+      return;
+    }
+    $scope.requestParams.isLoading = true;
+    requestsProcess = $scope.progress.add();
+    return requestService.query({
+      lotId: (ref = $scope.currentLot) != null ? ref.id : void 0,
+      limit: $scope.requestParams.pageSize,
+      page: $scope.requestParams.page,
+      user: account.user.id,
+      sortBy: 'created',
+      sortType: 'desc'
+    }, function(items, total) {
+      var i, item, len;
+      if ($scope.requestParams.page === 0) {
+        $scope.requests.length = 0;
+      }
+      $scope.requestParams.page++;
+      $scope.requestParams.total = total;
+      $scope.progress.finish(requestsProcess);
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
+        if (indexOf.call($scope.requests, item) < 0) {
+          $scope.requests.push(item);
+        }
+      }
+      return $scope.requestParams.isLoading = false;
+    });
+  };
+  updateId = updateService.registerUpdateHandler(function(data) {
+    if (data['lot'] != null) {
+      if ($scope.lotParams.page < 2 || $scope.tasksScrollValue < 300) {
+        $scope.resetLotList();
+        $scope.fetchLotsPage();
+      } else {
+        $scope.lotParams.reloadOnStart = true;
+      }
+    }
+    if (data['request'] != null) {
+      if ($scope.requestParams.page < 2 || $scope.tasksScrollValue < 300) {
+        $scope.resetRequestList();
+        return $scope.fetchRequestsPage();
+      } else {
+        return $scope.requestParams.reloadOnStart = true;
+      }
+    }
+  });
+  $scope.$on('$destroy', function() {
+    if (flushHandler !== null) {
+      clearTimeout(flushHandler);
+    }
+    return updateService.unRegisterUpdateHandler(updateId);
+  });
+  $scope.fetchLotsPage();
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+      $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+      return applyStep($scope.currentStep);
+    }
+  };
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'lotManagerApp_title'
+  };
+  $scope.stepStack.push($scope.currentStep);
+  applyStep = function(step) {
+    var process;
+    $scope.progress.flush();
+    $scope.showSettings = false;
+    if (step.lotId != null) {
+      process = $scope.progress.add();
+      return lotService.getById(step.lotId, function(item) {
+        $scope.progress.finish(process);
+        return preloadLot(item);
+      });
+    } else {
+      $scope.resetRequestList();
+      $scope.currentLot = null;
+      return $scope.fetchRequestsPage();
+    }
+  };
+  $scope.onJumpStep = function() {
+    return applyStep($scope.currentStep);
+  };
+  if ($scope.session.lotId != null) {
+    $scope.currentStep = {
+      translateTitle: 'lotManagerApp_lotRequests',
+      lotId: $scope.session.lotId
+    };
+    $scope.stepStack.push($scope.currentStep);
+  }
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep)
+    };
+  }, function(data) {
+    var i, len, ref, step;
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (i = 0, len = ref.length; i < len; i++) {
+      step = ref[i];
+      $scope.stepStack.push(step);
+    }
+    return $scope.currentStep = $scope.stepStack[data.current * 1];
+  });
+  $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  applyStep($scope.currentStep);
+  return true;
+}).directive('rememberScroll', function() {
+  return {
+    restrict: 'C',
+    scope: {
+      scrollValue: '='
+    },
+    priority: 1,
+    link: function(scope, element, attrs) {
+      return scope.$watch('scrollValue', function(nVal) {
+        return element[0].scrollTop = nVal;
+      });
+    }
+  };
+});

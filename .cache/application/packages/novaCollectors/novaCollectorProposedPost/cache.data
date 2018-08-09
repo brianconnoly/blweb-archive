@@ -1,0 +1,23 @@
+tC['/novaCollectorProposedPost/template.jade'] = "<div nova-item-preview-type=\"timeline\" class=\"novaItemPreview\"></div> <div class=\"proposedActions\"> <div ng-click=\"schedule()\" translate=\"'novaCollectorProposedPost_schedule'\" class=\"novaButton\"></div> <div ng-click=\"store()\" translate=\"'novaCollectorProposedPost_store'\" class=\"novaButton\"></div> <div ng-click=\"delete()\" translate=\"'novaCollectorProposedPost_delete'\" class=\"novaButton\"></div> </div>";
+
+buzzlike.directive('novaCollectorProposedPost', function(scheduleService, ugcService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaCollectorProposedPost/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.schedule = function() {
+        return true;
+      };
+      scope["delete"] = function() {
+        ugcService.call('rejectPost', scope.item.id);
+        return true;
+      };
+      return scope.store = function() {
+        ugcService.call('acceptPost', scope.item.id);
+        return true;
+      };
+    }
+  };
+});
+
+registerStyles('novaCollectorProposedPost', ".novaCollectorProposedPost .proposedActions {\n  overflow: hidden;\n  padding: 3px;\n}\n.novaCollectorProposedPost .proposedActions .novaButton {\n  float: left;\n  margin: 2px;\n}\n");

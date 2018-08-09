@@ -1,0 +1,15 @@
+div.previews
+    div.itemPreview(type="lot", id="notification.itemList[0].id")
+
+div.date {{notification.created | timestampMask: "DD ofMMMM YYYY hh:mm"}}
+
+div.text 
+    div.header
+        span(ng-if="notification.result == true") {{translate('marketRequest_accept')}}
+        span(ng-if="notification.result != true") {{translate('marketRequest_failed')}}
+
+    div.description
+        span(ng-if="notification.result == true") {{translate('marketRequest_accept_description')}}
+        span(ng-if="notification.result != true") {{translate('marketRequest_failed_description' + notification.status)}}
+
+div.notificationButtons

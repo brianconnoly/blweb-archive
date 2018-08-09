@@ -1,0 +1,26 @@
+div.parameter
+    div.title
+        div.titleText(translate="'novaWizardGroupCreate_title'", translate-placeholder="'novaWizardGroupCreate_title_placeholder'")
+        //- div.edit(translate="'novaWizardAction_edit'", ng-click="wizard.goStep('project')")
+    div.value
+        input(ng-model="wizard.data.name")
+div.parameter
+    div.title
+        div.titleText(translate="'novaWizardGroupCreate_project'")
+        div.edit(translate="'novaWizardAction_edit'", ng-click="wizard.goStep('project')")
+    div.value
+        div.pickedItem.novaItemScope.novaItem.novaItemPreview(
+            nova-item-id="wizard.data.projectId",
+            nova-item-type="project",
+            nova-item-preview-type="square")
+
+div.parameter
+    div.title
+        div.titleText(translate="'novaWizardGroupCreate_communities'")
+        div.edit(translate="'novaWizardAction_edit'", ng-click="wizard.goStep('communities')")
+    div.value
+        div.pickedItem.novaItemScope.novaItem.novaItemPreview(
+            ng-repeat="id in wizard.data.communityIds"
+            nova-item-id="id",
+            nova-item-type="community",
+            nova-item-preview-type="square")

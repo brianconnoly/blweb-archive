@@ -1,0 +1,142 @@
+buzzlike.directive("radio", function() {
+  return {
+    restrict: "E",
+    replace: true,
+    scope: {
+      model: '=ngModel',
+      value: '=ngValue'
+    },
+    template: function(elem, attrs) {
+      return '<div class="bl-radio" tabindex="0" ng-class="{\'checked\':model == value}"> <label> <input type="radio" ng-model="model" ng-value="value"> </label> </div>';
+    }
+  };
+});
+
+buzzlike.directive("droplist", function(stateManager, $compile, localization) {
+  return {
+    restrict: "E",
+    replace: "true",
+    require: "ngModel",
+    template: function(elem, attrs) {
+      var type;
+      type = attrs.type || "single";
+      if (type === "single") {
+        return "<ul class='bl-droplist'> <div class='list-value'></div> <div class='list-position' style='display: none'> <div class='list-animation' antiscroll> <li ng-repeat='option in " + attrs.options + "' value='{{option.value}}'>{{option.title}}</li> </div> </div> </ul>";
+      }
+      if (type === "utc") {
+        return "<ul class='bl-droplist'> <div class='list-value'></div> <div class='list-position' style='display: none'> <div class='list-animation' antiscroll> <li ng-repeat='option in " + attrs.options + "' value='{{option.value}}'> <div class='left'>{{option.utc}}</div><div class='marquee' speed='60'>&#160;{{option.title}}</marquee> </li> </div> </div> </ul>";
+      }
+    },
+    link: function(scope, element, attrs, ctrl) {
+      var T, bottomOffset, container, dropListState, elem, init, lineH, lines, maxH;
+      elem = $(element);
+      lineH = 29;
+      maxH = 0;
+      lines = 0;
+      bottomOffset = 0;
+      container = elem.find(".list-position");
+      T = 0;
+      dropListState = {
+        'escape': function() {
+          container.fadeOut().removeClass("visible");
+          elem.parents(".label").removeClass("selected");
+          return stateManager.goBack();
+        }
+      };
+      elem.click(function(e) {
+        e.stopPropagation();
+        container.fadeToggle().toggleClass("visible");
+        elem.parents(".label").toggleClass("selected");
+        if (container.hasClass("visible")) {
+          ctrl.$render();
+          return stateManager.applyState(dropListState);
+        } else {
+          elem.parents(".label").removeClass("selected");
+          return stateManager.goBack();
+        }
+      }).on("click.li", "li", function() {
+        ctrl.$setViewValue($(this).attr("value"));
+        scope.$apply();
+        return ctrl.$render();
+      });
+      if (attrs.type === "utc") {
+        scope.$watch(function() {
+          return localization.getLang();
+        }, function() {
+          if (typeof scope.getTimezone === "function") {
+            scope.getTimezone();
+          }
+          return ctrl.$render();
+        });
+      }
+      ctrl.$render = function() {
+        var a1, a2, d, html, i, j, len, list, offset, offset2, ref, ref1, results, scrollTop, top, value;
+        init();
+        value = ctrl.$viewValue;
+        list = scope[attrs.options];
+        results = [];
+        for (j = 0, len = list.length; j < len; j++) {
+          i = list[j];
+          if (i.value === value) {
+            html = i.title;
+            if (attrs.type === "utc") {
+              html = $compile("<div style='float: left; width: 100px;'>" + i.utc + "</div><div class='marquee' speed='60' style='width: 220px; float: left; overflow: hidden'>" + i.title + "</marquee>")(scope.$new());
+            }
+            elem.find(".list-value").html(html);
+            top = _i * lineH + 7;
+            scrollTop = container.scrollTop();
+            container.css({
+              "top": -top + "px"
+            });
+            offset = container.offset().top;
+            if (offset <= 0) {
+              top = maxH - bottomOffset;
+            }
+            a1 = window.innerHeight;
+            a2 = offset + container.height();
+            if (a1 < a2) {
+              top += Math.floor((a2 - a1) / lineH) * lineH + lineH;
+            }
+            container.css({
+              "top": -top + "px"
+            });
+            if ((ref = container.find("li").removeClass("selected")[_i]) != null) {
+              ref.classList.add("selected");
+            }
+            offset = elem.offset().top;
+            offset2 = (ref1 = elem.find(".selected").offset()) != null ? ref1.top : void 0;
+            d = offset2 - offset;
+            if (scrollTop + d) {
+              results.push(container.find('.scroll-box').scrollTop(scrollTop + d));
+            } else {
+              results.push(void 0);
+            }
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      return init = function() {
+        var H, list;
+        list = scope[attrs.options];
+        if (!container.length) {
+          container = elem.find(".list-position");
+        }
+        lines = Math.floor(window.innerHeight / lineH) - 2;
+        bottomOffset = window.innerHeight - elem.offset().top;
+        bottomOffset = Math.floor(bottomOffset / lineH) * lineH;
+        maxH = lines * lineH;
+        H = list.length * lineH;
+        if (H > maxH) {
+          H = maxH;
+        }
+        container.css({
+          "max-height": H + 20,
+          "overflow": "auto"
+        });
+        return container.find(".list-animation").css("height", H);
+      };
+    }
+  };
+});

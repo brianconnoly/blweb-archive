@@ -1,0 +1,236 @@
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('lotService', function(itemService, rpc, account, socketService, requestService, actionsService) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'lot';
+
+    function classEntity() {
+      this.fetchMy = bind(this.fetchMy, this);
+      this.sortMy = bind(this.sortMy, this);
+      classEntity.__super__.constructor.call(this);
+      this.categoriesList = {};
+      this.categoriesKeys = {};
+      this.state = {
+        currentLot: null
+      };
+      this.catsLoaded = false;
+      socketService.on('lot.update', this.fetchMy);
+    }
+
+    classEntity.prototype.handleItem = function(item) {
+      var key, ref, ref1, stored, value;
+      stored = this.storage[item.id];
+      if (stored != null) {
+        for (key in item) {
+          value = item[key];
+          if (key === 'userUpdated') {
+            if (((ref = item.userUpdated) != null ? (ref1 = ref[0]) != null ? ref1.userId : void 0 : void 0) !== account.user.id) {
+              continue;
+            }
+          }
+          this.storage[item.id][key] = item[key];
+        }
+        if (stored.blank != null) {
+          delete stored.blank;
+        }
+      } else {
+        this.storage[item.id] = item;
+      }
+      if (item.userId === account.user.id) {
+        this.my[item.id] = this.storage[item.id];
+      }
+      return this.storage[item.id];
+    };
+
+    classEntity.prototype.getCategories = function(cb) {
+      if (this.catsLoaded) {
+        if (typeof cb === "function") {
+          cb(this.categoriesList);
+        }
+        return;
+      }
+      return rpc.call('market.getCategories', (function(_this) {
+        return function(categories) {
+          var c, i, len;
+          _this.catsLoaded = true;
+          for (i = 0, len = categories.length; i < len; i++) {
+            c = categories[i];
+            _this.categoriesList[c.id] = c;
+            _this.categoriesKeys[c.key] = _this.categoriesList[c.id];
+          }
+          return typeof cb === "function" ? cb(_this.categoriesList) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.previewLot = function(lotItem) {
+      return this.state.currentLot = lotItem;
+    };
+
+    classEntity.prototype.previewLotById = function(lotId) {
+      return this.previewLot(this.storage[lotId]);
+    };
+
+    classEntity.prototype.publish = function(lotId, cb) {
+      return this.call('publish', lotId, (function(_this) {
+        return function(result) {
+          if ((result != null) && (result.err == null)) {
+            result = _this.handleItem(result);
+          }
+          return typeof cb === "function" ? cb(result) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.unpublish = function(lotId, cb) {
+      return this.call('unpublish', lotId, (function(_this) {
+        return function(result) {
+          if ((result != null) && (result.err == null)) {
+            result = _this.handleItem(result);
+          }
+          return typeof cb === "function" ? cb(result) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.buy = function(lotId) {
+      return this.call('buy', lotId, function(result) {
+        if ((result != null) && (result.err == null)) {
+          result = this.handleItem(result);
+        }
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.sortMy = function() {
+      var myArr;
+      myArr = makeArray(this.my);
+      myArr.sort(function(a, b) {
+        a = a.lastUpdated;
+        b = b.lastUpdated;
+        if (a < b) {
+          return 1;
+        }
+        if (a > b) {
+          return -1;
+        }
+        return 0;
+      });
+      return myArr;
+    };
+
+    classEntity.prototype.fetchMy = function(cb) {
+      var latestItem;
+      latestItem = this.sortMy()[0];
+      return this.query({
+        userId: account.user.id,
+        filterBy: 'lastUpdated',
+        filterGreater: (latestItem != null ? latestItem.lastUpdated : void 0) || 0
+      }, (function(_this) {
+        return function(data) {
+          var ref;
+          if (((ref = _this.state) != null ? ref.currentLot : void 0) == null) {
+            return typeof cb === "function" ? cb(data) : void 0;
+          }
+          return requestService.query({
+            lotId: _this.state.currentLot.id
+          }, cb);
+        };
+      })(this));
+    };
+
+    classEntity.prototype.getModeration = function(cb) {
+      return this.call('moderation', function(queryResult) {
+        return typeof cb === "function" ? cb(queryResult.items) : void 0;
+      });
+    };
+
+    classEntity.prototype.moderate = function(data, cb) {
+      return this.call('moderate', data, function(result) {
+        return typeof cb === "function" ? cb(result) : void 0;
+      });
+    };
+
+    classEntity.prototype.flushNew = function(lotId, cb) {
+      return this.call('flushNew', lotId, (function(_this) {
+        return function(result) {
+          var ref;
+          if ((ref = _this.storage[lotId]) != null) {
+            ref.requestsNew = 0;
+          }
+          return typeof cb === "function" ? cb(result) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.init = function() {
+      classEntity.__super__.init.call(this);
+      actionsService.registerParser('lot', function(item) {
+        var result;
+        result = [item.lotType + 'Lot'];
+        if (item.userId === account.user.id) {
+          result.push('myLot');
+        }
+        return result;
+      });
+      actionsService.registerAction({
+        sourceType: 'image',
+        sourceNumber: 1,
+        targetType: 'myLot',
+        phrase: 'set_cover',
+        action: (function(_this) {
+          return function(data) {
+            return _this.save({
+              id: data.target.id,
+              cover: data.item.id
+            }, function() {
+              return true;
+            });
+          };
+        })(this)
+      });
+
+      /*
+      selectionService.registerAction 'post', 'all', 'unsellContent', (contentIds) ->
+          removeLots 'post', contentIds
+          true
+      , checkUnSold
+      selectionService.registerAction 'content', 'all', 'unsellContent', (contentIds) ->
+          removeLots 'content', contentIds
+          true
+      , checkUnSold
+      selectionService.registerAction 'comb', 'all', 'unsellContent', (contentIds) ->
+          removeLots 'comb', contentIds
+          true
+      , checkUnSold
+      selectionService.registerAction 'post', 'all', 'sellContent', (contentIds) ->
+          sale 'post', contentIds
+          true
+      , checkSold
+      selectionService.registerAction 'content', 'all', 'sellContent', (contentIds) ->
+          toAdd = []
+          for id in contentIds
+              obj = operationsService.get 'content', id
+              if obj.type!='url'
+                  toAdd.push obj
+          sale 'content', toAdd
+          true
+      , checkSold
+      selectionService.registerAction 'comb', 'all', 'sellContent', (contentIds) ->
+          sale 'comb', contentIds
+          true
+      , checkSold
+       */
+      return true;
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

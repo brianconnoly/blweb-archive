@@ -1,0 +1,30 @@
+div.novaFrameTopBarLayout
+    div.novaFrameTopBar
+        div.novaSwitch.groupSwitch(
+            ng-model="groupType", 
+            ng-change="recountGroups()", 
+            nova-switch-options="groupTypes",
+            nova-switch-view="simple") {{groupType}}
+        div.filterBox
+            input(ng-model="filterBox", translate="", translate-placeholder="'novaProjectMembers_filterBox'", ng-keydown="filterChanged($event)")
+        div.inviteMembers.novaButton(ng-click="doInvite()", ng-class="{'active':searchMultiselect.selected.length>0}", translate="invitePhrase")
+        div.searchPeople(ng-click="doSearch()", ng-class="{'visible':filterBox.length > 0, 'active':searchResults.length > 0}") +
+    
+    div.novaFrameContents.novaMultiselect(ng-if="searchResults.length == 0")
+        div.memberGroup(ng-repeat="group in groups track by group.key")
+            div.groupHead(ng-if="group.realTitle") {{group.realTitle}}
+            div.groupHead(ng-if="!group.realTitle", translate="'novaProjectMembers_group_' + group.key")
+            div.groupMembers
+                div.userItem.novaItem.novaItemPreview.novaItemSelectable.novaItemMenu.novaItemDraggable(
+                    ng-repeat="member in group.members | filter:memberFilter track by member.userId",
+                    ng-class="{'invited':member.invited}",
+                    nova-item-id="member.userId",
+                    nova-item-type="user",
+                    nova-item-context="context")
+                    
+    div.novaFrameContents.novaMultiselect.groupMembers(
+        ng-if="searchResults.length > 0", 
+        nova-multiselect-parent-object="searchMultiselect",
+        nova-multiselect-parent-index="2")
+        div.userItem.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable(
+            ng-repeat="item in searchResults")

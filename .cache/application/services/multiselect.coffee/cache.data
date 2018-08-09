@@ -1,0 +1,490 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.factory('multiselect', function(operationsService, ruleService, scheduleService) {
+  var addToFocus, clearBuffer, copyItem, flush, getBuffer, getFocused, getItemByHash, getItemHash, isFocused, removeFromFocus, state, toggleFocused;
+  state = {
+    context: null,
+    focusedHash: [],
+    focusedCnt: 0,
+    selectingInProgress: false,
+    lastFocused: null,
+    startedRect: true,
+    buffer: null
+  };
+  copyItem = function(item) {
+    state.buffer = item;
+    return true;
+  };
+  clearBuffer = function() {
+    return state.buffer = null;
+  };
+  getBuffer = function() {
+    if (state.buffer === null) {
+      return false;
+    }
+    return state.buffer;
+  };
+  getItemHash = function(item) {
+    var hash;
+    if (item != null) {
+      hash = item.type;
+      hash += '%';
+      hash += item.id;
+      if (item.type === 'placeholder') {
+        hash += '%' + item.rule.id + '%' + item.communityId;
+      }
+      return hash;
+    }
+  };
+  addToFocus = function(item) {
+    var hash;
+    hash = getItemHash(item);
+    if (indexOf.call(state.focusedHash, hash) < 0) {
+      return state.focusedHash.push(hash);
+    }
+  };
+  toggleFocused = function(item) {
+    var hash;
+    hash = getItemHash(item);
+    if (indexOf.call(state.focusedHash, hash) >= 0) {
+      removeElementFromArray(hash, state.focusedHash);
+      return false;
+    } else {
+      state.focusedHash.push(hash);
+      return true;
+    }
+  };
+  isFocused = function(item) {
+    var hash;
+    hash = getItemHash(item);
+    if (indexOf.call(state.focusedHash, hash) >= 0) {
+      return true;
+    }
+    return false;
+  };
+  getItemByHash = function(hash) {
+    var arr, item;
+    arr = hash.split('%');
+    switch (arr[0]) {
+      case 'placeholder':
+        if (arr[3] === 'undefined') {
+          arr.length = 2;
+        }
+        item = ruleService.getPlaceholder(arr[1], arr[2], arr[3]);
+        break;
+      default:
+        item = operationsService.get(arr[0], arr[1]);
+    }
+    return item;
+  };
+  getFocused = function() {
+    var hash, i, item, items, len, ref;
+    items = [];
+    ref = state.focusedHash;
+    for (i = 0, len = ref.length; i < len; i++) {
+      hash = ref[i];
+      item = getItemByHash(hash);
+      if (item != null) {
+        items.push(item);
+      }
+    }
+    return items;
+  };
+  removeFromFocus = function(item) {
+    var hash;
+    hash = getItemHash(item);
+    return removeElementFromArray(hash, state.focusedHash);
+  };
+  flush = function(force) {
+    if (force) {
+      $('.selectableItem.selected').removeClass('selected');
+    } else {
+      $('.selectableItem.selected:not(.stuck)').removeClass('selected');
+    }
+    state.focusedHash.length = 0;
+    return state.focusedCnt = 0;
+  };
+  return {
+    state: state,
+    copyItem: copyItem,
+    getBuffer: getBuffer,
+    clearBuffer: clearBuffer,
+    getItemHash: getItemHash,
+    isFocused: isFocused,
+    getFocused: getFocused,
+    addToFocus: addToFocus,
+    removeFromFocus: removeFromFocus,
+    toggleFocused: toggleFocused,
+    flush: flush
+  };
+}).directive('multiselect', function(multiselect, $injector, operationsService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var activeScroll, body, cache, checkSelected, elem, getContext, initialPos, mousemove, mouseup, recent, recentItems, selector, selector_tmpl, toggleSelection;
+      elem = $(element);
+      if (elem.hasClass('norect')) {
+        return;
+      }
+      body = $('body');
+      activeScroll = null;
+      cache = [];
+      recent = [];
+      recentItems = [];
+      selector_tmpl = $('<div>', {
+        "class": 'starcraft'
+      });
+      selector = $();
+      initialPos = {};
+      elem.off('.multiselect');
+      elem.on('mousedown.multiselect', function(e) {
+        var list;
+        if (e.which !== 1 || $(e.target).hasClass("scroll-right") || $(e.target).hasClass("scroll-bottom")) {
+          return;
+        }
+        if (multiselect.state.context !== element[0]) {
+          multiselect.state.context = element[0];
+          $('.selectableItem.selected', $('.workarea')).removeClass('selected');
+          multiselect.flush();
+        }
+        activeScroll = $(".antiscroll.hover");
+        selector = $('.starcraft', $('body'));
+        if (selector[0] == null) {
+          $('body').append(selector_tmpl);
+          selector = $('.starcraft', $('body'));
+        }
+        e = fixEvent(e);
+        initialPos = {
+          x: e.pageX,
+          y: e.pageY
+        };
+        recent.length = 0;
+        recentItems.length = 0;
+        selector.css({
+          top: initialPos.y + 'px',
+          left: initialPos.x + 'px',
+          width: 0,
+          height: 0
+        });
+        selector.addClass('visible');
+        elem.on('mousemove.multiselect', mousemove);
+        elem.on('mouseup.multiselect', mouseup);
+        multiselect.state.selectingInProgress = true;
+        list = elem.find('.selectableItem');
+        cache = [];
+        return list.each(function() {
+          var children_preview, elem_scope, entity, id, item, offset, ref, type;
+          item = $(this);
+          offset = item.offset();
+          elem_scope = angular.element(this).scope();
+          children_preview = $(this).children('.itemPreview')[0];
+          if ((elem_scope.type != null) && (elem_scope.id != null)) {
+            entity = operationsService.get(elem_scope.type, elem_scope.id);
+          } else if (children_preview != null) {
+            elem_scope = angular.element(children_preview).scope();
+            if (elem_scope.sched != null) {
+              entity = elem_scope.sched;
+            } else {
+              type = $(children_preview).attr('type');
+              id = elem_scope.id;
+              if (type == null) {
+                if (elem_scope.item != null) {
+                  type = elem_scope.item.type;
+                  id = elem_scope.item.id;
+                }
+              }
+              entity = operationsService.get(type, id);
+            }
+          } else {
+            elem_scope = angular.element(this).scope();
+            entity = elem_scope.item;
+          }
+          return cache.push({
+            hash: multiselect.getItemHash(entity),
+            placeholder: ((ref = elem_scope.item) != null ? ref.type : void 0) === 'placeholder',
+            x1: offset.left,
+            y1: offset.top,
+            x2: offset.left + item.width(),
+            y2: offset.top + item.height(),
+            item: entity,
+            elem: item
+          });
+        });
+      });
+      mouseup = function(e) {
+        if (selector[0] != null) {
+          selector.detach();
+          selector.removeClass('visible');
+        }
+        if (activeScroll != null) {
+          activeScroll.addClass("show");
+        }
+        $(".antiscroll.hover").addClass("show");
+        elem.off('mousemove.multiselect');
+        elem.off('mouseup.multiselect');
+        multiselect.state.selectingInProgress = false;
+        multiselect.state.startedRect = true;
+        return scope.$apply();
+      };
+      mousemove = function(e) {
+        var boundingBox;
+        if (e.which === 0) {
+          mouseup(e);
+        }
+        if (activeScroll != null) {
+          activeScroll.removeClass("show");
+        }
+        e = fixEvent(e);
+        boundingBox = {};
+        if (e.pageX >= initialPos.x) {
+          selector.css({
+            width: e.pageX - initialPos.x,
+            left: initialPos.x,
+            right: 'auto'
+          });
+          boundingBox.x1 = initialPos.x;
+          boundingBox.x2 = e.pageX;
+        } else {
+          selector.css({
+            width: initialPos.x - e.pageX,
+            left: 'auto',
+            right: body.width() - initialPos.x
+          });
+          boundingBox.x1 = e.pageX;
+          boundingBox.x2 = initialPos.x;
+        }
+        if (e.pageY >= initialPos.y) {
+          selector.css({
+            top: initialPos.y,
+            height: e.pageY - initialPos.y,
+            bottom: 'auto'
+          });
+          boundingBox.y1 = initialPos.y;
+          boundingBox.y2 = e.pageY;
+        } else {
+          selector.css({
+            bottom: body.height() - initialPos.y,
+            height: initialPos.y - e.pageY,
+            top: 'auto'
+          });
+          boundingBox.y1 = e.pageY;
+          boundingBox.y2 = initialPos.y;
+        }
+        return checkSelected(boundingBox);
+      };
+      getContext = function(element) {
+        var ctx;
+        ctx = element.parents('.multiselect');
+        if (multiselect.state.context === ctx[0]) {
+          return false;
+        } else {
+          multiselect.state.context = ctx[0];
+          return true;
+        }
+      };
+      checkSelected = function(bb) {
+        var hash, i, item, j, k, len, len1, len2, newSel, selItems;
+        newSel = [];
+        selItems = [];
+        for (i = 0, len = cache.length; i < len; i++) {
+          item = cache[i];
+          if (bb.x2 > item.x1 && bb.x1 < item.x2 && bb.y2 > item.y1 && bb.y1 < item.y2) {
+            hash = multiselect.getItemHash(item.item);
+            if (selItems.indexOf(hash) < 0) {
+              selItems.push(hash);
+              newSel.push(item);
+            }
+          }
+        }
+        for (j = 0, len1 = newSel.length; j < len1; j++) {
+          item = newSel[j];
+          if (item.item.id == null) {
+            item.item.id = Math.random();
+          }
+          hash = multiselect.getItemHash(item.item);
+          if (recent.indexOf(item) < 0 && recentItems.indexOf(hash) < 0) {
+            toggleSelection(item);
+          }
+        }
+        for (k = 0, len2 = recent.length; k < len2; k++) {
+          item = recent[k];
+          hash = multiselect.getItemHash(item.item);
+          if (newSel.indexOf(item) < 0 && selItems.indexOf(hash) < 0) {
+            toggleSelection(item);
+          }
+        }
+        recent = newSel;
+        return recentItems = selItems;
+      };
+      toggleSelection = function(item) {
+        if (multiselect.toggleFocused(item.item)) {
+          item.elem.addClass('selected');
+          return multiselect.state.lastFocused = item.elem;
+        } else {
+          return item.elem.removeClass('selected');
+        }
+      };
+      return true;
+    }
+  };
+}).directive('selectableItem', function(complexMenu, appsService, $parse, dropHelper, dragMaster, postService, scheduleService, multiselect, touchHelper, operationsService, contextMenu) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var draggedItem, jElem, parent, ref, selectedPanel, type;
+      parent = $('.workarea');
+      jElem = $(element);
+      selectedPanel = false;
+      if ($(element).parents('.selectedPanel')[0] != null) {
+        parent = $(element).parents('.selectedPanel')[0];
+        selectedPanel = true;
+      }
+      if (attrs.type != null) {
+        scope.type = attrs.type;
+      }
+      if (attrs.id != null) {
+        scope.id = attrs.id;
+      }
+      if ((attrs.type != null) && (scope.id != null) && (((ref = scope.item) != null ? ref.id : void 0) == null)) {
+        type = 'content';
+        if (attrs.type != null) {
+          type = attrs.type;
+        }
+        operationsService.get(type, scope.id, function(item) {
+          return scope.item = item;
+        });
+      }
+      scope.selectFunc = function(e) {
+        var cmd, ctx, elem, ref1;
+        contextMenu.hide();
+        complexMenu.hide();
+        dropHelper.flush(true);
+        if (e.shiftKey) {
+          return true;
+        }
+        multiselect.state.startedRect = true;
+        elem = $(element);
+        cmd = (e.ctrlKey || e.metaKey) || touchHelper.state.multiselect;
+        ctx = elem.parents('.multiselect');
+        if (selectedPanel) {
+          multiselect.state.context = ctx[0];
+          $('.selectableItem.selected', $('.workarea')).removeClass('selected');
+        }
+        if (multiselect.state.context !== ctx[0]) {
+          multiselect.flush();
+          multiselect.state.context = ctx[0];
+          $('.selectableItem.selected', ctx[0]).removeClass('selected');
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        $(':focus').blur();
+        if (!touchHelper.state.touch && e.which !== 1) {
+          return;
+        }
+        if (!cmd && !elem.hasClass('selected')) {
+          $('.selectableItem.selected', ctx[0]).removeClass('selected');
+          multiselect.flush();
+          elem.addClass('selected');
+        }
+        if (cmd) {
+          elem.toggleClass('selected');
+        }
+        if (elem.hasClass('selected')) {
+          if (scope.item != null) {
+            multiselect.state.lastFocused = element;
+            multiselect.addToFocus(scope.item);
+          } else {
+            multiselect.state.lastFocused = element;
+            multiselect.addToFocus({
+              id: scope.id,
+              type: attrs.type
+            });
+          }
+        } else {
+          if (scope.item != null) {
+            multiselect.removeFromFocus(scope.item);
+          } else {
+            multiselect.removeFromFocus({
+              id: scope.id,
+              type: attrs.type
+            });
+          }
+        }
+        if (angular.element(elem.parents('.appLauncher')[0]).scope() != null) {
+          appsService.activate((ref1 = angular.element(elem.parents('.appLauncher')[0]).scope()) != null ? ref1.session : void 0, true);
+        }
+        scope.$apply();
+        return false;
+      };
+      jElem.on('mousedown', scope.selectFunc);
+      if (!element.hasClass('videoItemImport')) {
+        draggedItem = null;
+        return new dragMaster.dragObject(element[0], {
+          global: true,
+          helper: 'clone',
+          multi: true,
+          candrag: function(dObj, e) {
+            if ($(element).hasClass('feedItem')) {
+              if (scope.item.type === 'placeholder') {
+                return true;
+              }
+              return true;
+            }
+            return true;
+          },
+          start: function(dObj, e) {
+            if (attrs.context != null) {
+              return dObj.sourceContext = $parse(attrs.context)(scope);
+            }
+          },
+          end: function() {
+            if (draggedItem) {
+              return scope.$apply();
+            }
+          }
+        });
+      }
+    }
+  };
+}).directive('flushMousedown', function(complexMenu, novaMenu) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      return $(element).on('mousedown', function(e) {
+        var name, textWriting;
+        e.stopPropagation();
+        $('*').blur();
+        name = $(e.target).prop("tagName");
+        textWriting = name === 'TEXTAREA' || name === 'INPUT';
+        if (textWriting) {
+          return true;
+        }
+        novaMenu.hide();
+        complexMenu.hide();
+        return e.preventDefault();
+      });
+    }
+  };
+}).directive('flushMultiselect', function(complexMenu, multiselect, contextMenu, dropHelper, desktopService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem;
+      elem = $(element);
+      return elem.on('mousedown', function(e) {
+        desktopService.showMenu = false;
+        desktopService.subMenu = null;
+        if (e.which !== 3) {
+          contextMenu.hide();
+          complexMenu.hide();
+          dropHelper.flush(true);
+        }
+        if (!(e.ctrlKey || e.metaKey)) {
+          multiselect.state.lastFocused = null;
+          multiselect.flush();
+          return scope.$apply();
+        }
+      });
+    }
+  };
+});

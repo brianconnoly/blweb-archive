@@ -1,0 +1,81 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('favouriteService', function(itemService, rpc) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'favourite';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.byLotId = {};
+      this.byPostId = {};
+    }
+
+    classEntity.prototype.handleItem = function(item) {
+      var saved;
+      saved = classEntity.__super__.handleItem.call(this, item);
+      if (saved.postId != null) {
+        this.byPostId[saved.postId] = saved;
+      }
+      if (saved.lotId != null) {
+        this.byLotId[saved.lotId] = saved;
+      }
+      return saved;
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var item;
+      item = this.storage[id];
+      if ((item.postId != null) && (this.byPostId[item.postId] != null)) {
+        delete this.byPostId[item.postId];
+      }
+      if ((item.lotId != null) && (this.byLotId[item.lotId] != null)) {
+        delete this.byLotId[item.lotId];
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.deleteByPostId = function(postId, cb) {
+      return this.call('deleteByPostId', postId, cb);
+    };
+
+    classEntity.prototype.deleteByLotId = function(lotId, cb) {
+      return this.call('deleteByLotId', lotId, cb);
+    };
+
+    classEntity.prototype.triggerLotId = function(lotId, cb) {
+      return this.call('triggerLotId', lotId, function(result) {
+        if (result.id != null) {
+          return typeof cb === "function" ? cb(this.handleItem(result)) : void 0;
+        } else {
+          return typeof cb === "function" ? cb(result) : void 0;
+        }
+      });
+    };
+
+    classEntity.prototype.triggerPostId = function(postId, cb) {
+      return this.call('triggerPostId', postId, function(result) {
+        if (result.id != null) {
+          return typeof cb === "function" ? cb(this.handleItem(result)) : void 0;
+        } else {
+          return typeof cb === "function" ? cb(result) : void 0;
+        }
+      });
+    };
+
+    classEntity.prototype.fetchMy = function(cb) {
+      return this.query({}, (function(_this) {
+        return function(items, total) {
+          return typeof cb === "function" ? cb(items, total) : void 0;
+        };
+      })(this));
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

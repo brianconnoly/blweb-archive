@@ -1,0 +1,79 @@
+buzzlike.service('novaAppDrag', function() {
+  var novaAppDrag;
+  novaAppDrag = (function() {
+    function novaAppDrag() {
+      this.body = $('body');
+    }
+
+    novaAppDrag.prototype.startDrag = function(e, elem, scope) {
+      var currentTransform;
+      if (scope.session.maximized === true) {
+        return;
+      }
+      if (scope.session.position != null) {
+        currentTransform = [scope.session.position.x, scope.session.position.y];
+      } else {
+        currentTransform = elem.css("transform");
+        if ((currentTransform != null ? currentTransform.length : void 0) > 10) {
+          currentTransform = currentTransform.split('(')[1];
+          currentTransform = currentTransform.split(')')[0];
+          currentTransform = currentTransform.split(',');
+        } else {
+          currentTransform = [0, 0];
+        }
+      }
+      this.offset = {
+        x: e.clientX - parseInt(currentTransform[0]),
+        y: e.clientY - parseInt(currentTransform[1])
+      };
+      this.bodyWid = this.body.width();
+      this.bodyHei = this.body.height();
+      this.body.on('mousemove.novaAppDrag', (function(_this) {
+        return function(e) {
+          if (e.which === 0) {
+            _this.flushDrag(scope)(e);
+            return;
+          }
+          return elem.css('transform', 'translate3d(' + (e.clientX - _this.offset.x) + 'px,' + (e.clientY - _this.offset.y) + 'px, 0)');
+        };
+      })(this));
+      return this.body.on('mouseup.novaAppDrag', this.flushDrag(scope, elem));
+    };
+
+    novaAppDrag.prototype.flushDrag = function(scope, elem) {
+      return (function(_this) {
+        return function(e) {
+          _this.body.off('mousemove.novaAppDrag');
+          _this.body.off('mouseup.novaAppDrag');
+          scope.setPosition(e.clientX - _this.offset.x, e.clientY - _this.offset.y);
+          return scope.$applyAsync();
+        };
+      })(this);
+    };
+
+    return novaAppDrag;
+
+  })();
+  return new novaAppDrag();
+});
+
+buzzlike.directive('novaAppDrag', function(novaAppDrag) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      elem = $(element);
+      elem.off('.novaAppDrap');
+      return elem.on('mousedown.novaAppDrap', function(e) {
+        var targ;
+        targ = $(e.target);
+        if (targ.hasClass('noDrag') || targ.prop("tagName") === 'INPUT' || targ.parents('.noDrag').length > 0 || scope.session.maximize === true) {
+          return true;
+        }
+        novaAppDrag.startDrag(e, elem, scope);
+        e.stopPropagation();
+        return e.preventDefault();
+      });
+    }
+  };
+});

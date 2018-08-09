@@ -1,0 +1,129 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+buzzlike.service('requestService', function(itemService, rpc, account) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    classEntity.prototype.itemType = 'request';
+
+    function classEntity() {
+      classEntity.__super__.constructor.call(this);
+      this.requestsFrom = {};
+      this.requestsTo = {};
+      this.status = {
+        currentLot: null
+      };
+    }
+
+    classEntity.prototype.handleItem = function(item) {
+      var saved;
+      saved = classEntity.__super__.handleItem.call(this, item);
+      if (saved.fromUserId === account.user.id) {
+        this.requestsFrom[saved.id] = saved;
+      }
+      if (saved.toUserId === account.user.id) {
+        this.requestsTo[saved.id] = saved;
+      }
+      return saved;
+    };
+
+    classEntity.prototype.removeCache = function(id) {
+      var item;
+      item = this.storage[id];
+      if (item.fromUserId === account.user.id && (this.requestsFrom[item.id] != null)) {
+        delete this.requestsFrom[item.id];
+      }
+      if (item.toUserId === account.user.id && (this.requestsTo[item.id] != null)) {
+        delete this.requestsTo[item.id];
+      }
+      return classEntity.__super__.removeCache.call(this, id);
+    };
+
+    classEntity.prototype.cancel = function(requestId, cb) {
+      return this.call('cancel', requestId, (function(_this) {
+        return function(request) {
+          return typeof cb === "function" ? cb(_this.handleItem(request)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.accept = function(requestId, cb) {
+      return this.call('accept', requestId, (function(_this) {
+        return function(request) {
+          return typeof cb === "function" ? cb(_this.handleItem(request)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.reject = function(requestId, cb) {
+      return this.call('reject', requestId, (function(_this) {
+        return function(request) {
+          return typeof cb === "function" ? cb(_this.handleItem(request)) : void 0;
+        };
+      })(this));
+    };
+
+    classEntity.prototype.rejectByUserId = function(data, cb) {
+      return this.call('rejectByUserId', data, cb);
+    };
+
+    classEntity.prototype.makeBet = function(data, cb) {
+      return this.call('makeBet', data, function(request) {
+        return typeof cb === "function" ? cb(this.handleItem(request)) : void 0;
+      });
+    };
+
+    classEntity.prototype.fetchMy = function(data, cb) {
+      var result;
+      result = [];
+      return this.query({
+        fromUserId: account.user.id
+      }, (function(_this) {
+        return function(itemsFrom) {
+          var i, item, len;
+          for (i = 0, len = itemsFrom.length; i < len; i++) {
+            item = itemsFrom[i];
+            result.push(item);
+          }
+          return _this.query({
+            toUserId: account.user.id
+          }, function(itemsTo) {
+            var j, len1;
+            for (j = 0, len1 = itemsTo.length; j < len1; j++) {
+              item = itemsTo[j];
+              result.push(item);
+            }
+            return typeof cb === "function" ? cb(result) : void 0;
+          });
+        };
+      })(this));
+    };
+
+    classEntity.prototype.fetchNew = function(cb) {
+      return this.query({
+        requestStatuses: ['returned', 'created'],
+        fromUserId: account.user.id
+      }, cb);
+    };
+
+    classEntity.prototype.fetchByCommunityId = function(communityId, cb) {
+      return this.query({
+        communityId: communityId
+      }, cb);
+    };
+
+    classEntity.prototype.getCommunities = function(cb) {
+      return this.call('getCommunities', cb);
+    };
+
+    classEntity.prototype.markRead = function(communityId, cb) {
+      return this.call('markRead', communityId, cb);
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

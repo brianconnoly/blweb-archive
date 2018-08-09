@@ -1,0 +1,9 @@
+div.timeBox
+    div.arrow.arrowUp(ng-click="goUp()")
+    div.monthLine {{postParams.timestamp | timestampMask:'MMMM'}}
+    div.dayLine {{postParams.timestamp | timestampMask:'D'}}
+    div.weekDayLine {{postParams.timestamp | timestampMask:'ddd'}}
+    div.arrow.arrowDown(ng-click="goDown()")
+    
+div.graph
+    canvas

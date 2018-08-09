@@ -1,0 +1,372 @@
+.appContainer {
+  background: #ccc;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-transition: box-shadow 0.2s ease;
+  -moz-transition: box-shadow 0.2s ease;
+  -o-transition: box-shadow 0.2s ease;
+  -ms-transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
+  -webkit-box-shadow: 0 0 10px 0px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px 0px rgba(0,0,0,0.5);
+}
+.appContainer.expandedHeader .topBar {
+  height: 80px;
+}
+.appContainer.expandedHeader .body {
+  top: 80px;
+}
+.appLauncher {
+  position: absolute;
+  min-width: 200px;
+  min-height: 150px;
+}
+.appLauncher.hideAnimationStart {
+  pointer-events: none;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -o-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appLauncher.hideAnimationStart.hideAnimation {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.appLauncher.alwaysOnTop {
+  z-index: 300 !important;
+}
+.appLauncher.active {
+  z-index: 100;
+}
+.appLauncher.active .appContainer {
+  -webkit-box-shadow: 0 0 15px 0px rgba(0,0,0,0.7);
+  box-shadow: 0 0 15px 0px rgba(0,0,0,0.7);
+}
+.appLauncher.active .topBar {
+  background: none;
+}
+.appLauncher .black.topBar .iconButton img {
+  border-color: #494949;
+}
+.appLauncher .black.topBar .switcherPanel .switch {
+  border-color: #494949;
+}
+.appLauncher .black.topBar .switcherPanel .switch .button {
+  border-color: #494949;
+}
+.appLauncher .black.topBar .settingsText {
+  color: #494949;
+}
+.appLauncher .black.topBar .actionsPanel .action .icon {
+  border-color: #494949;
+}
+.appLauncher .black.topBar .title {
+  color: #494949;
+}
+.appLauncher .black.topBar .title::-webkit-input-placeholder {
+  color: #494949;
+}
+.appLauncher .black.topBar .title::-moz-input-placeholder {
+  color: #494949;
+}
+.appLauncher .black.topBar input {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px 0;
+}
+.appLauncher .black.topBar .backButton {
+  background: url("/resources/images/desktop/black/back-arrow.svg");
+}
+.appLauncher .body {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  -webkit-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+  -webkit-transition: top 0.2s ease;
+  -moz-transition: top 0.2s ease;
+  -o-transition: top 0.2s ease;
+  -ms-transition: top 0.2s ease;
+  transition: top 0.2s ease;
+  -webkit-box-shadow: 0 2px 8px 0 rgba(0,0,0,0.8);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.8);
+  padding-bottom: 40px;
+}
+.appLauncher .body.widthCrombs {
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  bottom: 31px;
+}
+.appLauncher .topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  padding: 0;
+  z-index: 50;
+  color: #000;
+  background: rgba(255,255,255,0.3);
+  -webkit-transition: background 0.2s ease;
+  -moz-transition: background 0.2s ease;
+  -o-transition: background 0.2s ease;
+  -ms-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+  -webkit-transition: height 0.2s ease;
+  -moz-transition: height 0.2s ease;
+  -o-transition: height 0.2s ease;
+  -ms-transition: height 0.2s ease;
+  transition: height 0.2s ease;
+  -webkit-border-radius: 5px 5px 0 0;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+}
+.appLauncher .topBar input {
+  width: 100%;
+}
+.appLauncher .topBar .title {
+  padding: 0 50px;
+  text-align: center;
+  color: #f2f2f2;
+  font-size: 16px;
+  line-height: 30px;
+  height: 30px;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.appLauncher .iconButton img {
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #f2f2f2;
+}
+.appLauncher .backButton {
+  position: absolute;
+  width: 21px;
+  height: 17px;
+  margin-top: 7px;
+  margin-left: 15px;
+  background: url("/resources/images/desktop/white/back-arrow.svg");
+  cursor: pointer;
+  z-index: 50;
+}
+.appLauncher .switcherPanel {
+  position: absolute;
+  left: 10px;
+  top: 30px;
+}
+.appLauncher .switcherPanel .switcher {
+  overflow: visible;
+  margin: 5px 5px 0 5px;
+  float: left;
+}
+.appLauncher .switcherPanel .iconButton {
+  margin: 0 auto;
+  overflow: hidden;
+  text-align: center;
+}
+.appLauncher .switcherPanel .iconButton img {
+  cursor: pointer;
+}
+.appLauncher .switcherPanel .switch {
+  margin: 0 auto;
+  border: 1px solid #f2f2f2;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  overflow: hidden;
+  text-align: center;
+}
+.appLauncher .switcherPanel .switch.bgSwitch .button {
+  width: 25px;
+  line-height: 21px;
+  font-size: 14px;
+  color: #f2f2f2;
+}
+.appLauncher .switcherPanel .switch.bgSwitch .button.active {
+  background: #f2f2f2;
+  color: #75a843;
+}
+.appLauncher .switcherPanel .switch.twoSide .button {
+  cursor: pointer !important;
+}
+.appLauncher .switcherPanel .switch.twoSide .button.active {
+  border-right: 1px solid transparent;
+}
+.appLauncher .switcherPanel .switch.twoSide .button img {
+  cursor: pointer !important;
+}
+.appLauncher .switcherPanel .switch .button {
+  float: left;
+  height: 21px;
+  border-right: 1px solid #f2f2f2;
+  cursor: pointer;
+}
+.appLauncher .switcherPanel .switch .button img {
+  cursor: pointer;
+}
+.appLauncher .switcherPanel .switch .button.active {
+  cursor: default;
+}
+.appLauncher .switcherPanel .switch .button.active img {
+  cursor: default;
+}
+.appLauncher .switcherPanel .switch .button.active .activate {
+  display: none;
+}
+.appLauncher .switcherPanel .switch .button.active .deactivate {
+  display: block;
+}
+.appLauncher .switcherPanel .switch .button:last-child {
+  border-right: none !important;
+}
+.appLauncher .switcherPanel .activate {
+  display: block;
+}
+.appLauncher .switcherPanel .deactivate {
+  display: none;
+}
+.appLauncher .actionsPanel {
+  position: absolute;
+  right: 10px;
+  top: 30px;
+}
+.appLauncher .actionsPanel .action {
+  float: right;
+  margin: 5px 5px 0 5px;
+  text-align: center;
+  cursor: pointer;
+}
+.appLauncher .actionsPanel .action .icon {
+  margin: 0 auto;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #f2f2f2;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.appLauncher .actionsPanel .action .icon img {
+  display: inline-block;
+  cursor: pointer;
+}
+.appLauncher .actionsPanel .action.disabled {
+  opacity: 0.6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: alpha(opacity=60);
+  pointer-events: none;
+}
+.appLauncher .actionsPanel .action.disabled * {
+  cursor: default;
+}
+.appLauncher .actionsPanel .action .settingsText {
+  cursor: pointer;
+}
+.appLauncher .settingsText {
+  margin-top: 2px;
+  line-height: 11px;
+  font-size: 11px;
+  color: #f2f2f2;
+  text-align: center;
+}
+.appLauncher .filterPanel {
+  top: 80px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.appLauncher .filterView {
+  top: 80px;
+  left: 250px;
+}
+.appLauncher .filterView .sideMargin {
+  margin: 0;
+}
+.appLauncher .appContainer {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.appLauncher .appContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.appLauncher .resize {
+  position: absolute;
+  z-index: 10;
+}
+.appLauncher .resize.top {
+  top: -5px;
+  height: 10px;
+  left: 0;
+  right: 0;
+  cursor: ns-resize;
+}
+.appLauncher .resize.bottom {
+  bottom: -5px;
+  height: 10px;
+  left: 0;
+  right: 0;
+  cursor: ns-resize;
+}
+.appLauncher .resize.left {
+  left: -5px;
+  width: 10px;
+  top: 0;
+  bottom: 0;
+  cursor: ew-resize;
+}
+.appLauncher .resize.right {
+  right: -5px;
+  width: 10px;
+  top: 0;
+  bottom: 0;
+  cursor: ew-resize;
+}
+.appLauncher .resize.topleft {
+  width: 20px;
+  height: 20px;
+  top: -10px;
+  left: -10px;
+  cursor: nwse-resize;
+}
+.appLauncher .resize.topright {
+  width: 20px;
+  height: 20px;
+  top: -10px;
+  right: -10px;
+  cursor: nesw-resize;
+}
+.appLauncher .resize.bottomright {
+  width: 20px;
+  height: 20px;
+  right: -10px;
+  bottom: -10px;
+  cursor: nwse-resize;
+}
+.appLauncher .resize.bottomleft {
+  width: 20px;
+  height: 20px;
+  left: -10px;
+  bottom: -10px;
+  cursor: nesw-resize;
+}

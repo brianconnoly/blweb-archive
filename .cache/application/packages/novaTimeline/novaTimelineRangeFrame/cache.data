@@ -1,0 +1,272 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaTimelineRangeFrame/template.jade'] = "<div ng-class=\"{'calendar':calendarActive}\"> <div ng-if=\"calendarActive\" class=\"novaTimelineCalendar\"></div> <div class=\"novaTimelineMenu\"> <div class=\"zoomSwitcher\"> <div ng-click=\"setZoom(3)\" ng-class=\"{'active':currentZoom==3}\" ng-if=\"maxZoom &gt; 2\" translate=\"'novaTimelineFrame_zoom_month'\" class=\"switch\"></div> <div ng-click=\"setZoom(2)\" ng-class=\"{'active':currentZoom==2}\" ng-if=\"maxZoom &gt; 1\" translate=\"'novaTimelineFrame_zoom_week'\" class=\"switch\"></div> <div ng-click=\"setZoom(1)\" ng-class=\"{'active':currentZoom==1}\" ng-if=\"maxZoom &gt; 0\" translate=\"'novaTimelineFrame_zoom_day'\" class=\"switch\"></div> <div ng-click=\"setZoom(0)\" ng-class=\"{'active':currentZoom==0}\" ng-if=\"maxZoom &gt; 0\" translate=\"'novaTimelineFrame_zoom_post'\" class=\"switch\"></div> </div> <div translate=\"'novaTimelineFrame_calendar'\" ng-click=\"calendarActive = !calendarActive\" ng-class=\"{'active':calendarActive}\" class=\"calendarActivator\"></div> </div> <div class=\"rangeView\"> <div class=\"rangeHead\"></div> <div class=\"rangeItems\"> <div ng-repeat=\"block in items track by block.id\" ng-switch=\"::block.type\"> <div ng-switch-when=\"dayBreak\" class=\"novaTimelineDayBreak\"></div> <div ng-switch-when=\"schedule\" class=\"novaTimelineSchedule\"></div> </div> </div> </div> </div>";
+
+buzzlike.directive('novaTimelineRangeFrame', function(account, communityService, groupService, updateService, $compile, lazyLoading) {
+  return {
+    restrict: 'C',
+    template: tC['/novaTimelineRangeFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem, exCursor, from, headerElem, lastCursor, monthStart, pocketMap, pockets, processSchedule, rangeHead, rangeItems, rebuildRange, scrollToCursor, searchCursor, sepScope, to;
+      elem = $(element);
+      rangeHead = $(elem.find('.rangeHead')[0]);
+      rangeItems = $(elem.find('.rangeItems')[0]);
+      scope.flowFrame.maxWidth = 320;
+      scope.maxZoom = 0;
+      scope.currentZoom = 0;
+      scope.setZoom = function(zoom) {
+        scope.currentZoom = zoom;
+        rebuildRange();
+        return setTimeout(function() {
+          return scrollToCursor();
+        }, 0);
+      };
+      scope.communityIds = scope.flowFrame.data.communityIds;
+      from = Date.now();
+      to = from;
+      switch (scope.flowFrame.data.type) {
+        case 'month':
+          scope.maxZoom = 2;
+          scope.currentZoom = 2;
+          monthStart = new Date(scope.flowFrame.data.timestamp);
+          from = scope.flowFrame.data.timestamp;
+          to = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getTime();
+          break;
+        case 'week':
+          scope.maxZoom = 1;
+          scope.currentZoom = 1;
+          from = scope.flowFrame.data.timestamp;
+          to = from + WEEK - DAY;
+          break;
+        case 'day':
+          scope.maxZoom = 1;
+          scope.currentZoom = 0;
+          from = scope.flowFrame.data.timestamp;
+          to = from + DAY;
+      }
+      scope.cursorTime = scope.flowFrame.data.timestamp;
+      scope.scrollerParams = {
+        cursor: scope.cursorTime
+      };
+      headerElem = null;
+      sepScope = null;
+      exCursor = 0;
+      scope.cursorChanged = function() {
+        var block, exDate, nuDate, update, weekDay;
+        update = false;
+        exDate = new Date(exCursor);
+        nuDate = new Date(scope.scrollerParams.cursor);
+        switch (scope.flowFrame.data.type) {
+          case 'month':
+            if (exDate.getMonth() !== nuDate.getMonth() || exDate.getFullYear() !== nuDate.getFullYear()) {
+              update = true;
+              monthStart = new Date(nuDate.getFullYear(), nuDate.getMonth(), 1);
+              from = monthStart.getTime();
+              to = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getTime();
+              block = {
+                type: 'dayBreak',
+                timestamp: from,
+                dayBreakType: 'month'
+              };
+            }
+            break;
+          case 'week':
+            if (exDate.getWeekNumber() !== nuDate.getWeekNumber() || exDate.getFullYear() !== nuDate.getFullYear()) {
+              update = true;
+              weekDay = nuDate.getDay();
+              weekDay--;
+              if (weekDay < 0) {
+                weekDay = 6;
+              }
+              block = {
+                type: 'dayBreak',
+                timestamp: nuDate.getTime() - (DAY * weekDay),
+                dayBreakType: 'week'
+              };
+            }
+            break;
+          case 'day':
+            if (exDate.getTime() !== nuDate.getTime()) {
+              update = true;
+              block = {
+                type: 'dayBreak',
+                timestamp: nuDate.getTime(),
+                dayBreakType: 'day'
+              };
+            }
+        }
+        if (update) {
+          if (headerElem != null) {
+            headerElem.remove();
+          }
+          if (sepScope != null) {
+            sepScope.$destroy();
+          }
+          headerElem = $('<div>', {
+            "class": 'novaTimelineDayView'
+          });
+          sepScope = scope.$new();
+          sepScope.block = block;
+          headerElem = $($compile(headerElem)(sepScope));
+          setTimeout(function() {
+            return rangeHead.append(headerElem);
+          }, 0);
+          rebuildRange();
+        }
+        return setTimeout(function() {
+          return scrollToCursor();
+        }, 0);
+      };
+      pockets = {};
+      pocketMap = {};
+      processSchedule = function(item) {
+        if (item.deleted === true || item.timestamp < from || item.timestamp > to) {
+          if (pocketMap[item.id] != null) {
+            removeElementFromArray(item, pockets[pocketMap[item.id]]);
+            delete pocketMap[item.id];
+          }
+          return;
+        }
+        if (pockets[item.timestamp] == null) {
+          pockets[item.timestamp] = [];
+        }
+        if (indexOf.call(pockets[item.timestamp], item) < 0) {
+          pockets[item.timestamp].push(item);
+        }
+        return pocketMap[item.id] = item.timestamp;
+      };
+      lazyLoading.callLazyLoad(scope.communityIds, from, to, function(items) {
+        var i, item, len;
+        for (i = 0, len = items.length; i < len; i++) {
+          item = items[i];
+          processSchedule(item);
+        }
+        return rebuildRange();
+      });
+      scope.items = [];
+      rebuildRange = function() {
+        var dayDiff, fromObj, i, key, len, nextDay, pocketKeys, results, results1, weekStart;
+        scope.items.length = 0;
+        switch (scope.currentZoom) {
+          case 2:
+            fromObj = new Date(from);
+            dayDiff = fromObj.getDay() - 1;
+            if (dayDiff < 0) {
+              dayDiff = 6;
+            }
+            weekStart = new Date(fromObj.getFullYear(), fromObj.getMonth(), fromObj.getDate() - dayDiff).getTime();
+            results = [];
+            while (weekStart < to) {
+              scope.items.push({
+                type: 'dayBreak',
+                "static": true,
+                id: weekStart + 'static' + '_' + scope.currentZoom,
+                timestamp: weekStart,
+                dayBreakType: 'week'
+              });
+              results.push(weekStart += WEEK);
+            }
+            return results;
+            break;
+          default:
+            pocketKeys = Object.keys(pockets);
+            pocketKeys.sort();
+            fromObj = new Date(from);
+            nextDay = new Date(fromObj.getFullYear(), fromObj.getMonth(), fromObj.getDate()).getTime();
+            for (i = 0, len = pocketKeys.length; i < len; i++) {
+              key = pocketKeys[i];
+              if (scope.flowFrame.data.type !== 'day') {
+                while (key > nextDay) {
+                  scope.items.push({
+                    type: 'dayBreak',
+                    "static": true,
+                    id: nextDay + 'static' + '_' + scope.currentZoom,
+                    timestamp: nextDay,
+                    dayBreakType: 'day'
+                  });
+                  nextDay += DAY;
+                }
+              }
+              scope.items.push({
+                type: 'schedule',
+                schedules: pockets[key],
+                id: key * 1,
+                timestamp: key * 1
+              });
+            }
+            if (scope.flowFrame.data.type !== 'day') {
+              results1 = [];
+              while (nextDay <= to) {
+                scope.items.push({
+                  type: 'dayBreak',
+                  "static": true,
+                  id: nextDay + 'static' + '_' + scope.currentZoom,
+                  timestamp: nextDay,
+                  dayBreakType: 'day'
+                });
+                results1.push(nextDay += DAY);
+              }
+              return results1;
+            }
+        }
+      };
+      searchCursor = function() {
+        var blockScope, blocks, minDiff, nearest, nuTs;
+        blocks = rangeItems.find('.novaTimelineDayBreak');
+        minDiff = 99999999999;
+        nearest = null;
+        blocks.each(function() {
+          var diff;
+          diff = Math.abs($(this).parent().position().top);
+          if (diff < minDiff) {
+            minDiff = diff;
+            return nearest = this;
+          }
+        });
+        if (nearest != null) {
+          blockScope = angular.element(nearest).scope();
+          nuTs = blockScope.block.timestamp;
+          if (nuTs < from) {
+            nuTs = from;
+          }
+          if (nuTs > to) {
+            nuTs = to;
+          }
+          if (scope.scrollerParams.cursor !== nuTs) {
+            scope.scrollerParams.cursor = nuTs;
+            return scope.$apply();
+          }
+        }
+      };
+      scrollToCursor = function() {
+        var blocks, minDiff, nearest;
+        blocks = rangeItems.find('.novaTimelineDayBreak');
+        minDiff = 99999999999;
+        nearest = null;
+        blocks.each(function() {
+          var blockScope, diff;
+          blockScope = angular.element(this).scope();
+          diff = Math.abs(scope.scrollerParams.cursor - blockScope.block.timestamp);
+          if (diff < minDiff) {
+            minDiff = diff;
+            return nearest = this;
+          }
+        });
+        if (nearest != null) {
+          return rangeItems[0].scrollTop = rangeItems[0].scrollTop + $(nearest).parent().position().top + 2;
+        }
+      };
+      scope.cursorChanged();
+      setTimeout(function() {
+        return searchCursor();
+      }, 0);
+      lastCursor = null;
+      return rangeItems.on('mousewheel', function(e, delta) {
+        return searchCursor();
+      });
+    }
+  };
+});
+
+registerStyles('novaTimelineRangeFrame', ".novaTimelineRangeFrame .novaTimelineMenu {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 50px;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTimelineRangeFrame .rangeView {\n  position: absolute;\n  top: 50px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTimelineRangeFrame .rangeHead .novaTimelineDayView {\n  height: 140px;\n  margin-top: -1px;\n}\n.novaTimelineRangeFrame .rangeItems {\n  position: absolute;\n  top: 140px;\n  right: 0;\n  left: 0;\n  bottom: 0;\n  overflow: auto;\n}\n.novaTimelineRangeFrame .rangeItems .novaTimelineDayView {\n  height: 140px;\n  margin-top: -1px;\n  border-top: 1px solid #ccc;\n}\n.novaTimelineRangeFrame .novaTimelineCalendar {\n  position: absolute;\n  top: 0;\n  height: 0;\n  left: 0;\n  right: 0;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaTimelineRangeFrame.calendar .novaTimelineCalendar {\n  position: absolute;\n  top: 0;\n  height: 180px;\n  left: 0;\n  right: 0;\n}\n.novaTimelineRangeFrame.calendar .novaTimelineMenu {\n  top: 180px;\n}\n.novaTimelineRangeFrame.calendar .rangeView {\n  top: 230px;\n}\n");

@@ -1,0 +1,264 @@
+.topShield {
+  z-index: 510 !important;
+}
+.appContainer.lotManager {
+  background: #f2f2f2;
+  color: #494949;
+}
+.appContainer.lotManager .scroll-bottom,
+.appContainer.lotManager .scroll-right {
+  background: rgba(180,180,180,0.8) !important;
+}
+.appContainer.lotManager .body {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-top: 1px solid #ccc;
+}
+.appContainer.lotManager .bl-checkbox {
+  margin-top: 5px;
+  width: 25px;
+  height: 13px;
+  background: #ccc;
+  cursor: pointer;
+}
+.appContainer.lotManager .bl-checkbox * {
+  cursor: pointer;
+}
+.appContainer.lotManager .bl-checkbox.checked .button {
+  background: #fff;
+}
+.appContainer.lotManager .bl-checkbox .tumbler {
+  right: 11px;
+}
+.appContainer.lotManager .bl-checkbox .button {
+  background: #e6e6e6;
+  top: 2px;
+  right: 2px;
+  width: 11px;
+  height: 11px;
+}
+.appContainer.lotManager .rightContent .currentLot .smallPreview {
+  float: left;
+  width: 30px;
+  height: 30px;
+  margin: 5px 10px;
+  overflow: hidden;
+}
+.appContainer.lotManager .rightContent .currentLot .title {
+  padding-right: 200px;
+}
+.appContainer.lotManager .rightContent .currentLot .params .bl-checkbox {
+  float: right;
+  margin: 12px;
+  margin-right: 5px;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  pointer-events: none;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.appContainer.lotManager .rightContent .currentLot .params .bl-checkbox.active {
+  pointer-events: auto;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.lotManager .rightContent .currentLot .params .published {
+  float: right;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  pointer-events: none;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+  font-size: 16px;
+}
+.appContainer.lotManager .rightContent .currentLot .params .published span {
+  cursor: pointer;
+}
+.appContainer.lotManager .rightContent .currentLot .params .published.active {
+  pointer-events: auto;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.appContainer.lotManager .rightContent .lotSettings .buzzlot {
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+.appContainer.lotManager .rightContent .lotSettings .previewColumn {
+  margin-top: 17px;
+  width: 192px;
+  padding: 0;
+  float: left;
+  overflow: hidden;
+}
+.appContainer.lotManager .rightContent .lotSettings .previewColumn .previewContainer {
+  margin-right: 0;
+  margin-left: 25px;
+  float: none;
+}
+.appContainer.lotManager .rightContent .lotSettings .previewColumn .previewButton {
+  overflow: hidden;
+  padding: 5px 10px;
+  margin: 20px 15px 0 40px;
+  border: 1px solid #494949;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  color: #494949;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+.appContainer.lotManager .rightContent .lotSettings .previewColumn .removeButton {
+  margin-top: 10px;
+  margin-left: 25px;
+  text-align: center;
+  font-size: 12px;
+  color: #c1272d;
+  cursor: pointer;
+}
+.appContainer.lotManager .rightContent .lotSettings .paramsColumn {
+  margin-top: 12px;
+  float: left;
+}
+.appContainer.lotManager .rightContent .lotSettings .paramsColumn.disabled {
+  pointer-events: none;
+}
+.appContainer.lotManager .rightContent .lotSettings .paramsColumn.disabled .settingsInput,
+.appContainer.lotManager .rightContent .lotSettings .paramsColumn.disabled .datePicker,
+.appContainer.lotManager .rightContent .lotSettings .paramsColumn.disabled .timePicker input {
+  background: #f2f2f2 !important;
+}
+.appContainer.lotManager .rightContent .lotSettings .list {
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line {
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 30px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .title {
+  color: #333;
+  width: 150px;
+  float: left;
+  text-align: right;
+  margin-right: 10px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value {
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .settingsInput,
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .datePicker {
+  margin-top: 2px;
+  height: 25px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  line-height: 25px;
+  color: #000;
+  padding: 0 10px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .settingsInput.longInput,
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .datePicker.longInput {
+  width: 174px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .settingsInput.shortInput,
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .datePicker.shortInput {
+  width: 76px;
+  float: left;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .datePicker {
+  width: 76px;
+  float: left;
+  padding: 0 6px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .separator {
+  height: 25px;
+  width: 22px;
+  text-align: center;
+  line-height: 28px;
+  float: left;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker {
+  padding: 0 15px;
+  overflow: hidden;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker input,
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker span {
+  color: #000;
+  font-size: 16px;
+  line-height: 23px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker input {
+  width: 20px;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker span {
+  margin: 0;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker.separated {
+  padding: 0;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker.separated span {
+  display: none;
+}
+.appContainer.lotManager .rightContent .lotSettings .list .line .value .timePicker.separated input {
+  width: 35px;
+  padding: 0;
+  text-align: center;
+  margin-top: 2px;
+  height: 25px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  line-height: 25px;
+  color: #000;
+  margin-right: 4px;
+}
+.appContainer.lotManager .rightContent .requestsList .head .cell.status {
+  padding-left: 10px;
+}
+.appContainer.lotManager .rightContent .requestsList .cell.pic {
+  width: 50px;
+  padding: 0;
+}
+.appContainer.lotManager .rightContent .requestsList .cell.community {
+  width: 150px;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.appContainer.lotManager .rightContent .requestsList .cell.subscribers {
+  width: 100px;
+  text-align: right;
+}
+.appContainer.lotManager .rightContent .requestsList .cell.price {
+  width: 67px;
+  text-align: right;
+}
+.appContainer.lotManager .rightContent .requestsList .cell.time {
+  width: 116px;
+}
+.appContainer.lotManager .rightContent .requestsList .cell.status {
+  width: 90px;
+  padding: 0;
+}

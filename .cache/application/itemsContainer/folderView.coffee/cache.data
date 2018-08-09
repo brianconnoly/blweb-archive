@@ -1,0 +1,58 @@
+buzzlike.directive('folderView', function(contentService) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs) {
+      var elem, reloadView;
+      elem = $(element);
+      reloadView = function() {
+        var process;
+        if (scope.progress != null) {
+          process = scope.progress.add();
+        }
+        return scope.folder = contentService.getById(scope.currentStep.folderId, function(item) {
+          return contentService.getByIds(item.contentIds, function() {
+            if (process != null) {
+              return scope.progress.finish(process);
+            }
+          });
+        });
+      };
+      scope.$watch('currentStep.folderId', function(nVal) {
+        if (nVal != null) {
+          return reloadView();
+        }
+      });
+      scope.itemSort = function(id) {
+        var item;
+        item = contentService.getById(id);
+        if ((item != null ? item.type : void 0) == null) {
+          return;
+        }
+        return item[scope.currentStep.sortBy];
+      };
+      scope.itemFilter = function(id) {
+        var filterSet, item, k, ref, v;
+        filterSet = false;
+        ref = scope.currentStep.filterTypes;
+        for (k in ref) {
+          v = ref[k];
+          if (v === true) {
+            filterSet = true;
+          }
+        }
+        if (filterSet === false) {
+          return true;
+        }
+        item = contentService.getById(id);
+        if (item.type === 'folder') {
+          return true;
+        }
+        if ((item != null ? item.type : void 0) == null) {
+          return;
+        }
+        return scope.currentStep.filterTypes[item.type];
+      };
+      return true;
+    }
+  };
+});

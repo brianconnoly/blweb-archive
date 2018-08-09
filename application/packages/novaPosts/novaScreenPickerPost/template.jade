@@ -1,0 +1,14 @@
+div(ng-class="{'picked':value.id}")
+    div.screenBar
+        div.backScreen(translate="'novaScreen_back'", ng-click="backScreen()")
+        div.novaItemScope.novaItem.novaItemPreview(
+            ng-if="value.id"
+            nova-item-object="value"
+            nova-item-preview-type="list")
+        div.novaScreenTextHelper(translate="'novaScreenPickerPost_helper'")
+    div.projectsList
+        div.novaItem.novaItemPreview(
+            ng-repeat="item in posts", 
+            nova-item-preview-type="timeline", 
+            ng-click="setNewValue(item.id)", 
+            ng-if="item.id != value.id")

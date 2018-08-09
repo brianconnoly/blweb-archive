@@ -1,0 +1,12 @@
+buzzlike.factory('importHelper', [
+  'env', 'httpWrapped', function(env, httpWrapped) {
+    return {
+      prepareUrlImport: function(url, cb) {
+        return httpWrapped.post(env.baseurl + "/import/url", url, cb);
+      },
+      prepareVideoImport: function(url, cb) {
+        return httpWrapped.post(env.baseurl + "/import/video", url, cb);
+      }
+    };
+  }
+]);

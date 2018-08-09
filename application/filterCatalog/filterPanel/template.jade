@@ -1,0 +1,24 @@
+div.filterBody(antiscroll)
+    ul.sections
+        li.section.title Группировка
+        li.section(ng-repeat="section in sections", ng-class="{'active':current==section}") 
+            div.sectionTitle.menuButton(ng-click="select(section)") {{localization.translate('filter_group_type_'+section.title)}}
+            ul.sectionChildrenList(ng-show="current==section && section.showChildren == true")
+                li.sectionChildren(ng-repeat="child in children", ng-click="select(section, child)", ng-class="{'active':currentChild==child}") {{localization.translate(child.title)}}
+
+    ul.sections(ng-show="sortTypes.length > 0")
+        li.section.title Сортировка
+        li
+            combobox(list="sortTypes", ng-model="params.currentSort", ng-change="onChange()", default="last")
+
+        li.section.warning(ng-show="filterMessage") {{localization.translate(filterMessage)}}
+
+        li.section.title Дополнительно
+        li.section.menuButton(ng-class="{'active': params.sortOrder}")
+            div.label Инверсия
+            checkbox.long(ng-model="params.sortOrder")
+
+        li.section.menuButton(ng-repeat="param in extra", ng-class="{'active': params[param.param]}")
+            div.label {{localization.translate('filter_settings_' + param.title)}}
+            checkbox.long(ng-model="params[param.param]")
+

@@ -1,0 +1,28 @@
+buzzlike.directive('novaStreamIndicator', function(account, $parse) {
+  return {
+    restrict: 'C',
+    link: function(scope, element, attrs, ngModel) {
+      var recountUpdates, unreg;
+      scope.streamUpdates = 0;
+      recountUpdates = function() {
+        var ref, ref1;
+        console.log('recount?', scope);
+        if (((ref = scope.streamParentItem) != null ? (ref1 = ref.userUpdated) != null ? ref1['uid' + account.user.id] : void 0 : void 0) == null) {
+          return;
+        }
+        return scope.streamUpdates = scope.streamParentItem.totalUpdates - scope.streamParentItem.userUpdated['uid' + account.user.id].updates;
+      };
+      return unreg = scope.$watch(attrs.novaStreamItem, function(nVal) {
+        if ((nVal != null ? nVal.type : void 0) != null) {
+          unreg();
+          scope.streamParentItem = nVal;
+          console.log('watch', 'streamParentItem.userUpdated.uid' + account.user.id + '.updates');
+          scope.$watch('streamParentItem.userUpdated.uid' + account.user.id + '.updates', recountUpdates);
+          return scope.$watch('streamParentItem.totalUpdates', recountUpdates);
+        }
+      }, true);
+    }
+  };
+});
+
+registerStyles('novaStreamIndicator', ".novaStreamIndicator {\n  background-color: rgba(0,0,0,0.05);\n}\n.novaStreamIndicator:hover {\n  cursor: pointer;\n}\n.novaStreamIndicator.active {\n  margin-bottom: 5px;\n}\n.novaStreamIndicator.active:last-child {\n  margin-bottom: 0;\n}\n");

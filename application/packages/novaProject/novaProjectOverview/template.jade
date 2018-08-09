@@ -1,0 +1,13 @@
+div.novaAppLeftPanelOverview        
+    div.overviewBar
+        div.overviewCover.border03
+            div.itemPreview(type="content",id="project.appearance.cover")
+        
+        div.overviewText
+            div.mainTitle {{project.name}}
+            div.activity
+                span(translate="'novaProjectOverview_members'")
+                span {{project.members.length}}
+        
+    div.projectStream.novaStreamIndicator(nova-stream-item="appItem")
+        div.novaStreamIndicatorLastMessage

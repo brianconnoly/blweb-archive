@@ -1,0 +1,19 @@
+div.centerTitle Выберите способ оплаты
+div.paySwitcher
+    div.post(ng-click="showPage('postPage')")
+        div.imageWrapper
+            div.postImage
+        div.text
+            h4 Оплатить постом
+            //-span Оплата доступа ко всем прелестям
+            span Доступ ко всем прелестям
+            span Buzzlike в обмен на рекламный пост
+    div.sep
+    //-div.money(ng-click="showPage('moneyPage')")
+    div.money.disabled
+        div.imageWrapper
+            div.moneyImage
+        div.text
+            h4 Оплатить деньгами
+            span Оплата электронным платежом
+            span через Uniteller

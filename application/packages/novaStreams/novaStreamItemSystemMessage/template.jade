@@ -1,0 +1,10 @@
+span.text(translate="'streamMessage_' + streamItem.value + (streamItem.items.length > 1 ? 's' : '')", translate-capitalize="{{::capitalize}}")
+span.parentName(ng-repeat="parent in uniqParents")  "{{trim(getParent(parent).name, $index)}}"
+//- , ng-if="parentId != realItem.parent.id"
+div.entities.novaMultiselect(ng-class="{'center':streamItem.items.length < 3}")
+    div.realStreamItem(ng-repeat="realItem in streamItem.items track by realItem.id", class="item_type_{{::realItem.data.type}}")
+        div.streamEntity.novaItem.novaItemPreview.novaItemSelectable.novaItemDraggable.novaItemDroppable(
+            ng-repeat="id in realItem.data.ids",
+            nova-item-id="id",
+            nova-item-type="{{::realItem.data.type}}",
+            nova-item-context="parent")

@@ -1,0 +1,128 @@
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('streamItemService', function(itemService, account, rpc) {
+  var classEntity;
+  classEntity = (function(superClass) {
+    extend(classEntity, superClass);
+
+    function classEntity() {
+      return classEntity.__super__.constructor.apply(this, arguments);
+    }
+
+    classEntity.prototype.itemType = 'streamItem';
+
+    classEntity.prototype.init = function() {
+      this.byStreamId = {};
+      this.streamFetched = {};
+      this.streamLastPage = {};
+      this.streamTotal = {};
+      this.lastMessages = {};
+      return classEntity.__super__.init.call(this);
+    };
+
+    classEntity.prototype.getByStreamId = function(streamId, cb) {
+      if (this.streamFetched[streamId] === true) {
+        return this.byStreamId[streamId];
+      }
+      this.streamFetched[streamId] = true;
+      this.streamLastPage[streamId] = 0;
+      this.streamTotal[streamId] = null;
+      if (this.byStreamId[streamId] == null) {
+        this.byStreamId[streamId] = [];
+      }
+      this.query({
+        parentsId: streamId,
+        limit: 40,
+        page: this.streamLastPage[streamId],
+        sortBy: 'created',
+        sortType: 'DESC'
+      }, (function(_this) {
+        return function(items, total) {
+          _this.streamTotal[streamId] = total;
+          return typeof cb === "function" ? cb(items, total) : void 0;
+        };
+      })(this));
+      return this.byStreamId[streamId];
+    };
+
+    classEntity.prototype.nextPageByStreamId = function(streamId, cb) {
+      if ((this.streamTotal[streamId] != null) && this.byStreamId[streamId].length >= this.streamTotal[streamId]) {
+        if (typeof cb === "function") {
+          cb([], this.streamTotal[streamId]);
+        }
+        return this.byStreamId[streamId];
+      }
+      this.streamLastPage[streamId]++;
+      this.query({
+        parentsId: streamId,
+        limit: 40,
+        page: this.streamLastPage[streamId],
+        sortBy: 'created',
+        sortType: 'DESC'
+      }, (function(_this) {
+        return function(items, total) {
+          _this.streamTotal[streamId] = total;
+          return typeof cb === "function" ? cb(items, total) : void 0;
+        };
+      })(this));
+      return this.byStreamId[streamId];
+    };
+
+    classEntity.prototype.handleItem = function(item) {
+      var handled, i, j, len, len1, parent, ref, ref1;
+      handled = classEntity.__super__.handleItem.call(this, item);
+      ref = handled.parents;
+      for (i = 0, len = ref.length; i < len; i++) {
+        parent = ref[i];
+        if ((this.lastMessages[parent.id] != null) && handled.created > this.lastMessages[parent.id].created) {
+          this.lastMessages[parent.id] = handled;
+        }
+      }
+      ref1 = handled.parents;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        parent = ref1[j];
+        if (this.byStreamId[parent.id] == null) {
+          this.byStreamId[parent.id] = [];
+        }
+        if (indexOf.call(this.byStreamId[parent.id], handled) < 0) {
+          this.byStreamId[parent.id].push(handled);
+          this.byStreamId[parent.id].sort(function(a, b) {
+            if (a.created < b.created) {
+              return -1;
+            }
+            if (a.created > b.created) {
+              return 1;
+            }
+            return 0;
+          });
+        }
+      }
+      return handled;
+    };
+
+    classEntity.prototype.getLastMessage = function(streamId, cb) {
+      if (this.lastMessages[streamId] != null) {
+        if (typeof cb === "function") {
+          cb(this.lastMessages[streamId]);
+        }
+        return this.lastMessages[streamId];
+      }
+      return this.call('getLastMessage', {
+        id: streamId
+      }, (function(_this) {
+        return function(item) {
+          if ((item != null ? item.id : void 0) != null) {
+            _this.lastMessages[streamId] = item;
+          }
+          return typeof cb === "function" ? cb(item) : void 0;
+        };
+      })(this));
+    };
+
+    return classEntity;
+
+  })(itemService);
+  return new classEntity();
+});

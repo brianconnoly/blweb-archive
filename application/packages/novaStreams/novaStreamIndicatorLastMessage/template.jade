@@ -1,0 +1,4 @@
+div(ng-click="launchStreamFrame()")
+    div.indicator(ng-if="streamUpdates > 0") {{streamUpdates}}
+
+    div.noUpdates(ng-if="empty", translate="'novaStreamIndicator_noMessages'")

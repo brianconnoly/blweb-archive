@@ -1,0 +1,291 @@
+buzzlike.directive("filterView", function(resize, $rootScope, updateService, stateManager) {
+  return {
+    restrict: 'C',
+    scope: {
+      section: '=',
+      query: '=',
+      params: '=',
+      currentChild: '=?'
+    },
+    template: tC['/filterCatalog/filterView'],
+    link: function(scope, element, attrs) {
+      var currentQuery, deepViewState, elem, itemH, itemW, lastHei, lastWid, maxItems, maxPageSize, maxTotal, pageItems, refresh, savedTotal, screen, updateArrows, updateWidget, updateWidgets, widgetList;
+      elem = $(element);
+      widgetList = elem.find('.widgetList');
+      scope.showContentList = false;
+      scope.viewSection = null;
+      scope.widgets = null;
+      scope.contentList = [];
+      scope.pages = 0;
+      scope.items = [];
+      scope.currentPage = 0;
+      pageItems = null;
+      maxPageSize = 0;
+      maxTotal = 0;
+      maxItems = 0;
+      savedTotal = 0;
+      currentQuery = null;
+      scope.noLeft = true;
+      scope.noRight = true;
+      itemW = function() {
+        if (scope.params.smallIcons) {
+          return 116;
+        } else {
+          return 174;
+        }
+      };
+      itemH = function() {
+        if (scope.params.smallIcons) {
+          return 116;
+        } else {
+          return 174;
+        }
+      };
+      deepViewState = {
+        child: true,
+        'escape': function() {
+          scope.back();
+          return stateManager.goBack();
+        }
+      };
+      updateService.registerUpdateHandler(function(data) {
+        if (currentQuery != null) {
+          if (data[currentQuery.entityType] != null) {
+            if (currentQuery.contentType != null) {
+              if (data[currentQuery.contentType] != null) {
+                return refresh();
+              }
+            } else {
+              return refresh();
+            }
+          }
+        } else {
+          return widgetList.children('.filterWidget').each(function() {
+            var widScope;
+            widScope = angular.element(this).scope();
+            if (widScope != null) {
+              if (data[widScope.widget.query.entityType] != null) {
+                if (widScope.widget.query.contentType != null) {
+                  if (data[widScope.widget.query.contentType] != null) {
+                    return widScope.refresh();
+                  }
+                } else {
+                  return widScope.refresh();
+                }
+              }
+            }
+          });
+        }
+      });
+      screen = {
+        wid: 0,
+        hei: 0
+      };
+      scope.$watch('params', function(nVal, oVal) {
+        if ((nVal != null) && nVal !== oVal && (scope.section != null)) {
+          if (scope.section.custom === true) {
+            return updateWidgets();
+          } else {
+            return refresh();
+          }
+        }
+      }, true);
+      scope.$watch('section', function(nVal, oVal) {
+        if (nVal != null) {
+          return updateWidgets(nVal);
+        }
+      });
+      scope.$watch('currentChild', function(nVal) {
+        if (nVal != null) {
+          scope.select(nVal);
+        } else {
+          currentQuery = null;
+          scope.showContentList = false;
+        }
+        return refresh();
+      });
+      updateWidgets = function(nVal) {
+        currentQuery = null;
+        scope.widgets = null;
+        if (nVal != null) {
+          scope.viewSection = nVal;
+        }
+        if (scope.viewSection == null) {
+          return;
+        }
+        if (scope.viewSection.widgets != null) {
+          if (typeof scope.viewSection.widgets === 'function') {
+            if (scope.viewSection.async) {
+              scope.viewSection.widgets(function(result) {
+                return scope.widgets = result;
+              });
+            } else {
+              scope.widgets = scope.viewSection.widgets();
+            }
+          } else {
+            scope.widgets = scope.viewSection.widgets;
+          }
+          return scope.showContentList = false;
+        } else {
+          currentQuery = scope.viewSection.query;
+          scope.showContentList = true;
+          return refresh();
+        }
+      };
+      updateWidget = function(items, total) {
+        var cnt, item, k;
+        cnt = 0;
+        maxTotal = total;
+        maxItems = items;
+        total = total || savedTotal;
+        if (!total) {
+          currentQuery.limit = 100500;
+          currentQuery.page = 0;
+          scope.query(currentQuery, function(items, total) {
+            savedTotal = items.length;
+            return updateWidget(items, total);
+          });
+          return true;
+        }
+        scope.pages = Math.ceil(total / pageItems);
+        scope.items.length = 0;
+        for (k in items) {
+          item = items[k];
+          if (item) {
+            scope.items.push(item);
+          }
+          cnt++;
+        }
+        return updateArrows();
+      };
+      scope.refresh = refresh = function(action) {
+        var allowQuery, lines, nu_hei, nu_wid, pageSize;
+        nu_wid = (scope.widgetWidth - 80) / itemW() | 0;
+        nu_hei = (lastHei - 100) / itemH() | 0;
+        if (screen.wid !== nu_wid || screen.hei !== nu_hei) {
+          scope.contentWidth = nu_wid * itemW();
+          scope.widgetHeight = nu_hei * itemH();
+          screen.wid = nu_wid;
+          screen.hei = nu_hei;
+        }
+        lines = screen.hei;
+        pageSize = screen.wid * screen.hei;
+        if (pageSize > maxPageSize) {
+          action === 'resize';
+        }
+        if (currentQuery != null) {
+          allowQuery = true;
+          pageItems = screen.wid * screen.hei;
+          currentQuery.limit = pageItems;
+          currentQuery.page = scope.currentPage;
+          if (action === 'resize') {
+            elem.find('.items .content').height(lines * itemH());
+            scope.widgetHeight = lines * itemH();
+            allowQuery = false;
+          }
+          if (pageSize > maxPageSize) {
+            maxPageSize = pageSize;
+            allowQuery = true;
+          }
+          if (allowQuery) {
+            return scope.query(currentQuery, updateWidget);
+          } else {
+            return updateWidget(maxItems, maxTotal);
+          }
+        } else {
+          if (action === 'resize') {
+            return false;
+          }
+          return widgetList.children('.filterWidget').each(function() {
+            var ref;
+            return (ref = angular.element(this).scope()) != null ? ref.refresh(action) : void 0;
+          });
+        }
+      };
+      lastWid = 0;
+      lastHei = 0;
+      scope.$parent.$parent.onResize(function(wid, hei) {
+        var nu_hei, nu_wid;
+        lastWid = wid;
+        lastHei = hei;
+        scope.widgetWidth = wid - leftPanelWidth;
+        nu_wid = (scope.widgetWidth - 80) / itemW() | 0;
+        nu_hei = (hei - 100) / itemH() | 0;
+        if (screen.wid !== nu_wid || screen.hei !== nu_hei) {
+          scope.contentWidth = nu_wid * itemW();
+          scope.widgetHeight = nu_hei * itemH();
+          screen.wid = nu_wid;
+          screen.hei = nu_hei;
+          return refresh('resize');
+        }
+      });
+      scope.paginator = function(pages, currentPage) {
+        var cellWidth, w;
+        w = elem.find(".pagination.arrows").width();
+        cellWidth = 40;
+        if (currentPage > 99) {
+          cellWidth = 60;
+        }
+        return $rootScope.makePaginatorFromPages(pages, currentPage, Math.ceil((w / cellWidth - 3) / 2));
+      };
+      scope.select = function(widget) {
+        if (scope.viewSection !== widget) {
+          scope.contentList.length = 0;
+        }
+        scope.viewSection = widget;
+        scope.showContentList = true;
+        scope.currentPage = 0;
+        scope.currentChild = widget;
+        currentQuery = widget.query;
+        refresh();
+        stateManager.applyState(deepViewState);
+        return true;
+      };
+      scope.back = function() {
+        scope.showContentList = false;
+        scope.items.length = 0;
+        scope.pages = 0;
+        currentQuery = null;
+        scope.currentChild = null;
+        refresh();
+        return true;
+      };
+      scope.freshOnTop = function(item) {
+        return -item.createdWhen;
+      };
+      scope.goPage = function(page) {
+        scope.currentPage = page;
+        updateArrows();
+        refresh();
+        return true;
+      };
+      updateArrows = function() {
+        scope.noLeft = true;
+        scope.noRight = true;
+        if (scope.currentPage > 0) {
+          scope.noLeft = false;
+        }
+        if (scope.currentPage < scope.pages - 1) {
+          return scope.noRight = false;
+        }
+      };
+      scope.goRight = function() {
+        if (scope.currentPage < scope.pages) {
+          scope.currentPage++;
+          updateArrows();
+          refresh();
+        }
+        return false;
+      };
+      scope.goLeft = function() {
+        if (scope.currentPage > 0) {
+          scope.currentPage--;
+          updateArrows();
+          refresh();
+        }
+        return false;
+      };
+      return true;
+    }
+  };
+});

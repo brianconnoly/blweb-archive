@@ -1,0 +1,7 @@
+buzzlike.directive('novaItemScope', function() {
+  return {
+    restrict: 'C',
+    scope: true,
+    link: function(scope, element, attrs, ngModel) {}
+  };
+});

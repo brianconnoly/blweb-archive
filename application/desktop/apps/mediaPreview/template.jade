@@ -1,0 +1,17 @@
+div.dragHandler.topBar.noSettings
+    process-bar.red
+    div.appControls
+    div.title(translate="'mediaPreviewApp_title'", ng-if="!state.item.name")
+    div.title(ng-if="state.item.name") {{state.item.name}}.{{state.item.fileType}}
+
+div.lightboxPreview.body.dragHandler
+    div.window.closer.loading(ng-dblclick="download($event)")
+        div.download.flushMousedown(ng-if="state.item.type=='file'")
+            div.url.allowContext(ng-click="selectUrl($event)") {{state.item.source}}
+            div.button.downloadButton(ng-click="download($event)")
+        div.picture.content(ng-show="showType == 'image'")
+            img.downloadButton(ng-src="{{imageUrl}}")
+        div.video.content(ng-show="showType == 'video'")
+
+        div.arrow.left(ng-click="goLeft($event)", ng-if="state.item.type=='file' && canGoLeft()")
+        div.arrow.right(ng-click="goRight($event)", ng-if="state.item.type=='file' && canGoRight()")

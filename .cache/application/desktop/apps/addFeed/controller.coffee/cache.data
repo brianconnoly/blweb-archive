@@ -1,0 +1,253 @@
+buzzlike.controller('addFeedCtrl', function($rootScope, rpc, complexMenu, $scope, account, communityService, groupService, notificationCenter, multiselect) {
+  var addFeedState, onEscape, spinner, userProcess;
+  $scope.currentStep = {
+    translateTitle: 'addFeedApp_myAccounts'
+  };
+  $scope.stepStack = [];
+  $scope.stepStack.push($scope.currentStep);
+  $scope.isMailRu = false;
+  onEscape = $scope.onEscape = function() {
+    $scope.closeApp();
+    return true;
+  };
+  addFeedState = {
+    'escape': function() {
+      return $scope.closeApp();
+    },
+    'enter': function() {
+      return $scope.doAdd();
+    }
+  };
+  $scope.stateTree.applyState(addFeedState);
+  $scope.searchcomm = '';
+  $scope.options = [];
+  $scope.accountFirst = true;
+  $scope.selectedAcc = null;
+  $scope.multiselectState = multiselect.state;
+  $scope.filter = {
+    admin: false,
+    editor: false,
+    sorting: 'size'
+  };
+  $scope.user = account.user;
+  userProcess = $scope.progress.add();
+  account.update(function() {
+    $scope.selectAccount($scope.currentAccNumber);
+    return $scope.progress.finish(userProcess);
+  });
+  $scope.currentAccNumber = 0;
+  $scope.selectAccount = function(acc) {
+    $scope.currentAccNumber = acc;
+    $scope.isMailRu = $scope.user.accounts[$scope.currentAccNumber].socialNetwork === 'mm';
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.pop();
+    }
+    $scope.currentStep = {
+      title: $scope.user.accounts[$scope.currentAccNumber].name,
+      id: acc
+    };
+    $scope.stepStack.push($scope.currentStep);
+    return true;
+  };
+  $scope.currentAccount = function() {
+    return $scope.user.accounts[$scope.currentAccNumber];
+  };
+  $scope.commFilter = function(communityId) {
+    var commItem, level, ref, show;
+    show = false;
+    level = $scope.currentAccount().writableCommunitiesMap[communityId];
+    if ($scope.filter.admin) {
+      if (level === 'admin') {
+        show = true;
+      }
+    }
+    if ($scope.filter.editor) {
+      if (level === 'editor') {
+        show = true;
+      }
+    }
+    if (!$scope.filter.admin && !$scope.filter.editor && !$scope.filter.my) {
+      show = true;
+    }
+    if (show === true && $scope.searchcomm !== "") {
+      commItem = communityService.getById(communityId);
+      if (((ref = commItem.name) != null ? ref.toLowerCase().indexOf($scope.searchcomm.toLowerCase()) : void 0) === -1) {
+        show = false;
+      }
+    }
+    return show;
+  };
+  $scope.commSort = function(communityId) {
+    var commItem;
+    commItem = communityService.getById(communityId);
+    if (commItem.blank != null) {
+      return 0;
+    }
+    if ($scope.filter.sorting === 'title') {
+      if (commItem.socialNetworkId * 1 === $scope.currentAccount().publicId * 1) {
+        return 'a';
+      } else {
+        return commItem.name;
+      }
+    } else {
+      if (commItem.socialNetworkId * 1 === $scope.currentAccount().publicId * 1) {
+        return -90000000;
+      } else {
+        return -commItem.membersCount;
+      }
+    }
+  };
+  $scope.updating = false;
+  spinner = (function() {
+    var target;
+
+    function spinner() {}
+
+    target = null;
+
+    spinner.spinner = makeSpinner();
+
+    spinner.spin = function() {
+      target = $(".ruberRight .spinner")[0];
+      return spinner.spinner.spin(target);
+    };
+
+    spinner.stop = function() {
+      return spinner.spinner.stop();
+    };
+
+    return spinner;
+
+  })();
+  $scope.update = function() {
+    var acc, process;
+    if ($scope.updating) {
+      return true;
+    }
+    spinner.spin();
+    $scope.updating = true;
+    acc = $scope.currentAccNumber;
+    process = $scope.progress.add();
+    communityService.loadCommunities(function() {
+      $scope.updating = false;
+      spinner.stop();
+      $scope.$apply();
+      return $scope.progress.finish(process);
+    });
+    return true;
+  };
+  $scope.doAdd = function() {
+    var community, focused, i, len, newGroup, process, ref, ref1;
+    focused = multiselect.getFocused();
+    if (focused.length > 0) {
+      if (((ref = $scope.session.api) != null ? ref.onAdd : void 0) != null) {
+        if ((ref1 = $scope.session.api) != null) {
+          if (typeof ref1.onAdd === "function") {
+            ref1.onAdd(focused);
+          }
+        }
+        return $scope.closeApp();
+      } else {
+        process = $scope.progress.add();
+        newGroup = {
+          type: 'group',
+          name: 'new_group',
+          feeds: []
+        };
+        for (i = 0, len = focused.length; i < len; i++) {
+          community = focused[i];
+          newGroup.feeds.push({
+            status: 'Writable',
+            communityId: community.id,
+            statusAsInt: 1
+          });
+        }
+        return groupService.create(newGroup, function() {
+          $scope.progress.finish(process);
+          if ($scope.session.closeOnAdd === true) {
+            return $scope.closeApp();
+          }
+        });
+      }
+    } else {
+      return notificationCenter.addMessage({
+        text: 'importcomm_choosecomm',
+        error: true
+      });
+    }
+  };
+  $scope.showSortMenu = function(e) {
+    return complexMenu.show([
+      {
+        object: $scope.filter,
+        type: 'select',
+        param: 'sorting',
+        items: [
+          {
+            phrase: 'addFeedApp_filter_size',
+            value: 'size'
+          }, {
+            phrase: 'addFeedApp_filter_title',
+            value: 'title'
+          }
+        ]
+      }, {
+        object: $scope.filter,
+        type: 'checkbox',
+        items: [
+          {
+            phrase: 'addFeedApp_filter_admin',
+            param: 'admin'
+          }, {
+            phrase: 'addFeedApp_filter_editor',
+            param: 'editor'
+          }
+        ]
+      }
+    ], {
+      top: $(e.target).offset().top + 27,
+      left: $(e.target).offset().left
+    });
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep)
+    };
+  }, function(data) {
+    var i, len, ref, step;
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (i = 0, len = ref.length; i < len; i++) {
+      step = ref[i];
+      $scope.stepStack.push(step);
+    }
+    $scope.currentStep = $scope.stepStack[data.current * 1];
+    return $scope.selectAccount($scope.currentStep.id);
+  });
+  $scope.$watch('currentStep', function(nVal) {
+    return $scope.stateSaver.save();
+  });
+  $scope.mailRyKeyDown = function(e) {
+    if (e.which === 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      return $scope.addMailRuComm($scope.searchMailRuComm);
+    }
+  };
+  return $scope.addMailRuComm = function(link) {
+    if (link == null) {
+      return;
+    }
+    link = link.trim();
+    if (link[link.length - 1] === '/') {
+      link = link.substring(0, link.length - 1);
+    }
+    return rpc.call('mm.parseUrlCommunity', {
+      url: link,
+      publicId: $scope.user.accounts[$scope.currentAccNumber].publicId
+    }, function(result) {
+      return account.update();
+    });
+  };
+});

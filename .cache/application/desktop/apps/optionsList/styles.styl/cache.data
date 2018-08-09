@@ -1,0 +1,12 @@
+.appContainer.optionsList {
+  background: none;
+  border: none;
+  background: #f6f6f6;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.appContainer.optionsList .window {
+  width: 450px;
+}

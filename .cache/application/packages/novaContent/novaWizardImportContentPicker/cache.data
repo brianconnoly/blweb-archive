@@ -1,0 +1,54 @@
+tC['/novaWizardImportContentPicker/template.jade'] = "<div class=\"parameter\"> <div class=\"title\"> <div translate=\"'novaWizardImportContentPicker_title'\" class=\"titleText\"></div> <div translate=\"'novaWizardAction_edit'\" ng-click=\"flush()\" ng-if=\"picked\" class=\"edit\"></div> </div> <div ng-if=\"!picked\" class=\"value pickItems\"> <div ng-repeat=\"item in items\" ng-click=\"pick(item)\" ng-class=\"{'active':isPicked(item)}\" class=\"pickerItem novaItem\"> <div nova-item-preview-type=\"square\" class=\"novaItemPreview\"></div> </div> </div> <div ng-if=\"picked\" class=\"value\"> <div nova-item-id=\"wizard.data[step.variable]\" nova-item-type=\"importContent\" nova-item-preview-type=\"square\" class=\"pickedItem novaItemScope novaItem novaItemPreview\"></div> </div> </div>";
+
+buzzlike.directive('novaWizardImportContentPicker', function(communityService, accountService, account, importContentService, importAlbumService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardImportContentPicker/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var seq;
+      scope.items = [];
+      seq = new Sequence({
+        name: 'Fetch album content'
+      });
+      seq.addStep({
+        name: 'Get album',
+        "var": 'album',
+        action: function(next) {
+          return importAlbumService.getById(scope.wizard.data.albumId, next);
+        }
+      });
+      seq.addStep({
+        name: 'Query albums',
+        "var": 'items',
+        action: function(next) {
+          return importContentService.query({
+            albumId: seq.album.id,
+            albumType: seq.album.albumType,
+            sn: seq.album.socialNetwork,
+            snOwnerId: seq.album.snOwnerId,
+            id: seq.album.albumId,
+            communityId: seq.album.communityId
+          }, next);
+        }
+      });
+      seq.addStep({
+        name: 'Parse result',
+        action: function(next) {
+          var i, item, len, ref;
+          scope.items.length = 0;
+          ref = seq.items;
+          for (i = 0, len = ref.length; i < len; i++) {
+            item = ref[i];
+            scope.items.push(item);
+          }
+          return next(true);
+        }
+      });
+      return seq.fire(function() {
+        return true;
+      });
+    }
+  };
+});
+
+registerStyles('novaWizardImportContentPicker', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaWizardImportContentPicker\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

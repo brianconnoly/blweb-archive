@@ -1,0 +1,218 @@
+buzzlike.directive("timeinput", function($filter, stateManager, ruleService, $rootScope, inspectorService) {
+  return {
+    restrict: "C",
+    scope: true,
+    template: templateCache['/elements/timeinput'],
+    link: function(scope, element, attrs) {
+      var downTime, hourStep, init, leftInput, minStep, placeholderEdit, rightInput, setMinMinutesStep, upTime;
+      scope.sched = null;
+      scope.rule = null;
+      hourStep = 1;
+      if (attrs.minstep) {
+        minStep = Math.floor(attrs.minstep);
+      } else {
+        minStep = 1;
+      }
+      scope.$watch(function() {
+        return inspectorService.status.currentRule;
+      }, function(nValue) {
+        if (nValue != null) {
+          scope.sched = nValue;
+          scope.rule = scope.sched.rule;
+          init();
+          return inspectorService.appendHandlers();
+        }
+      }, true);
+      init = function() {
+        var convertedTime, time, timeHour, timeMin;
+        if ($(element).hasClass('startTime')) {
+          time = getHumanDate(scope.rule.timestampStart);
+        } else if ($(element).hasClass('endTime')) {
+          time = getHumanDate(scope.rule.timestampEnd);
+        } else if ($(element).hasClass('timeinputinterval')) {
+          time = scope.rule.interval;
+          convertedTime = convertTimeToHumanTime(time, 'min').split(':');
+          time = {
+            hours: convertedTime[0],
+            min: convertedTime[1]
+          };
+        }
+        timeHour = time.hours;
+        timeMin = time.min;
+        scope.hour = timeHour;
+        scope.min = timeMin;
+        return setMinMinutesStep(true);
+      };
+      placeholderEdit = function(step) {
+        var dayEnd, dayStart, i, item, len, results, rules;
+        rules = ruleService.rules[scope.rule.communityId];
+        results = [];
+        for (i = 0, len = rules.length; i < len; i++) {
+          item = rules[i];
+          if (item.id === scope.rule.id) {
+            dayStart = new Date(item.timestampStart);
+            dayStart.setHours(0, 0, 0, 0);
+            dayEnd = new Date(item.timestampEnd);
+            dayEnd.setHours(0, 0, 0, 0);
+            if ($(element).hasClass('startTime')) {
+              if (item.timestampStart != null) {
+                item.timestampStart = dayStart.getTime() + step;
+              }
+            } else if ($(element).hasClass('endTime')) {
+              if (item.timestampEnd != null) {
+                item.timestampEnd = dayEnd.getTime() + step;
+              }
+            }
+            if ($(element).hasClass('timeinputinterval')) {
+              results.push(item.interval = (Math.floor(scope.hour) * 60) + Math.floor(scope.min));
+            } else {
+              results.push(void 0);
+            }
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      };
+      scope.toSlider = function() {
+        var min;
+        if ($(element).hasClass('timeinputinterval')) {
+          min = (Math.floor(scope.hour) * 60) + Math.floor(scope.min);
+          setTimeout(function() {
+            if ($('.slider .ui-slider-handle').length > 0) {
+              return $('.slider').slider('value', min);
+            }
+          }, 10);
+        }
+        return null;
+      };
+      scope.formatHour = function() {
+        scope.hour = $filter('hh')(scope.hour);
+        scope.min = $filter('mm')(scope.min);
+        return scope.toSlider();
+      };
+      setMinMinutesStep = function(firstTime) {
+        var res, time;
+        if ($(element).hasClass('timeinputinterval')) {
+          if (minStep === 5) {
+            scope.min = Math.floor(scope.min);
+            res = scope.min % minStep;
+            if (res !== 0 && res >= 3) {
+              scope.min += minStep - res;
+            } else {
+              scope.min -= res;
+            }
+            if (scope.min === 60) {
+              scope.min = 0;
+              scope.hour = Math.floor(scope.hour) + 1;
+            }
+            if (Math.floor(scope.hour) === 0 && scope.min < 3) {
+              scope.min = 5;
+            }
+          }
+        } else {
+          if (minStep === 5) {
+            scope.min = Math.floor(scope.min);
+            res = scope.min % minStep;
+            if (res !== 0 && res >= 3) {
+              scope.min += minStep - res;
+            } else {
+              scope.min -= res;
+            }
+            if (scope.min === 60 && scope.hour < 23) {
+              scope.min = 0;
+              scope.hour = Math.floor(scope.hour) + 1;
+            }
+            if (scope.min > 55 && scope.hour === 23) {
+              scope.min = 55;
+            }
+          }
+        }
+        scope.formatHour();
+        time = convertTimeToNix(scope.hour, scope.min);
+        placeholderEdit(time);
+        if (!firstTime) {
+          return scope.$apply();
+        }
+      };
+      upTime = function() {
+        var ngModel, ngModelHour;
+        if ($('.timeinput input:focus').length > 0) {
+          ngModel = $('.timeinput input:focus').attr('ng-model');
+          if (ngModel === 'min') {
+            scope[ngModel] = Math.floor(scope[ngModel]) + minStep;
+          } else {
+            scope[ngModel] = Math.floor(scope[ngModel]) + hourStep;
+          }
+          if (ngModel === 'min') {
+            ngModelHour = 'hour';
+            if (scope[ngModel] > 59 && scope[ngModelHour] < 23) {
+              scope[ngModel] = 0;
+              scope[ngModelHour] = Math.floor(scope[ngModelHour]) + hourStep;
+            }
+          }
+          return setMinMinutesStep();
+        }
+      };
+      downTime = function() {
+        var ngModel, ngModelHour;
+        if ($('.timeinput input:focus').length > 0) {
+          ngModel = $('.timeinput input:focus').attr('ng-model');
+          if (ngModel === 'min') {
+            scope[ngModel] = Math.floor(scope[ngModel]) - minStep;
+          } else {
+            scope[ngModel] = Math.floor(scope[ngModel]) - hourStep;
+          }
+          if (ngModel === 'min') {
+            ngModelHour = 'hour';
+            if (scope[ngModel] < 0 && scope[ngModelHour] > 0) {
+              if (minStep === 5) {
+                scope[ngModel] = 55;
+              } else {
+                scope[ngModel] = 59;
+              }
+              scope[ngModelHour] = Math.floor(scope[ngModelHour]) - hourStep;
+            }
+          }
+          return setMinMinutesStep();
+        }
+      };
+      leftInput = function(obj) {
+        var par;
+        if ($('.timeinput input:focus').length > 0) {
+          if (obj.caret() === 0) {
+            par = $('.timeinput input:focus').parent();
+            return par.children('input').first().focus();
+          }
+        }
+      };
+      rightInput = function(obj) {
+        var par;
+        if ($('.timeinput input:focus').length > 0) {
+          if (obj.caret() === 2) {
+            par = $('.timeinput input:focus').parent();
+            return par.children('input').last().focus();
+          }
+        }
+      };
+      $(element).on('keyup', 'input', function(e) {
+        return setMinMinutesStep();
+      });
+      $(element).on('keydown', 'input', function(e) {
+        if (e.keyCode === 37) {
+          leftInput($(this));
+        }
+        if (e.keyCode === 39) {
+          rightInput($(this));
+        }
+        if (e.keyCode === 38) {
+          upTime($(this));
+        }
+        if (e.keyCode === 40) {
+          return downTime($(this));
+        }
+      });
+      return true;
+    }
+  };
+});

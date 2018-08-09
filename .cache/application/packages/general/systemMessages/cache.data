@@ -1,0 +1,27 @@
+tC['/systemMessages/template.jade'] = "<div ng-repeat=\"notification in messages\" ng-class=\"{'error': notification.error}\" ng-click=\"removeMessage(notification)\" ng-mouseenter=\"removeMessage(notification, 'hover')\" class=\"message\"> <div ng-switch=\"notification.type\"> <div ng-switch-when=\"notification\" class=\"notificationItem\"> <div class=\"notificationPreview\"></div> </div> <div ng-switch-default=\"ng-switch-default\" class=\"notificationItem\"> <div ng-if=\"hasPreview(notification)\" class=\"preview\"> <div type=\"{{notification.item.type}}\" id=\"notification.item.id\" class=\"itemPreview\"></div> </div> <div ng-if=\"!hasPreview(notification)\" class=\"preview\"><img ng-if=\"notification.error == true\" src=\"/resources/images/elements/achtung.svg\" width=\"60px\" height=\"60px\"/><img ng-if=\"notification.error != true\" src=\"/resources/images/elements/greenCircle.svg\" width=\"60px\" height=\"60px\"/></div> <div class=\"text\"> <div ng-if=\"notification.realText\" class=\"header\">{{::notification.realText}}</div> <div ng-if=\"!notification.realText\" translate=\"notification.text\" class=\"header\"></div> <div ng-if=\"notification.description\" class=\"description\">{{::notification.description}}</div> </div> <div class=\"notificationButtons\"></div> </div> </div> </div>";
+
+buzzlike.directive('systemMessages', function(notificationCenter, notificationService) {
+  return {
+    restrict: 'C',
+    template: tC['/systemMessages/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.messages = notificationCenter.messages;
+      scope.hasPreview = function(msg) {
+        return msg.item != null;
+      };
+      return scope.removeMessage = function(msg, hover) {
+        if ((msg.notificationType != null) && hover) {
+          return false;
+        }
+        if (msg.notificationType != null) {
+          notificationService.markRead(msg.id);
+        }
+        if ((hover && !msg.error && !msg.solid) || !hover) {
+          return notificationCenter.removeMessage(msg);
+        }
+      };
+    }
+  };
+});
+
+registerStyles('systemMessages', ".systemMessages {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 400px;\n  -webkit-transition: opacity ease 0.2s;\n  -moz-transition: opacity ease 0.2s;\n  -o-transition: opacity ease 0.2s;\n  -ms-transition: opacity ease 0.2s;\n  transition: opacity ease 0.2s;\n  z-index: 100500;\n}\n.systemMessages .message {\n  position: relative;\n  overflow: hidden;\n  margin: 20px;\n  background: rgba(255,255,255,0.95);\n  -webkit-border-radius: 10px;\n  border-radius: 10px;\n  color: #333;\n  line-height: 20px;\n}\n");

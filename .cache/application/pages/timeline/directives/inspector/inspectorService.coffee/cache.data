@@ -1,0 +1,340 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+buzzlike.service('inspectorService', function(desktopService, groupService, $rootScope, multiselect, stateManager, ruleService, $filter) {
+  var appendHandlers, closeInspector, endHandler, handlers, highlightRule, initInspector, inspectorSession, inspectorState, reset, scrollTo, selected, setEvents, setHandlers, setMultiEdit, setMultiType, setRule, startHandler, status, updateInspector;
+  status = {
+    showInspector: false,
+    currentRule: null,
+    currentPlaceholder: null,
+    intervals: [],
+    multiEdit: false,
+    multiType: null,
+    multiAd: false,
+    multiDayMask: null,
+    multiEnd: false,
+    multiEndDay: [true, true, true, true, true, true, true],
+    selected: false,
+    selectedType: null,
+    inspectorClicked: null,
+    selectedPlaceholders: []
+  };
+  handlers = $();
+  startHandler = $('<div class="time-picker left" ></div>');
+  endHandler = $('<div class="time-picker right"></div>');
+  handlers = $.merge(handlers, startHandler);
+  handlers = $.merge(handlers, endHandler);
+  selected = [];
+  inspectorSession = null;
+  inspectorState = {
+    'escape': function() {
+      return closeInspector();
+    }
+  };
+  highlightRule = function(ruleId) {
+    return $('.rule_' + ruleId).addClass('placeholder_highlighted');
+  };
+  initInspector = function(item, e) {
+    var focused;
+    if ((inspectorSession != null ? inspectorSession.scope : void 0) == null) {
+      inspectorSession = desktopService.launchApp('ruleInspector', null, e, true);
+    }
+    status.currentPlaceholder = item;
+    status.currentRule = item.rule;
+    stateManager.applyState(inspectorState);
+    $('.placeholder_highlighted').removeClass('placeholder_highlighted');
+    focused = multiselect.getFocused();
+    if (focused.length === 0 || !multiselect.isFocused(item)) {
+      multiselect.flush();
+      status.multiEdit = false;
+      highlightRule(item.rule.id);
+    } else if (focused.length === 1 && multiselect.isFocused(item)) {
+      multiselect.flush();
+      status.multiEdit = false;
+      return highlightRule(item.rule.id);
+    } else {
+      return updateInspector();
+    }
+  };
+  setMultiType = function(type) {
+    var code, item, j, k, len, len1, maxTimestampEnd, newRules, placeholder, processed, ref, ref1, results, start;
+    status.multiType = type;
+    newRules = [];
+    start = 0;
+    maxTimestampEnd = 0;
+    ref = status.selectedPlaceholders;
+    for (j = 0, len = ref.length; j < len; j++) {
+      placeholder = ref[j];
+      start = placeholder.timestamp;
+      if (placeholder.rule.timestampEnd > maxTimestampEnd) {
+        maxTimestampEnd = placeholder.rule.timestampEnd;
+      }
+    }
+    if (type === 'daily') {
+      maxTimestampEnd = start + (7 * DAY);
+    }
+    multiselect.flush();
+    ruleService.removePlaceholders(status.selectedPlaceholders);
+    processed = [];
+    ref1 = status.selectedPlaceholders;
+    results = [];
+    for (k = 0, len1 = ref1.length; k < len1; k++) {
+      placeholder = ref1[k];
+      code = placeholder.rule.id + '_' + placeholder.id + '_' + placeholder.rule.groupId;
+      if (indexOf.call(processed, code) >= 0) {
+        continue;
+      }
+      processed.push(code);
+      item = {
+        type: 'rule',
+        ruleType: type,
+        groupId: placeholder.rule.groupId,
+        timestampStart: placeholder.timestamp,
+        timestampEnd: maxTimestampEnd,
+        ad: status.multieditAd || false,
+        interval: 30,
+        dayMask: status.multiDayMask || [true, true, true, true, true, true, true],
+        communityId: placeholder.rule.communityId,
+        end: maxTimestampEnd === 0 ? false : true
+      };
+      results.push(ruleService.create(item, function(createdItem) {
+        var feed, group, l, len2, ref2, results1;
+        group = groupService.getById(placeholder.rule.groupId);
+        ref2 = group.feeds;
+        results1 = [];
+        for (l = 0, len2 = ref2.length; l < len2; l++) {
+          feed = ref2[l];
+          placeholder = ruleService.getPlaceholder(0, createdItem.id, feed.communityId);
+          if (placeholder != null) {
+            results1.push(multiselect.addToFocus(placeholder));
+          } else {
+            results1.push(void 0);
+          }
+        }
+        return results1;
+      }));
+    }
+    return results;
+  };
+  closeInspector = function() {
+    $('.placeholder_highlighted').removeClass('placeholder_highlighted');
+    stateManager.goBack();
+    inspectorSession.scope.closeApp();
+    inspectorSession = null;
+    return reset();
+  };
+  updateInspector = function() {
+    var day, endExample, focused, i, item, j, k, len, len1, onlyDaily, onlySingle, ref, ref1;
+    if ((inspectorSession != null ? inspectorSession.scope : void 0) == null) {
+      return false;
+    }
+    focused = multiselect.getFocused();
+    status.selectedPlaceholders.length = 0;
+    if (focused.length === 0) {
+      return;
+    }
+    $('.placeholder_highlighted').removeClass('placeholder_highlighted');
+    if (focused.length === 1 && ((ref = focused[0].rule) != null ? ref.ruleType : void 0) === 'single') {
+      status.multiEdit = false;
+      status.currentRule = focused[0].rule;
+      highlightRule(focused[0].rule.id);
+      return;
+    }
+    if (focused.length > 0) {
+      $('.placeholder_highlighted').removeClass('placeholder_highlighted');
+      status.multiEdit = true;
+      status.currentRule = null;
+      status.multiDayMask = [true, true, true, true, true, true, true];
+      status.multiEnd = true;
+      status.multiAd = true;
+      onlySingle = true;
+      onlyDaily = true;
+      endExample = null;
+      for (j = 0, len = focused.length; j < len; j++) {
+        item = focused[j];
+        if (item.rule != null) {
+          if (item.rule.ruleType !== 'daily') {
+            onlyDaily = false;
+          }
+          if (item.rule.ruleType !== 'single') {
+            onlySingle = false;
+          }
+          status.selectedPlaceholders.push(item);
+          if (item.rule.ad !== true) {
+            status.multiAd = false;
+          }
+          if (item.rule.ruleType === 'daily') {
+            ref1 = item.rule.dayMask;
+            for (i = k = 0, len1 = ref1.length; k < len1; i = ++k) {
+              day = ref1[i];
+              if (!day) {
+                status.multiDayMask[i] = false;
+              }
+            }
+          }
+          if (endExample === null && (item.rule.timestampEnd != null)) {
+            endExample = item.rule.timestampEnd;
+          }
+          if (item.rule.end === false || item.rule.timestampEnd !== endExample) {
+            status.multiEnd = false;
+          }
+        }
+      }
+      if (endExample !== null) {
+        status.multiEndDay = endExample;
+      }
+      if (onlySingle) {
+        status.multiType = 'single';
+      } else if (onlyDaily) {
+        status.multiType = 'daily';
+      } else {
+        status.multiType = null;
+      }
+      if (status.selectedPlaceholders.length === 0) {
+        return status.multiType = null;
+      }
+    }
+  };
+  setMultiEdit = function(multiEditVal) {
+    $rootScope.multiedit = {
+      dayMask: [true, true, true, true, true, true, true]
+    };
+    return status.multiEdit = multiEditVal;
+  };
+  setHandlers = function() {
+    return handlers.off("mousedown").on("mousedown", function(e) {
+      var elem, intervalToPaste, left, parent, realLeft;
+      e.stopPropagation();
+      elem = $(this);
+      parent = elem.parents('.intervals');
+      intervalToPaste = elem.parent();
+      left = elem.offset().left;
+      realLeft = parseInt(elem.css("left"));
+      elem.css({
+        left: left
+      }).addClass("active").appendTo(parent);
+      setEvents(elem, intervalToPaste, e.pageX, left, realLeft);
+      return e.preventDefault();
+    });
+  };
+  setEvents = function(elem, intervalToPaste, mouseBeforeDrag, leftBeforeDrag, realLeft) {
+    var realTime;
+    realLeft = realLeft || 0;
+    realTime = null;
+    $(document).off(".timepicker");
+    return $(document).on("mousemove.timepicker", function(e) {
+      var classOffset, i, j, left, len, nT, now, ref;
+      now = justMinutes(new Date());
+      ref = status.intervals;
+      for (j = 0, len = ref.length; j < len; j++) {
+        i = ref[j];
+        left = e.pageX;
+        if (i.left <= left && i.left + i.width >= left) {
+          if (elem.hasClass("left")) {
+            classOffset = 30;
+          } else {
+            classOffset = 0;
+          }
+          left -= i.left;
+          realTime = i.realTime[left];
+          nT = Math.round(realTime / 5);
+          realTime = nT * 5;
+          if (realTime < now + 15) {
+            realTime = now + 15;
+          }
+          realLeft = i.realCoord[realTime] - classOffset;
+          intervalToPaste = i;
+          break;
+        }
+      }
+      intervalToPaste.left = intervalToPaste.left || 0;
+      return elem.css({
+        left: realLeft + intervalToPaste.left
+      });
+    }).on("mouseup.timepicker", function() {
+      var rule;
+      $(document).off(".timepicker");
+      elem.css({
+        left: realLeft
+      }).removeClass("active").appendTo(intervalToPaste.element || intervalToPaste);
+      rule = status.currentRule.rule;
+      if (elem.hasClass("left")) {
+        if (realTime) {
+          rule.timestampStart = realTime * MIN;
+        }
+        if (rule.timestampStart + 5 * MIN > rule.timestampEnd) {
+          rule.timestampEnd = rule.timestampStart + 5 * MIN;
+        }
+      } else if (elem.hasClass("right")) {
+        if (realTime) {
+          rule.timestampEnd = realTime * MIN;
+        }
+        if (rule.timestampEnd < rule.timestampStart + 5 * MIN) {
+          rule.timestampStart = rule.timestampEnd - 5 * MIN;
+        }
+      }
+      return scrollTo(realTime * MIN);
+    });
+  };
+  appendHandlers = function(intervals) {
+    var coord, i, j, len, ref, ref1, rule, time;
+    if (intervals) {
+      status.intervals = intervals;
+    }
+    rule = (ref = status.currentRule) != null ? ref.rule : void 0;
+    handlers.css("display", "none");
+    if (!rule || rule.ruleType !== 'chain') {
+      return true;
+    }
+    ref1 = status.intervals;
+    for (j = 0, len = ref1.length; j < len; j++) {
+      i = ref1[j];
+      if (rule.timestampStart >= i.from && rule.timestampStart < i.to) {
+        time = justMinutes(rule.timestampStart);
+        coord = i.realCoord[time];
+        startHandler.css({
+          left: coord - 30,
+          display: "block"
+        }).appendTo(i.element);
+      }
+      if (rule.timestampEnd >= i.from && rule.timestampEnd < i.to) {
+        time = justMinutes(rule.timestampEnd);
+        coord = i.realCoord[time];
+        endHandler.css({
+          left: coord,
+          display: "block"
+        }).appendTo(i.element);
+      }
+    }
+    return setHandlers();
+  };
+  setRule = function(data) {
+    status.currentRule = data.rule;
+    status.intervals = data.intervals;
+    appendHandlers();
+    return true;
+  };
+  reset = function() {
+    status.showInspector = false;
+    status.currentRule = null;
+    return handlers.css("display", "none");
+  };
+  scrollTo = function(ts) {
+    angular.element(status.intervals[0].element).scope().$parent.jumpTime(ts);
+    appendHandlers();
+    return true;
+  };
+  return {
+    status: status,
+    setRule: setRule,
+    reset: reset,
+    setHandlers: setHandlers,
+    appendHandlers: appendHandlers,
+    setMultiEdit: setMultiEdit,
+    setMultiType: setMultiType,
+    selected: selected,
+    scrollTo: scrollTo,
+    initInspector: initInspector,
+    closeInspector: closeInspector,
+    updateInspector: updateInspector
+  };
+});

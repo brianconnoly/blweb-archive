@@ -1,0 +1,71 @@
+buzzlike.controller('exportXLSCtrl', function($scope, communityService, rpc) {
+  $scope.stateTree.applyState({
+    'escape': $scope.closeApp
+  });
+  $scope.session.expandedHeader = false;
+  $scope.params = {
+    forcedName: "",
+    from: Date.now(),
+    to: Date.now() + DAY,
+    communityId: $scope.session.communityId
+  };
+  $scope.community = communityService.getById($scope.session.communityId, function(item) {
+    return $scope.params.forcedName = item.name;
+  });
+  $scope.doExport = function() {
+    var process;
+    process = $scope.progress.add();
+    return rpc.call('export.exportXLS', $scope.params, function(res) {
+      $scope.progress.finish(process);
+      if (typeof res === 'string') {
+        return window.location = res;
+      }
+    });
+  };
+  $scope.onEscape = $scope.closeApp;
+  $scope.activePreset = null;
+  $scope.changedDate = function() {
+    return $scope.activePreset = null;
+  };
+  $scope.presets = ['currentMonth', 'nextMonth', 'currentWeek', 'nextWeek'];
+  return $scope.setPreset = function(preset) {
+    var cursor, day, days, now;
+    $scope.activePreset = preset;
+    switch (preset) {
+      case 'currentWeek':
+        now = new Date();
+        day = now.getDay();
+        day--;
+        if (day < 0) {
+          day = 6;
+        }
+        cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        $scope.params.from = cursor - (day * DAY);
+        return $scope.params.to = cursor + ((7 - day) * DAY) - MIN;
+      case 'nextWeek':
+        now = new Date();
+        day = now.getDay();
+        day--;
+        if (day < 0) {
+          day = 6;
+        }
+        cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        $scope.params.from = cursor - (day * DAY) + WEEK;
+        return $scope.params.to = cursor + ((7 - day) * DAY) - MIN + WEEK;
+      case 'currentMonth':
+        now = new Date();
+        days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        day = now.getDate();
+        cursor = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+        $scope.params.from = cursor;
+        return $scope.params.to = cursor + (days * DAY) - MIN;
+      case 'nextMonth':
+        now = new Date();
+        days = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate();
+        day = now.getDate();
+        cursor = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+        $scope.params.from = cursor;
+        return $scope.params.to = cursor + (days * DAY) - MIN;
+    }
+  };
+});

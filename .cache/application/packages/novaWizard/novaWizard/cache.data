@@ -1,0 +1,46 @@
+true;
+
+buzzlike.service('novaWizard', function(novaDesktop) {
+  var novaWizard;
+  novaWizard = (function() {
+    function novaWizard() {
+      this.wizardsData = {};
+      this.wizards = [];
+    }
+
+    novaWizard.prototype.register = function(id, wizard) {
+      this.wizardsData[id] = wizard;
+      if (wizard.system !== true) {
+        return this.wizards.push(id);
+      }
+    };
+
+    novaWizard.prototype.fire = function(id, data, cb) {
+      var wizard;
+      if (data == null) {
+        data = {};
+      }
+      wizard = this.wizardsData[id];
+      if (wizard == null) {
+        console.log('Not implemented wizard:', id);
+        return;
+      }
+      switch (wizard.type) {
+        case 'simple':
+          return wizard.action(data);
+        case 'sequence':
+          return novaDesktop.launchApp({
+            app: 'novaWizardApp',
+            wizardId: id,
+            data: data
+          });
+        default:
+          return console.log('TODO fire wizard', wizard.type);
+      }
+    };
+
+    return novaWizard;
+
+  })();
+  return new novaWizard();
+});

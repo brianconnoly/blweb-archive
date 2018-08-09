@@ -1,0 +1,74 @@
+div#combEdit.contextMenu.fullScreenOverlay.overlayLayout(item="state.currentComb", ng-controller="CombEditCtrl")
+    div.filterBar
+        div.closer(ng-click="onEscape()")
+        div.name(ng-show="onlyOnePost()")
+            input(on-input="saveName", settings="{blurOnEnter:true, timeout:2000}", ng-model="state.currentComb.name", placeholder="{{translate('noname')}}")
+        div.filtersBlock(ng-show="!onlyOnePost()")
+            div.content
+                switcher.contentViewSwitcher(ng-model="contentView", ng-change="updateContentView()")
+                    div.button.full(option="full")
+                    div.button.mini(option="mini")
+                //-div.button.addAlbum
+                div.name
+                    input(on-input="saveName", settings="{blurOnEnter:true, timeout:2000}", ng-model="state.currentComb.name", placeholder="{{translate('noname')}}")
+
+            div.posts
+                div.postsFilters(ng-hide="postId")
+                    combobox.filter(ng-model="postSched", list="filterList", ng-change="setFilter()")
+                    combobox.sort(ng-model="postSort", list="sortList")
+                    switcher.postsViewSwitcher(ng-model="postView", ng-show="!postId", ng-change="updatePostView()")
+                        div.button.full(option="full")
+                        div.button.simple(option="simple")
+
+                div.button.backward(ng-click="closePost()", ng-show="postId") {{localization.translate('comb_view_posts_back')}}
+
+    div.container.multiselect
+        div.combeditor.animated.droppableItem(no-effects, dropable-item="state.currentComb", ng-class="{'alone': onlyOnePost(), 'teamShown':state.currentComb.teamId}", ng-click="hideMenu()")
+            div.column.ios-scroll.content(scroll-top="white", antiscroll, ng-class="{'mini':contentView=='mini'}", ng-switch="contentList")
+                div.contentMode(ng-switch-when="scroll")
+                    div.category(ng-repeat="(category, items) in state.currentComb.contentIds", ng-show="items.length > 0")
+                        ul.list(ng-style="{'width':contentWidth}")
+                            li.contextMenu.item.ios-nodelay.selectableItem.editableItem.droppableItem(type="{{category}}", ng-repeat="id in items | reverse", ng-dblclick="contentClick(item, $event)")
+                                div.itemPreview(ng-dblclick="contentClick(id, $event)", type="content", id="id")
+
+                div.contentMode(ng-switch-when="pagination")
+                    div.contentPaginatorView
+                        ul.list(ng-style="{'width':contentWidth}")
+                            li.contextMenu.item.ios-nodelay.selectableItem.editableItem.droppableItem(type="content", ng-repeat="id in getPaginatorPage()", ng-dblclick="contentClick(item, $event)")
+                                div.itemPreview(ng-dblclick="contentClick(id, $event)", type="content", id="id")
+                    div.superPaginator.doubleArrows
+
+            div.column.ios-scroll.posts.droppableItem(no-effects, dropable-item="{'type':'postPanel','comb':state.currentComb}", scroll-top="white", ng-switch="postView")
+                div.postMode(ng-switch-when="simple", ng-class="{'postEditMode':postId!=null}")
+                    ul.list.simplePostList.size75(antiscroll)
+                        li.item.contextMenu.selectableItem.droppableItem(ng-repeat="id in filterPosts(state.currentComb.postIds, currentPage, true)", type="post", ng-dblclick="postClick(id)")
+                            div.itemPreview(type="post", id="id")
+
+                    div.postEdit(antiscroll)
+                        post-entity(ng-if="postId != null")
+
+                    div.paginator.doubleArrows(ng-show="makePaginator(filterPosts(state.currentComb.postIds, null, true), currentPage, 7, pageSize).length > 1")
+                        div.arrow.left(ng-click="prevPage()", ng-show="currentPage > 0")
+                        div.arrow.right(ng-click="nextPage()", ng-show="currentPage < (filterPosts(state.currentComb.postIds, null, true).length/pageSize)-1")
+
+                        div.doubleArrow.left(ng-click="goPage(0)", ng-show="currentPage > 0")
+                        div.doubleArrow.right(ng-click="goPage((filterPosts(state.currentComb.postIds).length/pageSize)-1)", ng-show="currentPage < (filterPosts(state.currentComb.postIds).length/pageSize)-1")
+
+                        div.centerPages
+                            div.page(ng-repeat="page in makePaginator(filterPosts(state.currentComb.postIds, null, true), currentPage, 7, pageSize)", ng-class="{'active':page == currentPage}", ng-click="goPage(page)") {{pageNum(page, makePaginator(filterPosts(state.currentComb.postIds, null, true), currentPage, 7, pageSize).length)}}
+
+                div.postMode(ng-switch-default)
+                    ul.list.fullPosts(antiscroll)
+                        post-entity(ng-repeat="postId in filterPosts(state.currentComb.postIds, currentPage)")
+
+                    div.paginator.doubleArrows(ng-show="makePaginator(filterPosts(state.currentComb.postIds)).length > 1")
+                        div.arrow.left(ng-click="prevPage()", ng-show="currentPage > 0")
+                        div.arrow.right(ng-click="nextPage()", ng-show="currentPage < (filterPosts(state.currentComb.postIds).length/5)-1")
+
+                        div.doubleArrow.left(ng-click="goPage(0)", ng-show="currentPage > 0")
+                        div.doubleArrow.right(ng-click="goPage((filterPosts(state.currentComb.postIds).length/5)-1)", ng-show="currentPage < (filterPosts(state.currentComb.postIds).length/5)-1")
+
+                        div.centerPages
+                            div.page(ng-repeat="page in makePaginator(filterPosts(state.currentComb.postIds), currentPage)", ng-class="{'active':page == currentPage}", ng-click="goPage(page)") {{pageNum(page, makePaginator(filterPosts(state.currentComb.postIds)).length)}}
+            
+            div.boundedTeamMembers.multiselect(ng-if="state.currentComb.teamId", team-id="state.currentComb.teamId")

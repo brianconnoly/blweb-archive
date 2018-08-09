@@ -1,0 +1,34 @@
+buzzlike.directive('colorPicker', function() {
+  return {
+    restrict: 'E',
+    scope: true,
+    require: '?ngModel',
+    template: tC['/elements/colorPicker'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      var elem;
+      scope.value = ngModel.$viewValue;
+      elem = $(element);
+      elem.ColorPicker({
+        onSubmit: function(hsb, hex, rgb, el) {
+          ngModel.$setViewValue(rgb);
+          scope.value = rgb;
+          return elem.ColorPickerHide();
+        }
+      });
+      ngModel.$render = function() {
+        if (ngModel.$viewValue != null) {
+          scope.value = ngModel.$viewValue;
+          return elem.ColorPickerSetColor(ngModel.$viewValue);
+        }
+      };
+      scope.$on('$destroy', function() {
+        return elem.ColorPickerDestroy();
+      });
+      scope.getColor = function() {
+        return "rgb(" + scope.value.r + "," + scope.value.g + "," + scope.value.b + ")";
+      };
+      return true;
+    }
+  };
+});

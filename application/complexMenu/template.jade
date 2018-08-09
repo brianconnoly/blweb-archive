@@ -1,0 +1,9 @@
+//- div.contextMenu(ng-if="complexMenu.showed", ng-click="complexMenu.hide()")
+
+div.menuFrame(ng-if="complexMenu.showed", ng-style="{'top':complexMenu.position.top, 'left':complexMenu.position.left, 'right':complexMenu.position.right, 'height':complexMenu.position.height}")
+    div.menuSection(ng-repeat="section in complexMenu.sections")
+        div.menuItem(ng-repeat="item in section.items", ng-click="clickItem(item, section, $event)", ng-class="{'disabled':item.disabled}")
+            span(translate="item.phrase")
+            span {{item.title}}
+            div.check(ng-if="section.type == 'checkbox'", ng-show="section.object[item.param]")
+            div.check(ng-if="section.type == 'select' && selected(item, section)")

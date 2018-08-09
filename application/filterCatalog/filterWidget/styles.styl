@@ -1,0 +1,39 @@
+.filterWidget
+    
+    li.item
+        transition all 0.2s ease
+
+    ul.list
+        transition all 0.2s ease
+
+    &.empty
+        display none
+
+    &.singlePage .pagination
+        display none
+
+    .arrow
+        bottom 64px !important
+
+    .pagination
+        position: absolute
+        height 50px
+
+        bottom 0
+        left 0
+        right 0
+
+        text-align: center
+
+        .center
+            width auto
+
+        .marker
+            color: #fff
+            font-size 30px
+            display: inline-block
+            cursor: pointer
+
+            &.active
+                cursor: default
+                color rgba(255,222,47,0.9)

@@ -1,0 +1,202 @@
+var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+tC['/novaWizardApp/template.jade'] = "<div class=\"wizardBody noDrag\"></div> <div class=\"wizardHead\"> <div translate=\"'novaWizardApp_title_'+wizard.id\" class=\"title\"></div> <div translate=\"'novaWizardApp_wizard_'+wizard.id+'_step_'+wizard.currentStep.id\" class=\"description\"></div> </div> <div class=\"wizardBottom\"> <div ng-click=\"wizard.goNext()\" ng-class=\"{'active':wizard.canGoNext()}\" translate=\"wizard.getNext()\" class=\"goBar goNext\"></div> <div ng-click=\"wizard.goPrev()\" ng-class=\"{'active':wizard.canGoPrev()}\" translate=\"wizard.getPrev()\" class=\"goBar goPrev\"></div> <div ng-if=\"wizard.currentStep.previewType &amp;&amp; wizard.currentStep.multi\" ng-class=\"{'compact':wizard.data[wizard.currentStep.provide].length &gt; 2}\" class=\"picked\"> <div ng-repeat=\"id in wizard.data[wizard.currentStep.provide].slice().reverse()\" nova-item-id=\"id\" nova-item-type=\"{{::wizard.currentStep.previewType}}\" class=\"pickedItem novaItem\"> <div ng-click=\"wizard.removePicked(item)\" class=\"removeItem\"></div> <div nova-item-preview-type=\"square\" class=\"novaItemPreview\"></div> </div> </div> <div ng-if=\"wizard.currentStep.previewType &amp;&amp; !wizard.currentStep.multi &amp;&amp; wizard.data[wizard.currentStep.provide]\" class=\"picked\"> <div nova-item-id=\"wizard.data[wizard.currentStep.provide]\" nova-item-type=\"{{::wizard.currentStep.previewType}}\" nova-item-watch=\"nova-item-watch\" class=\"pickedItem novaItemScope novaItem\"> <div ng-click=\"wizard.removePicked(item)\" class=\"removeItem\"></div> <div nova-item-preview-type=\"square\" class=\"novaItemPreview\"></div> </div> </div> </div>";
+
+buzzlike.directive('novaWizardApp', function(novaWizard, $compile) {
+  return {
+    restrict: 'C',
+    template: tC['/novaWizardApp/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var body, elem, novaWizardSequence;
+      elem = $(element);
+      body = elem.children('.wizardBody');
+      scope.noMaximize();
+      scope.session.noItem = true;
+      scope.session.size = {
+        width: 600,
+        height: 500
+      };
+      scope.session.startPosition = 'center';
+      novaWizardSequence = (function() {
+        function novaWizardSequence(id1, data) {
+          this.id = id1;
+          this.data = data != null ? data : {};
+          this.picked = null;
+          this.stepId = -1;
+          this.wizard = novaWizard.wizardsData[this.id];
+        }
+
+        novaWizardSequence.prototype.applyStep = function(step) {
+          var ref, ref1;
+          this.currentStep = step;
+          if (this.stepScope != null) {
+            this.stepScope.$destroy();
+            if ((ref = this.stepElem) != null) {
+              if (typeof ref.remove === "function") {
+                ref.remove();
+              }
+            }
+          }
+          this.stepScope = scope.$new();
+          this.stepScope.data = this.data;
+          if (this.currentStep.directive) {
+            this.stepElem = $('<div>', {
+              "class": this.currentStep.directive
+            });
+          } else if (((ref1 = this.currentStep.series) != null ? ref1.length : void 0) > 0) {
+            this.stepElem = $('<div>', {
+              "class": 'novaWizardSeries'
+            });
+          }
+          body.append(this.stepElem);
+          return this.stepElem = $($compile(this.stepElem)(this.stepScope));
+        };
+
+        novaWizardSequence.prototype.nextStep = function() {
+          var base, step;
+          this.stepId++;
+          step = this.wizard.steps[this.stepId];
+          if (step == null) {
+            if (typeof (base = this.wizard).final === "function") {
+              base.final(this.data);
+            }
+            scope.closeApp();
+            return;
+          }
+          if (step.noSkip !== true && (step.provide != null)) {
+            if (this.data[step.provide] != null) {
+              this.nextStep();
+              return;
+            }
+          }
+          return this.applyStep(step);
+        };
+
+        novaWizardSequence.prototype.canGoPrev = function() {
+          return this.stepId > 0;
+        };
+
+        novaWizardSequence.prototype.canGoNext = function() {
+          var ref, ref1;
+          if (this.stepId >= ((ref = this.wizard.steps) != null ? ref.length : void 0)) {
+            return false;
+          }
+          if (this.currentStep.canSkip === true) {
+            return true;
+          }
+          if (this.currentStep.provide != null) {
+            if (this.currentStep.multi) {
+              return ((ref1 = this.data[this.currentStep.provide]) != null ? ref1.length : void 0) > 0;
+            }
+            return this.data[this.currentStep.provide] != null;
+          }
+          return true;
+        };
+
+        novaWizardSequence.prototype.pickItem = function(item) {
+          if (this.currentStep.multi !== true) {
+            this.picked.length = 0;
+          }
+          return this.picked.push(item);
+        };
+
+        novaWizardSequence.prototype.pick = function(item) {
+          var ref, ref1;
+          if (this.currentStep.multi === true) {
+            if (((ref = this.data[this.currentStep.provide]) != null ? ref.length : void 0) == null) {
+              this.data[this.currentStep.provide] = [];
+            }
+            if (ref1 = item.id, indexOf.call(this.data[this.currentStep.provide], ref1) >= 0) {
+              return removeElementFromArray(item.id, this.data[this.currentStep.provide]);
+            } else {
+              return this.data[this.currentStep.provide].push(item.id);
+            }
+          } else {
+            return this.data[this.currentStep.provide] = item.id;
+          }
+        };
+
+        novaWizardSequence.prototype.flushPick = function() {
+          var ref;
+          if (this.currentStep.provide != null) {
+            if (((ref = this.data[this.currentStep.provide]) != null ? ref.length : void 0) != null) {
+              return this.data[this.currentStep.provide].length = 0;
+            } else {
+              return this.data[this.currentStep.provide] = null;
+            }
+          }
+        };
+
+        novaWizardSequence.prototype.removePicked = function(item) {
+          return removeElementFromArray(item.id, this.data[this.currentStep.provide]);
+        };
+
+        novaWizardSequence.prototype.isPicked = function(item) {
+          var ref, ref1;
+          if (this.currentStep.multi) {
+            if (((ref = this.data[this.currentStep.provide]) != null ? ref.length : void 0) == null) {
+              return false;
+            }
+            return ref1 = item.id, indexOf.call(this.data[this.currentStep.provide], ref1) >= 0;
+          } else {
+            return this.data[this.currentStep.provide] === item.id;
+          }
+        };
+
+        novaWizardSequence.prototype.goNext = function() {
+          if (!this.canGoNext()) {
+            return;
+          }
+          this.nextStep();
+          return true;
+        };
+
+        novaWizardSequence.prototype.goStep = function(id) {
+          var i, j, len, ref, results, step;
+          ref = this.wizard.steps;
+          results = [];
+          for (i = j = 0, len = ref.length; j < len; i = ++j) {
+            step = ref[i];
+            if (step.id === id) {
+              this.stepId = i;
+              results.push(this.applyStep(step));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        };
+
+        novaWizardSequence.prototype.getNext = function() {
+          return this.currentStep.customNext || 'novaWizardApp_goNext';
+        };
+
+        novaWizardSequence.prototype.getPrev = function() {
+          return this.currentStep.customPrev || 'novaWizardApp_goPrev';
+        };
+
+        novaWizardSequence.prototype.goPrev = function() {
+          if (!this.canGoPrev()) {
+            return;
+          }
+          this.stepId--;
+          this.applyStep(this.wizard.steps[this.stepId]);
+          return true;
+        };
+
+        return novaWizardSequence;
+
+      })();
+      if (scope.session.wizardId == null) {
+        setTimeout(function() {
+          return scope.closeApp();
+        }, 0);
+        return;
+      }
+      scope.wizard = new novaWizardSequence(scope.session.wizardId, scope.session.data);
+      return scope.wizard.nextStep();
+    }
+  };
+});
+
+registerStyles('novaWizardApp', ".novaWizardApp {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: #fff;\n}\n.novaWizardApp .wizardHead {\n  position: absolute;\n  z-index: 1;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 70px;\n  background: rgba(255,255,255,0.9);\n  padding: 20px 30px 0 30px;\n}\n.novaWizardApp .wizardHead .title {\n  font-size: 24px;\n  line-height: 30px;\n  font-weight: 500;\n  margin-bottom: 5px;\n}\n.novaWizardApp .wizardHead .description {\n  font-size: 18px;\n  line-height: 20px;\n}\n.novaWizardApp .wizardBody {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow-y: auto;\n  padding-top: 90px;\n  padding-bottom: 60px;\n}\n.novaWizardApp .wizardBody .bigText {\n  font-size: 35px;\n  line-height: 40px;\n  margin: 0 30px;\n  margin-top: 50px;\n}\n.novaWizardApp .wizardBody .parameter {\n  overflow: hidden;\n  margin: 10px 0;\n}\n.novaWizardApp .wizardBody .parameter .title {\n  width: 115px;\n  padding-right: 10px;\n  float: left;\n  text-align: right;\n  font-size: 16px;\n  line-height: 20px;\n}\n.novaWizardApp .wizardBody .parameter .title .edit {\n  color: #aaa;\n  font-size: 10px;\n  cursor: pointer;\n}\n.novaWizardApp .wizardBody .parameter .title .edit:hover,\n.novaWizardApp .wizardBody .parameter .title .edit.active {\n  color: #888;\n}\n.novaWizardApp .wizardBody .parameter .value {\n  overflow: hidden;\n  border-left: 1px solid #eee;\n  padding-left: 10px;\n  margin-left: 125px;\n}\n.novaWizardApp .wizardBody .parameter .value input {\n  width: 100%;\n  font-size: 16px;\n  height: 20px;\n  line-height: 20px;\n  padding: 0;\n  padding-right: 10px;\n  margin: 0;\n}\n.novaWizardApp .wizardBody .parameter .value input::-webkit-input-placeholder {\n  color: #999;\n}\n.novaWizardApp .wizardBody .parameter .value input::-moz-input-placeholder {\n  color: #999;\n}\n.novaWizardApp .wizardBody .parameter .value .pickedItem {\n  margin: 5px 6px 5px 6px;\n  width: 100px;\n  height: 80px;\n  float: left;\n  overflow: hidden;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  -webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.4);\n  box-shadow: 0 0 3px 0 rgba(0,0,0,0.4);\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaWizardApp .wizardBottom {\n  position: absolute;\n  z-index: 1;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 60px;\n  background: rgba(255,255,255,0.9);\n}\n.novaWizardApp .wizardBottom .goBar {\n  height: 60px;\n  line-height: 60px;\n  text-align: center;\n  padding: 0 30px;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  pointer-events: none;\n}\n.novaWizardApp .wizardBottom .goBar.active {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  cursor: pointer;\n  pointer-events: auto;\n}\n.novaWizardApp .wizardBottom .goBar.active:hover {\n  background: rgba(0,0,0,0.05);\n}\n.novaWizardApp .wizardBottom .goNext {\n  float: right;\n}\n.novaWizardApp .wizardBottom .goPrev {\n  float: left;\n}\n.novaWizardApp .wizardBottom .picked.compact > .novaItem > .novaItemPreview .name {\n  width: 0;\n  padding: 0;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaWizardApp .wizardBottom .picked > .novaItem {\n  margin: 10px 5px;\n  float: right;\n  -webkit-box-shadow: 0 0 0 1px #3496f2;\n  box-shadow: 0 0 0 1px #3496f2;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.novaWizardApp .wizardBottom .picked > .novaItem > .novaItemPreview > div {\n  position: relative;\n  float: left;\n  overflow: hidden;\n  height: 40px;\n}\n.novaWizardApp .wizardBottom .picked > .novaItem > .novaItemPreview .cover,\n.novaWizardApp .wizardBottom .picked > .novaItem > .novaItemPreview .novaContentPreview {\n  position: relative;\n  float: left;\n  height: 40px;\n  width: 40px;\n}\n.novaWizardApp .wizardBottom .picked > .novaItem > .novaItemPreview .name {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  position: relative;\n  height: 40px;\n  max-width: 100px;\n  line-height: 15px;\n  float: left;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: all 0.2s ease;\n  -moz-transition: all 0.2s ease;\n  -o-transition: all 0.2s ease;\n  -ms-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\n.novaWizardApp .wizardBottom .picked:hover .removeItem {\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n}\n.novaWizardApp .wizardBottom .picked .removeItem {\n  position: absolute;\n  right: 3px;\n  top: 3px;\n  width: 16px;\n  height: 16px;\n  z-index: 1;\n  cursor: pointer;\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n  background: url(\"/resources/images/nova/removeCross.svg\") center center no-repeat;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.novaWizardApp .pickerItem {\n  width: 100px;\n  height: 80px;\n  margin: 5px 6px;\n  float: left;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  overflow: hidden;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -o-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n  -webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.4);\n  box-shadow: 0 0 3px 0 rgba(0,0,0,0.4);\n}\n.novaWizardApp .pickerItem * {\n  cursor: pointer;\n}\n.novaWizardApp .pickerItem.active {\n  -webkit-box-shadow: 0 0 0 4px #3496f2;\n  box-shadow: 0 0 0 4px #3496f2;\n}\n.novaWizardApp .pickerItem .novaItemPreview {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n");

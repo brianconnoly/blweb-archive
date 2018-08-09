@@ -1,0 +1,180 @@
+buzzlike.factory('httpWrapped', function($http, $injector, $rootScope, notificationCenter, localization) {
+  var deleteByData, deleteByRequest, deleteByUrlHandler, getByRequest, getByUrlHandler, isResult, postByRequest, postByUrlDataHandler, putByRequest, putByUrlDataHandler, send, sync, ts;
+  ts = 0;
+  sync = false;
+  isResult = function(data) {
+    if (data == null) {
+      return false;
+    }
+    if (data.length === 0) {
+      return false;
+    }
+    return true;
+  };
+  send = function(request) {
+    console.log('log invalid request!!!', request.url);
+    return;
+    return $http({
+      method: request.method,
+      url: request.url,
+      async: !sync,
+      data: request.data,
+      withCredentials: true
+    }).success(function(data) {
+      if (data.err) {
+        notificationCenter.addMessage({
+          error: true,
+          realText: localization.translate('httpwrapped_servererror') + ': ' + data.err.text
+        });
+        console.log('server error', request, data.err);
+        if (typeof request.serverErrorHandler === "function") {
+          request.serverErrorHandler(data.err);
+        }
+        if (typeof request.errorHandler === "function") {
+          request.errorHandler(data.err);
+        }
+        return;
+      } else {
+        if (typeof request.anyDataResponseHandler === "function") {
+          request.anyDataResponseHandler(data.data, data.total);
+        }
+      }
+      if (isResult(data.data)) {
+        if (typeof request.responseHandler === "function") {
+          request.responseHandler(data.data, data.total);
+        }
+      } else {
+        if (typeof request.noResponseHandler === "function") {
+          request.noResponseHandler();
+        }
+      }
+      return typeof request.ignoreResponseHandler === "function" ? request.ignoreResponseHandler() : void 0;
+    }).error(function(error, status, headers) {
+      var cur, route, user;
+      if (status === 403) {
+        route = request.url.split('back/');
+        route = route[1];
+        notificationCenter.addMessage({
+          error: true,
+          realText: localization.translate('access_error') + ': ' + route
+        });
+        return;
+      }
+      if (status === 401) {
+        cur = new Date().getTime();
+        if (Math.abs(cur - ts) > 5 * 60 * 1000) {
+          notificationCenter.addMessage({
+            error: true,
+            realText: localization.translate('httpwrapped_sessionend')
+          });
+          user = $injector.get('user');
+          $rootScope.clearData();
+          user.logout();
+        }
+        ts = new Date().getTime();
+        return;
+      }
+      route = request.url.split('back/');
+      route = route[1];
+      notificationCenter.addMessage({
+        error: true,
+        realText: localization.translate('httpwrapped_httperror') + ': ' + route + '<br>' + status + '<br>' + error.errCode + ': ' + error.errText
+      });
+      console.log('http error', request, error, status);
+      if (typeof request.httpErrorHandler === "function") {
+        request.httpErrorHandler(error);
+      }
+      return typeof request.errorHandler === "function" ? request.errorHandler(error) : void 0;
+    });
+  };
+  getByRequest = function(request) {
+    request['method'] = 'GET';
+    return send(request);
+  };
+  getByUrlHandler = function(url, handler) {
+    return send({
+      method: 'GET',
+      url: url,
+      anyDataResponseHandler: handler
+    });
+  };
+  postByRequest = function(request) {
+    request['method'] = 'POST';
+    return send(request);
+  };
+  postByUrlDataHandler = function(url, data, handler) {
+    return send({
+      method: 'POST',
+      url: url,
+      data: data,
+      anyDataResponseHandler: handler
+    });
+  };
+  putByRequest = function(request) {
+    request['method'] = 'PUT';
+    return send(request);
+  };
+  putByUrlDataHandler = function(url, data, handler) {
+    return send({
+      method: 'PUT',
+      url: url,
+      data: data,
+      anyDataResponseHandler: handler
+    });
+  };
+  deleteByRequest = function(request) {
+    request['method'] = 'DELETE';
+    return send(request);
+  };
+  deleteByUrlHandler = function(url, handler) {
+    return send({
+      method: 'DELETE',
+      url: url,
+      ignoreResponseHandler: handler
+    });
+  };
+  deleteByData = function(url, data, handler) {
+    return send({
+      method: 'DELETE',
+      url: url,
+      data: data,
+      ignoreResponseHandler: handler
+    });
+  };
+  return {
+    send: send,
+    get: function(arg1, arg2, Sync) {
+      sync = !!Sync || false;
+      if (arg1.url) {
+        return getByRequest(arg1);
+      } else {
+        return getByUrlHandler(arg1, arg2);
+      }
+    },
+    post: function(arg1, arg2, arg3, Sync) {
+      sync = !!Sync || false;
+      if (arg1.url) {
+        return postByRequest(arg1);
+      } else {
+        return postByUrlDataHandler(arg1, arg2, arg3);
+      }
+    },
+    put: function(arg1, arg2, arg3, Sync) {
+      sync = !!Sync || false;
+      if (arg1.url) {
+        return putByRequest(arg1);
+      } else {
+        return putByUrlDataHandler(arg1, arg2, arg3);
+      }
+    },
+    "delete": function(arg1, arg2, Sync) {
+      sync = !!Sync || false;
+      if (arg1.url) {
+        return deleteByRequest(arg1);
+      } else {
+        return deleteByUrlHandler(arg1, arg2);
+      }
+    },
+    deleteByData: deleteByData
+  };
+});

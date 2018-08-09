@@ -1,0 +1,55 @@
+.icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 11112;
+}
+.icons .hgroup {
+  margin: 1px 11px 0 0;
+  background: #eee;
+  display: inline-block;
+  float: left;
+}
+.icons .hgroup > * {
+  float: left;
+}
+.icons .hgroup [type="number"] {
+  width: 50px;
+}
+#color-tester {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #3e3e3e;
+  margin: 2px 0;
+  background: #fff;
+}
+.layers {
+  display: inline-block;
+  margin: 70px 30px;
+  position: relative;
+}
+.layers canvas {
+  border: 1px solid #800080;
+  position: absolute;
+}
+.layers .mouseCapture {
+  position: absolute;
+  z-index: 11110;
+}
+.display {
+  position: relative;
+  float: right;
+  top: 111px;
+  z-index: 11112;
+}
+.display .icons {
+  position: relative;
+}
+.display li {
+  border: 1px solid #000;
+  padding: 10px 20px;
+}
+.display li.active {
+  background: rgba(0,0,200,0.7);
+}

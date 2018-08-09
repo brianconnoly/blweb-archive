@@ -1,0 +1,14 @@
+tC['/novaChannelMonitorFrame/template.jade'] = "<true></true>";
+
+buzzlike.directive('novaChannelMonitorFrame', function(channelMonitorService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaChannelMonitorFrame/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      return true;
+    }
+  };
+});
+
+registerStyles('novaChannelMonitorFrame', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaChannelMonitorFrame\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

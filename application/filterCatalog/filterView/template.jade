@@ -1,0 +1,31 @@
+div.screen.widgets.multiselect(ng-hide="showContentList", antiscroll)
+    ul.widgetList
+        li.filterWidget(ng-repeat="widget in widgets", ng-class="{'empty':!pages.length, 'singlePage':pages.length==1}")
+
+div.screen.items.multiselect(ng-show="showContentList", antiscroll)
+    //div.back(ng-click="back()", ng-show="widgets != null") Back
+    //-ul.itemsList(ng-class="viewSection.parentClass")
+        li.item.itemPreview(ng-repeat="item in contentList", item="item")
+
+    h2.headlining.title
+        div.back(ng-click="back()", ng-show="widgets != null") Back
+        div.caption {{localization.translate(viewSection.title)}}
+        div.communityTitle(ng-if="viewSection.communityId", community-id="viewSection.communityId")
+    //--- paginator ---
+    div.sideMargin.content(ng-style="{'width':widgetWidth}", ng-class="{'small_view':params.smallIcons}")
+        div.arrow.right(ng-click="goRight()", ng-hide="noRight")
+        div.arrow.left(ng-click="goLeft()", ng-hide="noLeft")
+        div(style="margin: 0 40px")
+            ul.list(ng-style="{'height':widgetHeight, 'width':contentWidth}")
+                li.item.contextMenu.selectableItem.editableItem.droppableItem(ng-repeat="item in items")
+                    div.itemPreview(item="item", overlay="catalog")
+
+    div.pagination.arrows(ng-show="pages>1")
+        div.doubleArrow.left(ng-click="goPage(0)", ng-hide="noLeft")
+        div.doubleArrow.right(ng-click="goPage(pages-1)", ng-hide="noRight")
+        div.centerPages
+            div.marker(ng-repeat="page in paginator(pages, currentPage)", ng-class="{'active':page==currentPage}", ng-click="goPage(page)")
+                div(ng-if="pages<=5") •
+                div(ng-if="pages>5") {{page+1}}
+
+    //-----------------

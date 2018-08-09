@@ -1,0 +1,3 @@
+tC['/novaCombPreviewLine/template.jade'] = "<div ng-if=\"item.name\" class=\"name\">{{::item.name}}</div> <div ng-if=\"!item.name\" class=\"name\">{{::item.created | timestampMask:'DD MMM YY'}}</div>";
+
+registerStyles('novaCombPreviewLine', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaCombPreviewLine\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

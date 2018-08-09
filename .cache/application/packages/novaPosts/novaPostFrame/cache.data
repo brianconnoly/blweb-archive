@@ -1,0 +1,14 @@
+tC['/novaPostFrame/template.jade'] = "<div nova-item-object=\"post\" class=\"novaItemScope novaItem novaPostView\"></div>";
+
+buzzlike.directive('novaPostFrame', function(postService) {
+  return {
+    restrict: 'C',
+    template: tC['/novaPostFrame/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      scope.flowFrame.maxWidth = 320;
+      return scope.post = postService.getById(scope.flowFrame.item.id);
+    }
+  };
+});
+
+registerStyles('novaPostFrame', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaPostFrame\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

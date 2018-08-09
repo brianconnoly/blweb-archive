@@ -1,0 +1,10 @@
+h2.headlining {{localization.translate("market_group_"+currentSection.title)}}
+div.content
+    div.arrow.right(ng-click="goRight()", ng-hide="noRight")
+    div.arrow.left(ng-click="goLeft()", ng-hide="noLeft")
+    ul.list(ng-repeat="page in pages", ng-show="page==currentPage")
+        li.lot.lotPreview.selectableItem(ng-repeat="item in page | orderBy: freshOnTop")
+
+div.pagination(ng-show="pages.length>1")
+    div.center
+        div.marker(ng-repeat="page in pages", ng-class="{'active':page==currentPage}", ng-click="goPage(page)") •

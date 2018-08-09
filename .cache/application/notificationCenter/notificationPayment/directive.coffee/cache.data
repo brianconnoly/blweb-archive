@@ -1,0 +1,11 @@
+buzzlike.directive('notificationPayment', function(localization) {
+  return {
+    template: tC['/notificationCenter/notificationPayment'],
+    link: function(scope, element, attrs) {
+      scope.getSumm = function() {
+        return scope.notification.amount + ' ' + localization.declensionPhrase(scope.notification.amount, 'roubles');
+      };
+      return true;
+    }
+  };
+});

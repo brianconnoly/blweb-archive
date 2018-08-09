@@ -1,0 +1,87 @@
+buzzlike.controller('moderationCtrl', function($scope, updateService, lotService, operationsService, desktopService, httpWrapped, env, socketAuth) {
+  var doModerate, reloadList, removeLot, updateId;
+  $scope.session.expandedHeader = false;
+  $scope.lotCategories = [
+    {
+      phrase: 'marketCategory_none',
+      value: null
+    }, {
+      phrase: 'marketCategory_1',
+      value: 1
+    }, {
+      phrase: 'marketCategory_2',
+      value: 2
+    }, {
+      phrase: 'marketCategory_3',
+      value: 3
+    }, {
+      phrase: 'marketCategory_4',
+      value: 4
+    }
+  ];
+  $scope.lotCat = null;
+  $scope.moderationLots = [];
+  reloadList = function() {
+    return lotService.getModeration(function(list) {
+      var i, item, len, results;
+      $scope.moderationLots.length = 0;
+      results = [];
+      for (i = 0, len = list.length; i < len; i++) {
+        item = list[i];
+        results.push($scope.moderationLots.push(item));
+      }
+      return results;
+    });
+  };
+  socketAuth.init(function() {
+    return reloadList();
+  });
+  $scope.acceptLot = function(lot) {
+    lot.categoryIds = [$scope.lotCat];
+    doModerate(lot, 'accepted');
+    return true;
+  };
+  $scope.rejectLot = function(lot) {
+    return desktopService.launchApp('optionsList', {
+      message: 'reject_lot_reason_request',
+      options: [
+        {
+          text: 'wrong_tags',
+          action: function() {
+            return doModerate(lot, 'badTags');
+          }
+        }, {
+          text: 'wrong_content',
+          action: function() {
+            return doModerate(lot, 'badContent');
+          }
+        }
+      ]
+    });
+  };
+  doModerate = function(lot, status, cb) {
+    lotService.moderate({
+      lotId: lot.id,
+      status: status,
+      categoryIds: lot.lotCat != null ? [lot.lotCat] : null
+    }, cb);
+    removeLot(lot);
+    return true;
+  };
+  removeLot = function(lot) {
+    var index;
+    index = $scope.moderationLots.indexOf(lot);
+    if (index > -1) {
+      return $scope.moderationLots.splice(index, 1);
+    }
+  };
+  true;
+  updateId = updateService.registerUpdateHandler(function(data) {
+    if (data['lot'] != null) {
+      return reloadList();
+    }
+  });
+  return $scope.$on('$destroy', function() {
+    return updateService.unRegisterUpdateHandler(updateId);
+  });
+});

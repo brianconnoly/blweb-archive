@@ -1,0 +1,131 @@
+.appContainer.calendar
+    
+    background: #f2f2f2    
+    
+    $border = #2e3941
+
+    overflow hidden
+    color #494949
+    padding 5px
+    box-shadow 3px 3px 12px rgba(0, 0, 0, 0.7)
+    z-index 111
+    
+    .body
+        box-shadow none
+        padding-bottom: 0
+
+    table
+        margin: 0 15px
+        border-collapse collapse
+
+    .removeBox
+        opacity 1
+        
+    .turbo &
+        box-shadow none !important
+
+    .head
+        color #494949
+        white-space nowrap
+
+        .arrow
+            float left
+
+            height 37px
+            width 49px
+
+            text-align: center
+            line-height 40px
+            margin-top 10px
+            
+            position: relative
+            top 17px
+
+            &:hover
+                cursor pointer
+                
+            div
+                width 7px
+                height 12px
+                cursor: pointer
+                
+        .month
+            font-weight: bolder
+            float: left
+            font-size 16px
+            line-height 40px
+            margin-top 12px
+            
+            width 100px
+
+        .left
+            float: right
+            sprite "/resources/images/desktop/black/leftArrow.svg"
+
+        .right
+            float: left
+            sprite "/resources/images/desktop/black/rightArrow.svg"
+
+
+        .center
+            text-align center
+            line-height 46px
+            float left
+            width 106px
+            height 56px
+            // text-transform capitalize
+            
+    .week .day
+        font-weight: bolder
+
+        // &:last-child
+            // border-right 1px solid $border
+
+    .day
+        // width 34px
+        // height 34px
+        width 29px
+        height 33px
+        // border-left 1px solid $border
+        // border-bottom 1px solid $border
+        float: left
+        display: block
+        text-align: center
+        line-height 32px
+        font-size 12px
+        color #777
+        
+        &.other
+            color #bbb !important
+        
+        .dayNumber
+            border-radius 3px
+            
+            width 24px
+            height 24px
+
+            margin: 4px 2px
+            float: left
+            
+            line-height 24px
+
+        &.active
+            cursor: pointer
+            color #494949
+
+            &:hover
+                background: rgba(255,255,255,0.3)
+
+                .dayNumber
+                    background: #e6e6e6
+                    cursor: pointer
+
+        &.selected
+            .dayNumber
+                background: #494949 !important
+                color #f2f2f2 !important
+
+        &.dayname
+            color #494949
+            height 40px
+            line-height 39px

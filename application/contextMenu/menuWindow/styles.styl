@@ -1,0 +1,47 @@
+#menuWindow
+    position: absolute
+
+    background: rgba(255,255,255,0.92)
+    margin 3px
+
+    min-width 200px
+
+    z-index: 50000
+
+    .turbo &
+        background: #fff
+
+    .item
+        padding: 10px
+
+        &:hover
+            background: rgba(0,0,0,0.1)
+            cursor: pointer
+
+    .postPreview
+        position: absolute
+        left 210px
+
+        .item
+            margin 0
+
+        .clear
+            position: absolute
+            top 180px
+            width 170px
+            height 25px
+            line-height: 25px
+            cursor: pointer
+            text-align: center
+            background: #fff
+            
+.menuTimeInfo
+    padding 10px
+    font-weight: bolder
+    background: rgba(0,0,0,0.14)
+
+    .time
+        font-size 18px
+    .date
+        padding-left 14px
+        font-size 13px

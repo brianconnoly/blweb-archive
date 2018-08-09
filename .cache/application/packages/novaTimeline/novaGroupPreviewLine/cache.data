@@ -1,0 +1,3 @@
+tC['/novaGroupPreviewLine/template.jade'] = "<div class=\"name\">{{::item.name}}</div>";
+
+registerStyles('novaGroupPreviewLine', "Error: ParseError: stylus:104:1\n   100|             {prop} value\n   101|     &::-moz-input-placeholder\n   102|             {prop} value\n   103| .novaGroupPreviewLine\n   104|     \n--------^\n   105| \n\nexpected \"indent\", got \"eos\"\n");

@@ -1,0 +1,60 @@
+.appContainer.combs {
+  background: #fcc223;
+  color: #494949;
+}
+.appContainer.combs .scroll-bottom,
+.appContainer.combs .scroll-right {
+  background: rgba(252,194,35,0.8) !important;
+}
+.appContainer.combs .body {
+  overflow-y: auto;
+}
+.appContainer.combs .paginator .page {
+  border-color: #fcc223;
+}
+.appContainer.combs .paginator .page.active {
+  background: #fcc223;
+}
+.itemPreview.comb {
+  border: 1px solid #fcc223;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.itemPreview.comb .activityIndicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.itemPreview.comb .activityIndicator .statsIcon {
+  text-align: center;
+  font-size: 20px;
+  line-height: 18px;
+}
+.itemPreview.comb .activityIndicator .statsValue {
+  font-size: 14px;
+  line-height: 20px;
+  padding-right: 4px;
+  padding-left: 2px;
+}
+.itemPreview.comb .name {
+  background: rgba(252,194,35,0.9);
+  color: #494949;
+}
+.itemPreview.comb .itemPreview.text .name {
+  color: #f2f2f2;
+}
+.itemPreview.post {
+  border: 1px solid #61a3cb;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.itemPreview.post .name {
+  background: rgba(97,163,203,0.9);
+  color: #fff;
+}
+.itemPreview.lot .name {
+  background: rgba(97,163,203,0.9);
+  color: #fff;
+}

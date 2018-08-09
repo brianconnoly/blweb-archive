@@ -1,0 +1,108 @@
+.uploadFader {
+  position: absolute;
+  z-index: 20000;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(146,189,89,0.95);
+  display: none;
+}
+.uploadActive .uploadFader {
+  display: block;
+}
+.uploadFader.wrong-files {
+  background: rgba(255,41,100,0.95);
+}
+.uploadFader.wrong-files div.window {
+  display: none;
+}
+.uploadFader.wrong-files div.wrong {
+  display: block;
+}
+@media (max-height: 600px) {
+  .uploadFader div.window {
+    height: 390px;
+    margin-top: -190px;
+  }
+  .uploadFader div.window div.caption {
+    font-size: 30px;
+  }
+  .uploadFader div.window div.caption.top {
+    margin-bottom: 15px;
+  }
+  .uploadFader div.window div.caption.middle {
+    margin: 15px auto;
+  }
+  .uploadFader div.window div.caption.bottom {
+    font-size: 20px;
+    margin-top: 15px;
+  }
+  .uploadFader div.window div.line-blocks div.block {
+    width: 100px;
+    height: 100px;
+    line-height: 90px;
+    font-size: 40px;
+  }
+}
+.uploadFader .realFader {
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.uploadFader .window {
+  width: 700px;
+  height: 570px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -285px;
+  margin-left: -350px;
+}
+.uploadFader .window.wrong {
+  height: 50px;
+  margin-top: -25px;
+  display: none;
+}
+.uploadFader .window .caption {
+  text-align: center;
+  font-size: 40px;
+  color: #fff;
+  width: 100%;
+}
+.uploadFader .window .caption.top {
+  margin-bottom: 30px;
+}
+.uploadFader .window .caption.middle {
+  margin: 30px auto;
+}
+.uploadFader .window .caption.bottom {
+  font-size: 25px;
+  margin-top: 30px;
+}
+.uploadFader .window .line-blocks {
+  width: 100%;
+  text-align: center;
+}
+.uploadFader .window .line-blocks div.block {
+  display: inline-block;
+  width: 150px;
+  height: 150px;
+  background: #fff;
+  color: #92bd59;
+  font-weight: bold;
+  font-size: 51px;
+  line-height: 145px;
+  margin: 10px;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.uploadFader .window .line-blocks div.block.active {
+  background: #ffea1e;
+}

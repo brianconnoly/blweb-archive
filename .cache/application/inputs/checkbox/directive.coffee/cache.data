@@ -1,0 +1,51 @@
+buzzlike.directive("checkbox", function() {
+  return {
+    restrict: "E",
+    replace: true,
+    transclude: true,
+    require: 'ngModel',
+    template: function(element, attrs) {
+      var tmpl;
+      tmpl = attrs.template || 'default';
+      return tC['/inputs/checkbox/templates/' + tmpl];
+    },
+    link: function(scope, element, attrs, ctrl) {
+      var anim, checked, elem;
+      elem = $(element);
+      checked = null;
+      anim = false;
+      elem.on('dblclick', function() {
+        return false;
+      }).on('keydown click', function(e) {
+        if (elem.attr('disabled') === 'disabled' || anim) {
+          return false;
+        }
+        if (!(e.which === 32 || e.which === 1)) {
+          return true;
+        }
+        anim = true;
+        if (attrs.options !== 'confirmbox') {
+          checked = !checked;
+          if (checked) {
+            elem.addClass('checked');
+          } else {
+            elem.removeClass('checked');
+          }
+          return setTimeout(function() {
+            anim = false;
+            ctrl.$setViewValue(checked);
+            return scope.$apply();
+          }, 333);
+        }
+      });
+      return ctrl.$render = function() {
+        checked = ctrl.$viewValue;
+        if (checked) {
+          return elem.addClass("checked");
+        } else {
+          return elem.removeClass("checked");
+        }
+      };
+    }
+  };
+});

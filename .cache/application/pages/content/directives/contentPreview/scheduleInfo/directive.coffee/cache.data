@@ -1,0 +1,79 @@
+buzzlike.directive("scheduleInfo", function(contentService, communityService, scheduleService, $filter, $compile) {
+  return {
+    restrict: "C",
+    scope: {
+      post: "="
+    },
+    template: tC['/pages/content/directives/contentPreview/scheduleInfo'],
+    link: function(scope, element, attrs) {
+      scheduleService.getOriginalByPostId(scope.post.id, function(sched) {
+        var elem;
+        elem = $(element);
+        if (!sched) {
+          return true;
+        }
+        return communityService.getById(sched.communityId, function(community) {
+          elem.find('img')[0].src = community.photo;
+          elem.find('img')[0].onload = function() {
+            if (this.width > this.height) {
+              return $(this).css('height', '100%');
+            } else {
+              return $(this).css('width', '100%');
+            }
+          };
+          elem.find('.info').html('<div class="time">' + $filter('timestampMask')(sched.timestamp, "time") + '</div> <div class="date">' + $filter('timestampMask')(sched.timestamp, "date") + '</div>');
+          if (!elem.parent().find('.shield').length) {
+            return elem.parent().append($compile("<div class='shield'><img src='" + proxyPrefix + community.image + "' class='communityIcon picPreload'></div>")(scope));
+          }
+        });
+      });
+      return true;
+    }
+  };
+}).directive("requestInfo", function(requestService, contentService, communityService, scheduleService, postService, localization, $filter) {
+  return {
+    template: tC['/pages/content/directives/contentPreview/scheduleInfo'],
+    link: function(scope, element, attrs) {
+      var elem, id, post, requests;
+      id = attrs.requestInfo;
+      post = postService.getById(id);
+      requests = requestService.getOutcomingByLotId(post.lotId) || [];
+      elem = $(element);
+      if (!requests.length) {
+        elem.html('').addClass('invisible');
+        return true;
+      } else if (requests.length === 1) {
+        scheduleService.getSchedulesByPostId(id, function(sched) {
+          sched = sched[0];
+          if (!sched) {
+            return true;
+          }
+          if (sched.requestStatus) {
+            elem.parent().find('.requestStatus').addClass(sched.requestStatus);
+          }
+          return communityService.loadCommunityById(sched.communityId, function() {
+            return setTimeout(function() {
+              var community;
+              community = communityService.getById(sched.communityId);
+              elem.find('img')[0].src = community.image;
+              elem.find('img')[0].onload = function() {
+                var size;
+                size = elem.height();
+                return imageIn(this, size, size);
+              };
+              elem.find('.info').html('<div class="time">' + $filter('timestampMask')(sched.timestamp, "hh:mm") + '</div> <div class="date">' + $filter('timestampMask')(sched.timestamp, "DD.MM.YYYY") + '</div>');
+              if (!elem.parent().find('.shield').length) {
+                return elem.parent().append("<div class='shield'><img src='" + proxyPrefix + community.image + "' class='communityIcon'></div>");
+              }
+            }, 0);
+          });
+        });
+      } else if (requests.length > 1) {
+        elem.find('.info').css({
+          left: 0
+        }).html('<div class="requests">' + requests.length + ' ' + localization.declension(requests.length, localization.translate("requestInfo_request")) + '</div>');
+      }
+      return true;
+    }
+  };
+});

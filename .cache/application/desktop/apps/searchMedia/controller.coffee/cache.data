@@ -1,0 +1,333 @@
+buzzlike.controller('searchMediaCtrl', function($rootScope, $scope, buffer, stateManager, localization, rpc, multiselect, importContentService, actionsService, complexMenu) {
+  var parseQuery, re_search, video_re_search;
+  if ($scope.session.zoom == null) {
+    $scope.session.zoom = 'mid';
+  }
+  $scope.data = {
+    searchField: ""
+  };
+  re_search = /(https?\:\/\/)|(www\.)|(\.ru)|(\.com)|(\.org)|(\.net)/;
+  video_re_search = /(youtube.com\/watch)|(vk.com\/video)/;
+  $scope.stateTree.applyState({
+    'escape': function() {
+      if ($scope.stepStack.length > 1) {
+        $scope.stepBack();
+      } else {
+        $scope.closeApp();
+      }
+      return true;
+    },
+    'enter': function() {
+      return $scope.doAdd();
+    }
+  });
+  $scope.stepStack = [];
+  $scope.currentStep = {
+    translateTitle: 'searchMediaApp_title',
+    type: 'main',
+    searchField: '',
+    searchType: {
+      image: false,
+      video: false,
+      audio: false
+    },
+    query: {}
+  };
+  $scope.stepStack.push($scope.currentStep);
+  $scope.goSection = function(section) {
+    var id;
+    multiselect.flush();
+    id = $scope.stepStack.indexOf($scope.currentStep);
+    if (id < $scope.stepStack.length - 1) {
+      $scope.stepStack.splice(id + 1, $scope.stepStack.length - id);
+    }
+    $scope.currentStep = angular.copy(section);
+    $scope.currentStep.group = false;
+    return $scope.stepStack.push($scope.currentStep);
+  };
+  $scope.canGoBack = function() {
+    return $scope.stepStack.indexOf($scope.currentStep) > 0;
+  };
+  $scope.stepBack = function() {
+    if ($scope.stepStack.length > 0) {
+      $scope.stepStack.pop();
+      return $scope.currentStep = $scope.stepStack[$scope.stepStack.length - 1];
+    }
+  };
+  $scope.getGroups = function(cb) {
+    var allOff, k, ref, ref1, result, v, videoOff;
+    result = [];
+    switch ($scope.currentStep.type) {
+      case 'generalSearch':
+        allOff = true;
+        ref = $scope.currentStep.searchType;
+        for (k in ref) {
+          v = ref[k];
+          if (v === true) {
+            allOff = false;
+            break;
+          }
+        }
+        videoOff = true;
+        ref1 = $scope.currentStep.videoType;
+        for (k in ref1) {
+          v = ref1[k];
+          if (v === true) {
+            videoOff = false;
+            break;
+          }
+        }
+        if (allOff || $scope.currentStep.searchType.video) {
+          if (videoOff || $scope.currentStep.videoType.vk) {
+            result.push({
+              translateTitle: 'searchMediaApp_videoSearch_vk',
+              searchField: $scope.data.searchField,
+              custom: true,
+              group: false,
+              query: {
+                provider: 'vkVideo',
+                sortBy: 'created',
+                sortType: 'desc',
+                query: $scope.data.searchField
+              }
+            });
+          }
+          if (videoOff || $scope.currentStep.videoType.yt) {
+            result.push({
+              translateTitle: 'searchMediaApp_videoSearch_yt',
+              searchField: $scope.data.searchField,
+              custom: true,
+              group: false,
+              query: {
+                provider: 'youtubeVideo',
+                sortBy: 'created',
+                sortType: 'desc',
+                query: $scope.data.searchField
+              }
+            });
+          }
+        }
+        if (allOff || $scope.currentStep.searchType.audio) {
+          result.push({
+            translateTitle: 'searchMediaApp_audioSearch_vk',
+            searchField: $scope.data.searchField,
+            custom: true,
+            group: false,
+            query: {
+              provider: 'vkAudio',
+              sortBy: 'created',
+              sortType: 'desc',
+              query: $scope.data.searchField
+            }
+          });
+        }
+    }
+    cb(result);
+    return result;
+  };
+  $scope.queryFunction = function(query, cb) {
+    var process;
+    query.count = query.limit;
+    query.offset = 0;
+    if (query.provider != null) {
+      process = $scope.progress.add();
+      return rpc.call('import.query', query, function(data) {
+        $scope.progress.finish(process);
+        return cb(importContentService.handleItems(data));
+      });
+    } else {
+      return cb([]);
+    }
+  };
+  $scope.keyDown = function(e) {
+    if (e.which === 13) {
+      $scope.progress.flush();
+      if ($scope.stepStack.length > 1) {
+        $scope.stepStack.splice(1, $scope.stepStack.length - 1);
+      }
+      return parseQuery($scope.data.searchField);
+    }
+  };
+  $scope.showSources = function() {
+    var k, ref, ref1, v;
+    if ($scope.currentStep.custom === true) {
+      return false;
+    }
+    if ($scope.currentStep.type === 'main') {
+      return false;
+    }
+    if (((ref = $scope.currentStep.searchType) != null ? ref.video : void 0) === true) {
+      return true;
+    }
+    ref1 = $scope.currentStep.searchType;
+    for (k in ref1) {
+      v = ref1[k];
+      if (v === true) {
+        return false;
+      }
+    }
+    return true;
+  };
+  $scope.submitSearch = function() {
+    $scope.progress.flush();
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.splice(1, $scope.stepStack.length - 1);
+    }
+    return parseQuery($scope.data.searchField);
+  };
+  $scope.doSearch = function() {
+    $scope.progress.flush();
+    if ($scope.stepStack.length > 1) {
+      $scope.stepStack.splice(1, $scope.stepStack.length - 1);
+    }
+    return parseQuery($scope.data.searchField);
+  };
+  parseQuery = function(string) {
+    var i, item, j, l, len, len1, len2, urls, urlsToSearch, urlsToSearchArr;
+    urlsToSearch = string.replace(/<.+?>/g, ' ');
+    urlsToSearch = urlsToSearch.replace(/\s+/, ' ');
+    urlsToSearchArr = urlsToSearch.split(' ');
+    urlsToSearch = '';
+    for (i = 0, len = urlsToSearchArr.length; i < len; i++) {
+      item = urlsToSearchArr[i];
+      if (item != null) {
+        item = $.trim(item);
+        if (item !== '') {
+          urlsToSearch += item + ',';
+        }
+      }
+    }
+    if (urlsToSearch !== '') {
+      urlsToSearch = urlsToSearch.substr(0, urlsToSearch.length - 1);
+    }
+    if (video_re_search.test(urlsToSearch)) {
+      urls = [];
+      for (j = 0, len1 = urlsToSearchArr.length; j < len1; j++) {
+        item = urlsToSearchArr[j];
+        urls.push(getUrlFormat($.trim(item)));
+      }
+      $scope.currentStep = {
+        translateTitle: 'searchMediaApp_videoSearch',
+        searchField: $scope.data.searchField,
+        custom: true,
+        group: false,
+        query: {
+          provider: 'videoUrl',
+          urls: urls
+        }
+      };
+      return $scope.stepStack.push($scope.currentStep);
+    } else if (re_search.test(urlsToSearch)) {
+      urls = [];
+      for (l = 0, len2 = urlsToSearchArr.length; l < len2; l++) {
+        item = urlsToSearchArr[l];
+        urls.push(getUrlFormat($.trim(item)));
+      }
+      $scope.currentStep = {
+        translateTitle: 'searchMediaApp_addUrl',
+        searchField: $scope.data.searchField,
+        custom: true,
+        group: false,
+        query: {
+          provider: 'picUrl',
+          urls: urls
+        }
+      };
+      return $scope.stepStack.push($scope.currentStep);
+    } else {
+      $scope.currentStep = {
+        title: localization.translate('searchMediaApp_searchRegular') + ' ' + urlsToSearch,
+        searchField: $scope.data.searchField,
+        group: true,
+        type: 'generalSearch',
+        availableType: {
+          video: true,
+          audio: true
+        },
+        searchType: {
+          video: false,
+          audio: false
+        },
+        videoType: {
+          vk: false,
+          yt: false
+        }
+      };
+      return $scope.stepStack.push($scope.currentStep);
+    }
+  };
+  $scope.showMoreMenu = function(e) {
+    var action, actions, groups, i, items, itemsActions, k, len, list;
+    items = multiselect.getFocused();
+    itemsActions = actionsService.getActions({
+      source: items
+    });
+    if (itemsActions.length > 0) {
+      groups = {};
+      list = [];
+      for (i = 0, len = itemsActions.length; i < len; i++) {
+        action = itemsActions[i];
+        if (groups[action.category] == null) {
+          groups[action.category] = {
+            type: 'actions',
+            items: []
+          };
+        }
+        groups[action.category].items.push({
+          phrase: action.phrase,
+          action: action.action,
+          priority: action.priority
+        });
+      }
+      for (k in groups) {
+        actions = groups[k];
+        actions.items.sort(function(a, b) {
+          if (a.priority > b.priority) {
+            return -1;
+          }
+          if (a.priority < b.priority) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      complexMenu.show(groups, {
+        top: $(e.target).offset().top + 27,
+        left: $(e.target).offset().left
+      });
+    }
+    return true;
+  };
+  $scope.doAdd = function() {
+    var i, item, items, len, results;
+    items = multiselect.getFocused();
+    results = [];
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      results.push(importContentService["import"](item, function(item) {
+        return buffer.addItem(item);
+      }));
+    }
+    return results;
+  };
+  $scope.stateSaver.add('stepStack', function() {
+    return {
+      stack: $scope.stepStack,
+      current: $scope.stepStack.indexOf($scope.currentStep)
+    };
+  }, function(data) {
+    var i, len, ref, step;
+    $scope.stepStack.length = 0;
+    ref = data.stack;
+    for (i = 0, len = ref.length; i < len; i++) {
+      step = ref[i];
+      $scope.stepStack.push(step);
+    }
+    $scope.currentStep = $scope.stepStack[data.current * 1];
+    return $scope.data.searchField = $scope.currentStep.searchField;
+  });
+  return $scope.$watch('currentStep', function(nVal) {
+    $scope.stateSaver.save();
+    return $scope.data.searchField = $scope.currentStep.searchField;
+  });
+});

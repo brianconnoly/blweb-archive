@@ -1,0 +1,104 @@
+buzzlike.service('dropHelper', function(localization, stateManager, $filter, buffer, $rootScope) {
+  var dropHelper;
+  dropHelper = (function() {
+    function dropHelper() {
+      this.fromBuffer = false;
+      this.timeHelper = null;
+      this.status = {
+        currentAction: ""
+      };
+      this.dict = {};
+      $('body').on('keydown.dropHelper', (function(_this) {
+        return function(e) {
+          if (_this.status.activated && e.which === 27) {
+            return _this.flush(true);
+          }
+        };
+      })(this));
+    }
+
+    dropHelper.prototype.flush = function(force) {
+      if (force == null) {
+        force = false;
+      }
+      if (!force && this.status.activated === true) {
+        return;
+      }
+      this.status.activated === false;
+      this.status.currentAction = "";
+      this.status.actions = [];
+      this.dict = {};
+      $('#dropHelperText').empty();
+      $('#dropHelper').css('display', 'none');
+      return true;
+    };
+
+    dropHelper.prototype.setAction = function(action, e) {
+      if (typeof action === 'object') {
+        this.dict = action;
+        return this.processKeys(e);
+      } else {
+        this.status.currentAction = action;
+        $('#dropHelperText').html(localization.translate('dropHelper_' + this.status.currentAction));
+        return $('#dropHelper').css('display', this.status.currentAction.length > 0 ? 'block' : 'none');
+      }
+    };
+
+    dropHelper.prototype.setTime = function(time) {
+      this.status.time = time;
+      if (this.timeHelper == null) {
+        this.timeHelper = $('#helperTimeInfo');
+      }
+      this.timeHelper.css('display', 'block');
+      this.timeHelper.children('.time').html($filter('timestampMask')(time, 'time'));
+      return this.timeHelper.children('.date').html($filter('timestampMask')(time, 'DD ofMMMM YYYY'));
+    };
+
+    dropHelper.prototype.show = function(actions, time) {
+      var action, fakeHelper, i, len, ref;
+      this.status.actions = actions;
+      this.status.activated = false;
+      if (time != null) {
+        this.setTime(time);
+      } else if (this.status.time != null) {
+        delete this.status.time;
+        if ((ref = this.timeHelper) != null) {
+          ref.css('display', 'none');
+        }
+      }
+      this.timeHelper = $('#helperTimeInfo');
+      fakeHelper = $('#dropHelperText');
+      fakeHelper.empty();
+      for (i = 0, len = actions.length; i < len; i++) {
+        action = actions[i];
+        fakeHelper.append($('<div>', {
+          "class": 'action',
+          html: localization.translate(action.phrase)
+        }));
+      }
+      $('#dropHelper').css('display', this.status.actions.length > 0 ? 'block' : 'none');
+      return $rootScope.$apply();
+    };
+
+    dropHelper.prototype.activate = function(e, rightPanel) {
+      var items, ref;
+      this.fromBuffer = rightPanel || false;
+      if (((ref = this.status.actions) != null ? ref.length : void 0) < 1) {
+        return;
+      }
+      if (this.status.actions.length === 1) {
+        items = this.status.actions[0].action(e);
+        if (!e.altKey && rightPanel && this.status.actions[0].leaveItems !== true) {
+          buffer.removeItems(items);
+        }
+        return;
+      }
+      this.status.activated = true;
+      return $('#dropHelperText').empty();
+    };
+
+    return dropHelper;
+
+  })();
+  return new dropHelper();
+});

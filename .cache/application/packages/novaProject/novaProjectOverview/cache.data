@@ -1,0 +1,20 @@
+tC['/novaProjectOverview/template.jade'] = "<div class=\"novaAppLeftPanelOverview\"> <div class=\"overviewBar\"> <div class=\"overviewCover border03\"> <div type=\"content\" id=\"project.appearance.cover\" class=\"itemPreview\"></div> </div> <div class=\"overviewText\"> <div class=\"mainTitle\">{{project.name}}</div> <div class=\"activity\"><span translate=\"'novaProjectOverview_members'\"></span><span>{{project.members.length}}</span></div> </div> </div> <div nova-stream-item=\"appItem\" class=\"projectStream novaStreamIndicator\"> <div class=\"novaStreamIndicatorLastMessage\"></div> </div> </div>";
+
+buzzlike.directive('novaProjectOverview', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaProjectOverview/template.jade'],
+    replace: true,
+    link: function(scope, element, attrs, ngModel) {
+      scope.$watch('project', function() {
+        return scope.heightChanged();
+      }, true);
+      return scope.heightChanged = function() {
+        scope.unit.unitHeight = scope.unit.elem.height();
+        return scope.recountHead();
+      };
+    }
+  };
+});
+
+registerStyles('novaProjectOverview', ".novaProjectOverview .projectStream {\n  overflow: hidden;\n  padding: 0 15px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  height: 40px;\n}\n");

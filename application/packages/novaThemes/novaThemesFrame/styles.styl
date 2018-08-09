@@ -1,0 +1,45 @@
+.novaFrameTopBar
+    .addItems
+        float left
+        height 30px
+        width 30px
+        margin-right 8px
+        line-height 30px
+        text-align center
+        font-size 27px
+        opacity 0.6
+        cursor pointer
+        transform scale(1)
+        transition all 0.2s ease
+
+        &:active
+            transform scale(0.9)
+
+        &:hover
+            opacity 1
+
+    .novaZoomStatic
+        float right
+
+    .actionsMenu
+        float right
+        margin-right 5px
+        width 30px
+        height 30px
+        font-size 25px
+        line-height 20px
+        font-weight bold
+        text-align center
+        cursor pointer
+        opacity 0.6
+        transform scale(1)
+        transition all 0.2s ease
+
+        &:active
+            transform scale(0.9)
+
+        &:hover
+            opacity 1
+
+.novaRowScrollerItems > .novaContentItem > .novaItem
+    box-shadow 0 0 2px 0 rgba(0,0,0,0.2)

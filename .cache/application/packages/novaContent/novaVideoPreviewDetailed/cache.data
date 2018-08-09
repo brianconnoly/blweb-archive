@@ -1,0 +1,33 @@
+tC['/novaVideoPreviewDetailed/template.jade'] = "<true></true>";
+
+buzzlike.directive('novaVideoPreviewDetailed', function() {
+  return {
+    restrict: 'C',
+    template: tC['/novaVideoPreviewDetailed/template.jade'],
+    link: function(scope, element, attrs, ngModel) {
+      var elem, id, src, videoObj;
+      elem = $(element);
+      switch (scope.item.sourceType) {
+        case 'vkVideo':
+        case 'vkontakte':
+          src = scope.item.embeddedPlayer.replace('http://', '//');
+          videoObj = $('<iframe>');
+          videoObj.attr('src', src);
+          videoObj.attr('width', '100%');
+          videoObj.attr('height', '100%');
+          return elem.append(videoObj);
+        case 'youtubeVideo':
+        case 'youtube':
+          id = scope.item.embeddedPlayer.split('?v=')[1];
+          src = '//www.youtube.com/embed/' + id;
+          videoObj = $('<iframe>');
+          videoObj.attr('src', src);
+          videoObj.attr('width', '100%');
+          videoObj.attr('height', '100%');
+          return elem.append(videoObj);
+      }
+    }
+  };
+});
+
+registerStyles('novaVideoPreviewDetailed', ".novaVideoPreviewDetailed {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: hidden;\n}\n.novaVideoPreviewDetailed img {\n  pointer-events: none;\n}\n.novaVideoPreviewDetailed .bottomShield {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  width: 100%;\n  height: 51%;\n  min-height: 25px;\n  background: rgba(0,0,0,0.7);\n  color: #fff;\n  opacity: 1;\n  -ms-filter: none;\n  filter: none;\n  -webkit-transition: opacity 0.2s ease;\n  -moz-transition: opacity 0.2s ease;\n  -o-transition: opacity 0.2s ease;\n  -ms-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\n.noItemNames .novaVideoPreviewDetailed .bottomShield {\n  opacity: 0;\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";\n  filter: alpha(opacity=0);\n}\n.novaVideoPreviewDetailed .bottomShield .topLine {\n  height: 33%;\n  text-align: center;\n}\n.novaVideoPreviewDetailed .bottomShield .topLine .wrapper {\n  position: absolute;\n  bottom: 0;\n  width: 100%;\n}\n.novaVideoPreviewDetailed .bottomShield .topLine .centered {\n  display: inline-block;\n}\n.novaVideoPreviewDetailed .bottomShield .topLine .centered img {\n  vertical-align: bottom;\n}\n.novaVideoPreviewDetailed .bottomShield .bottomLine {\n  margin: 0 5%;\n  height: 67%;\n  width: 90%;\n  display: table;\n}\n.novaVideoPreviewDetailed .bottomShield .inner {\n  display: table-cell;\n  vertical-align: middle;\n  text-align: center;\n  color: #fff;\n  font-size: 10px;\n}\n");
